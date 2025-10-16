@@ -6,12 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Search } from "lucide-react";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>("all");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -40,9 +44,31 @@ const Products = () => {
     },
   });
 
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["products", categoryFilter, skinTypeFilter, companyFilter, searchTerm],
+  const { data: productsData, isLoading } = useQuery({
+    queryKey: ["products", categoryFilter, skinTypeFilter, companyFilter, searchTerm, currentPage],
     queryFn: async () => {
+      let countQuery = supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
+
+      if (categoryFilter !== "all") {
+        countQuery = countQuery.eq("category_id", categoryFilter);
+      }
+
+      if (companyFilter !== "all") {
+        countQuery = countQuery.eq("company_name_ar", companyFilter);
+      }
+
+      if (searchTerm) {
+        countQuery = countQuery.ilike("name_ar", `%${searchTerm}%`);
+      }
+
+      const { count } = await countQuery;
+
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
       let query = supabase
         .from("products")
         .select(`
@@ -51,7 +77,9 @@ const Products = () => {
             price
           )
         `)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .range(from, to)
+        .order("created_at", { ascending: false });
 
       if (categoryFilter !== "all") {
         query = query.eq("category_id", categoryFilter);
@@ -76,12 +104,22 @@ const Products = () => {
         );
       }
 
-      return filtered.map(product => ({
+      const products = filtered.map(product => ({
         ...product,
         minPrice: product.product_variants?.[0]?.price
       }));
+
+      return { products, totalCount: count || 0 };
     },
   });
+
+  const totalPages = productsData ? Math.ceil(productsData.totalCount / itemsPerPage) : 0;
+  const products = productsData?.products || [];
+
+  const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
+    setter(value);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -101,7 +139,7 @@ const Products = () => {
             />
           </div>
 
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <Select value={categoryFilter} onValueChange={handleFilterChange(setCategoryFilter)}>
             <SelectTrigger>
               <SelectValue placeholder="التصنيف" />
             </SelectTrigger>
@@ -115,7 +153,7 @@ const Products = () => {
             </SelectContent>
           </Select>
 
-          <Select value={companyFilter} onValueChange={setCompanyFilter}>
+          <Select value={companyFilter} onValueChange={handleFilterChange(setCompanyFilter)}>
             <SelectTrigger>
               <SelectValue placeholder="الشركة المصنعة" />
             </SelectTrigger>
@@ -129,7 +167,7 @@ const Products = () => {
             </SelectContent>
           </Select>
 
-          <Select value={skinTypeFilter} onValueChange={setSkinTypeFilter}>
+          <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter)}>
             <SelectTrigger>
               <SelectValue placeholder="نوع البشرة" />
             </SelectTrigger>
@@ -146,19 +184,77 @@ const Products = () => {
 
         {/* Products Grid */}
         {isLoading ? (
-          <div className="text-center text-muted-foreground">جاري التحميل...</div>
-        ) : products && products.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                nameAr={product.name_ar}
-                imageUrl={product.image_url}
-                minPrice={product.minPrice}
-              />
+            {Array.from({ length: itemsPerPage }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-square w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
             ))}
           </div>
+        ) : products && products.length > 0 ? (
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  nameAr={product.name_ar}
+                  imageUrl={product.image_url}
+                  minPrice={product.minPrice}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(pageNum)}
+                            isActive={currentPage === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
         )}
