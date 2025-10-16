@@ -15,7 +15,6 @@ const menuItems = [
   { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "التصنيفات", url: "/admin/categories", icon: Grid3x3 },
-  { title: "المنتج", url: "/admin/products", icon: Grid3x3 },
 ];
 
 export function AdminSidebar() {
