@@ -104,7 +104,11 @@ const AdminProducts = () => {
       // إضافة المتغيرات
       if (variants.length > 0) {
         const variantsData = variants.map((v) => ({
-          ...v,
+          size_ar: v.size_ar,
+          size_en: v.size_en,
+          price: v.price,
+          stock_quantity: v.stock_quantity,
+          sku: v.sku || null,
           product_id: product.id,
         }));
         const { error: variantsError } = await supabase
@@ -136,7 +140,11 @@ const AdminProducts = () => {
       // إضافة المتغيرات الجديدة
       if (variants.length > 0) {
         const variantsData = variants.map((v) => ({
-          ...v,
+          size_ar: v.size_ar,
+          size_en: v.size_en,
+          price: v.price,
+          stock_quantity: v.stock_quantity,
+          sku: v.sku || null,
           product_id: id,
         }));
         const { error: variantsError } = await supabase
