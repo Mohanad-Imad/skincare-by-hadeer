@@ -1,0 +1,200 @@
+import { Header } from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Trash2, Plus, Minus } from "lucide-react";
+
+const Cart = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return data.session;
+    },
+  });
+
+  const { data: cartItems, isLoading } = useQuery({
+    queryKey: ["cart", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user) return [];
+      
+      const { data, error } = await supabase
+        .from("cart_items")
+        .select(`
+          *,
+          product_variants (
+            *,
+            products (
+              name_ar,
+              image_url
+            )
+          )
+        `)
+        .eq("user_id", session.user.id);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!session?.user,
+  });
+
+  const updateQuantityMutation = useMutation({
+    mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
+      const { error } = await supabase
+        .from("cart_items")
+        .update({ quantity })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+    },
+  });
+
+  const deleteItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("cart_items").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      toast.success("تم حذف المنتج من السلة");
+    },
+  });
+
+  const total = cartItems?.reduce(
+    (sum, item) => sum + item.product_variants.price * item.quantity,
+    0
+  ) || 0;
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container py-16 text-center">
+          <p className="mb-4">يجب تسجيل الدخول لعرض السلة</p>
+          <Button onClick={() => navigate("/auth")}>تسجيل الدخول</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container py-8">
+        <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
+
+        {isLoading ? (
+          <div className="text-center">جاري التحميل...</div>
+        ) : !cartItems || cartItems.length === 0 ? (
+          <div className="text-center">
+            <p className="mb-4 text-muted-foreground">السلة فارغة</p>
+            <Button onClick={() => navigate("/products")}>تسوقي الآن</Button>
+          </div>
+        ) : (
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-4">
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex gap-4 rounded-lg border p-4">
+                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
+                    {item.product_variants.products.image_url ? (
+                      <img
+                        src={item.product_variants.products.image_url}
+                        alt={item.product_variants.products.name_ar}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                        بدون صورة
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-1 flex-col justify-between">
+                    <div>
+                      <h3 className="font-semibold">
+                        {item.product_variants.products.name_ar}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {item.product_variants.size_ar}
+                      </p>
+                      <p className="mt-1 font-bold text-primary">
+                        {item.product_variants.price.toFixed(2)} ريال
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() =>
+                            updateQuantityMutation.mutate({
+                              id: item.id,
+                              quantity: Math.max(1, item.quantity - 1),
+                            })
+                          }
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-8 text-center">{item.quantity}</span>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() =>
+                            updateQuantityMutation.mutate({
+                              id: item.id,
+                              quantity: item.quantity + 1,
+                            })
+                          }
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8"
+                        onClick={() => deleteItemMutation.mutate(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="h-fit rounded-lg border p-6">
+              <h3 className="mb-4 text-xl font-bold">ملخص الطلب</h3>
+              <div className="mb-4 flex justify-between text-lg">
+                <span>المجموع:</span>
+                <span className="font-bold text-primary">{total.toFixed(2)} ريال</span>
+              </div>
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={() => navigate("/checkout")}
+              >
+                إتمام الطلب
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Cart;
