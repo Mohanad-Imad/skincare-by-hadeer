@@ -39,11 +39,8 @@ const AdminProducts = () => {
   
   const [formData, setFormData] = useState({
     name_ar: "",
-    name_en: "",
     company_name_ar: "",
-    company_name_en: "",
     description_ar: "",
-    description_en: "",
     image_url: "",
     category_id: "",
     skin_type: [] as string[],
@@ -54,10 +51,8 @@ const AdminProducts = () => {
   const [variants, setVariants] = useState<any[]>([]);
   const [newVariant, setNewVariant] = useState({
     size_ar: "",
-    size_en: "",
     price: "",
     stock_quantity: "",
-    sku: "",
   });
 
   const { data: categories } = useQuery({
@@ -105,10 +100,9 @@ const AdminProducts = () => {
       if (variants.length > 0) {
         const variantsData = variants.map((v) => ({
           size_ar: v.size_ar,
-          size_en: v.size_en,
+          size_en: v.size_ar,
           price: v.price,
           stock_quantity: v.stock_quantity,
-          sku: v.sku || null,
           product_id: product.id,
         }));
         const { error: variantsError } = await supabase
@@ -143,10 +137,9 @@ const AdminProducts = () => {
       if (variants.length > 0) {
         const variantsData = variants.map((v) => ({
           size_ar: v.size_ar,
-          size_en: v.size_en,
+          size_en: v.size_ar,
           price: v.price,
           stock_quantity: v.stock_quantity,
-          sku: v.sku || null,
           product_id: id,
         }));
         const { error: variantsError } = await supabase
@@ -183,11 +176,8 @@ const AdminProducts = () => {
   const resetForm = () => {
     setFormData({
       name_ar: "",
-      name_en: "",
       company_name_ar: "",
-      company_name_en: "",
       description_ar: "",
-      description_en: "",
       image_url: "",
       category_id: "",
       skin_type: [],
@@ -197,10 +187,8 @@ const AdminProducts = () => {
     setVariants([]);
     setNewVariant({
       size_ar: "",
-      size_en: "",
       price: "",
       stock_quantity: "",
-      sku: "",
     });
     setEditingProduct(null);
   };
@@ -218,11 +206,8 @@ const AdminProducts = () => {
     setEditingProduct(product);
     setFormData({
       name_ar: product.name_ar,
-      name_en: product.name_en,
       company_name_ar: product.company_name_ar || "",
-      company_name_en: product.company_name_en || "",
       description_ar: product.description_ar || "",
-      description_en: product.description_en || "",
       image_url: product.image_url || "",
       category_id: product.category_id || "",
       skin_type: product.skin_type || [],
@@ -244,17 +229,15 @@ const AdminProducts = () => {
   };
 
   const handleAddVariant = () => {
-    if (!newVariant.size_ar || !newVariant.size_en || !newVariant.price) {
+    if (!newVariant.size_ar || !newVariant.price) {
       toast.error("يرجى ملء جميع حقول المتغير");
       return;
     }
     setVariants([...variants, { ...newVariant, price: parseFloat(newVariant.price), stock_quantity: parseInt(newVariant.stock_quantity) || 0 }]);
     setNewVariant({
       size_ar: "",
-      size_en: "",
       price: "",
       stock_quantity: "",
-      sku: "",
     });
   };
 
@@ -297,7 +280,7 @@ const AdminProducts = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name_ar">الاسم بالعربية</Label>
+                <Label htmlFor="name_ar">اسم المنتج</Label>
                 <Input
                   id="name_ar"
                   value={formData.name_ar}
@@ -308,18 +291,7 @@ const AdminProducts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="name_en">الاسم بالإنجليزية</Label>
-                <Input
-                  id="name_en"
-                  value={formData.name_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name_en: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company_name_ar">اسم الشركة بالعربية</Label>
+                <Label htmlFor="company_name_ar">اسم الشركة</Label>
                 <Input
                   id="company_name_ar"
                   value={formData.company_name_ar}
@@ -329,32 +301,12 @@ const AdminProducts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company_name_en">اسم الشركة بالإنجليزية</Label>
-                <Input
-                  id="company_name_en"
-                  value={formData.company_name_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company_name_en: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_ar">الوصف بالعربية</Label>
+                <Label htmlFor="description_ar">الوصف</Label>
                 <Textarea
                   id="description_ar"
                   value={formData.description_ar}
                   onChange={(e) =>
                     setFormData({ ...formData, description_ar: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_en">الوصف بالإنجليزية</Label>
-                <Textarea
-                  id="description_en"
-                  value={formData.description_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_en: e.target.value })
                   }
                 />
               </div>
@@ -426,19 +378,12 @@ const AdminProducts = () => {
                     ))}
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <Input
-                    placeholder="الحجم بالعربية"
+                    placeholder="الحجم"
                     value={newVariant.size_ar}
                     onChange={(e) =>
                       setNewVariant({ ...newVariant, size_ar: e.target.value })
-                    }
-                  />
-                  <Input
-                    placeholder="الحجم بالإنجليزية"
-                    value={newVariant.size_en}
-                    onChange={(e) =>
-                      setNewVariant({ ...newVariant, size_en: e.target.value })
                     }
                   />
                   <Input
@@ -456,14 +401,6 @@ const AdminProducts = () => {
                     onChange={(e) =>
                       setNewVariant({ ...newVariant, stock_quantity: e.target.value })
                     }
-                  />
-                  <Input
-                    placeholder="رمز المنتج (SKU)"
-                    value={newVariant.sku}
-                    onChange={(e) =>
-                      setNewVariant({ ...newVariant, sku: e.target.value })
-                    }
-                    className="col-span-2"
                   />
                 </div>
                 <Button type="button" variant="outline" onClick={handleAddVariant} className="w-full">
