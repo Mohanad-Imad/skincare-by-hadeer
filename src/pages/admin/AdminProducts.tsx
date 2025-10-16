@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import {
   Table,
@@ -23,6 +23,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const AdminProducts = () => {
   const queryClient = useQueryClient();
@@ -32,12 +40,45 @@ const AdminProducts = () => {
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
+    company_name_ar: "",
+    company_name_en: "",
     description_ar: "",
     description_en: "",
     image_url: "",
+    category_id: "",
+    skin_type: [] as string[],
     is_featured: false,
     is_active: true,
   });
+
+  const [variants, setVariants] = useState<any[]>([]);
+  const [newVariant, setNewVariant] = useState({
+    size_ar: "",
+    size_en: "",
+    price: "",
+    stock_quantity: "",
+    sku: "",
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name_ar");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const skinTypes = [
+    { value: "oily", label_ar: "دهنية", label_en: "Oily" },
+    { value: "dry", label_ar: "جافة", label_en: "Dry" },
+    { value: "combination", label_ar: "مختلطة", label_en: "Combination" },
+    { value: "sensitive", label_ar: "حساسة", label_en: "Sensitive" },
+    { value: "normal", label_ar: "عادية", label_en: "Normal" },
+  ];
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin-products"],
@@ -53,8 +94,24 @@ const AdminProducts = () => {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { error } = await supabase.from("products").insert([data]);
+      const { data: product, error } = await supabase
+        .from("products")
+        .insert([data])
+        .select()
+        .single();
       if (error) throw error;
+
+      // إضافة المتغيرات
+      if (variants.length > 0) {
+        const variantsData = variants.map((v) => ({
+          ...v,
+          product_id: product.id,
+        }));
+        const { error: variantsError } = await supabase
+          .from("product_variants")
+          .insert(variantsData);
+        if (variantsError) throw variantsError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -72,6 +129,21 @@ const AdminProducts = () => {
         .update(data)
         .eq("id", id);
       if (error) throw error;
+
+      // حذف المتغيرات القديمة
+      await supabase.from("product_variants").delete().eq("product_id", id);
+
+      // إضافة المتغيرات الجديدة
+      if (variants.length > 0) {
+        const variantsData = variants.map((v) => ({
+          ...v,
+          product_id: id,
+        }));
+        const { error: variantsError } = await supabase
+          .from("product_variants")
+          .insert(variantsData);
+        if (variantsError) throw variantsError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -98,11 +170,23 @@ const AdminProducts = () => {
     setFormData({
       name_ar: "",
       name_en: "",
+      company_name_ar: "",
+      company_name_en: "",
       description_ar: "",
       description_en: "",
       image_url: "",
+      category_id: "",
+      skin_type: [],
       is_featured: false,
       is_active: true,
+    });
+    setVariants([]);
+    setNewVariant({
+      size_ar: "",
+      size_en: "",
+      price: "",
+      stock_quantity: "",
+      sku: "",
     });
     setEditingProduct(null);
   };
@@ -116,18 +200,66 @@ const AdminProducts = () => {
     }
   };
 
-  const handleEdit = (product: any) => {
+  const handleEdit = async (product: any) => {
     setEditingProduct(product);
     setFormData({
       name_ar: product.name_ar,
       name_en: product.name_en,
+      company_name_ar: product.company_name_ar || "",
+      company_name_en: product.company_name_en || "",
       description_ar: product.description_ar || "",
       description_en: product.description_en || "",
       image_url: product.image_url || "",
+      category_id: product.category_id || "",
+      skin_type: product.skin_type || [],
       is_featured: product.is_featured,
       is_active: product.is_active,
     });
+
+    // جلب المتغيرات
+    const { data: variantsData } = await supabase
+      .from("product_variants")
+      .select("*")
+      .eq("product_id", product.id);
+    
+    if (variantsData) {
+      setVariants(variantsData);
+    }
+
     setIsDialogOpen(true);
+  };
+
+  const handleAddVariant = () => {
+    if (!newVariant.size_ar || !newVariant.size_en || !newVariant.price) {
+      toast.error("يرجى ملء جميع حقول المتغير");
+      return;
+    }
+    setVariants([...variants, { ...newVariant, price: parseFloat(newVariant.price), stock_quantity: parseInt(newVariant.stock_quantity) || 0 }]);
+    setNewVariant({
+      size_ar: "",
+      size_en: "",
+      price: "",
+      stock_quantity: "",
+      sku: "",
+    });
+  };
+
+  const handleRemoveVariant = (index: number) => {
+    setVariants(variants.filter((_, i) => i !== index));
+  };
+
+  const toggleSkinType = (type: string) => {
+    if (formData.skin_type.includes(type)) {
+      setFormData({
+        ...formData,
+        skin_type: formData.skin_type.filter((t) => t !== type),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        skin_type: [...formData.skin_type, type],
+      });
+    }
   };
 
   if (isLoading) return <div>جاري التحميل...</div>;
@@ -173,6 +305,26 @@ const AdminProducts = () => {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="company_name_ar">اسم الشركة بالعربية</Label>
+                <Input
+                  id="company_name_ar"
+                  value={formData.company_name_ar}
+                  onChange={(e) =>
+                    setFormData({ ...formData, company_name_ar: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company_name_en">اسم الشركة بالإنجليزية</Label>
+                <Input
+                  id="company_name_en"
+                  value={formData.company_name_en}
+                  onChange={(e) =>
+                    setFormData({ ...formData, company_name_en: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="description_ar">الوصف بالعربية</Label>
                 <Textarea
                   id="description_ar"
@@ -201,6 +353,109 @@ const AdminProducts = () => {
                     setFormData({ ...formData, image_url: e.target.value })
                   }
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category_id">التصنيف</Label>
+                <Select
+                  value={formData.category_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category_id: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر التصنيف" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name_ar}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>مناسب لنوع البشرة</Label>
+                <div className="space-y-2">
+                  {skinTypes.map((type) => (
+                    <div key={type.value} className="flex items-center space-x-2 space-x-reverse">
+                      <Checkbox
+                        id={type.value}
+                        checked={formData.skin_type.includes(type.value)}
+                        onCheckedChange={() => toggleSkinType(type.value)}
+                      />
+                      <Label htmlFor={type.value} className="cursor-pointer">
+                        {type.label_ar}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4 border-t pt-4">
+                <Label className="text-lg font-semibold">الأحجام والأسعار</Label>
+                {variants.length > 0 && (
+                  <div className="space-y-2">
+                    {variants.map((variant, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 border rounded">
+                        <span className="flex-1">
+                          {variant.size_ar} - {Math.round(variant.price)} د.ع - المخزون: {variant.stock_quantity}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveVariant(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder="الحجم بالعربية"
+                    value={newVariant.size_ar}
+                    onChange={(e) =>
+                      setNewVariant({ ...newVariant, size_ar: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="الحجم بالإنجليزية"
+                    value={newVariant.size_en}
+                    onChange={(e) =>
+                      setNewVariant({ ...newVariant, size_en: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="number"
+                    placeholder="السعر"
+                    value={newVariant.price}
+                    onChange={(e) =>
+                      setNewVariant({ ...newVariant, price: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="number"
+                    placeholder="الكمية في المخزون"
+                    value={newVariant.stock_quantity}
+                    onChange={(e) =>
+                      setNewVariant({ ...newVariant, stock_quantity: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="رمز المنتج (SKU)"
+                    value={newVariant.sku}
+                    onChange={(e) =>
+                      setNewVariant({ ...newVariant, sku: e.target.value })
+                    }
+                    className="col-span-2"
+                  />
+                </div>
+                <Button type="button" variant="outline" onClick={handleAddVariant} className="w-full">
+                  <Plus className="ml-2 h-4 w-4" />
+                  إضافة حجم وسعر
+                </Button>
               </div>
               <div className="flex items-center space-x-2 space-x-reverse">
                 <Switch

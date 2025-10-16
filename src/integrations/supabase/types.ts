@@ -219,6 +219,8 @@ export type Database = {
       products: {
         Row: {
           category_id: string | null
+          company_name_ar: string | null
+          company_name_en: string | null
           created_at: string | null
           description_ar: string | null
           description_en: string | null
@@ -233,6 +235,8 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          company_name_ar?: string | null
+          company_name_en?: string | null
           created_at?: string | null
           description_ar?: string | null
           description_en?: string | null
@@ -247,6 +251,8 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          company_name_ar?: string | null
+          company_name_en?: string | null
           created_at?: string | null
           description_ar?: string | null
           description_en?: string | null
