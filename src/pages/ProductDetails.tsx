@@ -218,7 +218,7 @@ const ProductDetails = () => {
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
               onClick={() => selectedVariant && addToCartMutation.mutate(selectedVariant)}
-              className="w-full my-[300px]"
+              className="w-full mt-8"
             >
               <ShoppingCart className="ml-2 h-5 w-5 " />
               {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
