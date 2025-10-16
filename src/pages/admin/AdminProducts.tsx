@@ -36,6 +36,8 @@ const AdminProducts = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [productImages, setProductImages] = useState<Array<{ url: string; id?: string; display_order: number }>>([]);
   
   const [formData, setFormData] = useState({
     name_ar: "",
@@ -96,6 +98,19 @@ const AdminProducts = () => {
         .single();
       if (error) throw error;
 
+      // إضافة الصور
+      if (productImages.length > 0) {
+        const imagesData = productImages.map((img, index) => ({
+          product_id: product.id,
+          image_url: img.url,
+          display_order: index,
+        }));
+        const { error: imagesError } = await supabase
+          .from("product_images")
+          .insert(imagesData);
+        if (imagesError) throw imagesError;
+      }
+
       // إضافة المتغيرات
       if (variants.length > 0) {
         const variantsData = variants.map((v) => ({
@@ -129,6 +144,44 @@ const AdminProducts = () => {
         .update(data)
         .eq("id", id);
       if (error) throw error;
+
+      // حذف الصور القديمة من قاعدة البيانات
+      const { data: oldImages } = await supabase
+        .from("product_images")
+        .select("*")
+        .eq("product_id", id);
+
+      if (oldImages) {
+        // حذف الملفات من storage
+        const filesToDelete = oldImages
+          .map((img) => {
+            const url = new URL(img.image_url);
+            const path = url.pathname.split('/').pop();
+            return `${id}/${path}`;
+          })
+          .filter(Boolean);
+
+        if (filesToDelete.length > 0) {
+          await supabase.storage
+            .from("product-images")
+            .remove(filesToDelete);
+        }
+      }
+
+      await supabase.from("product_images").delete().eq("product_id", id);
+
+      // إضافة الصور الجديدة
+      if (productImages.length > 0) {
+        const imagesData = productImages.map((img, index) => ({
+          product_id: id,
+          image_url: img.url,
+          display_order: index,
+        }));
+        const { error: imagesError } = await supabase
+          .from("product_images")
+          .insert(imagesData);
+        if (imagesError) throw imagesError;
+      }
 
       // حذف المتغيرات القديمة
       await supabase.from("product_variants").delete().eq("product_id", id);
@@ -185,6 +238,7 @@ const AdminProducts = () => {
       is_active: true,
     });
     setVariants([]);
+    setProductImages([]);
     setNewVariant({
       size_ar: "",
       price: "",
@@ -233,6 +287,21 @@ const AdminProducts = () => {
       setVariants(variantsData);
     }
 
+    // جلب الصور
+    const { data: imagesData } = await supabase
+      .from("product_images")
+      .select("*")
+      .eq("product_id", product.id)
+      .order("display_order");
+
+    if (imagesData && imagesData.length > 0) {
+      setProductImages(imagesData.map((img) => ({
+        url: img.image_url,
+        id: img.id,
+        display_order: img.display_order,
+      })));
+    }
+
     setIsDialogOpen(true);
   };
 
@@ -265,6 +334,58 @@ const AdminProducts = () => {
         skin_type: [...formData.skin_type, type],
       });
     }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remainingSlots = 5 - productImages.length;
+    if (files.length > remainingSlots) {
+      toast.error(`يمكنك رفع ${remainingSlots} صورة فقط`);
+      return;
+    }
+
+    setUploadingImages(true);
+
+    try {
+      const uploadedUrls: Array<{ url: string; display_order: number }> = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const productId = editingProduct?.id || `temp-${Date.now()}`;
+        const filePath = `${productId}/${fileName}`;
+
+        const { error: uploadError, data } = await supabase.storage
+          .from("product-images")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("product-images")
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push({
+          url: publicUrl,
+          display_order: productImages.length + i,
+        });
+      }
+
+      setProductImages([...productImages, ...uploadedUrls]);
+      toast.success("تم رفع الصور بنجاح");
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      toast.error("حدث خطأ أثناء رفع الصور");
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setProductImages(productImages.filter((_, i) => i !== index));
   };
 
   if (isLoading) return <div>جاري التحميل...</div>;
@@ -319,7 +440,51 @@ const AdminProducts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image_url">رابط الصورة</Label>
+                <Label>صور المنتج (حد أقصى 5 صور)</Label>
+                <div className="space-y-3">
+                  {productImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {productImages.map((img, index) => (
+                        <div key={index} className="relative aspect-square">
+                          <img
+                            src={img.url}
+                            alt={`صورة ${index + 1}`}
+                            className="h-full w-full rounded object-cover"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute left-1 top-1 h-6 w-6"
+                            onClick={() => handleRemoveImage(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <span className="absolute bottom-1 right-1 rounded bg-black/50 px-2 py-0.5 text-xs text-white">
+                            {index + 1}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {productImages.length < 5 && (
+                    <div>
+                      <Input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        multiple
+                        onChange={handleImageUpload}
+                        disabled={uploadingImages}
+                      />
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        تم رفع {productImages.length} من 5 صور
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="image_url">رابط الصورة (اختياري - للصورة القديمة)</Label>
                 <Input
                   id="image_url"
                   value={formData.image_url}

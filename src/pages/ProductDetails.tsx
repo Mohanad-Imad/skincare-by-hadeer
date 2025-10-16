@@ -8,6 +8,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -31,12 +38,23 @@ const ProductDetails = () => {
         .select(`
           *,
           product_variants (*),
-          categories (name_ar)
+          categories (name_ar),
+          product_images (
+            id,
+            image_url,
+            display_order
+          )
         `)
         .eq("id", id)
         .single();
 
       if (error) throw error;
+      
+      // ترتيب الصور حسب display_order
+      if (data.product_images) {
+        data.product_images.sort((a: any, b: any) => a.display_order - b.display_order);
+      }
+      
       return data;
     },
     refetchOnWindowFocus: true,
@@ -109,19 +127,40 @@ const ProductDetails = () => {
     (v: any) => v.id === selectedVariant
   );
 
+  // استخدام صور product_images إذا كانت موجودة، وإلا استخدم image_url القديمة
+  const productImages = product.product_images && product.product_images.length > 0
+    ? product.product_images.map((img: any) => img.image_url)
+    : product.image_url ? [product.image_url] : [];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container py-8">
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Product Image */}
+          {/* Product Images Carousel */}
           <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name_ar}
-                className="h-full w-full object-cover"
-              />
+            {productImages.length > 0 ? (
+              <Carousel className="h-full w-full">
+                <CarouselContent>
+                  {productImages.map((imageUrl: string, index: number) => (
+                    <CarouselItem key={index}>
+                      <div className="aspect-square">
+                        <img
+                          src={imageUrl}
+                          alt={`${product.name_ar} - صورة ${index + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {productImages.length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-4" />
+                    <CarouselNext className="right-4" />
+                  </>
+                )}
+              </Carousel>
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground">
                 بدون صورة

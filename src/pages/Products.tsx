@@ -75,6 +75,10 @@ const Products = () => {
           *,
           product_variants (
             price
+          ),
+          product_images (
+            image_url,
+            display_order
           )
         `)
         .eq("is_active", true)
@@ -104,12 +108,19 @@ const Products = () => {
         );
       }
 
-      const products = filtered.map(product => ({
-        ...product,
-        minPrice: product.product_variants?.[0]?.price
-      }));
+      const productsWithImages = filtered.map(product => {
+        // ترتيب الصور حسب display_order واختيار الأولى
+        const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
+        const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
-      return { products, totalCount: count || 0 };
+        return {
+          ...product,
+          minPrice: product.product_variants?.[0]?.price,
+          displayImage: firstImage,
+        };
+      });
+
+      return { products: productsWithImages, totalCount: count || 0 };
     },
   });
 
@@ -201,7 +212,7 @@ const Products = () => {
                   key={product.id}
                   id={product.id}
                   nameAr={product.name_ar}
-                  imageUrl={product.image_url}
+                  imageUrl={product.displayImage}
                   minPrice={product.minPrice}
                 />
               ))}
