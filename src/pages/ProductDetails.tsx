@@ -29,7 +29,8 @@ const ProductDetails = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select(`
+        .select(
+          `
           *,
           product_variants (*),
           categories (name_ar),
@@ -38,17 +39,18 @@ const ProductDetails = () => {
             image_url,
             display_order
           )
-        `)
+        `,
+        )
         .eq("id", id)
         .single();
 
       if (error) throw error;
-      
+
       // ترتيب الصور حسب display_order
       if (data.product_images) {
         data.product_images.sort((a: any, b: any) => a.display_order - b.display_order);
       }
-      
+
       return data;
     },
     refetchOnWindowFocus: true,
@@ -75,13 +77,11 @@ const ProductDetails = () => {
           .eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("cart_items")
-          .insert({
-            user_id: session.user.id,
-            product_variant_id: variantId,
-            quantity: 1,
-          });
+        const { error } = await supabase.from("cart_items").insert({
+          user_id: session.user.id,
+          product_variant_id: variantId,
+          quantity: 1,
+        });
         if (error) throw error;
       }
     },
@@ -117,14 +117,15 @@ const ProductDetails = () => {
     );
   }
 
-  const selectedVariantData = product.product_variants.find(
-    (v: any) => v.id === selectedVariant
-  );
+  const selectedVariantData = product.product_variants.find((v: any) => v.id === selectedVariant);
 
   // استخدام صور product_images إذا كانت موجودة، وإلا استخدم image_url القديمة
-  const productImages = product.product_images && product.product_images.length > 0
-    ? product.product_images.map((img: any) => img.image_url)
-    : product.image_url ? [product.image_url] : [];
+  const productImages =
+    product.product_images && product.product_images.length > 0
+      ? product.product_images.map((img: any) => img.image_url)
+      : product.image_url
+        ? [product.image_url]
+        : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -142,9 +143,7 @@ const ProductDetails = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-muted-foreground">
-                  بدون صورة
-                </div>
+                <div className="flex h-full items-center justify-center text-muted-foreground">بدون صورة</div>
               )}
             </div>
 
@@ -176,19 +175,13 @@ const ProductDetails = () => {
           <div className="space-y-6">
             <div>
               <h1 className="mb-2 text-3xl font-bold">{product.name_ar}</h1>
-              {product.categories && (
-                <p className="text-muted-foreground">{product.categories.name_ar}</p>
-              )}
+              {product.categories && <p className="text-muted-foreground">{product.categories.name_ar}</p>}
               {product.company_name_ar && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  الشركة المصنعة: {product.company_name_ar}
-                </p>
+                <p className="mt-1 text-sm text-muted-foreground">الشركة : {product.company_name_ar}</p>
               )}
             </div>
 
-            {product.description_ar && (
-              <p className="text-lg leading-relaxed">{product.description_ar}</p>
-            )}
+            {product.description_ar && <p className="text-lg leading-relaxed">{product.description_ar}</p>}
 
             {product.skin_type && product.skin_type.length > 0 && (
               <div>
@@ -203,10 +196,7 @@ const ProductDetails = () => {
                       normal: "عادية",
                     };
                     return (
-                      <span
-                        key={type}
-                        className="rounded-full bg-secondary px-3 py-1 text-sm"
-                      >
+                      <span key={type} className="rounded-full bg-secondary px-3 py-1 text-sm">
                         {skinTypeLabels[type] || type}
                       </span>
                     );
@@ -221,19 +211,14 @@ const ProductDetails = () => {
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
                 <div className="space-y-3">
                   {product.product_variants.map((variant: any) => (
-                    <div
-                      key={variant.id}
-                      className="flex items-center justify-between rounded-lg border p-4"
-                    >
+                    <div key={variant.id} className="flex items-center justify-between rounded-lg border p-4">
                       <div className="flex items-center space-x-2 space-x-reverse">
                         <RadioGroupItem value={variant.id} id={variant.id} />
                         <Label htmlFor={variant.id} className="cursor-pointer">
                           {variant.size_ar}
                         </Label>
                       </div>
-                      <span className="font-bold text-primary">
-                        {Math.round(variant.price)} د.ع
-                      </span>
+                      <span className="font-bold text-primary">{Math.round(variant.price)} د.ع</span>
                     </div>
                   ))}
                 </div>
