@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
+import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -88,7 +88,7 @@ const ProductDetails = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Navbar />
         <div className="container py-8 text-center">جاري التحميل...</div>
       </div>
     );
@@ -97,7 +97,7 @@ const ProductDetails = () => {
   if (!product) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Navbar />
         <div className="container py-8 text-center">المنتج غير موجود</div>
       </div>
     );
@@ -109,7 +109,7 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navbar />
       <div className="container py-8">
         <div className="grid gap-8 md:grid-cols-2">
           {/* Product Image */}
@@ -157,7 +157,7 @@ const ProductDetails = () => {
                         </Label>
                       </div>
                       <span className="font-bold text-primary">
-                        {variant.price.toFixed(2)} د.ع
+                        {Math.round(variant.price)} د.ع
                       </span>
                     </div>
                   ))}

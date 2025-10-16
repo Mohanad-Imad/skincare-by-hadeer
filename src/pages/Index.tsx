@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { Navbar } from "@/components/Navbar";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -47,7 +47,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
-      <Header />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="container py-16 md:py-24">

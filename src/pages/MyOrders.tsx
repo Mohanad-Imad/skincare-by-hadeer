@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Package } from "lucide-react";
+import { Navbar } from "@/components/Navbar";
 
 const statusLabels = {
   new: "طلب جديد",
@@ -62,14 +63,18 @@ const MyOrders = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>جاري التحميل...</p>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container flex items-center justify-center py-16">
+          <p>جاري التحميل...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
           <Package className="h-8 w-8 text-primary" />
@@ -109,7 +114,7 @@ const MyOrders = () => {
                       <Badge className={statusColors[order.status as keyof typeof statusColors]}>
                         {statusLabels[order.status as keyof typeof statusLabels]}
                       </Badge>
-                      <span className="text-lg font-bold">{order.total_amount} د.ع</span>
+                      <span className="text-lg font-bold">{Math.round(order.total_amount)} د.ع</span>
                     </div>
                   </div>
                 </CardHeader>
@@ -128,7 +133,7 @@ const MyOrders = () => {
                             الحجم: {item.variant_size_ar} • الكمية: {item.quantity}
                           </p>
                         </div>
-                        <p className="font-semibold">{item.subtotal} د.ع</p>
+                        <p className="font-semibold">{Math.round(item.subtotal)} د.ع</p>
                       </div>
                     ))}
                   </div>

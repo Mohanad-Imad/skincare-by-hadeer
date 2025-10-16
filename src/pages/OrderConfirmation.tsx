@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
@@ -8,7 +8,7 @@ const OrderConfirmation = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navbar />
       <div className="container flex min-h-[80vh] items-center justify-center py-16">
         <div className="text-center">
           <div className="mb-6 flex justify-center">

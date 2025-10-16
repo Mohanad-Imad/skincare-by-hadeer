@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -77,7 +77,7 @@ const Cart = () => {
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Navbar />
         <div className="container py-16 text-center">
           <p className="mb-4">يجب تسجيل الدخول لعرض السلة</p>
           <Button onClick={() => navigate("/auth")}>تسجيل الدخول</Button>
@@ -88,7 +88,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navbar />
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
 
@@ -127,7 +127,7 @@ const Cart = () => {
                         {item.product_variants.size_ar}
                       </p>
                       <p className="mt-1 font-bold text-primary">
-                        {item.product_variants.price.toFixed(2)} د.ع
+                        {Math.round(item.product_variants.price)} د.ع
                       </p>
                     </div>
 
@@ -180,7 +180,7 @@ const Cart = () => {
               <h3 className="mb-4 text-xl font-bold">ملخص الطلب</h3>
               <div className="mb-4 flex justify-between text-lg">
                 <span>المجموع:</span>
-                <span className="font-bold text-primary">{total.toFixed(2)} د.ع</span>
+                <span className="font-bold text-primary">{Math.round(total)} د.ع</span>
               </div>
               <Button
                 className="w-full"

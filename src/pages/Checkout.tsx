@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
+import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -135,7 +135,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navbar />
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">إتمام الطلب</h1>
 
@@ -217,7 +217,7 @@ const Checkout = () => {
                     {item.product_variants.products.name_ar} ({item.quantity}×)
                   </span>
                   <span>
-                    {(item.product_variants.price * item.quantity).toFixed(2)} د.ع
+                    {Math.round(item.product_variants.price * item.quantity)} د.ع
                   </span>
                 </div>
               ))}
@@ -225,7 +225,7 @@ const Checkout = () => {
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>المجموع:</span>
-                <span className="text-primary">{total.toFixed(2)} د.ع</span>
+                <span className="text-primary">{Math.round(total)} د.ع</span>
               </div>
             </div>
           </div>

@@ -117,7 +117,7 @@ const AdminOrders = () => {
                   </TableCell>
                   <TableCell>{order.customer_name}</TableCell>
                   <TableCell>{order.customer_phone}</TableCell>
-                  <TableCell>{order.total_amount} د.ع</TableCell>
+                  <TableCell>{Math.round(order.total_amount)} د.ع</TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {statusLabels[order.status as keyof typeof statusLabels]}
@@ -163,7 +163,7 @@ const AdminOrders = () => {
                                 </div>
                                 <div className="text-left">
                                   <p className="text-sm">الكمية: {item.quantity}</p>
-                                  <p className="font-medium">{item.subtotal} د.ع</p>
+                                  <p className="font-medium">{Math.round(item.subtotal)} د.ع</p>
                                 </div>
                               </div>
                             ))}
