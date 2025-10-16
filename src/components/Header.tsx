@@ -1,4 +1,4 @@
-import { ShoppingCart, User, LogOut, Search } from "lucide-react";
+import { ShoppingCart, User, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +29,19 @@ export const Header = () => {
     enabled: !!session?.user?.id,
   });
 
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return false;
+      const { data, error } = await supabase.rpc("is_admin", {
+        user_id: session.user.id,
+      });
+      if (error) return false;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("تم تسجيل الخروج بنجاح");
@@ -55,6 +68,15 @@ export const Header = () => {
 
           {session ? (
             <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/admin/products")}
+                >
+                  <Shield className="h-5 w-5" />
+                </Button>
+              )}
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />
               </Button>

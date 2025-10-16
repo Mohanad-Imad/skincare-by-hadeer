@@ -1,0 +1,247 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Plus, Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+
+const AdminCategories = () => {
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+  
+  const [formData, setFormData] = useState({
+    name_ar: "",
+    name_en: "",
+    description_ar: "",
+    description_en: "",
+    image_url: "",
+  });
+
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["admin-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const { error } = await supabase.from("categories").insert([data]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success("تم إضافة التصنيف بنجاح");
+      setIsDialogOpen(false);
+      resetForm();
+    },
+    onError: () => toast.error("حدث خطأ أثناء إضافة التصنيف"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const { error } = await supabase
+        .from("categories")
+        .update(data)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success("تم تحديث التصنيف بنجاح");
+      setIsDialogOpen(false);
+      resetForm();
+    },
+    onError: () => toast.error("حدث خطأ أثناء تحديث التصنيف"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("categories").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success("تم حذف التصنيف بنجاح");
+    },
+    onError: () => toast.error("حدث خطأ أثناء حذف التصنيف"),
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name_ar: "",
+      name_en: "",
+      description_ar: "",
+      description_en: "",
+      image_url: "",
+    });
+    setEditingCategory(null);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingCategory) {
+      updateMutation.mutate({ id: editingCategory.id, data: formData });
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  const handleEdit = (category: any) => {
+    setEditingCategory(category);
+    setFormData({
+      name_ar: category.name_ar,
+      name_en: category.name_en,
+      description_ar: category.description_ar || "",
+      description_en: category.description_en || "",
+      image_url: category.image_url || "",
+    });
+    setIsDialogOpen(true);
+  };
+
+  if (isLoading) return <div>جاري التحميل...</div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">إدارة التصنيفات</h2>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={resetForm}>
+              <Plus className="ml-2 h-4 w-4" />
+              إضافة تصنيف جديد
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {editingCategory ? "تعديل تصنيف" : "إضافة تصنيف جديد"}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name_ar">الاسم بالعربية</Label>
+                <Input
+                  id="name_ar"
+                  value={formData.name_ar}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name_ar: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name_en">الاسم بالإنجليزية</Label>
+                <Input
+                  id="name_en"
+                  value={formData.name_en}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name_en: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description_ar">الوصف بالعربية</Label>
+                <Textarea
+                  id="description_ar"
+                  value={formData.description_ar}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description_ar: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description_en">الوصف بالإنجليزية</Label>
+                <Textarea
+                  id="description_en"
+                  value={formData.description_en}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description_en: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="image_url">رابط الصورة</Label>
+                <Input
+                  id="image_url"
+                  value={formData.image_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, image_url: e.target.value })
+                  }
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                {editingCategory ? "تحديث" : "إضافة"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>الاسم بالعربية</TableHead>
+              <TableHead>الاسم بالإنجليزية</TableHead>
+              <TableHead>الإجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {categories?.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell>{category.name_ar}</TableCell>
+                <TableCell>{category.name_en}</TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(category)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteMutation.mutate(category.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+export default AdminCategories;
