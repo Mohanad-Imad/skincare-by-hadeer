@@ -11,6 +11,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>("all");
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -21,8 +22,26 @@ const Products = () => {
     },
   });
 
+  const { data: companies } = useQuery({
+    queryKey: ["companies"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("company_name_ar")
+        .not("company_name_ar", "is", null)
+        .neq("company_name_ar", "");
+      if (error) throw error;
+      
+      // استخراج الأسماء الفريدة
+      const uniqueCompanies = Array.from(
+        new Set(data.map((p) => p.company_name_ar).filter(Boolean))
+      );
+      return uniqueCompanies as string[];
+    },
+  });
+
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products", categoryFilter, skinTypeFilter, searchTerm],
+    queryKey: ["products", categoryFilter, skinTypeFilter, companyFilter, searchTerm],
     queryFn: async () => {
       let query = supabase
         .from("products")
@@ -36,6 +55,10 @@ const Products = () => {
 
       if (categoryFilter !== "all") {
         query = query.eq("category_id", categoryFilter);
+      }
+
+      if (companyFilter !== "all") {
+        query = query.eq("company_name_ar", companyFilter);
       }
 
       if (searchTerm) {
@@ -67,7 +90,7 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-3">
+        <div className="mb-8 grid gap-4 md:grid-cols-4">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -87,6 +110,20 @@ const Products = () => {
               {categories?.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
                   {cat.name_ar}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={companyFilter} onValueChange={setCompanyFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="الشركة المصنعة" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الشركات</SelectItem>
+              {companies?.map((company) => (
+                <SelectItem key={company} value={company}>
+                  {company}
                 </SelectItem>
               ))}
             </SelectContent>
