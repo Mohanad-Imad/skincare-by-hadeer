@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "التصنيفات", url: "/admin/categories", icon: Grid3x3 },
+  { title: "المنتجات", url: "//admin/products", icon: Package },
 ];
 
 export function AdminSidebar() {
