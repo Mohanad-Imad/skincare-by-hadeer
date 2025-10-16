@@ -39,6 +39,8 @@ const ProductDetails = () => {
       if (error) throw error;
       return data;
     },
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const addToCartMutation = useMutation({
