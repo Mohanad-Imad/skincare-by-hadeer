@@ -8,19 +8,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedVariant, setSelectedVariant] = useState<string>("");
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -137,33 +131,43 @@ const ProductDetails = () => {
       <Navbar />
       <div className="container py-8">
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Product Images Carousel */}
-          <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
-            {productImages.length > 0 ? (
-              <Carousel className="h-full w-full">
-                <CarouselContent>
-                  {productImages.map((imageUrl: string, index: number) => (
-                    <CarouselItem key={index}>
-                      <div className="aspect-square">
-                        <img
-                          src={imageUrl}
-                          alt={`${product.name_ar} - صورة ${index + 1}`}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                {productImages.length > 1 && (
-                  <>
-                    <CarouselPrevious className="left-4" />
-                    <CarouselNext className="right-4" />
-                  </>
-                )}
-              </Carousel>
-            ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
-                بدون صورة
+          {/* Product Images Gallery */}
+          <div className="space-y-4">
+            {/* Main Image */}
+            <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
+              {productImages.length > 0 ? (
+                <img
+                  src={productImages[selectedImageIndex]}
+                  alt={`${product.name_ar} - صورة ${selectedImageIndex + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-muted-foreground">
+                  بدون صورة
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            {productImages.length > 1 && (
+              <div className="grid grid-cols-5 gap-2">
+                {productImages.map((imageUrl: string, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`aspect-square overflow-hidden rounded-md border-2 transition-all ${
+                      selectedImageIndex === index
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-transparent hover:border-primary/50"
+                    }`}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`${product.name_ar} - صورة مصغرة ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             )}
           </div>
