@@ -117,14 +117,14 @@ const AdminOrders = () => {
                   </TableCell>
                   <TableCell>{order.customer_name}</TableCell>
                   <TableCell>{order.customer_phone}</TableCell>
-                  <TableCell>{order.total_amount} ر.س</TableCell>
+                  <TableCell>{order.total_amount} د.ع</TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {statusLabels[order.status as keyof typeof statusLabels]}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {new Date(order.created_at).toLocaleDateString("ar-SA")}
+                    {new Date(order.created_at).toLocaleDateString("ar-IQ")}
                   </TableCell>
                   <TableCell>
                     <Select
@@ -163,7 +163,7 @@ const AdminOrders = () => {
                                 </div>
                                 <div className="text-left">
                                   <p className="text-sm">الكمية: {item.quantity}</p>
-                                  <p className="font-medium">{item.subtotal} ر.س</p>
+                                  <p className="font-medium">{item.subtotal} د.ع</p>
                                 </div>
                               </div>
                             ))}

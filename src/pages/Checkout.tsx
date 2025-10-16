@@ -217,7 +217,7 @@ const Checkout = () => {
                     {item.product_variants.products.name_ar} ({item.quantity}×)
                   </span>
                   <span>
-                    {(item.product_variants.price * item.quantity).toFixed(2)} ريال
+                    {(item.product_variants.price * item.quantity).toFixed(2)} د.ع
                   </span>
                 </div>
               ))}
@@ -225,7 +225,7 @@ const Checkout = () => {
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>المجموع:</span>
-                <span className="text-primary">{total.toFixed(2)} ريال</span>
+                <span className="text-primary">{total.toFixed(2)} د.ع</span>
               </div>
             </div>
           </div>

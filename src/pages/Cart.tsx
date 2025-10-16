@@ -127,7 +127,7 @@ const Cart = () => {
                         {item.product_variants.size_ar}
                       </p>
                       <p className="mt-1 font-bold text-primary">
-                        {item.product_variants.price.toFixed(2)} ريال
+                        {item.product_variants.price.toFixed(2)} د.ع
                       </p>
                     </div>
 
@@ -180,7 +180,7 @@ const Cart = () => {
               <h3 className="mb-4 text-xl font-bold">ملخص الطلب</h3>
               <div className="mb-4 flex justify-between text-lg">
                 <span>المجموع:</span>
-                <span className="font-bold text-primary">{total.toFixed(2)} ريال</span>
+                <span className="font-bold text-primary">{total.toFixed(2)} د.ع</span>
               </div>
               <Button
                 className="w-full"

@@ -34,7 +34,7 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps
         <h3 className="mb-2 font-semibold">{nameAr}</h3>
         {minPrice && (
           <p className="text-lg font-bold text-primary">
-            {minPrice.toFixed(2)} ريال
+            {minPrice.toFixed(2)} د.ع
           </p>
         )}
         <Button className="mt-3 w-full" variant="outline">

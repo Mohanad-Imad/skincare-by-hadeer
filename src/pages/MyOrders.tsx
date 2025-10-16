@@ -98,7 +98,7 @@ const MyOrders = () => {
                         طلب رقم: {order.id.slice(0, 8)}
                       </CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {new Date(order.created_at).toLocaleDateString("ar-SA", {
+                        {new Date(order.created_at).toLocaleDateString("ar-IQ", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
@@ -109,7 +109,7 @@ const MyOrders = () => {
                       <Badge className={statusColors[order.status as keyof typeof statusColors]}>
                         {statusLabels[order.status as keyof typeof statusLabels]}
                       </Badge>
-                      <span className="text-lg font-bold">{order.total_amount} ر.س</span>
+                      <span className="text-lg font-bold">{order.total_amount} د.ع</span>
                     </div>
                   </div>
                 </CardHeader>
@@ -128,7 +128,7 @@ const MyOrders = () => {
                             الحجم: {item.variant_size_ar} • الكمية: {item.quantity}
                           </p>
                         </div>
-                        <p className="font-semibold">{item.subtotal} ر.س</p>
+                        <p className="font-semibold">{item.subtotal} د.ع</p>
                       </div>
                     ))}
                   </div>

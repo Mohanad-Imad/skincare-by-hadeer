@@ -157,7 +157,7 @@ const ProductDetails = () => {
                         </Label>
                       </div>
                       <span className="font-bold text-primary">
-                        {variant.price.toFixed(2)} ريال
+                        {variant.price.toFixed(2)} د.ع
                       </span>
                     </div>
                   ))}
