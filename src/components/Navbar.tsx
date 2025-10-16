@@ -100,42 +100,24 @@ export const Navbar = () => {
           )}
         </div>
 
-        <h1
-          className="cursor-pointer text-lg font-bold text-primary sm:text-xl"
-          onClick={() => navigate("/")}
-        >
-          متجر العناية بالبشرة
+        <h1 className="cursor-pointer text-lg font-bold text-primary sm:text-xl" onClick={() => navigate("/")}>
+          متجر هدير للعناية بالبشرة
         </h1>
 
         <div className="flex items-center gap-2">
           {session ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="gap-2"
-            >
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">خروج</span>
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/auth")}
-              className="gap-2"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-2">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">دخول</span>
             </Button>
           )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="relative"
-            onClick={() => navigate("/cart")}
-          >
+
+          <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
