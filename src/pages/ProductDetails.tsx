@@ -136,10 +136,40 @@ const ProductDetails = () => {
               {product.categories && (
                 <p className="text-muted-foreground">{product.categories.name_ar}</p>
               )}
+              {product.company_name_ar && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  الشركة المصنعة: {product.company_name_ar}
+                </p>
+              )}
             </div>
 
             {product.description_ar && (
               <p className="text-lg leading-relaxed">{product.description_ar}</p>
+            )}
+
+            {product.skin_type && product.skin_type.length > 0 && (
+              <div>
+                <h3 className="mb-2 font-semibold">مناسب لنوع البشرة:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.skin_type.map((type: string) => {
+                    const skinTypeLabels: Record<string, string> = {
+                      oily: "دهنية",
+                      dry: "جافة",
+                      combination: "مختلطة",
+                      sensitive: "حساسة",
+                      normal: "عادية",
+                    };
+                    return (
+                      <span
+                        key={type}
+                        className="rounded-full bg-secondary px-3 py-1 text-sm"
+                      >
+                        {skinTypeLabels[type] || type}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
             )}
 
             {/* Size Selection */}
