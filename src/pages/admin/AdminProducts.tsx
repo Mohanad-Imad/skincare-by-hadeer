@@ -195,10 +195,18 @@ const AdminProducts = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const dataToSubmit = {
+      ...formData,
+      name_en: formData.name_ar, // استخدام القيمة العربية كقيمة افتراضية
+      company_name_en: formData.company_name_ar || null,
+      description_en: formData.description_ar || null,
+    };
+    
     if (editingProduct) {
-      updateMutation.mutate({ id: editingProduct.id, data: formData });
+      updateMutation.mutate({ id: editingProduct.id, data: dataToSubmit });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(dataToSubmit);
     }
   };
 
