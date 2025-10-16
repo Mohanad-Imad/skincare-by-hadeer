@@ -1,4 +1,4 @@
-import { ShoppingCart, User, LogOut, Shield } from "lucide-react";
+import { ShoppingCart, User, LogOut, Shield, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,6 +68,13 @@ export const Header = () => {
 
           {session ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/my-orders")}
+              >
+                <Package className="h-5 w-5" />
+              </Button>
               {isAdmin && (
                 <Button
                   variant="ghost"
