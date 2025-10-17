@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
+import heroImage from "@/assets/hero-skincare.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -72,32 +73,42 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="container py-16 md:py-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-6 flex justify-center">
-            <Sparkles className="h-12 w-12 text-primary" />
+        <div className="grid gap-8 items-center md:grid-cols-2">
+          <div className="text-center md:text-right order-2 md:order-1">
+            <div className="mb-6 flex justify-center md:justify-start">
+              <Sparkles className="h-12 w-12 text-primary" />
+            </div>
+            <h2 className="mb-6 text-4xl font-bold md:text-5xl">
+              اكتشفي جمال بشرتك الطبيعي
+            </h2>
+            <p className="mb-8 text-lg text-muted-foreground">
+              منتجات عناية فاخرة مصممة خصيصاً لجميع أنواع البشرة
+            </p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <Button
+                size="lg"
+                className="h-12 px-8"
+                onClick={() => navigate("/products")}
+              >
+                تسوقي الآن
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 px-8"
+                onClick={() => navigate("/products")}
+              >
+                عرض المنتجات
+              </Button>
+            </div>
           </div>
-          <h2 className="mb-6 text-4xl font-bold md:text-5xl">
-            اكتشفي جمال بشرتك الطبيعي
-          </h2>
-          <p className="mb-8 text-lg text-muted-foreground">
-            منتجات عناية فاخرة مصممة خصيصاً لجميع أنواع البشرة
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              size="lg"
-              className="h-12 px-8"
-              onClick={() => navigate("/products")}
-            >
-              تسوقي الآن
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-12 px-8"
-              onClick={() => navigate("/products")}
-            >
-              عرض المنتجات
-            </Button>
+          <div className="order-1 md:order-2">
+            <img 
+              src={heroImage} 
+              alt="منتجات العناية بالبشرة الفاخرة"
+              className="w-full h-auto rounded-2xl shadow-lg"
+              loading="eager"
+            />
           </div>
         </div>
       </section>
