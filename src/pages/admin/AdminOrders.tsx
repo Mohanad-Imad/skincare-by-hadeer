@@ -9,17 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
 
 const statusLabels = {
   new: "جديد",
@@ -127,23 +121,12 @@ const AdminOrders = () => {
                     {new Date(order.created_at).toLocaleDateString("ar-IQ")}
                   </TableCell>
                   <TableCell>
-                    <Select
+                    <OrderStatusSelect
                       value={order.status}
                       onValueChange={(value) =>
                         updateStatusMutation.mutate({ id: order.id, status: value as "new" | "processing" | "shipped" | "delivered" | "cancelled" })
                       }
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(statusLabels).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
                   </TableCell>
                 </TableRow>
                 {expandedOrders.has(order.id) && (
