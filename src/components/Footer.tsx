@@ -125,7 +125,7 @@ export const Footer = () => {
         {/* Copyright */}
         <div className="mt-12 pt-8 border-t text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} جميع الحقوق محفوظة - متجر مستحضرات التجميل
+            &copy; {new Date().getFullYear()} جميع الحقوق محفوظة - متجر هدير للعناية بالبشرة
           </p>
         </div>
       </div>
