@@ -97,13 +97,6 @@ const Index = () => {
                 className="h-12 px-8 shadow-xl"
                 onClick={() => navigate("/products")}
               >
-                تسوقي الآن
-              </Button>
-              <Button
-                size="lg"
-                className="h-12 px-8 shadow-xl"
-                onClick={() => navigate("/products")}
-              >
                 عرض المنتجات
               </Button>
             </div>
