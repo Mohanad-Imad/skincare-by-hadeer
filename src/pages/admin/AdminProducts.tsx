@@ -47,6 +47,7 @@ const AdminProducts = () => {
     category_id: "",
     skin_type: [] as string[],
     is_featured: false,
+    is_new_arrival: false,
     is_active: true,
   });
 
@@ -235,6 +236,7 @@ const AdminProducts = () => {
       category_id: "",
       skin_type: [],
       is_featured: false,
+      is_new_arrival: false,
       is_active: true,
     });
     setVariants([]);
@@ -274,6 +276,7 @@ const AdminProducts = () => {
       category_id: product.category_id || "",
       skin_type: product.skin_type || [],
       is_featured: product.is_featured,
+      is_new_arrival: product.is_new_arrival || false,
       is_active: product.is_active,
     });
 
@@ -593,6 +596,16 @@ const AdminProducts = () => {
               </div>
               <div className="flex items-center space-x-2 space-x-reverse">
                 <Switch
+                  id="is_new_arrival"
+                  checked={formData.is_new_arrival}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_new_arrival: checked })
+                  }
+                />
+                <Label htmlFor="is_new_arrival">وصل حديثاً</Label>
+              </div>
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <Switch
                   id="is_active"
                   checked={formData.is_active}
                   onCheckedChange={(checked) =>
@@ -615,6 +628,7 @@ const AdminProducts = () => {
             <TableRow>
               <TableHead>الاسم</TableHead>
               <TableHead>مميز</TableHead>
+              <TableHead>وصل حديثاً</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>الإجراءات</TableHead>
             </TableRow>
@@ -624,6 +638,7 @@ const AdminProducts = () => {
               <TableRow key={product.id}>
                 <TableCell>{product.name_ar}</TableCell>
                 <TableCell>{product.is_featured ? "نعم" : "لا"}</TableCell>
+                <TableCell>{product.is_new_arrival ? "نعم" : "لا"}</TableCell>
                 <TableCell>{product.is_active ? "نشط" : "غير نشط"}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">

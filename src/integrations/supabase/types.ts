@@ -314,6 +314,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           is_featured: boolean | null
+          is_new_arrival: boolean | null
           name_ar: string
           name_en: string
           skin_type: Database["public"]["Enums"]["skin_type"][] | null
@@ -330,6 +331,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_new_arrival?: boolean | null
           name_ar: string
           name_en: string
           skin_type?: Database["public"]["Enums"]["skin_type"][] | null
@@ -346,6 +348,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_new_arrival?: boolean | null
           name_ar?: string
           name_en?: string
           skin_type?: Database["public"]["Enums"]["skin_type"][] | null

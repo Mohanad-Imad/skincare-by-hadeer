@@ -36,6 +36,30 @@ const Index = () => {
     },
   });
 
+  const { data: newArrivals } = useQuery({
+    queryKey: ["new-arrivals"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+          *,
+          product_variants (
+            price
+          )
+        `)
+        .eq("is_new_arrival", true)
+        .eq("is_active", true)
+        .limit(6);
+
+      if (error) throw error;
+      
+      return data?.map(product => ({
+        ...product,
+        minPrice: product.product_variants?.[0]?.price
+      })) || [];
+    },
+  });
+
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -103,6 +127,24 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* New Arrivals */}
+      {newArrivals && newArrivals.length > 0 && (
+        <section className="container py-12">
+          <h3 className="mb-8 text-center text-2xl font-bold">وصل حديثاً</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {newArrivals.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                nameAr={product.name_ar}
+                imageUrl={product.image_url}
+                minPrice={product.minPrice}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
