@@ -92,9 +92,15 @@ const AdminProducts = () => {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
+      // تعيين الصورة الأولى كصورة غلاف
+      const productData = {
+        ...data,
+        image_url: productImages.length > 0 ? productImages[0].url : data.image_url,
+      };
+
       const { data: product, error } = await supabase
         .from("products")
-        .insert([data])
+        .insert([productData])
         .select()
         .single();
       if (error) throw error;
@@ -140,9 +146,15 @@ const AdminProducts = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      // تعيين الصورة الأولى كصورة غلاف
+      const productData = {
+        ...data,
+        image_url: productImages.length > 0 ? productImages[0].url : data.image_url,
+      };
+
       const { error } = await supabase
         .from("products")
-        .update(data)
+        .update(productData)
         .eq("id", id);
       if (error) throw error;
 
@@ -485,16 +497,6 @@ const AdminProducts = () => {
                     </div>
                   )}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="image_url">رابط الصورة (اختياري - للصورة القديمة)</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image_url: e.target.value })
-                  }
-                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category_id">التصنيف</Label>
