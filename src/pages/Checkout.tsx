@@ -9,6 +9,14 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const checkoutSchema = z.object({
+  customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
+  customerPhone: z.string().regex(/^[+]?[0-9]{10,15}$/, "رقم الهاتف غير صحيح"),
+  customerAddress: z.string().trim().min(10, "العنوان يجب أن يكون 10 أحرف على الأقل").max(500, "العنوان طويل جداً"),
+  notes: z.string().max(1000, "الملاحظات طويلة جداً").optional(),
+});
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -114,13 +122,32 @@ const Checkout = () => {
       toast.success("تم إرسال طلبك بنجاح!");
       navigate("/order-confirmation");
     },
-    onError: () => {
-      toast.error("حدث خطأ أثناء إرسال الطلب");
+    onError: (error) => {
+      console.error("Error creating order:", error);
+      toast.error("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى");
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input data
+    try {
+      checkoutSchema.parse({
+        customerName,
+        customerPhone,
+        customerAddress,
+        notes: notes || undefined,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+        return;
+      }
+      toast.error("يرجى التحقق من البيانات المدخلة");
+      return;
+    }
+    
     createOrderMutation.mutate();
   };
 
