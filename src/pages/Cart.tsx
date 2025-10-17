@@ -53,8 +53,8 @@ const Cart = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      queryClient.invalidateQueries({ queryKey: ["cart", session?.user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["cart-count", session?.user?.id] });
     },
   });
 
@@ -64,8 +64,8 @@ const Cart = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      queryClient.invalidateQueries({ queryKey: ["cart", session?.user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["cart-count", session?.user?.id] });
       toast.success("تم حذف المنتج من السلة");
     },
   });
