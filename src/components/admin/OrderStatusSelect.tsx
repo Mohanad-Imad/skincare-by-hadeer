@@ -79,7 +79,7 @@ export function OrderStatusSelect({ value, onValueChange }: OrderStatusSelectPro
       <SelectTrigger className="w-40">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper" sideOffset={5} align="start">
         {Object.entries(statusLabels).map(([statusValue, label]) => (
           <SelectItem key={statusValue} value={statusValue}>
             {label}
