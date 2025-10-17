@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -73,6 +73,16 @@ export const Navbar = () => {
           >
             <ShoppingBag className="h-4 w-4" />
             <span className="hidden sm:inline">المنتجات</span>
+          </Button>
+
+          <Button
+            variant={isActive("/blog") ? "default" : "ghost"}
+            size="sm"
+            onClick={() => navigate("/blog")}
+            className="gap-2"
+          >
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">المدونة</span>
           </Button>
 
           {session && (
