@@ -53,36 +53,44 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="container flex h-16 items-center justify-between gap-4">
+        <h1 
+          className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg lg:text-xl order-2 sm:order-1" 
+          onClick={() => navigate("/")}
+        >
+          <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
+          <span className="md:hidden">متجر هدير</span>
+        </h1>
+
+        <div className="flex items-center gap-1 order-1 sm:order-2">
           <Button
             variant={isActive("/") ? "default" : "ghost"}
             size="sm"
             onClick={() => navigate("/")}
-            className="gap-2"
+            className="gap-1.5"
           >
             <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">الرئيسية</span>
+            <span className="hidden lg:inline">الرئيسية</span>
           </Button>
 
           <Button
             variant={isActive("/products") ? "default" : "ghost"}
             size="sm"
             onClick={() => navigate("/products")}
-            className="gap-2"
+            className="gap-1.5"
           >
             <ShoppingBag className="h-4 w-4" />
-            <span className="hidden sm:inline">المنتجات</span>
+            <span className="hidden lg:inline">المنتجات</span>
           </Button>
 
           <Button
             variant={isActive("/blog") ? "default" : "ghost"}
             size="sm"
             onClick={() => navigate("/blog")}
-            className="gap-2"
+            className="gap-1.5"
           >
             <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">المدونة</span>
+            <span className="hidden lg:inline">المدونة</span>
           </Button>
 
           {session && (
@@ -90,10 +98,10 @@ export const Navbar = () => {
               variant={isActive("/my-orders") ? "default" : "ghost"}
               size="sm"
               onClick={() => navigate("/my-orders")}
-              className="gap-2"
+              className="gap-1.5"
             >
               <Package className="h-4 w-4" />
-              <span className="hidden sm:inline">طلباتي</span>
+              <span className="hidden lg:inline">طلباتي</span>
             </Button>
           )}
 
@@ -102,19 +110,15 @@ export const Navbar = () => {
               variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
               size="sm"
               onClick={() => navigate("/admin/products")}
-              className="gap-2"
+              className="gap-1.5"
             >
               <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">الإدارة</span>
+              <span className="hidden lg:inline">الإدارة</span>
             </Button>
           )}
         </div>
 
-        <h1 className="cursor-pointer text-lg font-bold text-primary sm:text-xl" onClick={() => navigate("/")}>
-          متجر هدير للعناية بالبشرة
-        </h1>
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 order-3">
           <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
             {cartCount > 0 && (
@@ -124,14 +128,14 @@ export const Navbar = () => {
             )}
           </Button>
           {session ? (
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5">
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">خروج</span>
+              <span className="hidden lg:inline">خروج</span>
             </Button>
           ) : (
-            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
               <User className="h-4 w-4" />
-              <span className="hidden sm:inline">دخول</span>
+              <span className="hidden lg:inline">دخول</span>
             </Button>
           )}
         </div>
