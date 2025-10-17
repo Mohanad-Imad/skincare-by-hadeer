@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
-import heroImage from "@/assets/hero-skincare.jpg";
+import heroImage from "@/assets/hero-skincare-banner.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -72,22 +72,29 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="container py-16 md:py-24">
-        <div className="grid gap-8 items-center md:grid-cols-2">
-          <div className="text-center md:text-right order-2 md:order-1">
-            <div className="mb-6 flex justify-center md:justify-start">
-              <Sparkles className="h-12 w-12 text-primary" />
+      <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-transparent"></div>
+        </div>
+        
+        <div className="relative container h-full flex items-center">
+          <div className="max-w-2xl text-white">
+            <div className="mb-6 flex">
+              <Sparkles className="h-12 w-12 text-white drop-shadow-lg" />
             </div>
-            <h2 className="mb-6 text-4xl font-bold md:text-5xl">
+            <h2 className="mb-6 text-4xl font-bold md:text-6xl text-white drop-shadow-2xl">
               اكتشفي جمال بشرتك الطبيعي
             </h2>
-            <p className="mb-8 text-lg text-muted-foreground">
+            <p className="mb-8 text-lg md:text-xl text-white/90 drop-shadow-lg">
               منتجات عناية فاخرة مصممة خصيصاً لجميع أنواع البشرة
             </p>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+            <div className="flex flex-wrap gap-4">
               <Button
                 size="lg"
-                className="h-12 px-8"
+                className="h-12 px-8 bg-white text-foreground hover:bg-white/90 shadow-xl"
                 onClick={() => navigate("/products")}
               >
                 تسوقي الآن
@@ -95,20 +102,12 @@ const Index = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8"
+                className="h-12 px-8 border-2 border-white text-white hover:bg-white hover:text-foreground shadow-xl"
                 onClick={() => navigate("/products")}
               >
                 عرض المنتجات
               </Button>
             </div>
-          </div>
-          <div className="order-1 md:order-2">
-            <img 
-              src={heroImage} 
-              alt="منتجات العناية بالبشرة الفاخرة"
-              className="w-full h-auto rounded-2xl shadow-lg"
-              loading="eager"
-            />
           </div>
         </div>
       </section>
