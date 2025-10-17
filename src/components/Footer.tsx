@@ -10,7 +10,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-6 w-6 text-primary" />
-              <h3 className="text-xl font-bold">متجر هدير لعناية بالبشرة</h3>
+              <h3 className="text-xl font-bold">متجر مستحضرات التجميل</h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               نوفر لك أفضل منتجات العناية بالبشرة والجمال من أشهر العلامات التجارية العالمية بأسعار منافسة وجودة عالية.
@@ -59,7 +59,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
-                <a href="tel:+9647700000000" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="tel:9647748209420" className="text-muted-foreground hover:text-primary transition-colors">
                   +964 7748209420
                 </a>
               </li>
@@ -83,7 +83,7 @@ export const Footer = () => {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://www.facebook.com/share/1FdsvNuYQb/?mibextid=wwXIfr"
+                href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
@@ -101,7 +101,7 @@ export const Footer = () => {
                 <Instagram className="h-5 w-5" />
               </a>
               <a
-                href="https://www.tiktok.com/@hadeer_pharmacy2?_t=ZS-90ct9h7hG1I&_r=1"
+                href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
@@ -110,7 +110,7 @@ export const Footer = () => {
                 <Music className="h-5 w-5" />
               </a>
               <a
-                href="https://wa.me/9647748209420"
+                href="https://wa.me/9647700000000"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
@@ -125,7 +125,7 @@ export const Footer = () => {
         {/* Copyright */}
         <div className="mt-12 pt-8 border-t text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} جميع الحقوق محفوظة - متجر هدير للعناية بالبشرة
+            &copy; {new Date().getFullYear()} جميع الحقوق محفوظة - متجر مستحضرات التجميل
           </p>
         </div>
       </div>
