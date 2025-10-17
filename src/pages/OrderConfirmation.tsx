@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
@@ -28,6 +29,8 @@ const OrderConfirmation = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

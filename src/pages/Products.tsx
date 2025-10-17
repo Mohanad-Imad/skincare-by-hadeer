@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -270,6 +271,8 @@ const Products = () => {
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
         )}
       </div>
+      
+      <Footer />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -116,6 +117,8 @@ const Index = () => {
           </div>
         </section>
       )}
+      
+      <Footer />
     </div>
   );
 };
