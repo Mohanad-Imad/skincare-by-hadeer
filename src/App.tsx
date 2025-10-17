@@ -20,6 +20,7 @@ import AdminBlogPosts from "./pages/admin/AdminBlogPosts";
 import MyOrders from "./pages/MyOrders";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-        <Routes>
+          <ScrollToTop />
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/products" element={<Products />} />
