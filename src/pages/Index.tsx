@@ -94,15 +94,14 @@ const Index = () => {
             <div className="flex flex-wrap gap-4">
               <Button
                 size="lg"
-                className="h-12 px-8 bg-white text-foreground hover:bg-white/90 shadow-xl"
+                className="h-12 px-8 shadow-xl"
                 onClick={() => navigate("/products")}
               >
                 تسوقي الآن
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="h-12 px-8 border-2 border-white text-white hover:bg-white hover:text-foreground shadow-xl"
+                className="h-12 px-8 shadow-xl"
                 onClick={() => navigate("/products")}
               >
                 عرض المنتجات
