@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -120,8 +121,37 @@ const ProductDetails = () => {
       : product.image_url
         ? [product.image_url]
         : [];
+
+  // Structured data for product
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name_ar,
+    "description": product.description_ar || `${product.name_ar} - منتج عناية بالبشرة`,
+    "image": productImages,
+    "brand": {
+      "@type": "Brand",
+      "name": product.company_name_ar || "متجر مستحضرات التجميل"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "IQD",
+      "lowPrice": Math.min(...product.product_variants.map((v: any) => v.price)),
+      "highPrice": Math.max(...product.product_variants.map((v: any) => v.price)),
+      "availability": "https://schema.org/InStock"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${product.name_ar} - منتجات العناية بالبشرة`}
+        description={product.description_ar || `اشتري ${product.name_ar} - منتج عناية بالبشرة أصلي بأفضل سعر في العراق. توصيل سريع لجميع المحافظات.`}
+        keywords={`${product.name_ar}, ${product.company_name_ar || ""}, منتجات العناية بالبشرة, شراء ${product.name_ar} العراق`}
+        image={productImages[0]}
+        type="product"
+        structuredData={structuredData}
+      />
       <Navbar />
       <div className="container py-8">
         <div className="grid gap-8 md:grid-cols-2">

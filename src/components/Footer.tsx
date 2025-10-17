@@ -32,6 +32,11 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  المدونة
+                </Link>
+              </li>
+              <li>
                 <Link to="/cart" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   سلة التسوق
                 </Link>

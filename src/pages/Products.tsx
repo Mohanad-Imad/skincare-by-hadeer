@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -133,8 +134,21 @@ const Products = () => {
     setCurrentPage(1);
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
+    "description": "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية"
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="جميع المنتجات - مستحضرات التجميل والعناية بالبشرة"
+        description="تصفحي أكبر مجموعة من منتجات العناية بالبشرة ومستحضرات التجميل في العراق. منتجات أصلية من أفضل العلامات التجارية العالمية بأسعار تنافسية."
+        keywords="شراء مستحضرات تجميل، متجر مستحضرات تجميل اون لاين، منتجات العناية بالبشرة العراق، كريمات البشرة، سيروم، تونر، مرطبات"
+        structuredData={structuredData}
+      />
       <Navbar />
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
