@@ -60,7 +60,7 @@ export const Footer = () => {
               <li className="flex items-center gap-3 text-sm">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
                 <a href="tel:+9647748209420" className="text-muted-foreground hover:text-primary transition-colors">
-                  +964 7748209420
+                  +9647748209420
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm">
