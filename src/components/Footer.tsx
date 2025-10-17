@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Phone, Mail, MapPin, ShoppingBag } from "lucide-react";
+import { Facebook, Instagram, Tiktok, Twitter, Phone, Mail, MapPin, ShoppingBag } from "lucide-react";
 
 export const Footer = () => {
   return (
@@ -55,17 +55,20 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm">
                 <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-muted-foreground">بغداد، العراق - شارع الكرادة</span>
+                <span className="text-muted-foreground">بابل، العراق - المحاويل </span>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
                 <a href="tel:+9647700000000" className="text-muted-foreground hover:text-primary transition-colors">
-                  +964 770 000 0000
+                  +964 7748209420
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Mail className="h-5 w-5 text-primary shrink-0" />
-                <a href="mailto:info@beautyshop.iq" className="text-muted-foreground hover:text-primary transition-colors">
+                <a
+                  href="mailto:info@beautyshop.iq"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
                   info@beautyshop.iq
                 </a>
               </li>
@@ -89,7 +92,7 @@ export const Footer = () => {
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/hadeer.2540/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
@@ -104,7 +107,7 @@ export const Footer = () => {
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
                 aria-label="تويتر"
               >
-                <Twitter className="h-5 w-5" />
+                <Tiktok className="h-5 w-5" />
               </a>
               <a
                 href="https://wa.me/9647700000000"
