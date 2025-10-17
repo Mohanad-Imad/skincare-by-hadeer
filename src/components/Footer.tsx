@@ -59,7 +59,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
-                <a href="tel:+9647700000000" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="tel:+9647748209420" className="text-muted-foreground hover:text-primary transition-colors">
                   +964 7748209420
                 </a>
               </li>
@@ -110,7 +110,7 @@ export const Footer = () => {
                 <Music className="h-5 w-5" />
               </a>
               <a
-                href="https://wa.me/9647700000000"
+                href="https://wa.me/9647748209420"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
