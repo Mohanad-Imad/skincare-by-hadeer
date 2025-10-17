@@ -3,47 +3,26 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, User } from "lucide-react";
-
-const blogPosts = [
-  {
-    id: 1,
-    title: "أفضل روتين للعناية بالبشرة الدهنية في الصيف",
-    description: "تعرفي على أفضل المنتجات والخطوات للعناية بالبشرة الدهنية خلال فصل الصيف الحار في العراق",
-    author: "فريق التحرير",
-    date: "2025-01-10",
-    image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800",
-    content: "البشرة الدهنية تحتاج إلى عناية خاصة في الصيف..."
-  },
-  {
-    id: 2,
-    title: "كيف تختارين الكريم المناسب لنوع بشرتك",
-    description: "دليل شامل لاختيار كريم البشرة المثالي حسب نوع بشرتك واحتياجاتها الخاصة",
-    author: "د. سارة أحمد",
-    date: "2025-01-08",
-    image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800",
-    content: "اختيار الكريم المناسب يعتمد على عدة عوامل..."
-  },
-  {
-    id: 3,
-    title: "فوائد السيروم للبشرة وكيفية استخدامه",
-    description: "اكتشفي أهمية السيروم في روتين العناية بالبشرة والطريقة الصحيحة لتطبيقه",
-    author: "نور محمد",
-    date: "2025-01-05",
-    image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800",
-    content: "السيروم من أهم منتجات العناية بالبشرة..."
-  },
-  {
-    id: 4,
-    title: "العناية بالبشرة الحساسة: نصائح ومنتجات",
-    description: "دليلك الكامل للعناية بالبشرة الحساسة وتجنب التهيج والاحمرار",
-    author: "ليلى حسن",
-    date: "2025-01-03",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800",
-    content: "البشرة الحساسة تحتاج إلى منتجات خاصة..."
-  }
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
+  const navigate = useNavigate();
+  
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ["blog-posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Blog",
@@ -69,35 +48,47 @@ const Blog = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {blogPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden transition-all hover:shadow-lg">
-              <div className="aspect-video w-full overflow-hidden">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="h-full w-full object-cover transition-transform hover:scale-105"
-                />
-              </div>
-              <CardHeader>
-                <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                <CardDescription className="line-clamp-2">{post.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(post.date).toLocaleDateString("ar-IQ")}</span>
+        {isLoading ? (
+          <div className="text-center">جاري التحميل...</div>
+        ) : !posts || posts.length === 0 ? (
+          <div className="text-center text-muted-foreground">لا توجد مقالات متاحة حالياً</div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <Card 
+                key={post.id} 
+                className="overflow-hidden transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => navigate(`/blog/${post.slug}`)}
+              >
+                {post.image_url && (
+                  <div className="aspect-video w-full overflow-hidden">
+                    <img
+                      src={post.image_url}
+                      alt={post.title}
+                      className="h-full w-full object-cover transition-transform hover:scale-105"
+                    />
                   </div>
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span>{post.author}</span>
+                )}
+                <CardHeader>
+                  <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                  <CardDescription className="line-clamp-2">{post.excerpt}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(post.published_at || post.created_at).toLocaleDateString("ar-IQ")}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      <span>{post.author_name}</span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
       
       <Footer />
