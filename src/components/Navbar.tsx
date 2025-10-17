@@ -105,6 +105,14 @@ export const Navbar = () => {
         </h1>
 
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
+            <ShoppingCart className="h-4 w-4" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                {cartCount}
+              </span>
+            )}
+          </Button>
           {session ? (
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
@@ -116,15 +124,6 @@ export const Navbar = () => {
               <span className="hidden sm:inline">دخول</span>
             </Button>
           )}
-
-          <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
-            <ShoppingCart className="h-4 w-4" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                {cartCount}
-              </span>
-            )}
-          </Button>
         </div>
       </div>
     </nav>
