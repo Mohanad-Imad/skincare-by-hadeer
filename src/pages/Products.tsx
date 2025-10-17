@@ -33,16 +33,28 @@ const Products = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("company_name_ar")
-        .not("company_name_ar", "is", null)
-        .neq("company_name_ar", "");
+        .select("company_name_ar, company_name_en");
       if (error) throw error;
       
       // استخراج الأسماء الفريدة
-      const uniqueCompanies = Array.from(
-        new Set(data.map((p) => p.company_name_ar).filter(Boolean))
-      );
-      return uniqueCompanies as string[];
+      const companiesMap = new Map();
+      data.forEach((p) => {
+        const arName = p.company_name_ar;
+        const enName = p.company_name_en;
+        if (arName || enName) {
+          const key = arName || enName;
+          if (!companiesMap.has(key)) {
+            companiesMap.set(key, { ar: arName, en: enName });
+          }
+        }
+      });
+      
+      return Array.from(companiesMap.entries()).map(([key, value]) => ({
+        key,
+        displayName: value.ar || value.en,
+        ar: value.ar,
+        en: value.en,
+      }));
     },
   });
 
@@ -59,7 +71,7 @@ const Products = () => {
       }
 
       if (companyFilter !== "all") {
-        countQuery = countQuery.eq("company_name_ar", companyFilter);
+        countQuery = countQuery.or(`company_name_ar.eq.${companyFilter},company_name_en.eq.${companyFilter}`);
       }
 
       if (searchTerm) {
@@ -92,7 +104,7 @@ const Products = () => {
       }
 
       if (companyFilter !== "all") {
-        query = query.eq("company_name_ar", companyFilter);
+        query = query.or(`company_name_ar.eq.${companyFilter},company_name_en.eq.${companyFilter}`);
       }
 
       if (searchTerm) {
@@ -186,8 +198,8 @@ const Products = () => {
             <SelectContent>
               <SelectItem value="all">جميع الشركات</SelectItem>
               {companies?.map((company) => (
-                <SelectItem key={company} value={company}>
-                  {company}
+                <SelectItem key={company.key} value={company.key}>
+                  {company.displayName}
                 </SelectItem>
               ))}
             </SelectContent>
