@@ -7,15 +7,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronDown } from "lucide-react";
 
@@ -37,40 +36,35 @@ export function OrderStatusSelect({ value, onValueChange }: OrderStatusSelectPro
 
   if (isMobile) {
     return (
-      <Drawer>
-        <DrawerTrigger asChild>
+      <Sheet>
+        <SheetTrigger asChild>
           <Button variant="outline" className="w-40 justify-between">
             {statusLabels[value as keyof typeof statusLabels]}
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
-        </DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>تغيير حالة الطلب</DrawerTitle>
-            <DrawerDescription>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="h-auto">
+          <SheetHeader>
+            <SheetTitle>تغيير حالة الطلب</SheetTitle>
+            <SheetDescription>
               اختر الحالة الجديدة للطلب
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="p-4 space-y-2">
+            </SheetDescription>
+          </SheetHeader>
+          <div className="py-4 space-y-2">
             {Object.entries(statusLabels).map(([statusValue, label]) => (
-              <DrawerClose key={statusValue} asChild>
+              <SheetClose key={statusValue} asChild>
                 <Button
                   variant={value === statusValue ? "default" : "outline"}
-                  className="w-full justify-start"
+                  className="w-full justify-start text-base py-6"
                   onClick={() => onValueChange(statusValue)}
                 >
                   {label}
                 </Button>
-              </DrawerClose>
+              </SheetClose>
             ))}
           </div>
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">إلغاء</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
     );
   }
 
