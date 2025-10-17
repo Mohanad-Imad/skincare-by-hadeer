@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Tiktok, Twitter, Phone, Mail, MapPin, ShoppingBag } from "lucide-react";
+import { Facebook, Instagram, Music, Phone, Mail, MapPin, ShoppingBag } from "lucide-react";
 
 export const Footer = () => {
   return (
@@ -105,9 +105,9 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="تويتر"
+                aria-label="تيك توك"
               >
-                <Tiktok className="h-5 w-5" />
+                <Music className="h-5 w-5" />
               </a>
               <a
                 href="https://wa.me/9647700000000"
