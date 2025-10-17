@@ -104,24 +104,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Categories */}
-      {categories && categories.length > 0 && (
-        <section className="container py-12">
-          <h3 className="mb-8 text-center text-2xl font-bold">التصنيفات</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="group cursor-pointer rounded-lg bg-card p-6 text-center shadow-sm transition-all hover:shadow-md"
-                onClick={() => navigate(`/products?category=${category.id}`)}
-              >
-                <h4 className="font-semibold">{category.name_ar}</h4>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
         <section className="container py-12">
