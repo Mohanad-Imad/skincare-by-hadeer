@@ -17,7 +17,7 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps
       className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg"
       onClick={() => navigate(`/products/${id}`)}
     >
-      <div className="aspect-square overflow-hidden bg-secondary/50 p-2">
+      <div className="aspect-square overflow-hidden bg-background p-2">
         {imageUrl ? (
           <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center">
             <img
