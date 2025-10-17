@@ -17,13 +17,15 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps
       className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg"
       onClick={() => navigate(`/products/${id}`)}
     >
-      <div className="aspect-[4/3] overflow-hidden bg-secondary">
+      <div className="aspect-square overflow-hidden bg-secondary/50 p-2">
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={nameAr}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-          />
+          <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center">
+            <img
+              src={imageUrl}
+              alt={nameAr}
+              className="h-full w-full object-contain transition-transform group-hover:scale-105"
+            />
+          </div>
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
             بدون صورة
