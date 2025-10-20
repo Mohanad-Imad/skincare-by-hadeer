@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
 
 interface ProductCardProps {
   id: string;
@@ -12,6 +14,7 @@ interface ProductCardProps {
 
 export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps) => {
   const navigate = useNavigate();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
     <Card
@@ -28,11 +31,17 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps
           </div>
         </div>
         {imageUrl ? (
-          <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center">
+          <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center relative">
+            {!imageLoaded && (
+              <Skeleton className="absolute inset-0 w-full h-full" />
+            )}
             <img
               src={imageUrl}
               alt={nameAr}
-              className="h-full w-full object-contain transition-transform group-hover:scale-105"
+              className={`h-full w-full object-contain transition-transform group-hover:scale-105 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setImageLoaded(true)}
             />
           </div>
         ) : (
