@@ -20,10 +20,14 @@ const menuItems = [
 ];
 
 export function AdminSidebar() {
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, setOpen, isMobile } = useSidebar();
 
   const handleLinkClick = () => {
-    setOpenMobile(false);
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
   };
 
   return (
