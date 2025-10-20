@@ -38,6 +38,10 @@ const AdminProducts = () => {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [productImages, setProductImages] = useState<Array<{ url: string; id?: string; display_order: number }>>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [featuredFilter, setFeaturedFilter] = useState("all");
+  const [newArrivalFilter, setNewArrivalFilter] = useState("all");
   
   const [formData, setFormData] = useState({
     name_ar: "",
@@ -403,6 +407,21 @@ const AdminProducts = () => {
     setProductImages(productImages.filter((_, i) => i !== index));
   };
 
+  // Filter products
+  const filteredProducts = products?.filter((product) => {
+    const matchesSearch = product.name_ar.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.company_name_ar?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !categoryFilter || product.category_id === categoryFilter;
+    const matchesFeatured = featuredFilter === "all" || 
+      (featuredFilter === "featured" && product.is_featured) ||
+      (featuredFilter === "not_featured" && !product.is_featured);
+    const matchesNewArrival = newArrivalFilter === "all" ||
+      (newArrivalFilter === "new" && product.is_new_arrival) ||
+      (newArrivalFilter === "not_new" && !product.is_new_arrival);
+    
+    return matchesSearch && matchesCategory && matchesFeatured && matchesNewArrival;
+  });
+
   if (isLoading) return <div>جاري التحميل...</div>;
 
   return (
@@ -624,6 +643,65 @@ const AdminProducts = () => {
         </Dialog>
       </div>
 
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <Label htmlFor="search">البحث</Label>
+            <Input
+              id="search"
+              placeholder="ابحث بالاسم أو الشركة..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="category">التصنيف</Label>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger id="category">
+                <SelectValue placeholder="جميع التصنيفات" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">جميع التصنيفات</SelectItem>
+                {categories?.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name_ar}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="featured">المميزة</Label>
+            <Select value={featuredFilter} onValueChange={setFeaturedFilter}>
+              <SelectTrigger id="featured">
+                <SelectValue placeholder="الكل" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="featured">مميزة فقط</SelectItem>
+                <SelectItem value="not_featured">غير مميزة</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="newArrival">الوصول الحديث</Label>
+            <Select value={newArrivalFilter} onValueChange={setNewArrivalFilter}>
+              <SelectTrigger id="newArrival">
+                <SelectValue placeholder="الكل" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="new">وصلت حديثاً</SelectItem>
+                <SelectItem value="not_new">قديمة</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          عرض {filteredProducts?.length || 0} من {products?.length || 0} منتج
+        </div>
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -636,7 +714,7 @@ const AdminProducts = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.map((product) => (
+            {filteredProducts?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.name_ar}</TableCell>
                 <TableCell>{product.is_featured ? "نعم" : "لا"}</TableCell>

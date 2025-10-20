@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const menuItems = [
@@ -19,6 +20,12 @@ const menuItems = [
 ];
 
 export function AdminSidebar() {
+  const { setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -31,6 +38,7 @@ export function AdminSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      onClick={handleLinkClick}
                       className={({ isActive }) => (isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "")}
                     >
                       <item.icon className="ml-2 h-4 w-4" />

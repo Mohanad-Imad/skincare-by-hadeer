@@ -30,7 +30,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen w-full">
         <AdminSidebar />
         <div className="flex flex-1 flex-col">
