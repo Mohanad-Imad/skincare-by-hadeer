@@ -39,7 +39,7 @@ const AdminProducts = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [productImages, setProductImages] = useState<Array<{ url: string; id?: string; display_order: number }>>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [featuredFilter, setFeaturedFilter] = useState("all");
   const [newArrivalFilter, setNewArrivalFilter] = useState("all");
   
@@ -411,7 +411,7 @@ const AdminProducts = () => {
   const filteredProducts = products?.filter((product) => {
     const matchesSearch = product.name_ar.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.company_name_ar?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || product.category_id === categoryFilter;
+    const matchesCategory = categoryFilter === "all" || product.category_id === categoryFilter;
     const matchesFeatured = featuredFilter === "all" || 
       (featuredFilter === "featured" && product.is_featured) ||
       (featuredFilter === "not_featured" && !product.is_featured);
@@ -661,7 +661,7 @@ const AdminProducts = () => {
                 <SelectValue placeholder="جميع التصنيفات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع التصنيفات</SelectItem>
+                <SelectItem value="all">جميع التصنيفات</SelectItem>
                 {categories?.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.name_ar}
