@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
 
 interface ProductCardProps {
   id: string;
@@ -17,7 +19,11 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps
       className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg"
       onClick={() => navigate(`/products/${id}`)}
     >
-      <div className="aspect-square overflow-hidden bg-background p-2">
+      <div className="aspect-square overflow-hidden bg-background p-2 relative">
+        <Badge className="absolute top-3 left-3 z-10 bg-primary/90 hover:bg-primary text-white gap-1 px-2 py-1">
+          <ShieldCheck className="h-3 w-3" />
+          <span className="text-xs">أصلي ومضمون</span>
+        </Badge>
         {imageUrl ? (
           <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center">
             <img
