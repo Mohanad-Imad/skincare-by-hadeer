@@ -42,6 +42,7 @@ const AdminProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [featuredFilter, setFeaturedFilter] = useState("all");
   const [newArrivalFilter, setNewArrivalFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
   
@@ -420,8 +421,11 @@ const AdminProducts = () => {
     const matchesNewArrival = newArrivalFilter === "all" ||
       (newArrivalFilter === "new" && product.is_new_arrival) ||
       (newArrivalFilter === "not_new" && !product.is_new_arrival);
+    const matchesActive = activeFilter === "all" ||
+      (activeFilter === "active" && product.is_active) ||
+      (activeFilter === "inactive" && !product.is_active);
     
-    return matchesSearch && matchesCategory && matchesFeatured && matchesNewArrival;
+    return matchesSearch && matchesCategory && matchesFeatured && matchesNewArrival && matchesActive;
   });
 
   // Pagination calculations
@@ -658,7 +662,7 @@ const AdminProducts = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <div>
             <Label htmlFor="search">البحث</Label>
             <Input
@@ -710,6 +714,19 @@ const AdminProducts = () => {
                 <SelectItem value="all">الكل</SelectItem>
                 <SelectItem value="new">وصلت حديثاً</SelectItem>
                 <SelectItem value="not_new">قديمة</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="active">الحالة</Label>
+            <Select value={activeFilter} onValueChange={(value) => handleFilterChange(setActiveFilter, value)}>
+              <SelectTrigger id="active">
+                <SelectValue placeholder="الكل" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="active">نشطة فقط</SelectItem>
+                <SelectItem value="inactive">غير نشطة</SelectItem>
               </SelectContent>
             </Select>
           </div>
