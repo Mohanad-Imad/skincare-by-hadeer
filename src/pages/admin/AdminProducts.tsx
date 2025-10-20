@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, X } from "lucide-react";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import {
   Table,
@@ -42,6 +42,8 @@ const AdminProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [featuredFilter, setFeaturedFilter] = useState("all");
   const [newArrivalFilter, setNewArrivalFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 20;
   
   const [formData, setFormData] = useState({
     name_ar: "",
@@ -422,6 +424,18 @@ const AdminProducts = () => {
     return matchesSearch && matchesCategory && matchesFeatured && matchesNewArrival;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil((filteredProducts?.length || 0) / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const paginatedProducts = filteredProducts?.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  const handleFilterChange = (setter: (value: string) => void, value: string) => {
+    setter(value);
+    setCurrentPage(1);
+  };
+
   if (isLoading) return <div>جاري التحميل...</div>;
 
   return (
@@ -651,12 +665,15 @@ const AdminProducts = () => {
               id="search"
               placeholder="ابحث بالاسم أو الشركة..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
           <div>
             <Label htmlFor="category">التصنيف</Label>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <Select value={categoryFilter} onValueChange={(value) => handleFilterChange(setCategoryFilter, value)}>
               <SelectTrigger id="category">
                 <SelectValue placeholder="جميع التصنيفات" />
               </SelectTrigger>
@@ -672,7 +689,7 @@ const AdminProducts = () => {
           </div>
           <div>
             <Label htmlFor="featured">المميزة</Label>
-            <Select value={featuredFilter} onValueChange={setFeaturedFilter}>
+            <Select value={featuredFilter} onValueChange={(value) => handleFilterChange(setFeaturedFilter, value)}>
               <SelectTrigger id="featured">
                 <SelectValue placeholder="الكل" />
               </SelectTrigger>
@@ -685,7 +702,7 @@ const AdminProducts = () => {
           </div>
           <div>
             <Label htmlFor="newArrival">الوصول الحديث</Label>
-            <Select value={newArrivalFilter} onValueChange={setNewArrivalFilter}>
+            <Select value={newArrivalFilter} onValueChange={(value) => handleFilterChange(setNewArrivalFilter, value)}>
               <SelectTrigger id="newArrival">
                 <SelectValue placeholder="الكل" />
               </SelectTrigger>
@@ -697,8 +714,11 @@ const AdminProducts = () => {
             </Select>
           </div>
         </div>
-        <div className="text-sm text-muted-foreground">
-          عرض {filteredProducts?.length || 0} من {products?.length || 0} منتج
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            عرض {filteredProducts?.length || 0} من {products?.length || 0} منتج
+            {totalPages > 0 && ` - الصفحة ${currentPage} من ${totalPages}`}
+          </span>
         </div>
       </div>
 
@@ -714,7 +734,7 @@ const AdminProducts = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProducts?.map((product) => (
+            {paginatedProducts?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.name_ar}</TableCell>
                 <TableCell>{product.is_featured ? "نعم" : "لا"}</TableCell>
@@ -743,6 +763,53 @@ const AdminProducts = () => {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              if (
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              ) {
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="icon"
+                    onClick={() => setCurrentPage(page)}
+                    className="w-10"
+                  >
+                    {page}
+                  </Button>
+                );
+              } else if (page === currentPage - 2 || page === currentPage + 2) {
+                return <span key={page} className="px-2">...</span>;
+              }
+              return null;
+            })}
+          </div>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
