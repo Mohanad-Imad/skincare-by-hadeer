@@ -193,10 +193,10 @@ const ProductDetails = () => {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
+              <h1 className="mb-2 text-3xl font-bold">{product.name_ar}</h1>
               {product.categories && (
                 <p className="mb-2 text-base font-medium text-primary/80">{product.categories.name_ar}</p>
               )}
-              <h1 className="mb-2 text-3xl font-bold">{product.name_ar}</h1>
               {product.company_name_ar && (
                 <p className="mt-2 text-lg font-semibold text-muted-foreground">الشركة: {product.company_name_ar}</p>
               )}
