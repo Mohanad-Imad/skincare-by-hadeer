@@ -19,11 +19,11 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice }: ProductCardProps
       onClick={() => navigate(`/products/${id}`)}
     >
       <div className="aspect-square overflow-hidden bg-background p-2 relative">
-        <div className="absolute top-0 left-0 z-10 overflow-hidden w-24 h-24">
-          <div className="absolute transform -rotate-45 bg-primary text-white text-center font-semibold py-1 left-[-34px] top-[18px] w-32 shadow-md">
-            <div className="flex items-center justify-center gap-1">
-              <ShieldCheck className="h-3 w-3" />
-              <span className="text-[10px]">أصلي ومضمون</span>
+        <div className="absolute top-0 left-0 z-10 overflow-hidden w-32 h-32">
+          <div className="absolute transform -rotate-45 bg-emerald-500/90 text-white text-center font-bold py-1.5 left-[-38px] top-[26px] w-40 shadow-lg">
+            <div className="flex items-center justify-center gap-1.5">
+              <ShieldCheck className="h-4 w-4" />
+              <span className="text-xs">أصلي ومضمون</span>
             </div>
           </div>
         </div>
