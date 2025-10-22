@@ -85,6 +85,7 @@ const AdminOrders = () => {
               <TableHead>اسم العميل</TableHead>
               <TableHead>الهاتف</TableHead>
               <TableHead>المبلغ الإجمالي</TableHead>
+              <TableHead>الخصم</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>تاريخ الطلب</TableHead>
               <TableHead>الإجراءات</TableHead>
@@ -113,6 +114,15 @@ const AdminOrders = () => {
                   <TableCell>{order.customer_phone}</TableCell>
                   <TableCell>{Math.round(order.total_amount)} د.ع</TableCell>
                   <TableCell>
+                    {order.discount_amount && order.discount_amount > 0 ? (
+                      <span className="text-green-600 font-medium">
+                        -{Math.round(order.discount_amount)} د.ع
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <Badge variant="secondary">
                       {statusLabels[order.status as keyof typeof statusLabels]}
                     </Badge>
@@ -131,7 +141,7 @@ const AdminOrders = () => {
                 </TableRow>
                 {expandedOrders.has(order.id) && (
                   <TableRow>
-                    <TableCell colSpan={7} className="bg-muted/30 p-4">
+                    <TableCell colSpan={8} className="bg-muted/30 p-4">
                       <div className="space-y-3">
                         <h4 className="font-semibold text-sm">المنتجات المطلوبة:</h4>
                         {order.order_items && order.order_items.length > 0 ? (
@@ -163,6 +173,29 @@ const AdminOrders = () => {
                         <div className="mt-3 p-3 bg-background rounded-md border">
                           <p className="text-sm font-semibold mb-1">العنوان:</p>
                           <p className="text-sm text-muted-foreground">{order.customer_address}</p>
+                        </div>
+                        <div className="mt-3 p-3 bg-background rounded-md border">
+                          <p className="text-sm font-semibold mb-2">ملخص المبالغ:</p>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">المجموع الفرعي:</span>
+                              <span className="font-medium">
+                                {Math.round(order.total_amount + (order.discount_amount || 0))} د.ع
+                              </span>
+                            </div>
+                            {order.discount_amount && order.discount_amount > 0 && (
+                              <div className="flex justify-between text-green-600">
+                                <span>الخصم:</span>
+                                <span className="font-medium">-{Math.round(order.discount_amount)} د.ع</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between border-t pt-1 mt-1">
+                              <span className="font-semibold">المجموع النهائي:</span>
+                              <span className="font-bold text-primary">
+                                {Math.round(order.total_amount)} د.ع
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </TableCell>
