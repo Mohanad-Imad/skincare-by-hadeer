@@ -25,6 +25,9 @@ const Checkout = () => {
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<any>(null);
+  const [isCheckingCode, setIsCheckingCode] = useState(false);
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -59,16 +62,63 @@ const Checkout = () => {
     enabled: !!session?.user,
   });
 
+  const applyDiscountCode = async () => {
+    if (!discountCode.trim()) {
+      toast.error("الرجاء إدخال كود الخصم");
+      return;
+    }
+
+    setIsCheckingCode(true);
+    try {
+      const { data, error } = await supabase
+        .from("discount_codes")
+        .select("*")
+        .eq("code", discountCode.toUpperCase())
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        toast.error("كود الخصم غير صحيح أو منتهي الصلاحية");
+        setAppliedDiscount(null);
+        return;
+      }
+
+      const now = new Date();
+      const validFrom = new Date(data.valid_from);
+      const validUntil = new Date(data.valid_until);
+
+      if (now < validFrom || now > validUntil) {
+        toast.error("كود الخصم منتهي الصلاحية");
+        setAppliedDiscount(null);
+        return;
+      }
+
+      setAppliedDiscount(data);
+      toast.success(`تم تطبيق الخصم ${data.discount_percentage}%`);
+    } catch (error) {
+      console.error("Error applying discount:", error);
+      toast.error("حدث خطأ أثناء تطبيق الخصم");
+    } finally {
+      setIsCheckingCode(false);
+    }
+  };
+
   const createOrderMutation = useMutation({
     mutationFn: async () => {
       if (!session?.user || !cartItems || cartItems.length === 0) {
         throw new Error("السلة فارغة");
       }
 
-      const totalAmount = cartItems.reduce(
+      const subtotal = cartItems.reduce(
         (sum, item) => sum + item.product_variants.price * item.quantity,
         0
       );
+
+      const discountAmount = appliedDiscount
+        ? (subtotal * appliedDiscount.discount_percentage) / 100
+        : 0;
+
+      const totalAmount = subtotal - discountAmount;
 
       // Create order
       const { data: order, error: orderError } = await supabase
@@ -80,6 +130,8 @@ const Checkout = () => {
           customer_address: customerAddress,
           notes,
           total_amount: totalAmount,
+          discount_code_id: appliedDiscount?.id || null,
+          discount_amount: discountAmount,
           status: "new",
         })
         .select()
@@ -156,10 +208,16 @@ const Checkout = () => {
     return null;
   }
 
-  const total = cartItems?.reduce(
+  const subtotal = cartItems?.reduce(
     (sum, item) => sum + item.product_variants.price * item.quantity,
     0
   ) || 0;
+
+  const discountAmount = appliedDiscount
+    ? (subtotal * appliedDiscount.discount_percentage) / 100
+    : 0;
+
+  const total = subtotal - discountAmount;
 
   return (
     <div className="min-h-screen bg-background">
@@ -219,6 +277,45 @@ const Checkout = () => {
               </div>
 
               <div className="rounded-lg border p-6">
+                <h2 className="mb-4 text-xl font-semibold">كود الخصم</h2>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="أدخل كود الخصم"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value)}
+                      disabled={!!appliedDiscount}
+                    />
+                    {appliedDiscount ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setAppliedDiscount(null);
+                          setDiscountCode("");
+                        }}
+                      >
+                        إلغاء
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={applyDiscountCode}
+                        disabled={isCheckingCode}
+                      >
+                        {isCheckingCode ? "جاري التحقق..." : "تطبيق"}
+                      </Button>
+                    )}
+                  </div>
+                  {appliedDiscount && (
+                    <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800">
+                      تم تطبيق خصم {appliedDiscount.discount_percentage}%
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-6">
                 <h2 className="mb-4 text-xl font-semibold">طريقة الدفع</h2>
                 <div className="rounded-lg bg-secondary p-4 text-center">
                   <p className="font-semibold">الدفع عند الاستلام</p>
@@ -250,7 +347,17 @@ const Checkout = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t pt-4">
+            <div className="space-y-2 border-t pt-4">
+              <div className="flex justify-between text-sm">
+                <span>المجموع الفرعي:</span>
+                <span>{Math.round(subtotal)} د.ع</span>
+              </div>
+              {appliedDiscount && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span>الخصم ({appliedDiscount.discount_percentage}%):</span>
+                  <span>-{Math.round(discountAmount)} د.ع</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-bold">
                 <span>المجموع:</span>
                 <span className="text-primary">{Math.round(total)} د.ع</span>

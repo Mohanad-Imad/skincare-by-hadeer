@@ -133,6 +133,42 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          discount_percentage: number
+          id: string
+          is_active: boolean
+          updated_at: string
+          valid_from: string
+          valid_until: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          discount_percentage: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          valid_from?: string
+          valid_until: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          discount_percentage?: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
@@ -196,6 +232,8 @@ export type Database = {
           customer_address: string
           customer_name: string
           customer_phone: string
+          discount_amount: number | null
+          discount_code_id: string | null
           id: string
           notes: string | null
           status: Database["public"]["Enums"]["order_status"] | null
@@ -208,6 +246,8 @@ export type Database = {
           customer_address: string
           customer_name: string
           customer_phone: string
+          discount_amount?: number | null
+          discount_code_id?: string | null
           id?: string
           notes?: string | null
           status?: Database["public"]["Enums"]["order_status"] | null
@@ -220,6 +260,8 @@ export type Database = {
           customer_address?: string
           customer_name?: string
           customer_phone?: string
+          discount_amount?: number | null
+          discount_code_id?: string | null
           id?: string
           notes?: string | null
           status?: Database["public"]["Enums"]["order_status"] | null
@@ -227,7 +269,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_discount_code_id_fkey"
+            columns: ["discount_code_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_images: {
         Row: {
