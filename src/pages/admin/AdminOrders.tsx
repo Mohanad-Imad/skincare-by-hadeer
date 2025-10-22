@@ -11,9 +11,28 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const statusLabels = {
   new: "جديد",
@@ -23,9 +42,20 @@ const statusLabels = {
   cancelled: "ملغي",
 };
 
+const statusColors = {
+  new: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+  processing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+  shipped: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+  delivered: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+  cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+};
+
+const ITEMS_PER_PAGE = 10;
+
 const AdminOrders = () => {
   const queryClient = useQueryClient();
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -59,6 +89,29 @@ const AdminOrders = () => {
     onError: () => toast.error("حدث خطأ أثناء تحديث حالة الطلب"),
   });
 
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      // Delete order items first (cascade should handle this, but being explicit)
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .delete()
+        .eq("order_id", orderId);
+      if (itemsError) throw itemsError;
+
+      // Delete the order
+      const { error: orderError } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", orderId);
+      if (orderError) throw orderError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      toast.success("تم حذف الطلب بنجاح");
+    },
+    onError: () => toast.error("حدث خطأ أثناء حذف الطلب"),
+  });
+
   const toggleOrderExpansion = (orderId: string) => {
     setExpandedOrders((prev) => {
       const newSet = new Set(prev);
@@ -73,9 +126,20 @@ const AdminOrders = () => {
 
   if (isLoading) return <div>جاري التحميل...</div>;
 
+  const totalOrders = orders?.length || 0;
+  const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentOrders = orders?.slice(startIndex, endIndex) || [];
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">إدارة الطلبات</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">إدارة الطلبات</h2>
+        <p className="text-sm text-muted-foreground">
+          إجمالي الطلبات: {totalOrders}
+        </p>
+      </div>
 
       <div className="rounded-md border">
         <Table>
@@ -92,7 +156,7 @@ const AdminOrders = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders?.map((order) => (
+            {currentOrders.map((order) => (
               <>
                 <TableRow key={order.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell className="font-mono text-sm">
@@ -123,7 +187,9 @@ const AdminOrders = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">
+                    <Badge 
+                      className={statusColors[order.status as keyof typeof statusColors]}
+                    >
                       {statusLabels[order.status as keyof typeof statusLabels]}
                     </Badge>
                   </TableCell>
@@ -131,12 +197,42 @@ const AdminOrders = () => {
                     {new Date(order.created_at).toLocaleDateString("ar-IQ")}
                   </TableCell>
                   <TableCell>
-                    <OrderStatusSelect
-                      value={order.status}
-                      onValueChange={(value) =>
-                        updateStatusMutation.mutate({ id: order.id, status: value as "new" | "processing" | "shipped" | "delivered" | "cancelled" })
-                      }
-                    />
+                    <div className="flex items-center gap-2">
+                      <OrderStatusSelect
+                        value={order.status}
+                        onValueChange={(value) =>
+                          updateStatusMutation.mutate({ id: order.id, status: value as "new" | "processing" | "shipped" | "delivered" | "cancelled" })
+                        }
+                      />
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>تأكيد حذف الطلب</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteOrderMutation.mutate(order.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              حذف
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
                 {expandedOrders.has(order.id) && (
@@ -206,6 +302,38 @@ const AdminOrders = () => {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <Pagination dir="rtl">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  onClick={() => setCurrentPage(page)}
+                  isActive={currentPage === page}
+                  className="cursor-pointer"
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
