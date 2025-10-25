@@ -6,20 +6,40 @@ export interface LocalCartItem {
 }
 
 const LOCAL_CART_KEY = "temp_cart";
+const CART_UPDATE_EVENT = "local-cart-updated";
+
+// إطلاق حدث مخصص عند تحديث السلة
+const dispatchCartUpdate = () => {
+  window.dispatchEvent(new Event(CART_UPDATE_EVENT));
+};
 
 export const useLocalCart = () => {
   const [localCart, setLocalCart] = useState<LocalCartItem[]>([]);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   useEffect(() => {
     // تحميل السلة من localStorage
-    const stored = localStorage.getItem(LOCAL_CART_KEY);
-    if (stored) {
-      try {
-        setLocalCart(JSON.parse(stored));
-      } catch (e) {
-        localStorage.removeItem(LOCAL_CART_KEY);
+    const loadCart = () => {
+      const stored = localStorage.getItem(LOCAL_CART_KEY);
+      if (stored) {
+        try {
+          setLocalCart(JSON.parse(stored));
+        } catch (e) {
+          localStorage.removeItem(LOCAL_CART_KEY);
+        }
       }
-    }
+    };
+
+    loadCart();
+
+    // الاستماع لتحديثات السلة من مكونات أخرى
+    const handleCartUpdate = () => {
+      loadCart();
+      setUpdateTrigger(prev => prev + 1);
+    };
+
+    window.addEventListener(CART_UPDATE_EVENT, handleCartUpdate);
+    return () => window.removeEventListener(CART_UPDATE_EVENT, handleCartUpdate);
   }, []);
 
   const addToLocalCart = (variantId: string) => {
@@ -38,6 +58,7 @@ export const useLocalCart = () => {
     
     setLocalCart(newCart);
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newCart));
+    dispatchCartUpdate();
   };
 
   const updateLocalCartQuantity = (variantId: string, quantity: number) => {
@@ -46,17 +67,20 @@ export const useLocalCart = () => {
     );
     setLocalCart(newCart);
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newCart));
+    dispatchCartUpdate();
   };
 
   const removeFromLocalCart = (variantId: string) => {
     const newCart = localCart.filter((item) => item.variantId !== variantId);
     setLocalCart(newCart);
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newCart));
+    dispatchCartUpdate();
   };
 
   const clearLocalCart = () => {
     setLocalCart([]);
     localStorage.removeItem(LOCAL_CART_KEY);
+    dispatchCartUpdate();
   };
 
   const getLocalCartCount = () => {

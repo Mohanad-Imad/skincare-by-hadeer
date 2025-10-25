@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
+  { title: "الإحصائيات", url: "/admin/analytics", icon: BarChart3 },
   { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "التصنيفات", url: "/admin/categories", icon: Grid3x3 },
