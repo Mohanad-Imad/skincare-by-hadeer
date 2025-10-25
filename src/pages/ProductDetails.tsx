@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -53,6 +53,13 @@ const ProductDetails = () => {
     refetchOnWindowFocus: true,
     staleTime: 0,
   });
+
+  // تعيين أول variant تلقائياً عند تحميل المنتج
+  useEffect(() => {
+    if (product && product.product_variants && product.product_variants.length > 0 && !selectedVariant) {
+      setSelectedVariant(product.product_variants[0].id);
+    }
+  }, [product, selectedVariant]);
   const addToCartMutation = useMutation({
     mutationFn: async (variantId: string) => {
       if (!session?.user) {
