@@ -6,10 +6,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Trash2, Plus, Minus } from "lucide-react";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 const Cart = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { localCart, updateLocalCartQuantity, removeFromLocalCart } = useLocalCart();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -17,6 +19,37 @@ const Cart = () => {
       const { data } = await supabase.auth.getSession();
       return data.session;
     },
+  });
+
+  // جلب بيانات المنتجات من السلة المؤقتة
+  const { data: localCartItems } = useQuery({
+    queryKey: ["local-cart-items", localCart],
+    queryFn: async () => {
+      if (!localCart || localCart.length === 0) return [];
+      
+      const variantIds = localCart.map((item) => item.variantId);
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select(`
+          *,
+          products (
+            name_ar,
+            image_url
+          )
+        `)
+        .in("id", variantIds);
+
+      if (error) throw error;
+      
+      return data.map((variant) => {
+        const cartItem = localCart.find((item) => item.variantId === variant.id);
+        return {
+          ...variant,
+          quantity: cartItem?.quantity || 1,
+        };
+      });
+    },
+    enabled: !session && localCart.length > 0,
   });
 
   const { data: cartItems, isLoading } = useQuery({
@@ -75,14 +108,115 @@ const Cart = () => {
     0
   ) || 0;
 
+  const localTotal = localCartItems?.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  ) || 0;
+
+  // عرض السلة المؤقتة للمستخدمين غير المسجلين
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container py-16 text-center">
-          <p className="mb-4">يجب تسجيل الدخول لعرض السلة</p>
-          <Button onClick={() => navigate("/auth")}>تسجيل الدخول</Button>
+        <div className="container py-8">
+          <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
+
+          {!localCartItems || localCartItems.length === 0 ? (
+            <div className="text-center">
+              <p className="mb-4 text-muted-foreground">السلة فارغة</p>
+              <Button onClick={() => navigate("/products")}>تسوقي الآن</Button>
+            </div>
+          ) : (
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-4">
+                {localCartItems.map((item) => (
+                  <div key={item.id} className="flex gap-4 rounded-lg border p-4">
+                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
+                      {item.products.image_url ? (
+                        <img
+                          src={item.products.image_url}
+                          alt={item.products.name_ar}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                          بدون صورة
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-1 flex-col justify-between">
+                      <div>
+                        <h3 className="font-semibold">{item.products.name_ar}</h3>
+                        <p className="text-sm text-muted-foreground">{item.size_ar}</p>
+                        <p className="mt-1 font-bold text-primary">
+                          {Math.round(item.price)} د.ع
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8"
+                            onClick={() =>
+                              updateLocalCartQuantity(item.id, Math.max(1, item.quantity - 1))
+                            }
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="w-8 text-center">{item.quantity}</span>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8"
+                            onClick={() =>
+                              updateLocalCartQuantity(item.id, item.quantity + 1)
+                            }
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            removeFromLocalCart(item.id);
+                            toast.success("تم حذف المنتج من السلة");
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="h-fit rounded-lg border p-6">
+                <h3 className="mb-4 text-xl font-bold">ملخص الطلب</h3>
+                <div className="mb-4 flex justify-between text-lg">
+                  <span>المجموع:</span>
+                  <span className="font-bold text-primary">{Math.round(localTotal)} د.ع</span>
+                </div>
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={() => {
+                    toast.info("يجب تسجيل الدخول لإتمام الطلب");
+                    navigate("/auth");
+                  }}
+                >
+                  تسجيل الدخول لإتمام الطلب
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
+        <Footer />
       </div>
     );
   }

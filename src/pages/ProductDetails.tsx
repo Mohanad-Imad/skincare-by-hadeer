@@ -10,12 +10,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
+import { useLocalCart } from "@/hooks/useLocalCart";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const { addToLocalCart } = useLocalCart();
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -60,11 +62,23 @@ const ProductDetails = () => {
       setSelectedVariant(product.product_variants[0].id);
     }
   }, [product, selectedVariant]);
+  const handleAddToCart = () => {
+    if (!selectedVariant) return;
+
+    if (!session?.user) {
+      // إضافة إلى السلة المؤقتة
+      addToLocalCart(selectedVariant);
+      toast.success("تمت الإضافة إلى السلة. سجلي الدخول لإتمام الطلب");
+    } else {
+      // إضافة إلى قاعدة البيانات
+      addToCartMutation.mutate(selectedVariant);
+    }
+  };
+
   const addToCartMutation = useMutation({
     mutationFn: async (variantId: string) => {
-      if (!session?.user) {
-        throw new Error("يجب تسجيل الدخول أولاً");
-      }
+      if (!session?.user) return;
+      
       const { data: existing } = await supabase
         .from("cart_items")
         .select("*")
@@ -94,13 +108,8 @@ const ProductDetails = () => {
       });
       toast.success("تمت الإضافة إلى السلة");
     },
-    onError: (error: Error) => {
-      if (error.message === "يجب تسجيل الدخول أولاً") {
-        toast.error(error.message);
-        navigate("/auth");
-      } else {
-        toast.error("حدث خطأ أثناء الإضافة إلى السلة");
-      }
+    onError: () => {
+      toast.error("حدث خطأ أثناء الإضافة إلى السلة");
     },
   });
   if (isLoading) {
@@ -257,7 +266,7 @@ const ProductDetails = () => {
             <Button
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
-              onClick={() => selectedVariant && addToCartMutation.mutate(selectedVariant)}
+              onClick={handleAddToCart}
               className="w-full mt-12"
             >
               <ShoppingCart className="ml-2 h-5 w-5 " />

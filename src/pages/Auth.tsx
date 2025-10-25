@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 const authSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").max(255, "البريد الإلكتروني طويل جداً"),
@@ -21,6 +22,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { localCart, clearLocalCart } = useLocalCart();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -31,6 +33,43 @@ const Auth = () => {
     };
     checkSession();
   }, [navigate]);
+
+  // نقل السلة المؤقتة إلى قاعدة البيانات بعد تسجيل الدخول
+  const migrateLocalCartToDatabase = async (userId: string) => {
+    if (localCart.length === 0) return;
+
+    try {
+      for (const item of localCart) {
+        // التحقق من وجود العنصر في السلة
+        const { data: existing } = await supabase
+          .from("cart_items")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("product_variant_id", item.variantId)
+          .maybeSingle();
+
+        if (existing) {
+          // تحديث الكمية
+          await supabase
+            .from("cart_items")
+            .update({ quantity: existing.quantity + item.quantity })
+            .eq("id", existing.id);
+        } else {
+          // إضافة عنصر جديد
+          await supabase.from("cart_items").insert({
+            user_id: userId,
+            product_variant_id: item.variantId,
+            quantity: item.quantity,
+          });
+        }
+      }
+
+      clearLocalCart();
+      toast.success("تم نقل منتجات السلة بنجاح");
+    } catch (error) {
+      console.error("Error migrating cart:", error);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,15 +93,21 @@ const Auth = () => {
       }
 
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        
+        // نقل السلة المؤقتة بعد تسجيل الدخول
+        if (data.user) {
+          await migrateLocalCartToDatabase(data.user.id);
+        }
+        
         toast.success("تم تسجيل الدخول بنجاح");
         navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -73,6 +118,12 @@ const Auth = () => {
           },
         });
         if (error) throw error;
+        
+        // نقل السلة المؤقتة بعد التسجيل
+        if (data.user) {
+          await migrateLocalCartToDatabase(data.user.id);
+        }
+        
         toast.success("تم إنشاء الحساب بنجاح");
         navigate("/");
       }

@@ -4,10 +4,12 @@ import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpe
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { getLocalCartCount } = useLocalCart();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -42,6 +44,8 @@ export const Navbar = () => {
     },
     enabled: !!session?.user?.id,
   });
+
+  const displayCartCount = session?.user ? cartCount : getLocalCartCount();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -121,9 +125,9 @@ export const Navbar = () => {
         <div className="flex items-center gap-1 order-3">
           <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
-            {cartCount > 0 && (
+            {displayCartCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                {cartCount}
+                {displayCartCount}
               </span>
             )}
           </Button>
