@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { DollarSign, ShoppingCart, Package, TrendingUp } from "lucide-react";
+import { DollarSign, ShoppingCart, Package, TrendingUp, Ticket } from "lucide-react";
 import { useState } from "react";
 
 const COLORS = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
@@ -154,6 +155,59 @@ const AdminAnalytics = () => {
     },
   });
 
+  // إحصائيات أكواد الخصم
+  const { data: discountStats } = useQuery({
+    queryKey: ["discount-stats", timeRange],
+    queryFn: async () => {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+
+      // جلب الطلبات مع أكواد الخصم
+      const { data: orders } = await supabase
+        .from("orders")
+        .select("discount_code_id, discount_amount, total_amount, created_at")
+        .gte("created_at", daysAgo.toISOString())
+        .not("discount_code_id", "is", null);
+
+      if (!orders || orders.length === 0) return [];
+
+      // جلب معلومات أكواد الخصم
+      const discountCodeIds = [...new Set(orders.map(o => o.discount_code_id))];
+      const { data: discountCodes } = await supabase
+        .from("discount_codes")
+        .select("id, code, discount_percentage")
+        .in("id", discountCodeIds);
+
+      if (!discountCodes) return [];
+
+      // تجميع الإحصائيات لكل كود
+      const statsMap = new Map();
+      orders.forEach((order) => {
+        const code = discountCodes.find(dc => dc.id === order.discount_code_id);
+        if (!code) return;
+
+        const existing = statsMap.get(code.id);
+        if (existing) {
+          existing.usageCount += 1;
+          existing.totalDiscount += Number(order.discount_amount || 0);
+          existing.totalSales += Number(order.total_amount);
+        } else {
+          statsMap.set(code.id, {
+            id: code.id,
+            code: code.code,
+            percentage: code.discount_percentage,
+            usageCount: 1,
+            totalDiscount: Number(order.discount_amount || 0),
+            totalSales: Number(order.total_amount),
+          });
+        }
+      });
+
+      return Array.from(statsMap.values())
+        .sort((a, b) => b.usageCount - a.usageCount);
+    },
+  });
+
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
@@ -177,7 +231,7 @@ const AdminAnalytics = () => {
         </div>
 
         {/* إحصائيات سريعة */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">إجمالي الإيرادات</CardTitle>
@@ -223,6 +277,19 @@ const AdminAnalytics = () => {
                 {Math.round((stats?.totalRevenue || 0) / (stats?.totalOrders || 1)).toLocaleString()} د.ع
               </div>
               <p className="text-xs text-muted-foreground">متوسط الطلب</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">أكواد الخصم المستخدمة</CardTitle>
+              <Ticket className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{discountStats?.length || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                إجمالي الخصومات: {Math.round(stats?.totalDiscount || 0).toLocaleString()} د.ع
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -315,6 +382,93 @@ const AdminAnalytics = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+        </div>
+
+        {/* قسم إحصائيات أكواد الخصم */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-6">إحصائيات أكواد الخصم</h2>
+          
+          <div className="grid gap-8 md:grid-cols-2">
+            {/* أكثر أكواد الخصم استخداماً */}
+            <Card>
+              <CardHeader>
+                <CardTitle>أكثر الأكواد استخداماً</CardTitle>
+                <CardDescription>أكواد الخصم الأكثر طلباً</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={discountStats?.slice(0, 5)}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="code" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="usageCount" fill="#f59e0b" name="عدد الاستخدامات" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* إجمالي الخصومات لكل كود */}
+            <Card>
+              <CardHeader>
+                <CardTitle>إجمالي الخصومات</CardTitle>
+                <CardDescription>قيمة الخصومات حسب الكود</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={discountStats?.slice(0, 5)}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="code" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="totalDiscount" fill="#ef4444" name="الخصومات (د.ع)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* جدول تفصيلي لأكواد الخصم */}
+            <Card className="col-span-2">
+              <CardHeader>
+                <CardTitle>تفاصيل أكواد الخصم</CardTitle>
+                <CardDescription>معلومات شاملة عن أداء كل كود خصم</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {discountStats && discountStats.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">الكود</TableHead>
+                        <TableHead className="text-right">نسبة الخصم</TableHead>
+                        <TableHead className="text-right">عدد الاستخدامات</TableHead>
+                        <TableHead className="text-right">إجمالي الخصومات</TableHead>
+                        <TableHead className="text-right">إجمالي المبيعات</TableHead>
+                        <TableHead className="text-right">المبيعات بعد الخصم</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {discountStats.map((stat) => (
+                        <TableRow key={stat.id}>
+                          <TableCell className="font-medium">{stat.code}</TableCell>
+                          <TableCell>{stat.percentage}%</TableCell>
+                          <TableCell>{stat.usageCount}</TableCell>
+                          <TableCell>{Math.round(stat.totalDiscount).toLocaleString()} د.ع</TableCell>
+                          <TableCell>{Math.round(stat.totalSales).toLocaleString()} د.ع</TableCell>
+                          <TableCell className="font-medium">
+                            {Math.round(stat.totalSales - stat.totalDiscount).toLocaleString()} د.ع
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    لا توجد بيانات لأكواد الخصم في الفترة المحددة
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
