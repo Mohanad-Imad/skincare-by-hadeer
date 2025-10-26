@@ -186,19 +186,29 @@ const AdminAnalytics = () => {
         const code = discountCodes.find(dc => dc.id === order.discount_code_id);
         if (!code) return;
 
+        // حساب القيم بشكل صحيح:
+        // - totalSalesBeforeDiscount: المبيعات الأصلية قبل تطبيق الخصم
+        // - totalSalesAfterDiscount: المبيعات الفعلية بعد الخصم (ما دفعه العميل)
+        // - totalDiscount: إجمالي قيمة الخصم
+        const totalAmount = Number(order.total_amount); // المبلغ بعد الخصم
+        const discountAmount = Number(order.discount_amount || 0); // قيمة الخصم
+        const amountBeforeDiscount = totalAmount + discountAmount; // المبلغ قبل الخصم
+
         const existing = statsMap.get(code.id);
         if (existing) {
           existing.usageCount += 1;
-          existing.totalDiscount += Number(order.discount_amount || 0);
-          existing.totalSales += Number(order.total_amount);
+          existing.totalDiscount += discountAmount;
+          existing.totalSalesBeforeDiscount += amountBeforeDiscount;
+          existing.totalSalesAfterDiscount += totalAmount;
         } else {
           statsMap.set(code.id, {
             id: code.id,
             code: code.code,
             percentage: code.discount_percentage,
             usageCount: 1,
-            totalDiscount: Number(order.discount_amount || 0),
-            totalSales: Number(order.total_amount),
+            totalDiscount: discountAmount,
+            totalSalesBeforeDiscount: amountBeforeDiscount,
+            totalSalesAfterDiscount: totalAmount,
           });
         }
       });
@@ -388,7 +398,7 @@ const AdminAnalytics = () => {
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-6">إحصائيات أكواد الخصم</h2>
           
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* أكثر أكواد الخصم استخداماً */}
             <Card>
               <CardHeader>
@@ -427,6 +437,26 @@ const AdminAnalytics = () => {
               </CardContent>
             </Card>
 
+            {/* مقارنة المبيعات قبل وبعد الخصم */}
+            <Card>
+              <CardHeader>
+                <CardTitle>تأثير الخصومات</CardTitle>
+                <CardDescription>مقارنة المبيعات قبل وبعد الخصم</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={discountStats?.slice(0, 5)}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="code" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="totalSalesBeforeDiscount" fill="#94a3b8" name="قبل الخصم (د.ع)" />
+                    <Bar dataKey="totalSalesAfterDiscount" fill="#10b981" name="بعد الخصم (د.ع)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
             {/* جدول تفصيلي لأكواد الخصم */}
             <Card className="col-span-2">
               <CardHeader>
@@ -436,30 +466,34 @@ const AdminAnalytics = () => {
               <CardContent>
                 {discountStats && discountStats.length > 0 ? (
                   <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-right">الكود</TableHead>
-                        <TableHead className="text-right">نسبة الخصم</TableHead>
-                        <TableHead className="text-right">عدد الاستخدامات</TableHead>
-                        <TableHead className="text-right">إجمالي الخصومات</TableHead>
-                        <TableHead className="text-right">إجمالي المبيعات</TableHead>
-                        <TableHead className="text-right">المبيعات بعد الخصم</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {discountStats.map((stat) => (
-                        <TableRow key={stat.id}>
-                          <TableCell className="font-medium">{stat.code}</TableCell>
-                          <TableCell>{stat.percentage}%</TableCell>
-                          <TableCell>{stat.usageCount}</TableCell>
-                          <TableCell>{Math.round(stat.totalDiscount).toLocaleString()} د.ع</TableCell>
-                          <TableCell>{Math.round(stat.totalSales).toLocaleString()} د.ع</TableCell>
-                          <TableCell className="font-medium">
-                            {Math.round(stat.totalSales - stat.totalDiscount).toLocaleString()} د.ع
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+                     <TableHeader>
+                       <TableRow>
+                         <TableHead className="text-right">الكود</TableHead>
+                         <TableHead className="text-right">نسبة الخصم</TableHead>
+                         <TableHead className="text-right">عدد الاستخدامات</TableHead>
+                         <TableHead className="text-right">المبيعات الأصلية</TableHead>
+                         <TableHead className="text-right text-red-600">إجمالي الخصومات</TableHead>
+                         <TableHead className="text-right text-green-600">المبيعات الفعلية</TableHead>
+                       </TableRow>
+                     </TableHeader>
+                     <TableBody>
+                       {discountStats.map((stat) => (
+                         <TableRow key={stat.id}>
+                           <TableCell className="font-medium">{stat.code}</TableCell>
+                           <TableCell>{stat.percentage}%</TableCell>
+                           <TableCell>{stat.usageCount}</TableCell>
+                           <TableCell className="text-muted-foreground">
+                             {Math.round(stat.totalSalesBeforeDiscount).toLocaleString()} د.ع
+                           </TableCell>
+                           <TableCell className="text-red-600">
+                             - {Math.round(stat.totalDiscount).toLocaleString()} د.ع
+                           </TableCell>
+                           <TableCell className="font-medium text-green-600">
+                             = {Math.round(stat.totalSalesAfterDiscount).toLocaleString()} د.ع
+                           </TableCell>
+                         </TableRow>
+                       ))}
+                     </TableBody>
                   </Table>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
