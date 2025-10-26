@@ -125,11 +125,18 @@ const AdminDiscountCodes = () => {
       return;
     }
 
+    // تحويل التواريخ من المنطقة الزمنية المحلية إلى ISO
+    const validFromDate = formData.valid_from 
+      ? new Date(formData.valid_from).toISOString()
+      : new Date().toISOString();
+    
+    const validUntilDate = new Date(formData.valid_until).toISOString();
+
     const data = {
       code: formData.code.toUpperCase(),
       discount_percentage: percentage,
-      valid_from: formData.valid_from || new Date().toISOString(),
-      valid_until: formData.valid_until,
+      valid_from: validFromDate,
+      valid_until: validUntilDate,
       is_active: formData.is_active,
     };
 

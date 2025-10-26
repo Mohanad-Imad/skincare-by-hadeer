@@ -83,9 +83,10 @@ const Checkout = () => {
         return;
       }
 
-      const now = new Date();
-      const validFrom = new Date(data.valid_from);
-      const validUntil = new Date(data.valid_until);
+      // المقارنة باستخدام timestamps للتأكد من صحة المقارنة عبر المناطق الزمنية
+      const now = Date.now();
+      const validFrom = new Date(data.valid_from).getTime();
+      const validUntil = new Date(data.valid_until).getTime();
 
       if (now < validFrom || now > validUntil) {
         toast.error("كود الخصم منتهي الصلاحية");
