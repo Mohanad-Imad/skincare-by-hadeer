@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, ArrowLeft, CreditCard } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CreditCard, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface MiniCartProps {
@@ -24,8 +24,14 @@ export const MiniCart = ({ open, onOpenChange, product }: MiniCartProps) => {
     navigate("/checkout");
   };
 
+  const handleGoToCart = () => {
+    onOpenChange(false);
+    navigate("/cart");
+  };
+
   const handleContinueShopping = () => {
     onOpenChange(false);
+    navigate("/products");
   };
 
   return (
@@ -73,6 +79,16 @@ export const MiniCart = ({ open, onOpenChange, product }: MiniCartProps) => {
             >
               <CreditCard className="ml-2 h-5 w-5" />
               الانتقال إلى الدفع الآن
+            </Button>
+
+            <Button
+              size="lg"
+              variant="secondary"
+              className="w-full"
+              onClick={handleGoToCart}
+            >
+              <ShoppingBag className="ml-2 h-5 w-5" />
+              الذهاب إلى السلة
             </Button>
 
             <Button
