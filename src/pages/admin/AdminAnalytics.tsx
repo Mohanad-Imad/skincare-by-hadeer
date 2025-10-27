@@ -20,23 +20,37 @@ const AdminAnalytics = () => {
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
 
-      // إجمالي المبيعات
+      // إجمالي المبيعات (باستثناء الطلبات الملغية)
       const { data: orders } = await supabase
         .from("orders")
         .select("total_amount, discount_amount, created_at")
-        .gte("created_at", daysAgo.toISOString());
+        .gte("created_at", daysAgo.toISOString())
+        .neq("status", "cancelled");
 
       const totalRevenue = orders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
       const totalDiscount = orders?.reduce((sum, order) => sum + Number(order.discount_amount || 0), 0) || 0;
       const totalOrders = orders?.length || 0;
 
-      // عدد المنتجات المباعة
-      const { data: orderItems } = await supabase
-        .from("order_items")
-        .select("quantity, created_at")
-        .gte("created_at", daysAgo.toISOString());
+      // عدد المنتجات المباعة (من الطلبات غير الملغية فقط)
+      // جلب الطلبات غير الملغية أولاً
+      const { data: validOrders } = await supabase
+        .from("orders")
+        .select("id")
+        .gte("created_at", daysAgo.toISOString())
+        .neq("status", "cancelled");
 
-      const totalProducts = orderItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+      const validOrderIds = validOrders?.map(o => o.id) || [];
+      
+      let orderItems: any[] = [];
+      if (validOrderIds.length > 0) {
+        const { data } = await supabase
+          .from("order_items")
+          .select("quantity")
+          .in("order_id", validOrderIds);
+        orderItems = data || [];
+      }
+
+      const totalProducts = orderItems.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
       return {
         totalRevenue,
@@ -55,10 +69,23 @@ const AdminAnalytics = () => {
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
 
-      const { data } = await supabase
-        .from("order_items")
-        .select("product_name_ar, quantity, price, created_at")
-        .gte("created_at", daysAgo.toISOString());
+      // جلب الطلبات غير الملغية أولاً
+      const { data: validOrders } = await supabase
+        .from("orders")
+        .select("id")
+        .gte("created_at", daysAgo.toISOString())
+        .neq("status", "cancelled");
+
+      const validOrderIds = validOrders?.map(o => o.id) || [];
+      
+      let data: any[] = [];
+      if (validOrderIds.length > 0) {
+        const { data: items } = await supabase
+          .from("order_items")
+          .select("product_name_ar, quantity, price")
+          .in("order_id", validOrderIds);
+        data = items || [];
+      }
 
       if (!data) return [];
 
@@ -95,6 +122,7 @@ const AdminAnalytics = () => {
         .from("orders")
         .select("total_amount, created_at")
         .gte("created_at", daysAgo.toISOString())
+        .neq("status", "cancelled")
         .order("created_at", { ascending: true });
 
       if (!data) return [];
@@ -162,11 +190,12 @@ const AdminAnalytics = () => {
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
 
-      // جلب الطلبات مع أكواد الخصم
+      // جلب الطلبات مع أكواد الخصم (باستثناء الطلبات الملغية)
       const { data: orders } = await supabase
         .from("orders")
         .select("discount_code_id, discount_amount, total_amount, created_at")
         .gte("created_at", daysAgo.toISOString())
+        .neq("status", "cancelled")
         .not("discount_code_id", "is", null);
 
       if (!orders || orders.length === 0) return [];
