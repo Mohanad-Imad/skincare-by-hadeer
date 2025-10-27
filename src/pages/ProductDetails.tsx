@@ -303,6 +303,7 @@ const ProductDetails = () => {
           open={showMiniCart}
           onOpenChange={setShowMiniCart}
           product={addedProduct}
+          session={session}
         />
       )}
 

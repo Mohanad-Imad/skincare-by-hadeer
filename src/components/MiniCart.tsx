@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, ArrowLeft, CreditCard, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import type { Session } from "@supabase/supabase-js";
 
 interface MiniCartProps {
   open: boolean;
@@ -13,20 +14,31 @@ interface MiniCartProps {
     size: string;
     quantity: number;
   };
+  session: Session | null;
 }
 
-export const MiniCart = ({ open, onOpenChange, product }: MiniCartProps) => {
+export const MiniCart = ({ open, onOpenChange, product, session }: MiniCartProps) => {
   const navigate = useNavigate();
   const total = product.price * product.quantity;
 
   const handleCheckout = () => {
     onOpenChange(false);
-    navigate("/checkout");
+    if (!session) {
+      // توجيه المستخدم غير المسجل إلى صفحة تسجيل الدخول
+      navigate("/auth", { state: { redirectTo: "/checkout" } });
+    } else {
+      navigate("/checkout");
+    }
   };
 
   const handleGoToCart = () => {
     onOpenChange(false);
-    navigate("/cart");
+    if (!session) {
+      // توجيه المستخدم غير المسجل إلى صفحة تسجيل الدخول
+      navigate("/auth", { state: { redirectTo: "/cart" } });
+    } else {
+      navigate("/cart");
+    }
   };
 
   const handleContinueShopping = () => {

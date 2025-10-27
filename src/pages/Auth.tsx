@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,22 +17,26 @@ const authSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const { localCart, clearLocalCart } = useLocalCart();
+  
+  // الحصول على صفحة التوجيه من state
+  const redirectTo = (location.state as any)?.redirectTo || "/";
 
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
-        navigate("/");
+        navigate(redirectTo);
       }
     };
     checkSession();
-  }, [navigate]);
+  }, [navigate, redirectTo]);
 
   // نقل السلة المؤقتة إلى قاعدة البيانات بعد تسجيل الدخول
   const migrateLocalCartToDatabase = async (userId: string) => {
@@ -105,7 +109,7 @@ const Auth = () => {
         }
         
         toast.success("تم تسجيل الدخول بنجاح");
-        navigate("/");
+        navigate(redirectTo);
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -125,7 +129,7 @@ const Auth = () => {
         }
         
         toast.success("تم إنشاء الحساب بنجاح");
-        navigate("/");
+        navigate(redirectTo);
       }
     } catch (error: any) {
       console.error("Auth error:", error);
