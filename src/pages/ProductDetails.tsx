@@ -11,12 +11,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { MiniCart } from "@/components/MiniCart";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedVariant, setSelectedVariant] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showMiniCart, setShowMiniCart] = useState(false);
+  const [addedProduct, setAddedProduct] = useState<any>(null);
   const { addToLocalCart } = useLocalCart();
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -65,10 +68,29 @@ const ProductDetails = () => {
   const handleAddToCart = () => {
     if (!selectedVariant) return;
 
+    const variantData = product.product_variants.find((v: any) => v.id === selectedVariant);
+    if (!variantData) return;
+
+    // تحضير بيانات المنتج للنافذة المنبثقة
+    const productImages =
+      product.product_images && product.product_images.length > 0
+        ? product.product_images.map((img: any) => img.image_url)
+        : product.image_url
+          ? [product.image_url]
+          : [];
+
+    setAddedProduct({
+      name: product.name_ar,
+      image: productImages[0] || "/placeholder.svg",
+      price: variantData.price,
+      size: variantData.size_ar,
+      quantity: 1,
+    });
+
     if (!session?.user) {
       // إضافة إلى السلة المؤقتة
       addToLocalCart(selectedVariant);
-      toast.success("تمت الإضافة إلى السلة. سجلي الدخول لإتمام الطلب");
+      setShowMiniCart(true);
     } else {
       // إضافة إلى قاعدة البيانات
       addToCartMutation.mutate(selectedVariant);
@@ -106,7 +128,7 @@ const ProductDetails = () => {
       queryClient.invalidateQueries({
         queryKey: ["cart-count"],
       });
-      toast.success("تمت الإضافة إلى السلة");
+      setShowMiniCart(true);
     },
     onError: () => {
       toast.error("حدث خطأ أثناء الإضافة إلى السلة");
@@ -276,6 +298,14 @@ const ProductDetails = () => {
         </div>
       </div>
       
+      {addedProduct && (
+        <MiniCart
+          open={showMiniCart}
+          onOpenChange={setShowMiniCart}
+          product={addedProduct}
+        />
+      )}
+
       <Footer />
     </div>
   );
