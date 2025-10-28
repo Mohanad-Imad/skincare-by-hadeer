@@ -47,6 +47,9 @@ const emptyRoutine: Partial<CelebrityRoutine> = {
   morning_routine_en: "",
   evening_routine_ar: "",
   evening_routine_en: "",
+  tagline_ar: "",
+  expert_notes_ar: "",
+  tips_ar: "",
   favorite_products: null,
   is_active: true,
   display_order: 0,
@@ -84,8 +87,8 @@ export default function AdminCelebrityRoutines() {
     try {
       setSaving(true);
 
-      if (!editingRoutine.celebrity_name_ar || !editingRoutine.celebrity_name_en) {
-        toast.error("الرجاء إدخال اسم المشهور بالعربية والإنجليزية");
+      if (!editingRoutine.celebrity_name_ar) {
+        toast.error("الرجاء إدخال اسم المشهور بالعربية");
         return;
       }
 
@@ -186,38 +189,20 @@ export default function AdminCelebrityRoutines() {
                   <CardTitle>المعلومات الأساسية</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>اسم المشهور (عربي) *</Label>
-                      <Input
-                        value={editingRoutine.celebrity_name_ar || ""}
-                        onChange={(e) => setEditingRoutine({ ...editingRoutine, celebrity_name_ar: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label>اسم المشهور (English) *</Label>
-                      <Input
-                        value={editingRoutine.celebrity_name_en || ""}
-                        onChange={(e) => setEditingRoutine({ ...editingRoutine, celebrity_name_en: e.target.value })}
-                      />
-                    </div>
+                  <div>
+                    <Label>اسم المشهور (عربي) *</Label>
+                    <Input
+                      value={editingRoutine.celebrity_name_ar || ""}
+                      onChange={(e) => setEditingRoutine({ ...editingRoutine, celebrity_name_ar: e.target.value })}
+                    />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>البلد (عربي)</Label>
-                      <Input
-                        value={editingRoutine.country_ar || ""}
-                        onChange={(e) => setEditingRoutine({ ...editingRoutine, country_ar: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label>البلد (English)</Label>
-                      <Input
-                        value={editingRoutine.country_en || ""}
-                        onChange={(e) => setEditingRoutine({ ...editingRoutine, country_en: e.target.value })}
-                      />
-                    </div>
+                  <div>
+                    <Label>البلد (عربي)</Label>
+                    <Input
+                      value={editingRoutine.country_ar || ""}
+                      onChange={(e) => setEditingRoutine({ ...editingRoutine, country_ar: e.target.value })}
+                    />
                   </div>
 
                   <div>
@@ -248,22 +233,13 @@ export default function AdminCelebrityRoutines() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>الشعار (عربي)</Label>
-                      <Input
-                        value={editingRoutine.tagline_ar || ""}
-                        onChange={(e) => setEditingRoutine({ ...editingRoutine, tagline_ar: e.target.value })}
-                        placeholder="ملكة الإشراقة الكورية"
-                      />
-                    </div>
-                    <div>
-                      <Label>Tagline (English)</Label>
-                      <Input
-                        value={editingRoutine.tagline_en || ""}
-                        onChange={(e) => setEditingRoutine({ ...editingRoutine, tagline_en: e.target.value })}
-                      />
-                    </div>
+                  <div>
+                    <Label>الشعار (عربي)</Label>
+                    <Input
+                      value={editingRoutine.tagline_ar || ""}
+                      onChange={(e) => setEditingRoutine({ ...editingRoutine, tagline_ar: e.target.value })}
+                      placeholder="ملكة الإشراقة الكورية"
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -303,30 +279,12 @@ export default function AdminCelebrityRoutines() {
                   </div>
 
                   <div>
-                    <Label>Morning Routine (English)</Label>
-                    <Textarea
-                      rows={6}
-                      value={editingRoutine.morning_routine_en || ""}
-                      onChange={(e) => setEditingRoutine({ ...editingRoutine, morning_routine_en: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
                     <Label>الروتين المسائي (عربي)</Label>
                     <Textarea
                       rows={6}
                       value={editingRoutine.evening_routine_ar || ""}
                       onChange={(e) => setEditingRoutine({ ...editingRoutine, evening_routine_ar: e.target.value })}
                       placeholder="اكتب خطوات الروتين المسائي..."
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Evening Routine (English)</Label>
-                    <Textarea
-                      rows={6}
-                      value={editingRoutine.evening_routine_en || ""}
-                      onChange={(e) => setEditingRoutine({ ...editingRoutine, evening_routine_en: e.target.value })}
                     />
                   </div>
                 </CardContent>
@@ -348,29 +306,11 @@ export default function AdminCelebrityRoutines() {
                   </div>
 
                   <div>
-                    <Label>Expert Notes (English)</Label>
-                    <Textarea
-                      rows={4}
-                      value={editingRoutine.expert_notes_en || ""}
-                      onChange={(e) => setEditingRoutine({ ...editingRoutine, expert_notes_en: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
                     <Label>النصائح (عربي)</Label>
                     <Textarea
                       rows={4}
                       value={editingRoutine.tips_ar || ""}
                       onChange={(e) => setEditingRoutine({ ...editingRoutine, tips_ar: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Tips (English)</Label>
-                    <Textarea
-                      rows={4}
-                      value={editingRoutine.tips_en || ""}
-                      onChange={(e) => setEditingRoutine({ ...editingRoutine, tips_en: e.target.value })}
                     />
                   </div>
                 </CardContent>

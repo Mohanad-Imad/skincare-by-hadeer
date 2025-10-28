@@ -195,13 +195,13 @@ export type Database = {
       celebrity_routines: {
         Row: {
           celebrity_name_ar: string
-          celebrity_name_en: string
+          celebrity_name_en: string | null
           country_ar: string
-          country_en: string
+          country_en: string | null
           created_at: string | null
           display_order: number | null
           evening_routine_ar: string
-          evening_routine_en: string
+          evening_routine_en: string | null
           expert_notes_ar: string | null
           expert_notes_en: string | null
           favorite_products: Json | null
@@ -209,7 +209,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           morning_routine_ar: string
-          morning_routine_en: string
+          morning_routine_en: string | null
           region: string | null
           skin_type: Database["public"]["Enums"]["skin_type"]
           tagline_ar: string | null
@@ -221,13 +221,13 @@ export type Database = {
         }
         Insert: {
           celebrity_name_ar: string
-          celebrity_name_en: string
+          celebrity_name_en?: string | null
           country_ar: string
-          country_en: string
+          country_en?: string | null
           created_at?: string | null
           display_order?: number | null
           evening_routine_ar: string
-          evening_routine_en: string
+          evening_routine_en?: string | null
           expert_notes_ar?: string | null
           expert_notes_en?: string | null
           favorite_products?: Json | null
@@ -235,7 +235,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           morning_routine_ar: string
-          morning_routine_en: string
+          morning_routine_en?: string | null
           region?: string | null
           skin_type: Database["public"]["Enums"]["skin_type"]
           tagline_ar?: string | null
@@ -247,13 +247,13 @@ export type Database = {
         }
         Update: {
           celebrity_name_ar?: string
-          celebrity_name_en?: string
+          celebrity_name_en?: string | null
           country_ar?: string
-          country_en?: string
+          country_en?: string | null
           created_at?: string | null
           display_order?: number | null
           evening_routine_ar?: string
-          evening_routine_en?: string
+          evening_routine_en?: string | null
           expert_notes_ar?: string | null
           expert_notes_en?: string | null
           favorite_products?: Json | null
@@ -261,7 +261,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           morning_routine_ar?: string
-          morning_routine_en?: string
+          morning_routine_en?: string | null
           region?: string | null
           skin_type?: Database["public"]["Enums"]["skin_type"]
           tagline_ar?: string | null
