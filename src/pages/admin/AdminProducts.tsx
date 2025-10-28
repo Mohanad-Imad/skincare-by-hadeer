@@ -39,7 +39,8 @@ const AdminProducts = () => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [productImages, setProductImages] = useState<Array<{ url: string; id?: string; display_order: number }>>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [parentCategoryFilter, setParentCategoryFilter] = useState("all");
+  const [subCategoryFilter, setSubCategoryFilter] = useState("all");
   const [featuredFilter, setFeaturedFilter] = useState("all");
   const [newArrivalFilter, setNewArrivalFilter] = useState("all");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -445,7 +446,21 @@ const AdminProducts = () => {
   const filteredProducts = products?.filter((product) => {
     const matchesSearch = product.name_ar.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.company_name_ar?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || product.category_id === categoryFilter;
+    
+    // منطق فلترة التصنيف
+    let matchesCategory = true;
+    if (subCategoryFilter !== "all") {
+      // إذا تم اختيار تصنيف فرعي محدد
+      matchesCategory = product.category_id === subCategoryFilter;
+    } else if (parentCategoryFilter !== "all") {
+      // إذا تم اختيار تصنيف رئيسي فقط، نعرض جميع منتجات هذا التصنيف وفرعياته
+      const subCategoryIds = allCategories
+        ?.filter(cat => cat.parent_category_id === parentCategoryFilter)
+        .map(cat => cat.id) || [];
+      matchesCategory = product.category_id === parentCategoryFilter || 
+                       subCategoryIds.includes(product.category_id);
+    }
+    
     const matchesFeatured = featuredFilter === "all" || 
       (featuredFilter === "featured" && product.is_featured) ||
       (featuredFilter === "not_featured" && !product.is_featured);
@@ -723,7 +738,7 @@ const AdminProducts = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
           <div>
             <Label htmlFor="search">البحث</Label>
             <Input
@@ -737,14 +752,21 @@ const AdminProducts = () => {
             />
           </div>
           <div>
-            <Label htmlFor="category">التصنيف</Label>
-            <Select value={categoryFilter} onValueChange={(value) => handleFilterChange(setCategoryFilter, value)}>
-              <SelectTrigger id="category">
+            <Label htmlFor="parentCategory">التصنيف الرئيسي</Label>
+            <Select 
+              value={parentCategoryFilter} 
+              onValueChange={(value) => {
+                setParentCategoryFilter(value);
+                setSubCategoryFilter("all");
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger id="parentCategory">
                 <SelectValue placeholder="جميع التصنيفات" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">جميع التصنيفات</SelectItem>
-                {categories?.map((cat) => (
+                {parentCategories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.name_ar}
                   </SelectItem>
@@ -752,6 +774,29 @@ const AdminProducts = () => {
               </SelectContent>
             </Select>
           </div>
+          {parentCategoryFilter !== "all" && (
+            <div>
+              <Label htmlFor="subCategory">التصنيف الفرعي</Label>
+              <Select 
+                value={subCategoryFilter} 
+                onValueChange={(value) => handleFilterChange(setSubCategoryFilter, value)}
+              >
+                <SelectTrigger id="subCategory">
+                  <SelectValue placeholder="جميع الفرعيات" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع الفرعيات</SelectItem>
+                  {allCategories
+                    ?.filter(cat => cat.parent_category_id === parentCategoryFilter)
+                    .map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name_ar}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div>
             <Label htmlFor="featured">المميزة</Label>
             <Select value={featuredFilter} onValueChange={(value) => handleFilterChange(setFeaturedFilter, value)}>
