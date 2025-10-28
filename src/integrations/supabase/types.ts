@@ -192,6 +192,147 @@ export type Database = {
           },
         ]
       }
+      consultations: {
+        Row: {
+          additional_notes: string | null
+          admin_notes: string | null
+          admin_response: string | null
+          age: number
+          allergies: string | null
+          balanced_diet: boolean
+          chronic_diseases: string | null
+          cleanser_type: string | null
+          consultation_preference: string
+          created_at: string
+          current_medications: string | null
+          daily_water_intake: string
+          face_wash_frequency: string
+          full_name: string
+          gender: string
+          id: string
+          image_urls: string[] | null
+          is_pregnant_nursing: boolean | null
+          location: string
+          main_concerns: string[]
+          moisturizer_type: string | null
+          other_concern: string | null
+          phone: string
+          preferred_contact_time: string
+          previous_treatment: boolean
+          previous_treatment_details: string | null
+          problem_duration: string
+          product_preference: string
+          removes_makeup: string | null
+          responded_at: string | null
+          responded_by: string | null
+          serum_details: string | null
+          skin_type: string | null
+          smoking_alcohol: boolean
+          status: string
+          stress_levels: boolean
+          sun_exposure: string
+          updated_at: string
+          user_id: string | null
+          uses_contraceptives: boolean | null
+          uses_moisturizer: boolean
+          uses_serums: boolean
+          uses_sunscreen: boolean
+          work_environment: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          admin_notes?: string | null
+          admin_response?: string | null
+          age: number
+          allergies?: string | null
+          balanced_diet: boolean
+          chronic_diseases?: string | null
+          cleanser_type?: string | null
+          consultation_preference: string
+          created_at?: string
+          current_medications?: string | null
+          daily_water_intake: string
+          face_wash_frequency: string
+          full_name: string
+          gender: string
+          id?: string
+          image_urls?: string[] | null
+          is_pregnant_nursing?: boolean | null
+          location: string
+          main_concerns: string[]
+          moisturizer_type?: string | null
+          other_concern?: string | null
+          phone: string
+          preferred_contact_time: string
+          previous_treatment: boolean
+          previous_treatment_details?: string | null
+          problem_duration: string
+          product_preference: string
+          removes_makeup?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          serum_details?: string | null
+          skin_type?: string | null
+          smoking_alcohol: boolean
+          status?: string
+          stress_levels: boolean
+          sun_exposure: string
+          updated_at?: string
+          user_id?: string | null
+          uses_contraceptives?: boolean | null
+          uses_moisturizer: boolean
+          uses_serums: boolean
+          uses_sunscreen: boolean
+          work_environment?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          admin_notes?: string | null
+          admin_response?: string | null
+          age?: number
+          allergies?: string | null
+          balanced_diet?: boolean
+          chronic_diseases?: string | null
+          cleanser_type?: string | null
+          consultation_preference?: string
+          created_at?: string
+          current_medications?: string | null
+          daily_water_intake?: string
+          face_wash_frequency?: string
+          full_name?: string
+          gender?: string
+          id?: string
+          image_urls?: string[] | null
+          is_pregnant_nursing?: boolean | null
+          location?: string
+          main_concerns?: string[]
+          moisturizer_type?: string | null
+          other_concern?: string | null
+          phone?: string
+          preferred_contact_time?: string
+          previous_treatment?: boolean
+          previous_treatment_details?: string | null
+          problem_duration?: string
+          product_preference?: string
+          removes_makeup?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          serum_details?: string | null
+          skin_type?: string | null
+          smoking_alcohol?: boolean
+          status?: string
+          stress_levels?: boolean
+          sun_exposure?: string
+          updated_at?: string
+          user_id?: string | null
+          uses_contraceptives?: boolean | null
+          uses_moisturizer?: boolean
+          uses_serums?: boolean
+          uses_sunscreen?: boolean
+          work_environment?: string | null
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           code: string

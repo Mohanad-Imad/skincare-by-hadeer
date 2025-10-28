@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -95,6 +95,16 @@ export const Navbar = () => {
           >
             <BookOpen className="h-4 w-4" />
             <span className="hidden lg:inline">المدونة</span>
+          </Button>
+
+          <Button
+            variant={isActive("/consultation") ? "default" : "ghost"}
+            size="sm"
+            onClick={() => navigate("/consultation")}
+            className="gap-1.5"
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span className="hidden lg:inline">استشارة</span>
           </Button>
 
           {session && (

@@ -23,6 +23,8 @@ import AdminBanners from "./pages/admin/AdminBanners";
 import MyOrders from "./pages/MyOrders";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Consultation from "./pages/Consultation";
+import AdminConsultations from "./pages/admin/AdminConsultations";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,7 @@ const App = () => (
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/consultation" element={<Consultation />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="products" element={<AdminProducts />} />
@@ -54,6 +57,7 @@ const App = () => (
             <Route path="discount-codes" element={<AdminDiscountCodes />} />
             <Route path="blog" element={<AdminBlogPosts />} />
             <Route path="banners" element={<AdminBanners />} />
+            <Route path="consultations" element={<AdminConsultations />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
