@@ -13,7 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [parentCategoryFilter, setParentCategoryFilter] = useState<string>("all");
+  const [subCategoryFilter, setSubCategoryFilter] = useState<string>("all");
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>("all");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,15 +63,27 @@ const Products = () => {
   });
 
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ["products", categoryFilter, skinTypeFilter, companyFilter, searchTerm, currentPage],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, currentPage],
     queryFn: async () => {
+      // تحديد التصنيفات المطلوبة للفلترة
+      let categoryIds: string[] = [];
+      
+      if (subCategoryFilter !== "all") {
+        // إذا تم اختيار تصنيف فرعي، نستخدمه فقط
+        categoryIds = [subCategoryFilter];
+      } else if (parentCategoryFilter !== "all") {
+        // إذا تم اختيار تصنيف رئيسي فقط، نجلب جميع التصنيفات الفرعية التابعة له
+        const subCategories = categories?.filter(cat => cat.parent_category_id === parentCategoryFilter) || [];
+        categoryIds = [parentCategoryFilter, ...subCategories.map(sub => sub.id)];
+      }
+
       let countQuery = supabase
         .from("products")
         .select("*", { count: "exact", head: true })
         .eq("is_active", true);
 
-      if (categoryFilter !== "all") {
-        countQuery = countQuery.eq("category_id", categoryFilter);
+      if (categoryIds.length > 0) {
+        countQuery = countQuery.in("category_id", categoryIds);
       }
 
       if (companyFilter !== "all") {
@@ -102,8 +115,8 @@ const Products = () => {
         .range(from, to)
         .order("created_at", { ascending: false });
 
-      if (categoryFilter !== "all") {
-        query = query.eq("category_id", categoryFilter);
+      if (categoryIds.length > 0) {
+        query = query.in("category_id", categoryIds);
       }
 
       if (companyFilter !== "all") {
@@ -169,7 +182,7 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-4">
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -180,28 +193,46 @@ const Products = () => {
             />
           </div>
 
-          <Select value={categoryFilter} onValueChange={handleFilterChange(setCategoryFilter)}>
+          <Select 
+            value={parentCategoryFilter} 
+            onValueChange={(value) => {
+              setParentCategoryFilter(value);
+              setSubCategoryFilter("all");
+              setCurrentPage(1);
+            }}
+          >
             <SelectTrigger>
-              <SelectValue placeholder="التصنيف" />
+              <SelectValue placeholder="التصنيف الرئيسي" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">جميع التصنيفات</SelectItem>
               {categories
                 ?.filter((cat) => !cat.parent_category_id)
-                .map((mainCat) => [
-                  <SelectItem key={mainCat.id} value={mainCat.id} className="font-bold">
+                .map((mainCat) => (
+                  <SelectItem key={mainCat.id} value={mainCat.id}>
                     {mainCat.name_ar}
-                  </SelectItem>,
-                  ...(categories
-                    ?.filter((subCat) => subCat.parent_category_id === mainCat.id)
-                    .map((subCat) => (
-                      <SelectItem key={subCat.id} value={subCat.id} className="pr-6">
-                        ↳ {subCat.name_ar}
-                      </SelectItem>
-                    )) || []),
-                ])}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
+
+          {parentCategoryFilter !== "all" && (
+            <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter)}>
+              <SelectTrigger>
+                <SelectValue placeholder="التصنيف الفرعي" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع الفرعيات</SelectItem>
+                {categories
+                  ?.filter((cat) => cat.parent_category_id === parentCategoryFilter)
+                  .map((subCat) => (
+                    <SelectItem key={subCat.id} value={subCat.id}>
+                      {subCat.name_ar}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          )}
 
           <Select value={companyFilter} onValueChange={handleFilterChange(setCompanyFilter)}>
             <SelectTrigger>
