@@ -2,17 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Carousel,
+  CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const HeroBanner = () => {
   const plugin = useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
+  const [api, setApi] = useState<CarouselApi>();
 
   const { data: banners, isLoading } = useQuery({
     queryKey: ["banners"],
@@ -46,10 +48,11 @@ export const HeroBanner = () => {
           align: "start",
           direction: "rtl",
         }}
+        setApi={setApi}
         onMouseEnter={plugin.current.stop}
         onMouseLeave={plugin.current.reset}
       >
-        <CarouselContent data-carousel>
+        <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
               <div className="relative h-[500px] md:h-[600px] overflow-hidden">
@@ -100,10 +103,7 @@ export const HeroBanner = () => {
               variant="outline"
               size="icon"
               className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
-              onClick={() => {
-                const carousel = document.querySelector('[data-carousel]') as any;
-                carousel?.scrollPrev();
-              }}
+              onClick={() => api?.scrollNext()}
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>
@@ -111,10 +111,7 @@ export const HeroBanner = () => {
               variant="outline"
               size="icon"
               className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
-              onClick={() => {
-                const carousel = document.querySelector('[data-carousel]') as any;
-                carousel?.scrollNext();
-              }}
+              onClick={() => api?.scrollPrev()}
             >
               <ChevronRight className="h-6 w-6" />
             </Button>
