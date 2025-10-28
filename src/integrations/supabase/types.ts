@@ -112,6 +112,7 @@ export type Database = {
           image_url: string | null
           name_ar: string
           name_en: string
+          parent_category_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -121,6 +122,7 @@ export type Database = {
           image_url?: string | null
           name_ar: string
           name_en: string
+          parent_category_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -130,8 +132,17 @@ export type Database = {
           image_url?: string | null
           name_ar?: string
           name_en?: string
+          parent_category_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       discount_codes: {
         Row: {
@@ -467,10 +478,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       order_status: "new" | "processing" | "shipped" | "delivered" | "cancelled"

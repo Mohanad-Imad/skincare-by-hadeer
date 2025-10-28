@@ -65,12 +65,14 @@ const AdminProducts = () => {
     stock_quantity: "",
   });
 
+  // جلب الأقسام الفرعية فقط (المنتجات يجب أن تنتمي لأقسام فرعية)
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
+        .select("*, parent:parent_category_id(name_ar)")
+        .not("parent_category_id", "is", null)
         .order("name_ar");
       if (error) throw error;
       return data;
@@ -549,7 +551,7 @@ const AdminProducts = () => {
                   <SelectContent>
                     {categories?.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name_ar}
+                        {cat.parent?.name_ar} - {cat.name_ar}
                       </SelectItem>
                     ))}
                   </SelectContent>

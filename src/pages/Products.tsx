@@ -22,7 +22,10 @@ const Products = () => {
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("categories").select("*");
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*, parent:parent_category_id(name_ar)")
+        .order("name_ar");
       if (error) throw error;
       return data;
     },
@@ -183,11 +186,20 @@ const Products = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">جميع التصنيفات</SelectItem>
-              {categories?.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name_ar}
-                </SelectItem>
-              ))}
+              {categories
+                ?.filter((cat) => !cat.parent_category_id)
+                .map((mainCat) => [
+                  <SelectItem key={mainCat.id} value={mainCat.id} className="font-bold">
+                    {mainCat.name_ar}
+                  </SelectItem>,
+                  ...(categories
+                    ?.filter((subCat) => subCat.parent_category_id === mainCat.id)
+                    .map((subCat) => (
+                      <SelectItem key={subCat.id} value={subCat.id} className="pr-6">
+                        ↳ {subCat.name_ar}
+                      </SelectItem>
+                    )) || []),
+                ])}
             </SelectContent>
           </Select>
 

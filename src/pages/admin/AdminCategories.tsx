@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -34,6 +41,7 @@ const AdminCategories = () => {
     description_ar: "",
     description_en: "",
     image_url: "",
+    parent_category_id: "",
   });
 
   const { data: categories, isLoading } = useQuery({
@@ -98,6 +106,7 @@ const AdminCategories = () => {
       description_ar: "",
       description_en: "",
       image_url: "",
+      parent_category_id: "",
     });
     setEditingCategory(null);
   };
@@ -119,6 +128,7 @@ const AdminCategories = () => {
       description_ar: category.description_ar || "",
       description_en: category.description_en || "",
       image_url: category.image_url || "",
+      parent_category_id: category.parent_category_id || "",
     });
     setIsDialogOpen(true);
   };
@@ -195,6 +205,29 @@ const AdminCategories = () => {
                   }
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="parent_category_id">القسم الرئيسي (اختياري)</Label>
+                <Select
+                  value={formData.parent_category_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, parent_category_id: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر القسم الرئيسي" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">لا يوجد (قسم رئيسي)</SelectItem>
+                    {categories
+                      ?.filter((cat) => !cat.parent_category_id && cat.id !== editingCategory?.id)
+                      .map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name_ar}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Button type="submit" className="w-full">
                 {editingCategory ? "تحديث" : "إضافة"}
               </Button>
@@ -209,34 +242,67 @@ const AdminCategories = () => {
             <TableRow>
               <TableHead>الاسم بالعربية</TableHead>
               <TableHead>الاسم بالإنجليزية</TableHead>
+              <TableHead>النوع</TableHead>
               <TableHead>الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories?.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>{category.name_ar}</TableCell>
-                <TableCell>{category.name_en}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(category)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteMutation.mutate(category.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {categories
+              ?.filter((cat) => !cat.parent_category_id)
+              .map((mainCategory) => (
+                <>
+                  <TableRow key={mainCategory.id} className="bg-muted/50">
+                    <TableCell className="font-bold">{mainCategory.name_ar}</TableCell>
+                    <TableCell className="font-bold">{mainCategory.name_en}</TableCell>
+                    <TableCell className="font-bold">قسم رئيسي</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(mainCategory)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteMutation.mutate(mainCategory.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {categories
+                    ?.filter((cat) => cat.parent_category_id === mainCategory.id)
+                    .map((subCategory) => (
+                      <TableRow key={subCategory.id}>
+                        <TableCell className="pr-8">↳ {subCategory.name_ar}</TableCell>
+                        <TableCell>↳ {subCategory.name_en}</TableCell>
+                        <TableCell>قسم فرعي</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(subCategory)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteMutation.mutate(subCategory.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </>
+              ))}
           </TableBody>
         </Table>
       </div>
