@@ -90,7 +90,7 @@ export default function CelebrityRoutines() {
                 <Sparkles className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-sm font-medium text-primary">روتين المشاهير</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent my-[5px]">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent my-[5px] py-[5px]">
                 أسرار جمال المشاهير
               </h1>
               <p className="text-muted-foreground text-lg">
