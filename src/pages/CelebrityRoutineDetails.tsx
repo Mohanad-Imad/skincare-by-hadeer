@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowRight, Heart, Sun, Moon, ShoppingBag, MessageSquare, Sparkles } from "lucide-react";
+import { ArrowRight, Heart, Sun, Moon, ShoppingBag, MessageSquare, Sparkles, ImageOff } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ export default function CelebrityRoutineDetails() {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [savingState, setSavingState] = useState(false);
+  const [productImages, setProductImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (id) {
@@ -54,6 +55,29 @@ export default function CelebrityRoutineDetails() {
 
       if (error) throw error;
       setRoutine(data);
+      
+      // Fetch product images
+      const products = data?.favorite_products as any[];
+      if (products && Array.isArray(products) && products.length > 0) {
+        const productIds = products
+          .filter((p: any) => p.product_id)
+          .map((p: any) => p.product_id);
+        
+        if (productIds.length > 0) {
+          const { data: productsData } = await supabase
+            .from("products")
+            .select("id, image_url")
+            .in("id", productIds);
+          
+          if (productsData) {
+            const imagesMap: Record<string, string> = {};
+            productsData.forEach((product) => {
+              imagesMap[product.id] = product.image_url || "";
+            });
+            setProductImages(imagesMap);
+          }
+        }
+      }
     } catch (error) {
       console.error("Error fetching routine:", error);
       toast.error("حدث خطأ في تحميل الروتين");
@@ -279,29 +303,58 @@ export default function CelebrityRoutineDetails() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {routine.favorite_products && routine.favorite_products.length > 0 ? (
+                  {routine.favorite_products && Array.isArray(routine.favorite_products) && routine.favorite_products.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {routine.favorite_products.map((product: any, index: number) => (
-                        <Card key={index} className="hover:shadow-lg transition-shadow">
-                          <CardContent className="p-4">
-                            <h4 className="font-semibold mb-2">{product.name_ar}</h4>
-                            <p className="text-sm text-muted-foreground mb-3">{product.description_ar}</p>
-                            <Button 
-                              size="sm" 
-                              className="w-full" 
-                              onClick={() => {
-                                if (product.product_id) {
-                                  navigate(`/products/${product.product_id}`);
-                                } else {
-                                  navigate("/products");
-                                }
-                              }}
-                            >
-                              تسوق المنتج
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
+                      {(routine.favorite_products as any[]).map((product: any, index: number) => {
+                        const productImage = product.product_id ? productImages[product.product_id] : null;
+                        
+                        return (
+                          <Card key={index} className="hover:shadow-lg transition-shadow overflow-hidden">
+                            <CardContent className="p-0">
+                              <div className="flex flex-col">
+                                {/* Product Image */}
+                                <div className="relative w-full h-48 bg-muted flex items-center justify-center overflow-hidden">
+                                  {productImage ? (
+                                    <img 
+                                      src={productImage} 
+                                      alt={product.name_ar}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.parentElement?.classList.add('no-image');
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center text-muted-foreground gap-2">
+                                      <ImageOff className="h-12 w-12" />
+                                      <span className="text-sm">لا توجد صورة</span>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Product Info */}
+                                <div className="p-4">
+                                  <h4 className="font-semibold mb-2">{product.name_ar}</h4>
+                                  <p className="text-sm text-muted-foreground mb-3">{product.description_ar}</p>
+                                  <Button 
+                                    size="sm" 
+                                    className="w-full" 
+                                    onClick={() => {
+                                      if (product.product_id) {
+                                        navigate(`/products/${product.product_id}`);
+                                      } else {
+                                        navigate("/products");
+                                      }
+                                    }}
+                                  >
+                                    تسوق المنتج
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-muted-foreground text-center py-8">لا توجد منتجات مضافة حالياً</p>
