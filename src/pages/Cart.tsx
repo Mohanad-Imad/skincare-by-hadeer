@@ -1,17 +1,20 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Plus, Minus, ArrowRight } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, Tag } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Cart = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { localCart, updateLocalCartQuantity, removeFromLocalCart } = useLocalCart();
+  const { data: discounts } = useProductDiscounts();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -33,6 +36,7 @@ const Cart = () => {
         .select(`
           *,
           products (
+            id,
             name_ar,
             image_url
           )
@@ -64,6 +68,7 @@ const Cart = () => {
           product_variants (
             *,
             products (
+              id,
               name_ar,
               image_url
             )
@@ -103,15 +108,23 @@ const Cart = () => {
     },
   });
 
-  const total = cartItems?.reduce(
-    (sum, item) => sum + item.product_variants.price * item.quantity,
-    0
-  ) || 0;
+  const calculateItemPrice = (productId: string, originalPrice: number) => {
+    const discount = calculateDiscount(productId, originalPrice, discounts);
+    return discount ? discount.discountedPrice : originalPrice;
+  };
 
-  const localTotal = localCartItems?.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  ) || 0;
+  const total = cartItems?.reduce((sum, item) => {
+    const finalPrice = calculateItemPrice(
+      item.product_variants.products.id,
+      item.product_variants.price
+    );
+    return sum + finalPrice * item.quantity;
+  }, 0) || 0;
+
+  const localTotal = localCartItems?.reduce((sum, item) => {
+    const finalPrice = calculateItemPrice(item.products.id, item.price);
+    return sum + finalPrice * item.quantity;
+  }, 0) || 0;
 
   // عرض السلة المؤقتة للمستخدمين غير المسجلين
   if (!session) {
@@ -149,9 +162,29 @@ const Cart = () => {
                       <div>
                         <h3 className="font-semibold">{item.products.name_ar}</h3>
                         <p className="text-sm text-muted-foreground">{item.size_ar}</p>
-                        <p className="mt-1 font-bold text-primary">
-                          {Math.round(item.price)} د.ع
-                        </p>
+                        {(() => {
+                          const discount = calculateDiscount(item.products.id, item.price, discounts);
+                          return discount ? (
+                            <div className="mt-1 space-y-1">
+                              <Badge variant="destructive" className="flex items-center gap-1 w-fit">
+                                <Tag className="h-3 w-3" />
+                                خصم {Math.round(discount.percentage)}%
+                              </Badge>
+                              <div className="flex items-baseline gap-2">
+                                <p className="font-bold text-primary">
+                                  {Math.round(discount.discountedPrice)} د.ع
+                                </p>
+                                <p className="text-sm text-muted-foreground line-through">
+                                  {Math.round(item.price)} د.ع
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mt-1 font-bold text-primary">
+                              {Math.round(item.price)} د.ع
+                            </p>
+                          );
+                        })()}
                       </div>
 
                       <div className="flex items-center gap-4">
@@ -269,9 +302,33 @@ const Cart = () => {
                       <p className="text-sm text-muted-foreground">
                         {item.product_variants.size_ar}
                       </p>
-                      <p className="mt-1 font-bold text-primary">
-                        {Math.round(item.product_variants.price)} د.ع
-                      </p>
+                      {(() => {
+                        const discount = calculateDiscount(
+                          item.product_variants.products.id,
+                          item.product_variants.price,
+                          discounts
+                        );
+                        return discount ? (
+                          <div className="mt-1 space-y-1">
+                            <Badge variant="destructive" className="flex items-center gap-1 w-fit">
+                              <Tag className="h-3 w-3" />
+                              خصم {Math.round(discount.percentage)}%
+                            </Badge>
+                            <div className="flex items-baseline gap-2">
+                              <p className="font-bold text-primary">
+                                {Math.round(discount.discountedPrice)} د.ع
+                              </p>
+                              <p className="text-sm text-muted-foreground line-through">
+                                {Math.round(item.product_variants.price)} د.ع
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="mt-1 font-bold text-primary">
+                            {Math.round(item.product_variants.price)} د.ع
+                          </p>
+                        );
+                      })()}
                     </div>
 
                     <div className="flex items-center gap-4">

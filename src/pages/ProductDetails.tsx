@@ -90,6 +90,10 @@ const ProductDetails = () => {
     const variantData = product.product_variants.find((v: any) => v.id === selectedVariant);
     if (!variantData) return;
 
+    // حساب السعر النهائي بعد الخصم
+    const discount = calculateDiscount(product.id, variantData.price, discounts);
+    const finalPrice = discount ? discount.discountedPrice : variantData.price;
+
     // تحضير بيانات المنتج للنافذة المنبثقة
     const productImages =
       product.product_images && product.product_images.length > 0
@@ -101,7 +105,7 @@ const ProductDetails = () => {
     setAddedProduct({
       name: product.name_ar,
       image: productImages[0] || "/placeholder.svg",
-      price: variantData.price,
+      price: finalPrice,
       size: variantData.size_ar,
       quantity: 1,
     });

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { ArrowRight } from "lucide-react";
+import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
@@ -29,6 +30,7 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<any>(null);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
+  const { data: discounts } = useProductDiscounts();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -50,6 +52,7 @@ const Checkout = () => {
           product_variants (
             *,
             products (
+              id,
               name_ar,
               name_en
             )
@@ -111,16 +114,25 @@ const Checkout = () => {
         throw new Error("السلة فارغة");
       }
 
-      const subtotal = cartItems.reduce(
-        (sum, item) => sum + item.product_variants.price * item.quantity,
-        0
-      );
+      // حساب المجموع مع الخصومات
+      const subtotal = cartItems.reduce((sum, item) => {
+        const itemDiscount = calculateDiscount(
+          item.product_variants.products.id,
+          item.product_variants.price,
+          discounts
+        );
+        const finalPrice = itemDiscount 
+          ? itemDiscount.discountedPrice 
+          : item.product_variants.price;
+        return sum + finalPrice * item.quantity;
+      }, 0);
 
-      const discountAmount = appliedDiscount
+      // خصم كود الخصم الإضافي
+      const discountCodeAmount = appliedDiscount
         ? (subtotal * appliedDiscount.discount_percentage) / 100
         : 0;
 
-      const totalAmount = subtotal - discountAmount;
+      const totalAmount = subtotal - discountCodeAmount;
 
       // Create order
       const { data: order, error: orderError } = await supabase
@@ -133,7 +145,7 @@ const Checkout = () => {
           notes,
           total_amount: totalAmount,
           discount_code_id: appliedDiscount?.id || null,
-          discount_amount: discountAmount,
+          discount_amount: discountCodeAmount,
           status: "new",
         })
         .select()
@@ -141,18 +153,29 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items
-      const orderItems = cartItems.map((item) => ({
-        order_id: order.id,
-        product_variant_id: item.product_variant_id,
-        product_name_ar: item.product_variants.products.name_ar || "منتج",
-        product_name_en: item.product_variants.products.name_en || item.product_variants.products.name_ar || "Product",
-        variant_size_ar: item.product_variants.size_ar || "قياس افتراضي",
-        variant_size_en: item.product_variants.size_en || item.product_variants.size_ar || "Default Size",
-        price: item.product_variants.price,
-        quantity: item.quantity,
-        subtotal: item.product_variants.price * item.quantity,
-      }));
+      // Create order items with discounted prices
+      const orderItems = cartItems.map((item) => {
+        const itemDiscount = calculateDiscount(
+          item.product_variants.products.id,
+          item.product_variants.price,
+          discounts
+        );
+        const finalPrice = itemDiscount 
+          ? itemDiscount.discountedPrice 
+          : item.product_variants.price;
+          
+        return {
+          order_id: order.id,
+          product_variant_id: item.product_variant_id,
+          product_name_ar: item.product_variants.products.name_ar || "منتج",
+          product_name_en: item.product_variants.products.name_en || item.product_variants.products.name_ar || "Product",
+          variant_size_ar: item.product_variants.size_ar || "قياس افتراضي",
+          variant_size_en: item.product_variants.size_en || item.product_variants.size_ar || "Default Size",
+          price: finalPrice,
+          quantity: item.quantity,
+          subtotal: finalPrice * item.quantity,
+        };
+      });
 
       const { error: itemsError } = await supabase
         .from("order_items")
@@ -210,10 +233,17 @@ const Checkout = () => {
     return null;
   }
 
-  const subtotal = cartItems?.reduce(
-    (sum, item) => sum + item.product_variants.price * item.quantity,
-    0
-  ) || 0;
+  const subtotal = cartItems?.reduce((sum, item) => {
+    const itemDiscount = calculateDiscount(
+      item.product_variants.products.id,
+      item.product_variants.price,
+      discounts
+    );
+    const finalPrice = itemDiscount 
+      ? itemDiscount.discountedPrice 
+      : item.product_variants.price;
+    return sum + finalPrice * item.quantity;
+  }, 0) || 0;
 
   const discountAmount = appliedDiscount
     ? (subtotal * appliedDiscount.discount_percentage) / 100
