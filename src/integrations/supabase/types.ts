@@ -192,6 +192,87 @@ export type Database = {
           },
         ]
       }
+      celebrity_routines: {
+        Row: {
+          celebrity_name_ar: string
+          celebrity_name_en: string
+          country_ar: string
+          country_en: string
+          created_at: string | null
+          display_order: number | null
+          evening_routine_ar: string
+          evening_routine_en: string
+          expert_notes_ar: string | null
+          expert_notes_en: string | null
+          favorite_products: Json | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          morning_routine_ar: string
+          morning_routine_en: string
+          region: string | null
+          skin_type: Database["public"]["Enums"]["skin_type"]
+          tagline_ar: string | null
+          tagline_en: string | null
+          tips_ar: string | null
+          tips_en: string | null
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          celebrity_name_ar: string
+          celebrity_name_en: string
+          country_ar: string
+          country_en: string
+          created_at?: string | null
+          display_order?: number | null
+          evening_routine_ar: string
+          evening_routine_en: string
+          expert_notes_ar?: string | null
+          expert_notes_en?: string | null
+          favorite_products?: Json | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          morning_routine_ar: string
+          morning_routine_en: string
+          region?: string | null
+          skin_type: Database["public"]["Enums"]["skin_type"]
+          tagline_ar?: string | null
+          tagline_en?: string | null
+          tips_ar?: string | null
+          tips_en?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          celebrity_name_ar?: string
+          celebrity_name_en?: string
+          country_ar?: string
+          country_en?: string
+          created_at?: string | null
+          display_order?: number | null
+          evening_routine_ar?: string
+          evening_routine_en?: string
+          expert_notes_ar?: string | null
+          expert_notes_en?: string | null
+          favorite_products?: Json | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          morning_routine_ar?: string
+          morning_routine_en?: string
+          region?: string | null
+          skin_type?: Database["public"]["Enums"]["skin_type"]
+          tagline_ar?: string | null
+          tagline_en?: string | null
+          tips_ar?: string | null
+          tips_en?: string | null
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           additional_notes: string | null
@@ -640,6 +721,35 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      saved_celebrity_routines: {
+        Row: {
+          created_at: string | null
+          id: string
+          routine_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          routine_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          routine_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_celebrity_routines_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "celebrity_routines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
