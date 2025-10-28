@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, ArrowRight } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 const concernOptions = [
@@ -193,6 +193,15 @@ export default function Consultation() {
       />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-6 gap-2"
+        >
+          <ArrowRight className="h-4 w-4" />
+          الرجوع إلى الصفحة الرئيسية
+        </Button>
+        
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">استشارة مع خبير</h1>
           <p className="text-muted-foreground">
