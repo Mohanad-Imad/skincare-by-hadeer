@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { toast } from "sonner";
 import { z } from "zod";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { ArrowRight } from "lucide-react";
 
 const authSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").max(255, "البريد الإلكتروني طويل جداً"),
@@ -174,13 +175,22 @@ const Auth = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">{isLogin ? "تسجيل الدخول" : "إنشاء حساب"}</CardTitle>
-          <CardDescription>
-            {isLogin ? "مرحباً بعودتك" : "انضمي إلينا اليوم"}
-          </CardDescription>
-        </CardHeader>
+      <div className="w-full max-w-md">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-4 gap-2"
+        >
+          <ArrowRight className="h-4 w-4" />
+          العودة للرئيسية
+        </Button>
+        <Card className="w-full">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">{isLogin ? "تسجيل الدخول" : "إنشاء حساب"}</CardTitle>
+            <CardDescription>
+              {isLogin ? "مرحباً بعودتك" : "انضمي إلينا اليوم"}
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
@@ -266,6 +276,7 @@ const Auth = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
