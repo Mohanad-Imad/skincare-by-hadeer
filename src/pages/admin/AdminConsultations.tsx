@@ -252,14 +252,46 @@ export default function AdminConsultations() {
               </div>
 
               <div>
+                <h3 className="font-semibold mb-2">المشاكل الرئيسية</h3>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {selectedConsultation.main_concerns?.map((concern: string) => (
+                    <Badge key={concern} variant="secondary">
+                      {concernLabels[concern] || concern}
+                    </Badge>
+                  ))}
+                </div>
+                {selectedConsultation.other_concern && (
+                  <p className="text-sm"><span className="text-muted-foreground">مشكلة أخرى:</span> {selectedConsultation.other_concern}</p>
+                )}
+                <p className="text-sm mt-2"><span className="text-muted-foreground">مدة المشكلة:</span> {selectedConsultation.problem_duration}</p>
+                {selectedConsultation.previous_treatment && (
+                  <p className="text-sm"><span className="text-muted-foreground">علاج سابق:</span> {selectedConsultation.previous_treatment_details || "نعم"}</p>
+                )}
+              </div>
+
+              <div>
                 <h3 className="font-semibold mb-2">نمط الحياة</h3>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <p><span className="text-muted-foreground">التعرض للشمس:</span> {selectedConsultation.sun_exposure}</p>
                   <p><span className="text-muted-foreground">شرب الماء:</span> {selectedConsultation.daily_water_intake}</p>
                   <p><span className="text-muted-foreground">نظام غذائي متوازن:</span> {selectedConsultation.balanced_diet ? "نعم" : "لا"}</p>
                   <p><span className="text-muted-foreground">ضغط نفسي:</span> {selectedConsultation.stress_levels ? "نعم" : "لا"}</p>
+                  <p><span className="text-muted-foreground">التدخين/الكحول:</span> {selectedConsultation.smoking_alcohol ? "نعم" : "لا"}</p>
+                  {selectedConsultation.work_environment && (
+                    <p><span className="text-muted-foreground">بيئة العمل:</span> {selectedConsultation.work_environment}</p>
+                  )}
                 </div>
               </div>
+
+              {selectedConsultation.gender === "female" && (
+                <div>
+                  <h3 className="font-semibold mb-2">معلومات صحية (للنساء)</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="text-muted-foreground">حبوب منع الحمل:</span> {selectedConsultation.uses_contraceptives ? "نعم" : "لا"}</p>
+                    <p><span className="text-muted-foreground">حامل أو مرضع:</span> {selectedConsultation.is_pregnant_nursing ? "نعم" : "لا"}</p>
+                  </div>
+                </div>
+              )}
 
               {selectedConsultation.chronic_diseases && (
                 <div>
