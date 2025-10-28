@@ -42,8 +42,18 @@ export const calculateDiscount = (
   // البحث عن خصم عام على جميع المنتجات
   const generalDiscount = discounts.find((d) => d.product_id === null);
 
-  // استخدام الخصم الخاص إذا وجد، وإلا استخدام الخصم العام
-  const activeDiscount = productDiscount || generalDiscount;
+  // إذا وجد كلا الخصمين، نختار الأعلى
+  let activeDiscount: ProductDiscount | undefined;
+  
+  if (productDiscount && generalDiscount) {
+    // اختيار الخصم الأعلى نسبة
+    activeDiscount = productDiscount.discount_percentage >= generalDiscount.discount_percentage 
+      ? productDiscount 
+      : generalDiscount;
+  } else {
+    // استخدام الخصم المتوفر
+    activeDiscount = productDiscount || generalDiscount;
+  }
 
   if (!activeDiscount) return null;
 
@@ -52,6 +62,6 @@ export const calculateDiscount = (
 
   return {
     percentage: activeDiscount.discount_percentage,
-    discountedPrice: Math.max(0, discountedPrice), // التأكد من عدم وجود سعر سالب
+    discountedPrice: Math.max(0, discountedPrice),
   };
 };
