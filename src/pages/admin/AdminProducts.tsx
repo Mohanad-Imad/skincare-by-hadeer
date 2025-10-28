@@ -46,6 +46,8 @@ const AdminProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
   
+  const [parentCategoryId, setParentCategoryId] = useState("");
+  
   const [formData, setFormData] = useState({
     name_ar: "",
     company_name_ar: "",
@@ -65,9 +67,28 @@ const AdminProducts = () => {
     stock_quantity: "",
   });
 
-  // جلب الأقسام الفرعية فقط (المنتجات يجب أن تنتمي لأقسام فرعية)
+  // جلب جميع الأقسام
+  const { data: allCategories } = useQuery({
+    queryKey: ["all-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name_ar");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // الأقسام الرئيسية
+  const parentCategories = allCategories?.filter(cat => !cat.parent_category_id) || [];
+  
+  // الأقسام الفرعية للقسم الرئيسي المختار
+  const subCategories = allCategories?.filter(cat => cat.parent_category_id === parentCategoryId) || [];
+  
+  // للعرض في الفلتر - جلب الأقسام الفرعية فقط
   const { data: categories } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["sub-categories"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("categories")
@@ -260,6 +281,7 @@ const AdminProducts = () => {
       is_new_arrival: false,
       is_active: true,
     });
+    setParentCategoryId("");
     setVariants([]);
     setProductImages([]);
     setNewVariant({
@@ -289,6 +311,13 @@ const AdminProducts = () => {
 
   const handleEdit = async (product: any) => {
     setEditingProduct(product);
+    
+    // إيجاد القسم الرئيسي من القسم الفرعي
+    const selectedCategory = allCategories?.find(cat => cat.id === product.category_id);
+    if (selectedCategory?.parent_category_id) {
+      setParentCategoryId(selectedCategory.parent_category_id);
+    }
+    
     setFormData({
       name_ar: product.name_ar,
       company_name_ar: product.company_name_ar || "",
@@ -538,25 +567,55 @@ const AdminProducts = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category_id">التصنيف</Label>
+                <Label htmlFor="parent_category">القسم الرئيسي</Label>
                 <Select
-                  value={formData.category_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, category_id: value })
-                  }
+                  value={parentCategoryId}
+                  onValueChange={(value) => {
+                    setParentCategoryId(value);
+                    setFormData({ ...formData, category_id: "" });
+                  }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر التصنيف" />
+                    <SelectValue placeholder="اختر القسم الرئيسي" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories?.map((cat) => (
+                    {parentCategories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
-                        {cat.parent?.name_ar} - {cat.name_ar}
+                        {cat.name_ar}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+              
+              {parentCategoryId && (
+                <div className="space-y-2">
+                  <Label htmlFor="category_id">القسم الفرعي</Label>
+                  <Select
+                    value={formData.category_id}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, category_id: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر القسم الفرعي" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subCategories.length > 0 ? (
+                        subCategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name_ar}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          لا توجد أقسام فرعية لهذا القسم
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>مناسب لنوع البشرة</Label>
                 <div className="space-y-2">
