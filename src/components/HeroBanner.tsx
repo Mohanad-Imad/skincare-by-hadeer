@@ -105,7 +105,7 @@ export const HeroBanner = () => {
                 carousel?.scrollPrev();
               }}
             >
-              <ChevronRight className="h-6 w-6" />
+              <ChevronLeft className="h-6 w-6" />
             </Button>
             <Button
               variant="outline"
@@ -116,7 +116,7 @@ export const HeroBanner = () => {
                 carousel?.scrollNext();
               }}
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronRight className="h-6 w-6" />
             </Button>
           </>
         )}
