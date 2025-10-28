@@ -1,15 +1,18 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare, Sparkles } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { getLocalCartCount } = useLocalCart();
+  const [isOpen, setIsOpen] = useState(false);
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -51,22 +54,134 @@ export const Navbar = () => {
     await supabase.auth.signOut();
     toast.success("تم تسجيل الخروج بنجاح");
     navigate("/");
+    setIsOpen(false);
   };
 
   const isActive = (path: string) => location.pathname === path;
 
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
+  };
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-16 items-center justify-between gap-4">
+        {/* Mobile Menu Button */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="sm" className="lg:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-64">
+            <SheetHeader>
+              <SheetTitle className="text-right">القائمة</SheetTitle>
+            </SheetHeader>
+            <div className="flex flex-col gap-2 mt-6">
+              <Button
+                variant={isActive("/") ? "default" : "ghost"}
+                className="justify-start gap-2"
+                onClick={() => handleNavigate("/")}
+              >
+                <Home className="h-4 w-4" />
+                الرئيسية
+              </Button>
+
+              <Button
+                variant={isActive("/products") ? "default" : "ghost"}
+                className="justify-start gap-2"
+                onClick={() => handleNavigate("/products")}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                المنتجات
+              </Button>
+
+              <Button
+                variant={isActive("/blog") ? "default" : "ghost"}
+                className="justify-start gap-2"
+                onClick={() => handleNavigate("/blog")}
+              >
+                <BookOpen className="h-4 w-4" />
+                المدونة
+              </Button>
+
+              <Button
+                variant={isActive("/consultation") ? "default" : "ghost"}
+                className="justify-start gap-2"
+                onClick={() => handleNavigate("/consultation")}
+              >
+                <MessageSquare className="h-4 w-4" />
+                استشارة
+              </Button>
+
+              <Button
+                variant={isActive("/celebrity-routines") ? "default" : "ghost"}
+                className="justify-start gap-2"
+                onClick={() => handleNavigate("/celebrity-routines")}
+              >
+                <Sparkles className="h-4 w-4" />
+                روتين المشاهير
+              </Button>
+
+              {session && (
+                <Button
+                  variant={isActive("/my-orders") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate("/my-orders")}
+                >
+                  <Package className="h-4 w-4" />
+                  طلباتي
+                </Button>
+              )}
+
+              {isAdmin && (
+                <Button
+                  variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate("/admin/products")}
+                >
+                  <Shield className="h-4 w-4" />
+                  الإدارة
+                </Button>
+              )}
+
+              <div className="border-t pt-2 mt-2">
+                {session ? (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    تسجيل الخروج
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2"
+                    onClick={() => handleNavigate("/auth")}
+                  >
+                    <User className="h-4 w-4" />
+                    تسجيل الدخول
+                  </Button>
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Logo */}
         <h1 
-          className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg lg:text-xl order-2 sm:order-1" 
+          className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg flex-1 text-center lg:text-right" 
           onClick={() => navigate("/")}
         >
           <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
           <span className="md:hidden">متجر هدير</span>
         </h1>
 
-        <div className="flex items-center gap-1 order-1 sm:order-2">
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-1">
           <Button
             variant={isActive("/") ? "default" : "ghost"}
             size="sm"
@@ -74,7 +189,7 @@ export const Navbar = () => {
             className="gap-1.5"
           >
             <Home className="h-4 w-4" />
-            <span className="hidden lg:inline">الرئيسية</span>
+            الرئيسية
           </Button>
 
           <Button
@@ -84,7 +199,7 @@ export const Navbar = () => {
             className="gap-1.5"
           >
             <ShoppingBag className="h-4 w-4" />
-            <span className="hidden lg:inline">المنتجات</span>
+            المنتجات
           </Button>
 
           <Button
@@ -94,7 +209,7 @@ export const Navbar = () => {
             className="gap-1.5"
           >
             <BookOpen className="h-4 w-4" />
-            <span className="hidden lg:inline">المدونة</span>
+            المدونة
           </Button>
 
           <Button
@@ -104,7 +219,7 @@ export const Navbar = () => {
             className="gap-1.5"
           >
             <MessageSquare className="h-4 w-4" />
-            <span className="hidden lg:inline">استشارة</span>
+            استشارة
           </Button>
 
           <Button
@@ -114,7 +229,7 @@ export const Navbar = () => {
             className="gap-1.5"
           >
             <Sparkles className="h-4 w-4" />
-            <span className="hidden lg:inline">روتين المشاهير</span>
+            روتين المشاهير
           </Button>
 
           {session && (
@@ -125,7 +240,7 @@ export const Navbar = () => {
               className="gap-1.5"
             >
               <Package className="h-4 w-4" />
-              <span className="hidden lg:inline">طلباتي</span>
+              طلباتي
             </Button>
           )}
 
@@ -137,12 +252,13 @@ export const Navbar = () => {
               className="gap-1.5"
             >
               <Shield className="h-4 w-4" />
-              <span className="hidden lg:inline">الإدارة</span>
+              الإدارة
             </Button>
           )}
         </div>
 
-        <div className="flex items-center gap-1 order-3">
+        {/* Cart & Auth */}
+        <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
             {displayCartCount > 0 && (
@@ -151,17 +267,20 @@ export const Navbar = () => {
               </span>
             )}
           </Button>
-          {session ? (
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden lg:inline">خروج</span>
-            </Button>
-          ) : (
-            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
-              <User className="h-4 w-4" />
-              <span className="hidden lg:inline">دخول</span>
-            </Button>
-          )}
+          
+          <div className="hidden lg:flex">
+            {session ? (
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5">
+                <LogOut className="h-4 w-4" />
+                خروج
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
+                <User className="h-4 w-4" />
+                دخول
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </nav>
