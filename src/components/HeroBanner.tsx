@@ -4,13 +4,12 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const HeroBanner = () => {
   const plugin = useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
@@ -50,10 +49,10 @@ export const HeroBanner = () => {
         onMouseEnter={plugin.current.stop}
         onMouseLeave={plugin.current.reset}
       >
-        <CarouselContent>
+        <CarouselContent data-carousel>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+              <div className="relative h-[500px] md:h-[600px] overflow-hidden">
                 {/* صورة الخلفية */}
                 <div
                   className="absolute inset-0 bg-cover bg-center"
@@ -62,17 +61,17 @@ export const HeroBanner = () => {
                   }}
                 >
                   {/* طبقة شفافة للتباين */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/50 to-black/30" />
                 </div>
 
                 {/* المحتوى */}
-                <div className="container relative z-10 flex h-full items-center">
-                  <div className="max-w-2xl space-y-6 text-white">
-                    <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl animate-fade-in">
+                <div className="container relative z-10 flex h-full items-center justify-end">
+                  <div className="max-w-2xl space-y-8 text-right">
+                    <h1 className="text-5xl font-black leading-tight md:text-6xl lg:text-7xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
                       {banner.title_ar}
                     </h1>
                     {banner.description_ar && (
-                      <p className="text-lg md:text-xl text-white/90 animate-fade-in [animation-delay:200ms]">
+                      <p className="text-xl md:text-2xl text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
                         {banner.description_ar}
                       </p>
                     )}
@@ -81,7 +80,7 @@ export const HeroBanner = () => {
                         <Button
                           asChild
                           size="lg"
-                          className="bg-primary hover:bg-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                          className="bg-white hover:bg-white/90 text-primary font-bold text-lg px-10 py-6 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
                         >
                           <Link to={banner.link_url}>
                             {banner.button_text_ar}
@@ -97,8 +96,28 @@ export const HeroBanner = () => {
         </CarouselContent>
         {banners.length > 1 && (
           <>
-            <CarouselPrevious className="right-4 md:right-8 left-auto top-auto bottom-4" />
-            <CarouselNext className="left-4 md:left-8 right-auto top-auto bottom-4" />
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
+              onClick={() => {
+                const carousel = document.querySelector('[data-carousel]') as any;
+                carousel?.scrollPrev();
+              }}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
+              onClick={() => {
+                const carousel = document.querySelector('[data-carousel]') as any;
+                carousel?.scrollNext();
+              }}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
           </>
         )}
       </Carousel>
