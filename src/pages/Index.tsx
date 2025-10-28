@@ -8,9 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
-import { SectionDivider } from "@/components/SectionDivider";
-import dividerFloral from "@/assets/divider-floral.jpg";
-import dividerGeometric from "@/assets/divider-geometric.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -101,8 +98,6 @@ const Index = () => {
       {/* Hero Banner - Advertising Carousel */}
       <HeroBanner />
 
-      <SectionDivider imageUrl={dividerFloral} />
-
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
         <section className="container py-16">
@@ -124,8 +119,6 @@ const Index = () => {
         </section>
       )}
 
-      <SectionDivider imageUrl={dividerGeometric} />
-
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
         <section className="container py-16">
@@ -146,8 +139,6 @@ const Index = () => {
           </div>
         </section>
       )}
-
-      <SectionDivider imageUrl={dividerFloral} />
       
       <Footer />
     </div>

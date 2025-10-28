@@ -43,6 +43,10 @@ export const HeroBanner = () => {
       <Carousel
         plugins={[plugin.current]}
         className="w-full"
+        opts={{
+          align: "start",
+          direction: "rtl",
+        }}
         onMouseEnter={plugin.current.stop}
         onMouseLeave={plugin.current.reset}
       >
@@ -93,8 +97,8 @@ export const HeroBanner = () => {
         </CarouselContent>
         {banners.length > 1 && (
           <>
-            <CarouselPrevious className="right-12 left-auto" />
-            <CarouselNext className="left-12 right-auto" />
+            <CarouselPrevious className="right-4 md:right-8 left-auto top-auto bottom-4" />
+            <CarouselNext className="left-4 md:left-8 right-auto top-auto bottom-4" />
           </>
         )}
       </Carousel>
