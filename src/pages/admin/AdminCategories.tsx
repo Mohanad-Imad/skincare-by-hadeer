@@ -41,7 +41,7 @@ const AdminCategories = () => {
     description_ar: "",
     description_en: "",
     image_url: "",
-    parent_category_id: "",
+    parent_category_id: "none",
   });
 
   const { data: categories, isLoading } = useQuery({
@@ -106,17 +106,21 @@ const AdminCategories = () => {
       description_ar: "",
       description_en: "",
       image_url: "",
-      parent_category_id: "",
+      parent_category_id: "none",
     });
     setEditingCategory(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const submitData = {
+      ...formData,
+      parent_category_id: formData.parent_category_id === "none" ? null : formData.parent_category_id,
+    };
     if (editingCategory) {
-      updateMutation.mutate({ id: editingCategory.id, data: formData });
+      updateMutation.mutate({ id: editingCategory.id, data: submitData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(submitData);
     }
   };
 
@@ -128,7 +132,7 @@ const AdminCategories = () => {
       description_ar: category.description_ar || "",
       description_en: category.description_en || "",
       image_url: category.image_url || "",
-      parent_category_id: category.parent_category_id || "",
+      parent_category_id: category.parent_category_id || "none",
     });
     setIsDialogOpen(true);
   };
@@ -217,7 +221,7 @@ const AdminCategories = () => {
                     <SelectValue placeholder="اختر القسم الرئيسي" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">لا يوجد (قسم رئيسي)</SelectItem>
+                    <SelectItem value="none">لا يوجد (قسم رئيسي)</SelectItem>
                     {categories
                       ?.filter((cat) => !cat.parent_category_id && cat.id !== editingCategory?.id)
                       .map((cat) => (
