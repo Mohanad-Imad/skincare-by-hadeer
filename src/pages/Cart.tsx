@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Plus, Minus } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 
 const Cart = () => {
@@ -225,6 +225,14 @@ const Cart = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="mb-4 gap-2"
+        >
+          <ArrowRight className="h-4 w-4" />
+          رجوع
+        </Button>
         <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
 
         {isLoading ? (

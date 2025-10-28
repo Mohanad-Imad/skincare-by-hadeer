@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { ArrowRight } from "lucide-react";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
@@ -224,6 +225,14 @@ const Checkout = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="mb-4 gap-2"
+        >
+          <ArrowRight className="h-4 w-4" />
+          رجوع
+        </Button>
         <h1 className="mb-8 text-3xl font-bold">إتمام الطلب</h1>
 
         <div className="grid gap-8 lg:grid-cols-3">

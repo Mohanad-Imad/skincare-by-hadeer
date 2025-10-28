@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, ArrowRight } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { MiniCart } from "@/components/MiniCart";
 import {
@@ -208,6 +208,14 @@ const ProductDetails = () => {
       />
       <Navbar />
       <div className="container py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="mb-4 gap-2"
+        >
+          <ArrowRight className="h-4 w-4" />
+          رجوع
+        </Button>
         <div className="grid gap-8 md:grid-cols-2">
           {/* Product Images Gallery */}
           <div className="space-y-4">
