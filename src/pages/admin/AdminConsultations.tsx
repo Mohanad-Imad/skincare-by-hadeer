@@ -323,15 +323,17 @@ export default function AdminConsultations() {
 
               {selectedConsultation.image_urls && selectedConsultation.image_urls.length > 0 && (
                 <div>
-                  <h3 className="font-semibold mb-2">الصور المرفقة</h3>
-                  <div className="grid grid-cols-3 gap-2">
+                  <h3 className="font-semibold mb-2">الصور المرفقة (صور تشخيصية)</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {selectedConsultation.image_urls.map((url: string, index: number) => (
-                      <img
-                        key={index}
-                        src={url}
-                        alt={`صورة ${index + 1}`}
-                        className="w-full h-32 object-cover rounded"
-                      />
+                      <div key={index} className="border rounded-lg p-2 bg-muted/30">
+                        <img
+                          src={url}
+                          alt={`صورة تشخيصية ${index + 1}`}
+                          className="w-full h-64 object-contain rounded"
+                        />
+                        <p className="text-xs text-muted-foreground text-center mt-2">صورة {index + 1}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
