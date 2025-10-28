@@ -268,88 +268,90 @@ const Auth = () => {
               </Button>
             </form>
           ) : (
-          <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && (
+          <>
+            <form onSubmit={handleAuth} className="space-y-4">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">الاسم الكامل</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="fullName">الاسم الكامل</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">البريد الإلكتروني</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "جاري التحميل..." : isLogin ? "تسجيل الدخول" : "إنشاء حساب"}
-            </Button>
-          </form>
+              <div className="space-y-2">
+                <Label htmlFor="password">كلمة المرور</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "جاري التحميل..." : isLogin ? "تسجيل الدخول" : "إنشاء حساب"}
+              </Button>
+            </form>
 
-          {isLogin && (
-            <div className="mt-3 text-center">
-              <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="link" className="text-sm">
-                    نسيت كلمة المرور؟
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
-                    <DialogDescription>
-                      أدخلي بريدك الإلكتروني وسنرسل لك رابط لإعادة تعيين كلمة المرور
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleResetPassword} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="resetEmail">البريد الإلكتروني</Label>
-                      <Input
-                        id="resetEmail"
-                        type="email"
-                        value={resetEmail}
-                        onChange={(e) => setResetEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isResettingPassword}>
-                      {isResettingPassword ? "جاري الإرسال..." : "إرسال رابط إعادة التعيين"}
+            {isLogin && (
+              <div className="mt-3 text-center">
+                <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="link" className="text-sm">
+                      نسيت كلمة المرور؟
                     </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
-          )}
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
+                      <DialogDescription>
+                        أدخلي بريدك الإلكتروني وسنرسل لك رابط لإعادة تعيين كلمة المرور
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleResetPassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="resetEmail">البريد الإلكتروني</Label>
+                        <Input
+                          id="resetEmail"
+                          type="email"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isResettingPassword}>
+                        {isResettingPassword ? "جاري الإرسال..." : "إرسال رابط إعادة التعيين"}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
 
-          <div className="mt-6 text-center">
-            <Button
-              variant="link"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? "ليس لديك حساب؟ سجلي الآن" : "لديك حساب؟ سجلي الدخول"}
-            </Button>
-          </div>
+            <div className="mt-6 text-center">
+              <Button
+                variant="link"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "ليس لديك حساب؟ سجلي الآن" : "لديك حساب؟ سجلي الدخول"}
+              </Button>
+            </div>
+          </>
           )}
         </CardContent>
       </Card>
