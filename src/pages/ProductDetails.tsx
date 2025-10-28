@@ -247,39 +247,38 @@ const ProductDetails = () => {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <Breadcrumb className="mb-4">
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="/products">
-                      {product.categories?.parent?.name_ar || "العناية بالبشرة"}
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  {product.categories && !product.categories.parent_category_id && (
-                    <>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbPage className="font-medium text-primary">
-                          {product.categories.name_ar}
-                        </BreadcrumbPage>
-                      </BreadcrumbItem>
-                    </>
-                  )}
-                  {product.categories?.parent && (
-                    <>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbPage className="font-medium text-primary">
-                          {product.categories.name_ar}
-                        </BreadcrumbPage>
-                      </BreadcrumbItem>
-                    </>
-                  )}
-                </BreadcrumbList>
-              </Breadcrumb>
+              {/* Breadcrumbs */}
+              <div className="mb-4 flex items-center gap-2 text-sm">
+                <span className="rounded-md bg-primary/10 px-3 py-1.5 font-medium text-primary/90">
+                  المنتجات
+                </span>
+                <svg 
+                  className="h-4 w-4 text-muted-foreground rotate-180" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="rounded-md bg-primary/15 px-3 py-1.5 font-medium text-primary">
+                  {product.categories?.parent?.name_ar || "العناية بالبشرة"}
+                </span>
+                {(product.categories?.parent || (!product.categories?.parent_category_id && product.categories)) && (
+                  <>
+                    <svg 
+                      className="h-4 w-4 text-muted-foreground rotate-180" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span className="rounded-md bg-primary/20 px-3 py-1.5 font-semibold text-primary">
+                      {product.categories?.name_ar || "تصنيف فرعي"}
+                    </span>
+                  </>
+                )}
+              </div>
               
               <h1 className="mb-2 text-3xl font-bold">{product.name_ar}</h1>
               {product.company_name_ar && (
