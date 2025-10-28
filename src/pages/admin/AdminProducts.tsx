@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import {
   Table,
@@ -46,6 +46,7 @@ const AdminProducts = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   
   const [parentCategoryId, setParentCategoryId] = useState("");
   
@@ -486,6 +487,17 @@ const AdminProducts = () => {
     setCurrentPage(1);
   };
 
+  const copyProductId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopiedId(id);
+      toast.success("تم نسخ معرّف المنتج");
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      toast.error("فشل نسخ المعرّف");
+    }
+  };
+
   if (isLoading) return <div>جاري التحميل...</div>;
 
   return (
@@ -850,6 +862,7 @@ const AdminProducts = () => {
           <TableHeader>
             <TableRow>
               <TableHead>الاسم</TableHead>
+              <TableHead>معرّف المنتج (ID)</TableHead>
               <TableHead>مميز</TableHead>
               <TableHead>وصل حديثاً</TableHead>
               <TableHead>الحالة</TableHead>
@@ -860,6 +873,26 @@ const AdminProducts = () => {
             {paginatedProducts?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.name_ar}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <code className="text-xs bg-muted px-2 py-1 rounded">
+                      {product.id.substring(0, 8)}...
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => copyProductId(product.id)}
+                      title="نسخ المعرّف الكامل"
+                    >
+                      {copiedId === product.id ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </TableCell>
                 <TableCell>{product.is_featured ? "نعم" : "لا"}</TableCell>
                 <TableCell>{product.is_new_arrival ? "نعم" : "لا"}</TableCell>
                 <TableCell>{product.is_active ? "نشط" : "غير نشط"}</TableCell>
