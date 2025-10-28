@@ -44,7 +44,7 @@ interface Discount {
   product_id: string | null;
   discount_percentage: number;
   valid_from: string;
-  valid_until: string;
+  valid_until: string | null;
   is_active: boolean;
   products?: {
     name_ar: string;
@@ -64,6 +64,7 @@ const AdminProductDiscounts = () => {
   const [validUntil, setValidUntil] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [openProductSelect, setOpenProductSelect] = useState(false);
+  const [isOpenEnded, setIsOpenEnded] = useState(false);
 
   const { data: discounts, isLoading } = useQuery({
     queryKey: ["product-discounts"],
@@ -161,7 +162,7 @@ const AdminProductDiscounts = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!percentage || !validFrom || !validUntil) {
+    if (!percentage || !validFrom || (!isOpenEnded && !validUntil)) {
       toast.error("يرجى ملء جميع الحقول المطلوبة");
       return;
     }
@@ -170,7 +171,7 @@ const AdminProductDiscounts = () => {
       product_id: productId === "all" ? null : productId || null,
       discount_percentage: parseFloat(percentage),
       valid_from: validFrom,
-      valid_until: validUntil,
+      valid_until: isOpenEnded ? null : validUntil,
       is_active: isActive,
     };
 
@@ -191,6 +192,7 @@ const AdminProductDiscounts = () => {
     setValidUntil("");
     setIsActive(true);
     setEditingDiscount(null);
+    setIsOpenEnded(false);
   };
 
   const handleEdit = (discount: Discount) => {
@@ -198,7 +200,8 @@ const AdminProductDiscounts = () => {
     setProductId(discount.product_id || "all");
     setPercentage(discount.discount_percentage.toString());
     setValidFrom(discount.valid_from.split("T")[0]);
-    setValidUntil(discount.valid_until.split("T")[0]);
+    setIsOpenEnded(!discount.valid_until);
+    setValidUntil(discount.valid_until ? discount.valid_until.split("T")[0] : "");
     setIsActive(discount.is_active);
     setIsDialogOpen(true);
   };
@@ -366,16 +369,34 @@ const AdminProductDiscounts = () => {
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="validUntil">إلى تاريخ</Label>
-                    <Input
-                      id="validUntil"
-                      type="date"
-                      value={validUntil}
-                      onChange={(e) => setValidUntil(e.target.value)}
-                      required
-                    />
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="openEnded">فترة مفتوحة (بدون تاريخ انتهاء)</Label>
+                      <Switch
+                        id="openEnded"
+                        checked={isOpenEnded}
+                        onCheckedChange={(checked) => {
+                          setIsOpenEnded(checked);
+                          if (checked) {
+                            setValidUntil("");
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
+
+                  {!isOpenEnded && (
+                    <div>
+                      <Label htmlFor="validUntil">إلى تاريخ</Label>
+                      <Input
+                        id="validUntil"
+                        type="date"
+                        value={validUntil}
+                        onChange={(e) => setValidUntil(e.target.value)}
+                        required={!isOpenEnded}
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <Label htmlFor="isActive">تفعيل الخصم</Label>
@@ -431,7 +452,9 @@ const AdminProductDiscounts = () => {
                       {new Date(discount.valid_from).toLocaleDateString("ar-EG")}
                     </TableCell>
                     <TableCell>
-                      {new Date(discount.valid_until).toLocaleDateString("ar-EG")}
+                      {discount.valid_until 
+                        ? new Date(discount.valid_until).toLocaleDateString("ar-EG")
+                        : "فترة مفتوحة"}
                     </TableCell>
                     <TableCell>
                       <span

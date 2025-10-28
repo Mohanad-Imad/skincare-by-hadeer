@@ -6,7 +6,7 @@ interface ProductDiscount {
   product_id: string | null;
   discount_percentage: number;
   valid_from: string;
-  valid_until: string;
+  valid_until: string | null;
   is_active: boolean;
 }
 
@@ -20,7 +20,7 @@ export const useProductDiscounts = () => {
         .select("*")
         .eq("is_active", true)
         .lte("valid_from", now)
-        .gte("valid_until", now);
+        .or(`valid_until.is.null,valid_until.gte.${now}`);
 
       if (error) throw error;
       return data as ProductDiscount[];

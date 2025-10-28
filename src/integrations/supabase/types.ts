@@ -569,7 +569,7 @@ export type Database = {
           product_id: string | null
           updated_at: string
           valid_from: string
-          valid_until: string
+          valid_until: string | null
         }
         Insert: {
           created_at?: string
@@ -579,7 +579,7 @@ export type Database = {
           product_id?: string | null
           updated_at?: string
           valid_from?: string
-          valid_until: string
+          valid_until?: string | null
         }
         Update: {
           created_at?: string
@@ -589,7 +589,7 @@ export type Database = {
           product_id?: string | null
           updated_at?: string
           valid_from?: string
-          valid_until?: string
+          valid_until?: string | null
         }
         Relationships: [
           {
