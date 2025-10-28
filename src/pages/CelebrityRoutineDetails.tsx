@@ -286,7 +286,17 @@ export default function CelebrityRoutineDetails() {
                           <CardContent className="p-4">
                             <h4 className="font-semibold mb-2">{product.name_ar}</h4>
                             <p className="text-sm text-muted-foreground mb-3">{product.description_ar}</p>
-                            <Button size="sm" className="w-full" onClick={() => navigate("/products")}>
+                            <Button 
+                              size="sm" 
+                              className="w-full" 
+                              onClick={() => {
+                                if (product.product_id) {
+                                  navigate(`/products/${product.product_id}`);
+                                } else {
+                                  navigate("/products");
+                                }
+                              }}
+                            >
                               تسوق المنتج
                             </Button>
                           </CardContent>

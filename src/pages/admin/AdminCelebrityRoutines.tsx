@@ -362,6 +362,21 @@ export default function AdminCelebrityRoutines() {
                             placeholder="وصف مختصر للمنتج..."
                           />
                         </div>
+                        <div>
+                          <Label>معرّف المنتج (Product ID)</Label>
+                          <Input
+                            value={product.product_id || ""}
+                            onChange={(e) => {
+                              const products = [...(editingRoutine.favorite_products || [])];
+                              products[index] = { ...products[index], product_id: e.target.value };
+                              setEditingRoutine({ ...editingRoutine, favorite_products: products });
+                            }}
+                            placeholder="معرّف المنتج من صفحة المنتجات"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            انسخ معرّف المنتج من صفحة إدارة المنتجات لربطه
+                          </p>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
