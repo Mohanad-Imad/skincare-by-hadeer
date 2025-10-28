@@ -7,7 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
-import heroImage from "@/assets/hero-skincare-banner.jpg";
+import { HeroBanner } from "@/components/HeroBanner";
+import { SectionDivider } from "@/components/SectionDivider";
+import dividerFloral from "@/assets/divider-floral.jpg";
+import dividerGeometric from "@/assets/divider-geometric.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -95,43 +98,18 @@ const Index = () => {
       />
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center scale-x-[-1]"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-transparent"></div>
-        </div>
-        
-        <div className="relative container h-full flex items-center">
-          <div className="max-w-2xl text-white">
-            <div className="mb-6 flex">
-              <Sparkles className="h-12 w-12 text-white drop-shadow-lg" />
-            </div>
-            <h2 className="mb-6 text-4xl font-bold md:text-6xl text-white drop-shadow-2xl">
-              اكتشفي جمال بشرتك الطبيعي
-            </h2>
-            <p className="mb-8 text-lg md:text-xl text-white/90 drop-shadow-lg">
-              منتجات عناية فاخرة مصممة خصيصاً لجميع أنواع البشرة
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button
-                size="lg"
-                className="h-12 px-8 shadow-xl"
-                onClick={() => navigate("/products")}
-              >
-                عرض المنتجات
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Banner - Advertising Carousel */}
+      <HeroBanner />
+
+      <SectionDivider imageUrl={dividerFloral} />
 
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
-        <section className="container py-12">
-          <h3 className="mb-8 text-center text-2xl font-bold">وصل حديثاً</h3>
+        <section className="container py-16">
+          <div className="mb-8 text-center">
+            <h3 className="text-3xl font-bold mb-2">وصل حديثاً</h3>
+            <p className="text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
+          </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {newArrivals.map((product) => (
               <ProductCard
@@ -146,10 +124,15 @@ const Index = () => {
         </section>
       )}
 
+      <SectionDivider imageUrl={dividerGeometric} />
+
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="container py-12">
-          <h3 className="mb-8 text-center text-2xl font-bold">منتجات مميزة</h3>
+        <section className="container py-16">
+          <div className="mb-8 text-center">
+            <h3 className="text-3xl font-bold mb-2">منتجات مميزة</h3>
+            <p className="text-muted-foreground">أفضل اختياراتنا لك</p>
+          </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredProducts.map((product) => (
               <ProductCard
@@ -163,6 +146,8 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      <SectionDivider imageUrl={dividerFloral} />
       
       <Footer />
     </div>

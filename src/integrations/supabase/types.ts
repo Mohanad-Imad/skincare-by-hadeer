@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          button_text_ar: string | null
+          button_text_en: string | null
+          created_at: string | null
+          description_ar: string | null
+          description_en: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string | null
+          title_ar: string
+          title_en: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          button_text_ar?: string | null
+          button_text_en?: string | null
+          created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url?: string | null
+          title_ar: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          button_text_ar?: string | null
+          button_text_en?: string | null
+          created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string | null
+          title_ar?: string
+          title_en?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_name: string

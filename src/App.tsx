@@ -19,6 +19,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminBlogPosts from "./pages/admin/AdminBlogPosts";
 import AdminDiscountCodes from "./pages/admin/AdminDiscountCodes";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminBanners from "./pages/admin/AdminBanners";
 import MyOrders from "./pages/MyOrders";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="categories" element={<AdminCategories />} />
             <Route path="discount-codes" element={<AdminDiscountCodes />} />
             <Route path="blog" element={<AdminBlogPosts />} />
+            <Route path="banners" element={<AdminBanners />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
