@@ -8,9 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
+import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { data: discounts } = useProductDiscounts();
 
   const { data: featuredProducts } = useQuery({
     queryKey: ["featured-products"],
@@ -106,15 +108,22 @@ const Index = () => {
             <p className="text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {newArrivals.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                nameAr={product.name_ar}
-                imageUrl={product.image_url}
-                minPrice={product.minPrice}
-              />
-            ))}
+            {newArrivals.map((product) => {
+              const discount = product.minPrice 
+                ? calculateDiscount(product.id, product.minPrice, discounts)
+                : null;
+                
+              return (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  nameAr={product.name_ar}
+                  imageUrl={product.image_url}
+                  minPrice={product.minPrice}
+                  discount={discount}
+                />
+              );
+            })}
           </div>
         </section>
       )}
@@ -127,15 +136,22 @@ const Index = () => {
             <p className="text-muted-foreground">أفضل اختياراتنا لك</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                nameAr={product.name_ar}
-                imageUrl={product.image_url}
-                minPrice={product.minPrice}
-              />
-            ))}
+            {featuredProducts.map((product) => {
+              const discount = product.minPrice 
+                ? calculateDiscount(product.id, product.minPrice, discounts)
+                : null;
+                
+              return (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  nameAr={product.name_ar}
+                  imageUrl={product.image_url}
+                  minPrice={product.minPrice}
+                  discount={discount}
+                />
+              );
+            })}
           </div>
         </section>
       )}

@@ -4,14 +4,16 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShoppingCart, ArrowRight } from "lucide-react";
+import { ShoppingCart, ArrowRight, Tag } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { MiniCart } from "@/components/MiniCart";
+import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,6 +31,7 @@ const ProductDetails = () => {
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [addedProduct, setAddedProduct] = useState<any>(null);
   const { addToLocalCart } = useLocalCart();
+  const { data: discounts } = useProductDiscounts();
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -323,17 +326,42 @@ const ProductDetails = () => {
               <Label className="mb-3 block text-lg font-semibold">اختاري الحجم</Label>
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
                 <div className="space-y-3">
-                  {product.product_variants.map((variant: any) => (
-                    <div key={variant.id} className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <RadioGroupItem value={variant.id} id={variant.id} />
-                        <Label htmlFor={variant.id} className="cursor-pointer">
-                          {variant.size_ar}
-                        </Label>
+                  {product.product_variants.map((variant: any) => {
+                    const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
+                    
+                    return (
+                      <div key={variant.id} className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <RadioGroupItem value={variant.id} id={variant.id} />
+                          <Label htmlFor={variant.id} className="cursor-pointer">
+                            {variant.size_ar}
+                          </Label>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          {variantDiscount ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="destructive" className="flex items-center gap-1">
+                                  <Tag className="h-3 w-3" />
+                                  خصم {Math.round(variantDiscount.percentage)}%
+                                </Badge>
+                              </div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-bold text-primary">
+                                  {Math.round(variantDiscount.discountedPrice)} د.ع
+                                </span>
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {Math.round(variant.price)} د.ع
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <span className="font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                          )}
+                        </div>
                       </div>
-                      <span className="font-bold text-primary">{Math.round(variant.price)} د.ع</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </RadioGroup>
             </div>

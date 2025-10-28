@@ -18,6 +18,7 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminBlogPosts from "./pages/admin/AdminBlogPosts";
 import AdminDiscountCodes from "./pages/admin/AdminDiscountCodes";
+import AdminProductDiscounts from "./pages/admin/AdminProductDiscounts";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBanners from "./pages/admin/AdminBanners";
 import MyOrders from "./pages/MyOrders";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="orders" element={<AdminOrders />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="discount-codes" element={<AdminDiscountCodes />} />
+            <Route path="product-discounts" element={<AdminProductDiscounts />} />
             <Route path="blog" element={<AdminBlogPosts />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="consultations" element={<AdminConsultations />} />

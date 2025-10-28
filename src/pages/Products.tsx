@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search } from "lucide-react";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +20,8 @@ const Products = () => {
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  
+  const { data: discounts } = useProductDiscounts();
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -277,15 +280,22 @@ const Products = () => {
         ) : products && products.length > 0 ? (
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  nameAr={product.name_ar}
-                  imageUrl={product.displayImage}
-                  minPrice={product.minPrice}
-                />
-              ))}
+              {products.map((product) => {
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
+                return (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    nameAr={product.name_ar}
+                    imageUrl={product.displayImage}
+                    minPrice={product.minPrice}
+                    discount={discount}
+                  />
+                );
+              })}
             </div>
 
             {/* Pagination */}
