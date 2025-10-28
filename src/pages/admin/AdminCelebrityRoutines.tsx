@@ -42,6 +42,7 @@ const emptyRoutine: Partial<CelebrityRoutine> = {
   celebrity_name_en: "",
   country_ar: "",
   country_en: "",
+  region: "",
   skin_type: "normal",
   morning_routine_ar: "",
   morning_routine_en: "",
@@ -50,7 +51,7 @@ const emptyRoutine: Partial<CelebrityRoutine> = {
   tagline_ar: "",
   expert_notes_ar: "",
   tips_ar: "",
-  favorite_products: null,
+  favorite_products: [],
   is_active: true,
   display_order: 0,
 };
@@ -94,7 +95,9 @@ export default function AdminCelebrityRoutines() {
 
       const routineData: any = {
         ...editingRoutine,
-        favorite_products: editingRoutine.favorite_products || null,
+        favorite_products: editingRoutine.favorite_products && Array.isArray(editingRoutine.favorite_products) && editingRoutine.favorite_products.length > 0 
+          ? editingRoutine.favorite_products 
+          : null,
       };
 
       if (editingRoutine.id) {
@@ -206,6 +209,26 @@ export default function AdminCelebrityRoutines() {
                   </div>
 
                   <div>
+                    <Label>المنطقة</Label>
+                    <Select
+                      value={editingRoutine.region || ""}
+                      onValueChange={(value) => setEditingRoutine({ ...editingRoutine, region: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر المنطقة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="كوريا">كوريا</SelectItem>
+                        <SelectItem value="الخليج">الخليج</SelectItem>
+                        <SelectItem value="أوروبا">أوروبا</SelectItem>
+                        <SelectItem value="أمريكا">أمريكا</SelectItem>
+                        <SelectItem value="آسيا">آسيا</SelectItem>
+                        <SelectItem value="أخرى">أخرى</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <Label>نوع البشرة</Label>
                     <Select
                       value={editingRoutine.skin_type || "normal"}
@@ -287,6 +310,73 @@ export default function AdminCelebrityRoutines() {
                       placeholder="اكتب خطوات الروتين المسائي..."
                     />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Favorite Products */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>المنتجات المفضلة</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {(editingRoutine.favorite_products || []).map((product: any, index: number) => (
+                    <Card key={index} className="bg-muted/50">
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <Label>المنتج {index + 1}</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const products = [...(editingRoutine.favorite_products || [])];
+                              products.splice(index, 1);
+                              setEditingRoutine({ ...editingRoutine, favorite_products: products });
+                            }}
+                          >
+                            حذف
+                          </Button>
+                        </div>
+                        <div>
+                          <Label>اسم المنتج (عربي)</Label>
+                          <Input
+                            value={product.name_ar || ""}
+                            onChange={(e) => {
+                              const products = [...(editingRoutine.favorite_products || [])];
+                              products[index] = { ...products[index], name_ar: e.target.value };
+                              setEditingRoutine({ ...editingRoutine, favorite_products: products });
+                            }}
+                            placeholder="مثال: سيروم فيتامين سي"
+                          />
+                        </div>
+                        <div>
+                          <Label>وصف المنتج (عربي)</Label>
+                          <Textarea
+                            rows={3}
+                            value={product.description_ar || ""}
+                            onChange={(e) => {
+                              const products = [...(editingRoutine.favorite_products || [])];
+                              products[index] = { ...products[index], description_ar: e.target.value };
+                              setEditingRoutine({ ...editingRoutine, favorite_products: products });
+                            }}
+                            placeholder="وصف مختصر للمنتج..."
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      const products = [...(editingRoutine.favorite_products || [])];
+                      products.push({ name_ar: "", description_ar: "" });
+                      setEditingRoutine({ ...editingRoutine, favorite_products: products });
+                    }}
+                  >
+                    + إضافة منتج مفضل
+                  </Button>
                 </CardContent>
               </Card>
 

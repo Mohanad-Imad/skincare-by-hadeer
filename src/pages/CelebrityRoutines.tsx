@@ -64,7 +64,10 @@ export default function CelebrityRoutines() {
     }
 
     if (regionFilter !== "all") {
-      filtered = filtered.filter((r) => r.country_ar.includes(regionFilter));
+      filtered = filtered.filter((r) => {
+        // @ts-ignore - region field exists in database
+        return r.region === regionFilter;
+      });
     }
 
     setFilteredRoutines(filtered);
@@ -143,6 +146,8 @@ export default function CelebrityRoutines() {
                 <SelectItem value="الخليج">الخليج</SelectItem>
                 <SelectItem value="أوروبا">أوروبا</SelectItem>
                 <SelectItem value="أمريكا">أمريكا</SelectItem>
+                <SelectItem value="آسيا">آسيا</SelectItem>
+                <SelectItem value="أخرى">أخرى</SelectItem>
               </SelectContent>
             </Select>
           </div>
