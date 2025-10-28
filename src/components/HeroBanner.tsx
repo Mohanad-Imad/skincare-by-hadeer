@@ -102,7 +102,7 @@ export const HeroBanner = () => {
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
+              className="absolute left-4 md:left-8 bottom-6 md:bottom-8 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
               onClick={() => api?.scrollNext()}
             >
               <ChevronLeft className="h-6 w-6" />
@@ -110,7 +110,7 @@ export const HeroBanner = () => {
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
+              className="absolute right-4 md:right-8 bottom-6 md:bottom-8 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
               onClick={() => api?.scrollPrev()}
             >
               <ChevronRight className="h-6 w-6" />
