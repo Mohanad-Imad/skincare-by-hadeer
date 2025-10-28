@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 const AdminCategories = () => {
@@ -38,9 +37,6 @@ const AdminCategories = () => {
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
-    description_ar: "",
-    description_en: "",
-    image_url: "",
     parent_category_id: "none",
   });
 
@@ -103,9 +99,6 @@ const AdminCategories = () => {
     setFormData({
       name_ar: "",
       name_en: "",
-      description_ar: "",
-      description_en: "",
-      image_url: "",
       parent_category_id: "none",
     });
     setEditingCategory(null);
@@ -129,9 +122,6 @@ const AdminCategories = () => {
     setFormData({
       name_ar: category.name_ar,
       name_en: category.name_en,
-      description_ar: category.description_ar || "",
-      description_en: category.description_en || "",
-      image_url: category.image_url || "",
       parent_category_id: category.parent_category_id || "none",
     });
     setIsDialogOpen(true);
@@ -177,36 +167,6 @@ const AdminCategories = () => {
                     setFormData({ ...formData, name_en: e.target.value })
                   }
                   required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_ar">الوصف بالعربية</Label>
-                <Textarea
-                  id="description_ar"
-                  value={formData.description_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_ar: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_en">الوصف بالإنجليزية</Label>
-                <Textarea
-                  id="description_en"
-                  value={formData.description_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_en: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="image_url">رابط الصورة</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image_url: e.target.value })
-                  }
                 />
               </div>
               <div className="space-y-2">
