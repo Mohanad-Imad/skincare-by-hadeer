@@ -31,7 +31,7 @@ export const HeroBanner = () => {
 
   if (isLoading) {
     return (
-      <div className="relative h-[400px] md:h-[500px] bg-gradient-to-r from-primary/20 to-secondary/20 animate-pulse" />
+      <div className="relative h-[300px] md:h-[400px] bg-gradient-to-r from-primary/20 to-secondary/20 animate-pulse" />
     );
   }
 
@@ -55,7 +55,7 @@ export const HeroBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+              <div className="relative h-[350px] md:h-[450px] overflow-hidden">
                 {/* صورة الخلفية */}
                 <div
                   className="absolute inset-0 bg-cover bg-center"
