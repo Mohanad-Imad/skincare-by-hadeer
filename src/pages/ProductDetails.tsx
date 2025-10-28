@@ -12,6 +12,14 @@ import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { MiniCart } from "@/components/MiniCart";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,7 +45,15 @@ const ProductDetails = () => {
           `
           *,
           product_variants (*),
-          categories (name_ar),
+          categories (
+            id,
+            name_ar,
+            parent_category_id,
+            parent:parent_category_id (
+              id,
+              name_ar
+            )
+          ),
           product_images (
             id,
             image_url,
@@ -231,10 +247,41 @@ const ProductDetails = () => {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
+              <Breadcrumb className="mb-4">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/products">المنتجات</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/products">
+                      {product.categories?.parent?.name_ar || "العناية بالبشرة"}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  {product.categories && !product.categories.parent_category_id && (
+                    <>
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage className="font-medium text-primary">
+                          {product.categories.name_ar}
+                        </BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </>
+                  )}
+                  {product.categories?.parent && (
+                    <>
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage className="font-medium text-primary">
+                          {product.categories.name_ar}
+                        </BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </>
+                  )}
+                </BreadcrumbList>
+              </Breadcrumb>
+              
               <h1 className="mb-2 text-3xl font-bold">{product.name_ar}</h1>
-              {product.categories && (
-                <p className="mb-2 text-base font-medium text-primary/80">{product.categories.name_ar}</p>
-              )}
               {product.company_name_ar && (
                 <p className="mt-2 text-lg font-semibold text-muted-foreground">الشركة: {product.company_name_ar}</p>
               )}
