@@ -28,6 +28,9 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { localCart, clearLocalCart } = useLocalCart();
   
   // الحصول على صفحة التوجيه من state
@@ -41,6 +44,13 @@ const Auth = () => {
       }
     };
     checkSession();
+
+    // التحقق من وجود رابط إعادة تعيين كلمة المرور
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    if (type === 'recovery') {
+      setIsRecoveryMode(true);
+    }
   }, [navigate, redirectTo]);
 
   // نقل السلة المؤقتة إلى قاعدة البيانات بعد تسجيل الدخول
@@ -105,6 +115,41 @@ const Auth = () => {
       }
     } finally {
       setIsResettingPassword(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error("كلمات المرور غير متطابقة");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast.success("تم تغيير كلمة المرور بنجاح");
+      setIsRecoveryMode(false);
+      setNewPassword("");
+      setConfirmPassword("");
+      navigate("/");
+    } catch (error: any) {
+      console.error("Password update error:", error);
+      toast.error("فشل تحديث كلمة المرور. يرجى المحاولة مرة أخرى");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -186,12 +231,43 @@ const Auth = () => {
         </Button>
         <Card className="w-full">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">{isLogin ? "تسجيل الدخول" : "إنشاء حساب"}</CardTitle>
+            <CardTitle className="text-2xl">
+              {isRecoveryMode ? "تعيين كلمة مرور جديدة" : (isLogin ? "تسجيل الدخول" : "إنشاء حساب")}
+            </CardTitle>
             <CardDescription>
-              {isLogin ? "مرحباً بعودتك" : "انضمي إلينا اليوم"}
+              {isRecoveryMode ? "أدخلي كلمة المرور الجديدة" : (isLogin ? "مرحباً بعودتك" : "انضمي إلينا اليوم")}
             </CardDescription>
           </CardHeader>
         <CardContent>
+          {isRecoveryMode ? (
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">كلمة المرور الجديدة</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "جاري التحديث..." : "تحديث كلمة المرور"}
+              </Button>
+            </form>
+          ) : (
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
               <div className="space-y-2">
@@ -274,6 +350,7 @@ const Auth = () => {
               {isLogin ? "ليس لديك حساب؟ سجلي الآن" : "لديك حساب؟ سجلي الدخول"}
             </Button>
           </div>
+          )}
         </CardContent>
       </Card>
       </div>
