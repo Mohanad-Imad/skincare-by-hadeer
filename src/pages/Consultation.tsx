@@ -230,13 +230,13 @@ export default function Consultation() {
                       <FormLabel>الجنس *</FormLabel>
                       <FormControl>
                         <RadioGroup onValueChange={field.onChange} value={field.value}>
-                          <div className="flex items-center space-x-2 space-x-reverse">
-                            <RadioGroupItem value="female" id="female" />
+                          <div className="flex items-center gap-2 flex-row-reverse justify-end">
                             <FormLabel htmlFor="female" className="font-normal">أنثى</FormLabel>
+                            <RadioGroupItem value="female" id="female" />
                           </div>
-                          <div className="flex items-center space-x-2 space-x-reverse">
-                            <RadioGroupItem value="male" id="male" />
+                          <div className="flex items-center gap-2 flex-row-reverse justify-end">
                             <FormLabel htmlFor="male" className="font-normal">ذكر</FormLabel>
+                            <RadioGroupItem value="male" id="male" />
                           </div>
                         </RadioGroup>
                       </FormControl>
