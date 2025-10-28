@@ -15,12 +15,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -30,7 +36,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Check, ChevronsUpDown, Minus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Discount {
   id: string;
@@ -56,6 +63,7 @@ const AdminProductDiscounts = () => {
   const [validFrom, setValidFrom] = useState("");
   const [validUntil, setValidUntil] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [openProductSelect, setOpenProductSelect] = useState(false);
 
   const { data: discounts, isLoading } = useQuery({
     queryKey: ["product-discounts"],
@@ -235,33 +243,116 @@ const AdminProductDiscounts = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <Label htmlFor="product">المنتج</Label>
-                    <Select value={productId} onValueChange={setProductId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر المنتج" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع المنتجات</SelectItem>
-                        {products?.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            {product.name_ar}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openProductSelect} onOpenChange={setOpenProductSelect}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openProductSelect}
+                          className="w-full justify-between"
+                        >
+                          {productId === "all" 
+                            ? "جميع المنتجات"
+                            : productId
+                            ? products?.find((product) => product.id === productId)?.name_ar
+                            : "اختر المنتج..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="ابحث عن منتج..." />
+                          <CommandList>
+                            <CommandEmpty>لم يتم العثور على منتجات.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                value="all"
+                                onSelect={() => {
+                                  setProductId("all");
+                                  setOpenProductSelect(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "ml-2 h-4 w-4",
+                                    productId === "all" ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                جميع المنتجات
+                              </CommandItem>
+                              {products?.map((product) => (
+                                <CommandItem
+                                  key={product.id}
+                                  value={product.name_ar}
+                                  onSelect={() => {
+                                    setProductId(product.id);
+                                    setOpenProductSelect(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "ml-2 h-4 w-4",
+                                      productId === product.id ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {product.name_ar}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   <div>
                     <Label htmlFor="percentage">نسبة الخصم (%)</Label>
-                    <Input
-                      id="percentage"
-                      type="number"
-                      min="1"
-                      max="100"
-                      step="0.01"
-                      value={percentage}
-                      onChange={(e) => setPercentage(e.target.value)}
-                      required
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const current = parseFloat(percentage) || 0;
+                          if (current > 1) {
+                            setPercentage(Math.max(1, current - 1).toString());
+                          }
+                        }}
+                        disabled={!percentage || parseFloat(percentage) <= 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        id="percentage"
+                        type="number"
+                        min="1"
+                        max="100"
+                        step="1"
+                        value={percentage}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === "" || (parseFloat(val) >= 1 && parseFloat(val) <= 100)) {
+                            setPercentage(val);
+                          }
+                        }}
+                        className="text-center"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const current = parseFloat(percentage) || 0;
+                          if (current < 100) {
+                            setPercentage(Math.min(100, current + 1).toString());
+                          }
+                        }}
+                        disabled={!percentage || parseFloat(percentage) >= 100}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   <div>
