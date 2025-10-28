@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { toast } from "sonner";
-
 interface CelebrityRoutine {
   id: string;
   celebrity_name_ar: string;
@@ -21,7 +20,6 @@ interface CelebrityRoutine {
   tagline_ar: string | null;
   tagline_en: string | null;
 }
-
 export default function CelebrityRoutines() {
   const navigate = useNavigate();
   const [routines, setRoutines] = useState<CelebrityRoutine[]>([]);
@@ -29,23 +27,20 @@ export default function CelebrityRoutines() {
   const [loading, setLoading] = useState(true);
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>("all");
   const [regionFilter, setRegionFilter] = useState<string>("all");
-
   useEffect(() => {
     fetchRoutines();
   }, []);
-
   useEffect(() => {
     filterRoutines();
   }, [routines, skinTypeFilter, regionFilter]);
-
   const fetchRoutines = async () => {
     try {
-      const { data, error } = await supabase
-        .from("celebrity_routines")
-        .select("*")
-        .eq("is_active", true)
-        .order("display_order", { ascending: true });
-
+      const {
+        data,
+        error
+      } = await supabase.from("celebrity_routines").select("*").eq("is_active", true).order("display_order", {
+        ascending: true
+      });
       if (error) throw error;
       setRoutines(data || []);
     } catch (error) {
@@ -55,51 +50,37 @@ export default function CelebrityRoutines() {
       setLoading(false);
     }
   };
-
   const filterRoutines = () => {
     let filtered = [...routines];
-
     if (skinTypeFilter !== "all") {
-      filtered = filtered.filter((r) => r.skin_type === skinTypeFilter);
+      filtered = filtered.filter(r => r.skin_type === skinTypeFilter);
     }
-
     if (regionFilter !== "all") {
-      filtered = filtered.filter((r) => {
+      filtered = filtered.filter(r => {
         // @ts-ignore - region field exists in database
         return r.region === regionFilter;
       });
     }
-
     setFilteredRoutines(filtered);
   };
-
   const getSkinTypeLabel = (type: string) => {
     const types: Record<string, string> = {
       oily: "دهنية",
       dry: "جافة",
       combination: "مختلطة",
       sensitive: "حساسة",
-      normal: "عادية",
+      normal: "عادية"
     };
     return types[type] || type;
   };
-
-  return (
-    <>
-      <SEO
-        title="روتين المشاهير - استشارات العناية بالبشرة"
-        description="اكتشفي روتينات العناية بالبشرة الخاصة بالمشاهير والمؤثرين، جربي روتيناتهم واحصلي على بشرة مثالية"
-      />
+  return <>
+      <SEO title="روتين المشاهير - استشارات العناية بالبشرة" description="اكتشفي روتينات العناية بالبشرة الخاصة بالمشاهير والمؤثرين، جربي روتيناتهم واحصلي على بشرة مثالية" />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 py-12">
           <div className="container mx-auto px-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/")}
-              className="mb-6 gap-2"
-            >
+            <Button variant="ghost" onClick={() => navigate("/")} className="mb-6 gap-2">
               <ArrowRight className="h-4 w-4" />
               الرجوع إلى الصفحة الرئيسية
             </Button>
@@ -109,7 +90,7 @@ export default function CelebrityRoutines() {
                 <Sparkles className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-sm font-medium text-primary">روتين المشاهير</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent my-[5px]">
                 أسرار جمال المشاهير
               </h1>
               <p className="text-muted-foreground text-lg">
@@ -153,10 +134,8 @@ export default function CelebrityRoutines() {
           </div>
 
           {/* Celebrity Cards Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="animate-pulse">
+          {loading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map(i => <Card key={i} className="animate-pulse">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-24 h-24 rounded-full bg-muted" />
@@ -164,23 +143,13 @@ export default function CelebrityRoutines() {
                       <div className="w-24 h-4 bg-muted rounded" />
                     </div>
                   </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : filteredRoutines.length === 0 ? (
-            <div className="text-center py-12">
+                </Card>)}
+            </div> : filteredRoutines.length === 0 ? <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">
                 لا توجد روتينات متاحة بهذه الفلاتر
               </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredRoutines.map((routine) => (
-                <Card
-                  key={routine.id}
-                  className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50"
-                  onClick={() => navigate(`/celebrity-routines/${routine.id}`)}
-                >
+            </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRoutines.map(routine => <Card key={routine.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50" onClick={() => navigate(`/celebrity-routines/${routine.id}`)}>
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center gap-4 text-center">
                       <Avatar className="w-24 h-24 ring-4 ring-primary/20 group-hover:ring-primary/40 transition-all">
@@ -202,11 +171,9 @@ export default function CelebrityRoutines() {
                             {getSkinTypeLabel(routine.skin_type)}
                           </Badge>
                         </div>
-                        {routine.tagline_ar && (
-                          <p className="text-sm text-muted-foreground italic">
+                        {routine.tagline_ar && <p className="text-sm text-muted-foreground italic">
                             "{routine.tagline_ar}"
-                          </p>
-                        )}
+                          </p>}
                       </div>
 
                       <Button className="w-full group-hover:bg-primary/90" size="lg">
@@ -214,12 +181,9 @@ export default function CelebrityRoutines() {
                       </Button>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                </Card>)}
+            </div>}
         </div>
       </div>
-    </>
-  );
+    </>;
 }
