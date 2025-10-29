@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -13,6 +13,7 @@ export const Navbar = () => {
   const location = useLocation();
   const { getLocalCartCount } = useLocalCart();
   const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -52,6 +53,9 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
+    await queryClient.invalidateQueries({ queryKey: ["is-admin"] });
+    await queryClient.invalidateQueries({ queryKey: ["cart-count"] });
     toast.success("تم تسجيل الخروج بنجاح");
     navigate("/");
     setIsOpen(false);

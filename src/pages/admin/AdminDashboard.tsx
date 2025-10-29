@@ -6,13 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Home, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AdminDashboard = () => {
   const { isAdmin, isLoading } = useAdminCheck();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
+    await queryClient.invalidateQueries({ queryKey: ["is-admin"] });
     toast.success("تم تسجيل الخروج بنجاح");
     navigate("/");
   };

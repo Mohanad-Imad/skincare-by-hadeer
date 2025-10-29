@@ -2,11 +2,12 @@ import { ShoppingCart, User, LogOut, Shield, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -44,6 +45,9 @@ export const Header = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
+    await queryClient.invalidateQueries({ queryKey: ["is-admin"] });
+    await queryClient.invalidateQueries({ queryKey: ["cart-count"] });
     toast.success("تم تسجيل الخروج بنجاح");
     navigate("/");
   };
