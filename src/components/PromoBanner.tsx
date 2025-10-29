@@ -31,7 +31,7 @@ export const PromoBanner = () => {
           </div>
 
           {/* Main heading */}
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in my-[9px]">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-fade-in lg:text-6xl py-[5px] my-0">
             جمالك يبدأ من هنا
           </h2>
 
