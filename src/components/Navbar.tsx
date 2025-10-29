@@ -66,122 +66,123 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-16 items-center justify-between gap-4">
-        {/* Mobile Menu Button */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="lg:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-64">
-            <SheetHeader>
-              <SheetTitle className="text-right">القائمة</SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col gap-2 mt-6">
-              <Button
-                variant={isActive("/") ? "default" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => handleNavigate("/")}
-              >
-                <Home className="h-4 w-4" />
-                الرئيسية
+      <div className="container flex h-16 items-center gap-4">
+        {/* Mobile Menu Button & Logo - Left Side */}
+        <div className="flex items-center gap-2 lg:flex-1">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="lg:hidden">
+                <Menu className="h-5 w-5" />
               </Button>
-
-              <Button
-                variant={isActive("/products") ? "default" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => handleNavigate("/products")}
-              >
-                <ShoppingBag className="h-4 w-4" />
-                المنتجات
-              </Button>
-
-              <Button
-                variant={isActive("/blog") ? "default" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => handleNavigate("/blog")}
-              >
-                <BookOpen className="h-4 w-4" />
-                المدونة
-              </Button>
-
-              <Button
-                variant={isActive("/consultation") ? "default" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => handleNavigate("/consultation")}
-              >
-                <MessageSquare className="h-4 w-4" />
-                استشارة
-              </Button>
-
-              <Button
-                variant={isActive("/celebrity-routines") ? "default" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => handleNavigate("/celebrity-routines")}
-              >
-                <Sparkles className="h-4 w-4" />
-                روتين المشاهير
-              </Button>
-
-              {session && (
+            </SheetTrigger>
+            <SheetContent side="right" className="w-64">
+              <SheetHeader>
+                <SheetTitle className="text-right">القائمة</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-2 mt-6">
                 <Button
-                  variant={isActive("/my-orders") ? "default" : "ghost"}
+                  variant={isActive("/") ? "default" : "ghost"}
                   className="justify-start gap-2"
-                  onClick={() => handleNavigate("/my-orders")}
+                  onClick={() => handleNavigate("/")}
                 >
-                  <Package className="h-4 w-4" />
-                  طلباتي
+                  <Home className="h-4 w-4" />
+                  الرئيسية
                 </Button>
-              )}
 
-              {isAdmin && (
                 <Button
-                  variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
+                  variant={isActive("/products") ? "default" : "ghost"}
                   className="justify-start gap-2"
-                  onClick={() => handleNavigate("/admin/products")}
+                  onClick={() => handleNavigate("/products")}
                 >
-                  <Shield className="h-4 w-4" />
-                  الإدارة
+                  <ShoppingBag className="h-4 w-4" />
+                  المنتجات
                 </Button>
-              )}
 
-              <div className="border-t pt-2 mt-2">
-                {session ? (
+                <Button
+                  variant={isActive("/blog") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate("/blog")}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  المدونة
+                </Button>
+
+                <Button
+                  variant={isActive("/consultation") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate("/consultation")}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  استشارة
+                </Button>
+
+                <Button
+                  variant={isActive("/celebrity-routines") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate("/celebrity-routines")}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  روتين المشاهير
+                </Button>
+
+                {session && (
                   <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2"
-                    onClick={handleLogout}
+                    variant={isActive("/my-orders") ? "default" : "ghost"}
+                    className="justify-start gap-2"
+                    onClick={() => handleNavigate("/my-orders")}
                   >
-                    <LogOut className="h-4 w-4" />
-                    تسجيل الخروج
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2"
-                    onClick={() => handleNavigate("/auth")}
-                  >
-                    <User className="h-4 w-4" />
-                    تسجيل الدخول
+                    <Package className="h-4 w-4" />
+                    طلباتي
                   </Button>
                 )}
+
+                {isAdmin && (
+                  <Button
+                    variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
+                    className="justify-start gap-2"
+                    onClick={() => handleNavigate("/admin/products")}
+                  >
+                    <Shield className="h-4 w-4" />
+                    الإدارة
+                  </Button>
+                )}
+
+                <div className="border-t pt-2 mt-2">
+                  {session ? (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      تسجيل الخروج
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2"
+                      onClick={() => handleNavigate("/auth")}
+                    >
+                      <User className="h-4 w-4" />
+                      تسجيل الدخول
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
 
-        {/* Logo */}
-        <h1 
-          className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg flex-1 text-center lg:text-right" 
-          onClick={() => navigate("/")}
-        >
-          <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
-          <span className="md:hidden">متجر هدير</span>
-        </h1>
+          <h1 
+            className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg" 
+            onClick={() => navigate("/")}
+          >
+            <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
+            <span className="md:hidden">متجر هدير</span>
+          </h1>
+        </div>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-1">
+        {/* Desktop Navigation - Center */}
+        <div className="hidden lg:flex items-center justify-center gap-1 flex-1">
           <Button
             variant={isActive("/") ? "default" : "ghost"}
             size="sm"
@@ -257,8 +258,8 @@ export const Navbar = () => {
           )}
         </div>
 
-        {/* Cart & Auth */}
-        <div className="flex items-center gap-1">
+        {/* Cart & Auth - Right Side */}
+        <div className="flex items-center gap-1 lg:flex-1 lg:justify-end">
           <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
             {displayCartCount > 0 && (
