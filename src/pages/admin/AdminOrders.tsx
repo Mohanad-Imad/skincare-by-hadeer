@@ -276,7 +276,9 @@ const AdminOrders = () => {
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">المجموع الفرعي:</span>
                               <span className="font-medium">
-                                {Math.round(order.total_amount + (order.discount_amount || 0))} د.ع
+                                {Math.round(
+                                  order.order_items?.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0) || 0
+                                )} د.ع
                               </span>
                             </div>
                             {order.discount_amount && order.discount_amount > 0 && (
@@ -285,6 +287,14 @@ const AdminOrders = () => {
                                 <span className="font-medium">-{Math.round(order.discount_amount)} د.ع</span>
                               </div>
                             )}
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">التوصيل:</span>
+                              <span className="font-medium">
+                                {order.shipping_amount && order.shipping_amount > 0 
+                                  ? `${Math.round(order.shipping_amount)} د.ع` 
+                                  : 'مجاني'}
+                              </span>
+                            </div>
                             <div className="flex justify-between border-t pt-1 mt-1">
                               <span className="font-semibold">المجموع النهائي:</span>
                               <span className="font-bold text-primary">
