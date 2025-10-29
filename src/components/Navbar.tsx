@@ -66,9 +66,9 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-16 items-center gap-4">
-        {/* Mobile Menu Button & Logo - Left Side */}
-        <div className="flex items-center gap-2 lg:flex-1">
+      <div className="container flex h-16 items-center gap-2">
+        {/* Mobile Menu Button - Left Side */}
+        <div className="flex items-center lg:flex-1">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="sm" className="lg:hidden">
@@ -172,17 +172,19 @@ export const Navbar = () => {
             </SheetContent>
           </Sheet>
 
-          <h1 
-            className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg" 
-            onClick={() => navigate("/")}
-          >
-            <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
-            <span className="md:hidden">متجر هدير</span>
-          </h1>
         </div>
 
+        {/* Logo - Center on mobile, right on desktop */}
+        <h1 
+          className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg flex-1 text-center lg:flex-none lg:text-right" 
+          onClick={() => navigate("/")}
+        >
+          <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
+          <span className="md:hidden">متجر هدير</span>
+        </h1>
+
         {/* Desktop Navigation - Center */}
-        <div className="hidden lg:flex items-center justify-center gap-1 flex-1">
+        <div className="hidden lg:flex items-center justify-center gap-1 lg:flex-1">
           <Button
             variant={isActive("/") ? "default" : "ghost"}
             size="sm"
@@ -259,7 +261,7 @@ export const Navbar = () => {
         </div>
 
         {/* Cart & Auth - Right Side */}
-        <div className="flex items-center gap-1 lg:flex-1 lg:justify-end">
+        <div className="flex items-center gap-1 flex-shrink-0 lg:flex-1 lg:justify-end">
           <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
             {displayCartCount > 0 && (
