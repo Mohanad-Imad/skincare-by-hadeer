@@ -67,7 +67,7 @@ export const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-16 items-center justify-between gap-4">
-        {/* Left Side: Mobile Menu Button (mobile) / Cart & Auth (desktop) */}
+        {/* Left Side: Mobile Menu (mobile) / Logo (desktop) */}
         <div className="flex items-center gap-2">
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -173,29 +173,13 @@ export const Navbar = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Cart & Auth - Desktop Only */}
-          <div className="hidden lg:flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
-              <ShoppingCart className="h-4 w-4" />
-              {displayCartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                  {displayCartCount}
-                </span>
-              )}
-            </Button>
-            
-            {session ? (
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5">
-                <LogOut className="h-4 w-4" />
-                خروج
-              </Button>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
-                <User className="h-4 w-4" />
-                دخول
-              </Button>
-            )}
-          </div>
+          {/* Logo - Desktop Only (left side) */}
+          <h1 
+            className="hidden lg:block cursor-pointer text-lg font-bold text-primary whitespace-nowrap" 
+            onClick={() => navigate("/")}
+          >
+            متجر هدير للعناية بالبشرة
+          </h1>
         </div>
 
         {/* Center: Desktop Navigation Links */}
@@ -275,8 +259,8 @@ export const Navbar = () => {
           )}
         </div>
 
-        {/* Right Side: Logo (mobile center, desktop right) */}
-        <div className="flex items-center justify-end">
+        {/* Right Side: Cart (mobile) & Logo (mobile center) / Cart & Auth (desktop right) */}
+        <div className="flex items-center gap-2">
           {/* Cart - Mobile Only */}
           <Button variant="ghost" size="sm" className="relative lg:hidden" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
@@ -287,14 +271,38 @@ export const Navbar = () => {
             )}
           </Button>
 
-          {/* Logo */}
+          {/* Logo - Mobile Only (centered with absolute positioning) */}
           <h1 
-            className="cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0" 
+            className="lg:hidden cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg absolute left-1/2 -translate-x-1/2" 
             onClick={() => navigate("/")}
           >
             <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
             <span className="md:hidden">متجر هدير</span>
           </h1>
+
+          {/* Cart & Auth - Desktop Only (right side) */}
+          <div className="hidden lg:flex items-center gap-1">
+            <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
+              <ShoppingCart className="h-4 w-4" />
+              {displayCartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                  {displayCartCount}
+                </span>
+              )}
+            </Button>
+            
+            {session ? (
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5">
+                <LogOut className="h-4 w-4" />
+                خروج
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
+                <User className="h-4 w-4" />
+                دخول
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </nav>
