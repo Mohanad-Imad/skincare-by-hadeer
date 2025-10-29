@@ -517,6 +517,7 @@ export type Database = {
           discount_code_id: string | null
           id: string
           notes: string | null
+          shipping_amount: number
           status: Database["public"]["Enums"]["order_status"] | null
           total_amount: number
           updated_at: string | null
@@ -531,6 +532,7 @@ export type Database = {
           discount_code_id?: string | null
           id?: string
           notes?: string | null
+          shipping_amount?: number
           status?: Database["public"]["Enums"]["order_status"] | null
           total_amount: number
           updated_at?: string | null
@@ -545,6 +547,7 @@ export type Database = {
           discount_code_id?: string | null
           id?: string
           notes?: string | null
+          shipping_amount?: number
           status?: Database["public"]["Enums"]["order_status"] | null
           total_amount?: number
           updated_at?: string | null
@@ -791,6 +794,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shipping_settings: {
+        Row: {
+          created_at: string
+          delivery_fee: number
+          free_delivery_threshold: number | null
+          id: string
+          is_free_delivery: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_fee?: number
+          free_delivery_threshold?: number | null
+          id?: string
+          is_free_delivery?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_fee?: number
+          free_delivery_threshold?: number | null
+          id?: string
+          is_free_delivery?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -21,6 +21,7 @@ const menuItems = [
   { title: "التصنيفات", url: "/admin/categories", icon: Grid3x3 },
   { title: "أكواد الخصم", url: "/admin/discount-codes", icon: Percent },
   { title: "خصومات المنتجات", url: "/admin/product-discounts", icon: Tag },
+  { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },
   { title: "المدونة", url: "/admin/blog", icon: FileText },
   { title: "البنرات الإعلانية", url: "/admin/banners", icon: ImageIcon },
 ];

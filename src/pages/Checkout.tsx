@@ -32,6 +32,18 @@ const Checkout = () => {
   const [isCheckingCode, setIsCheckingCode] = useState(false);
   const { data: discounts } = useProductDiscounts();
 
+  const { data: shippingSettings } = useQuery({
+    queryKey: ["shipping-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("shipping_settings")
+        .select("*")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -132,7 +144,19 @@ const Checkout = () => {
         ? (subtotal * appliedDiscount.discount_percentage) / 100
         : 0;
 
-      const totalAmount = subtotal - discountCodeAmount;
+      // حساب رسوم التوصيل
+      let shippingAmount = 0;
+      if (shippingSettings) {
+        if (shippingSettings.is_free_delivery) {
+          shippingAmount = 0;
+        } else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+          shippingAmount = 0;
+        } else {
+          shippingAmount = Number(shippingSettings.delivery_fee) || 0;
+        }
+      }
+
+      const totalAmount = subtotal - discountCodeAmount + shippingAmount;
 
       // Create order
       const { data: order, error: orderError } = await supabase
@@ -146,6 +170,7 @@ const Checkout = () => {
           total_amount: totalAmount,
           discount_code_id: appliedDiscount?.id || null,
           discount_amount: discountCodeAmount,
+          shipping_amount: shippingAmount,
           status: "new",
         })
         .select()
@@ -249,7 +274,19 @@ const Checkout = () => {
     ? (subtotal * appliedDiscount.discount_percentage) / 100
     : 0;
 
-  const total = subtotal - discountAmount;
+  // حساب رسوم التوصيل
+  let shippingAmount = 0;
+  if (shippingSettings) {
+    if (shippingSettings.is_free_delivery) {
+      shippingAmount = 0;
+    } else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+      shippingAmount = 0;
+    } else {
+      shippingAmount = Number(shippingSettings.delivery_fee) || 0;
+    }
+  }
+
+  const total = subtotal - discountAmount + shippingAmount;
 
   return (
     <div className="min-h-screen bg-background">
@@ -396,6 +433,18 @@ const Checkout = () => {
                 <div className="flex justify-between text-sm text-green-600">
                   <span>الخصم ({appliedDiscount.discount_percentage}%):</span>
                   <span>-{Math.round(discountAmount)} د.ع</span>
+                </div>
+              )}
+              {shippingAmount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span>رسوم التوصيل:</span>
+                  <span>{Math.round(shippingAmount)} د.ع</span>
+                </div>
+              )}
+              {shippingAmount === 0 && shippingSettings && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span>التوصيل:</span>
+                  <span>مجاني</span>
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold">

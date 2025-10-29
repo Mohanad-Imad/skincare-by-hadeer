@@ -21,6 +21,7 @@ import AdminDiscountCodes from "./pages/admin/AdminDiscountCodes";
 import AdminProductDiscounts from "./pages/admin/AdminProductDiscounts";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBanners from "./pages/admin/AdminBanners";
+import AdminShippingSettings from "./pages/admin/AdminShippingSettings";
 import MyOrders from "./pages/MyOrders";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="categories" element={<AdminCategories />} />
             <Route path="discount-codes" element={<AdminDiscountCodes />} />
             <Route path="product-discounts" element={<AdminProductDiscounts />} />
+            <Route path="shipping-settings" element={<AdminShippingSettings />} />
             <Route path="blog" element={<AdminBlogPosts />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="consultations" element={<AdminConsultations />} />
