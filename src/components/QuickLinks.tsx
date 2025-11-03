@@ -60,14 +60,14 @@ export const QuickLinks = () => {
               className="flex flex-col items-center gap-3 min-w-[100px] group"
             >
               <div className="relative">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-all duration-300 group-hover:scale-110 shadow-md group-hover:shadow-lg">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-all duration-300 shadow-md group-hover:shadow-lg">
                   <img
                     src={link.image_url}
                     alt={link.title_ar}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/0 to-primary/20 group-hover:from-primary/10 group-hover:to-primary/30 transition-all duration-300" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/0 to-primary/20 group-hover:from-primary/10 group-hover:to-primary/30 transition-all duration-300 pointer-events-none" />
               </div>
               <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-300 text-center max-w-[100px] truncate">
                 {link.title_ar}
