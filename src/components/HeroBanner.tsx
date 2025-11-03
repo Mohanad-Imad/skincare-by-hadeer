@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const HeroBanner = () => {
   const plugin = useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
   const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
 
   const { data: banners, isLoading } = useQuery({
     queryKey: ["banners"],
@@ -28,6 +28,16 @@ export const HeroBanner = () => {
       return data;
     },
   });
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   if (isLoading) {
     return (
@@ -98,24 +108,20 @@ export const HeroBanner = () => {
           ))}
         </CarouselContent>
         {banners.length > 1 && (
-          <>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute left-4 md:left-8 bottom-6 md:bottom-8 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
-              onClick={() => api?.scrollNext()}
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute right-4 md:right-8 bottom-6 md:bottom-8 z-20 h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm border-white/40 hover:bg-white/30 text-white hover:text-white transition-all"
-              onClick={() => api?.scrollPrev()}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
-          </>
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => api?.scrollTo(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === current
+                    ? "w-8 bg-white"
+                    : "w-2 bg-white/50 hover:bg-white/70"
+                }`}
+                aria-label={`الانتقال إلى الصورة ${index + 1}`}
+              />
+            ))}
+          </div>
         )}
       </Carousel>
     </div>
