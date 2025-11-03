@@ -78,7 +78,7 @@ export const HeroBanner = () => {
                 </div>
 
                 {/* المحتوى */}
-                <div className="container relative z-10 flex h-full flex-col">
+                <div className="container relative z-10 flex h-full flex-col justify-between">
                   {(banner.title_ar || banner.description_ar) && (
                     <div className="flex-1 flex items-center justify-center">
                       <div className="max-w-2xl space-y-6 text-center">
@@ -94,6 +94,9 @@ export const HeroBanner = () => {
                         )}
                       </div>
                     </div>
+                  )}
+                  {!banner.title_ar && !banner.description_ar && (
+                    <div className="flex-1" />
                   )}
                   {banner.link_url && (
                     <div className="flex justify-center pb-8 animate-fade-in [animation-delay:400ms]">
