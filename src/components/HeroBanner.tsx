@@ -107,23 +107,23 @@ export const HeroBanner = () => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        {banners.length > 1 && (
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-            {banners.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => api?.scrollTo(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === current
-                    ? "w-8 bg-white"
-                    : "w-2 bg-white/50 hover:bg-white/70"
-                }`}
-                aria-label={`الانتقال إلى الصورة ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </Carousel>
+      {banners.length > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => api?.scrollTo(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === current
+                  ? "w-8 bg-gray-700"
+                  : "w-2 bg-gray-400 hover:bg-gray-600"
+              }`}
+              aria-label={`الانتقال إلى الصورة ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
