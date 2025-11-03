@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
 import { SearchBar } from "@/components/SearchBar";
+import { QuickLinks } from "@/components/QuickLinks";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Index = () => {
@@ -101,6 +102,11 @@ const Index = () => {
       {/* Search Bar */}
       <section className="container py-8">
         <SearchBar />
+      </section>
+
+      {/* Quick Links */}
+      <section className="container">
+        <QuickLinks />
       </section>
 
       {/* Hero Banner - Advertising Carousel */}

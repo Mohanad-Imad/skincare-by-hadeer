@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -24,6 +24,7 @@ const menuItems = [
   { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },
   { title: "المدونة", url: "/admin/blog", icon: FileText },
   { title: "البنرات الإعلانية", url: "/admin/banners", icon: ImageIcon },
+  { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
 ];
 
 export function AdminSidebar() {
