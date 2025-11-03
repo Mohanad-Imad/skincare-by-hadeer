@@ -15,7 +15,7 @@ import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscou
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
   const [parentCategoryFilter, setParentCategoryFilter] = useState<string>(searchParams.get("category") || "all");
   const [subCategoryFilter, setSubCategoryFilter] = useState<string>(searchParams.get("subCategory") || "all");
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>(searchParams.get("skinType") || "all");
@@ -96,7 +96,7 @@ const Products = () => {
       }
 
       if (searchTerm) {
-        countQuery = countQuery.ilike("name_ar", `%${searchTerm}%`);
+        countQuery = countQuery.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
       }
 
       const { count } = await countQuery;
@@ -129,7 +129,7 @@ const Products = () => {
       }
 
       if (searchTerm) {
-        query = query.ilike("name_ar", `%${searchTerm}%`);
+        query = query.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
       }
 
       const { data, error } = await query;
@@ -184,11 +184,13 @@ const Products = () => {
     const subCategory = searchParams.get("subCategory");
     const skinType = searchParams.get("skinType");
     const company = searchParams.get("company");
+    const search = searchParams.get("search");
     
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
     if (skinType) setSkinTypeFilter(skinType);
     if (company) setCompanyFilter(company);
+    if (search) setSearchTerm(search);
   }, [searchParams]);
 
   const structuredData = {

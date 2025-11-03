@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
+import { SearchBar } from "@/components/SearchBar";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Index = () => {
@@ -99,6 +100,11 @@ const Index = () => {
       
       {/* Hero Banner - Advertising Carousel */}
       <HeroBanner />
+
+      {/* Search Bar */}
+      <section className="container py-8">
+        <SearchBar />
+      </section>
 
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
