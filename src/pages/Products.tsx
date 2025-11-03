@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
@@ -13,11 +14,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Products = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
-  const [parentCategoryFilter, setParentCategoryFilter] = useState<string>("all");
-  const [subCategoryFilter, setSubCategoryFilter] = useState<string>("all");
-  const [skinTypeFilter, setSkinTypeFilter] = useState<string>("all");
-  const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [parentCategoryFilter, setParentCategoryFilter] = useState<string>(searchParams.get("category") || "all");
+  const [subCategoryFilter, setSubCategoryFilter] = useState<string>(searchParams.get("subCategory") || "all");
+  const [skinTypeFilter, setSkinTypeFilter] = useState<string>(searchParams.get("skinType") || "all");
+  const [companyFilter, setCompanyFilter] = useState<string>(searchParams.get("company") || "all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   
@@ -160,10 +162,34 @@ const Products = () => {
   const totalPages = productsData ? Math.ceil(productsData.totalCount / itemsPerPage) : 0;
   const products = productsData?.products || [];
 
-  const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
+  const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
     setter(value);
     setCurrentPage(1);
+    
+    // تحديث URL parameters
+    if (paramName) {
+      const newParams = new URLSearchParams(searchParams);
+      if (value === "all") {
+        newParams.delete(paramName);
+      } else {
+        newParams.set(paramName, value);
+      }
+      setSearchParams(newParams);
+    }
   };
+
+  // تحديث الفلاتر عند تغيير URL
+  useEffect(() => {
+    const category = searchParams.get("category");
+    const subCategory = searchParams.get("subCategory");
+    const skinType = searchParams.get("skinType");
+    const company = searchParams.get("company");
+    
+    if (category) setParentCategoryFilter(category);
+    if (subCategory) setSubCategoryFilter(subCategory);
+    if (skinType) setSkinTypeFilter(skinType);
+    if (company) setCompanyFilter(company);
+  }, [searchParams]);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -202,6 +228,16 @@ const Products = () => {
               setParentCategoryFilter(value);
               setSubCategoryFilter("all");
               setCurrentPage(1);
+              
+              const newParams = new URLSearchParams(searchParams);
+              if (value === "all") {
+                newParams.delete("category");
+                newParams.delete("subCategory");
+              } else {
+                newParams.set("category", value);
+                newParams.delete("subCategory");
+              }
+              setSearchParams(newParams);
             }}
           >
             <SelectTrigger>
@@ -220,7 +256,7 @@ const Products = () => {
           </Select>
 
           {parentCategoryFilter !== "all" && (
-            <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter)}>
+            <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}>
               <SelectTrigger>
                 <SelectValue placeholder="التصنيف الفرعي" />
               </SelectTrigger>
@@ -237,7 +273,7 @@ const Products = () => {
             </Select>
           )}
 
-          <Select value={companyFilter} onValueChange={handleFilterChange(setCompanyFilter)}>
+          <Select value={companyFilter} onValueChange={handleFilterChange(setCompanyFilter, "company")}>
             <SelectTrigger>
               <SelectValue placeholder="الشركة المصنعة" />
             </SelectTrigger>
@@ -251,7 +287,7 @@ const Products = () => {
             </SelectContent>
           </Select>
 
-          <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter)}>
+          <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter, "skinType")}>
             <SelectTrigger>
               <SelectValue placeholder="نوع البشرة" />
             </SelectTrigger>
