@@ -201,14 +201,13 @@ const AdminBanners = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title_ar">العنوان *</Label>
+                <Label htmlFor="title_ar">العنوان</Label>
                 <Input
                   id="title_ar"
                   value={formData.title_ar}
                   onChange={(e) =>
                     setFormData({ ...formData, title_ar: e.target.value })
                   }
-                  required
                 />
               </div>
               <div className="space-y-2">
