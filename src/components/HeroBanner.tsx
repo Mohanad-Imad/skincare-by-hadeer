@@ -50,10 +50,10 @@ export const HeroBanner = () => {
   }
 
   return (
-    <div className="relative w-full">
+    <div className="container py-6">
       <Carousel
         plugins={[plugin.current]}
-        className="w-full"
+        className="w-full overflow-hidden rounded-2xl"
         opts={{
           align: "start",
           direction: "rtl",
@@ -65,7 +65,7 @@ export const HeroBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-[350px] md:h-[450px] overflow-hidden">
+              <div className="relative h-[350px] md:h-[450px] overflow-hidden rounded-2xl">
                 {/* صورة الخلفية */}
                 <div
                   className="absolute inset-0 bg-cover bg-center"
