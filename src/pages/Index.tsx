@@ -98,13 +98,13 @@ const Index = () => {
       />
       <Navbar />
       
-      {/* Hero Banner - Advertising Carousel */}
-      <HeroBanner />
-
       {/* Search Bar */}
       <section className="container py-8">
         <SearchBar />
       </section>
+
+      {/* Hero Banner - Advertising Carousel */}
+      <HeroBanner />
 
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
