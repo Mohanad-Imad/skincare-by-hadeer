@@ -80,8 +80,8 @@ export const HeroBanner = () => {
                 {/* المحتوى */}
                 <div className="container relative z-10 flex h-full flex-col">
                   {(banner.title_ar || banner.description_ar) && (
-                    <div className="flex-1 flex items-center justify-end">
-                      <div className="max-w-2xl space-y-6 text-right">
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="max-w-2xl space-y-6 text-center">
                         {banner.title_ar && (
                           <h1 className="text-4xl font-black leading-tight md:text-5xl lg:text-6xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
                             {banner.title_ar}
