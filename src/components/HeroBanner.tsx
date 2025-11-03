@@ -78,30 +78,36 @@ export const HeroBanner = () => {
                 </div>
 
                 {/* المحتوى */}
-                <div className="container relative z-10 flex h-full items-center justify-end">
-                  <div className="max-w-2xl space-y-8 text-right">
-                    <h1 className="text-5xl font-black leading-tight md:text-6xl lg:text-7xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
-                      {banner.title_ar}
-                    </h1>
-                    {banner.description_ar && (
-                      <p className="text-xl md:text-2xl text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
-                        {banner.description_ar}
-                      </p>
-                    )}
-                    {banner.link_url && (
-                      <div className="animate-fade-in [animation-delay:400ms]">
-                        <Button
-                          asChild
-                          size="lg"
-                          className="bg-white hover:bg-white/90 text-primary font-bold text-lg px-10 py-6 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
-                        >
-                          <Link to={banner.link_url}>
-                            {banner.button_text_ar}
-                          </Link>
-                        </Button>
+                <div className="container relative z-10 flex h-full flex-col">
+                  {(banner.title_ar || banner.description_ar) && (
+                    <div className="flex-1 flex items-center justify-end">
+                      <div className="max-w-2xl space-y-6 text-right">
+                        {banner.title_ar && (
+                          <h1 className="text-4xl font-black leading-tight md:text-5xl lg:text-6xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
+                            {banner.title_ar}
+                          </h1>
+                        )}
+                        {banner.description_ar && (
+                          <p className="text-lg md:text-xl text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
+                            {banner.description_ar}
+                          </p>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                  {banner.link_url && (
+                    <div className="flex justify-center pb-8 animate-fade-in [animation-delay:400ms]">
+                      <Button
+                        asChild
+                        size="lg"
+                        className="bg-white hover:bg-white/90 text-primary font-bold text-base md:text-lg px-8 md:px-10 py-5 md:py-6 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
+                      >
+                        <Link to={banner.link_url}>
+                          {banner.button_text_ar}
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </CarouselItem>
