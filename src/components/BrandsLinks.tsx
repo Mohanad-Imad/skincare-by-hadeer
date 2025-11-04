@@ -31,8 +31,8 @@ export const BrandsLinks = () => {
 
   return (
     <div className="w-full">
-      <div className="container">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 md:mb-6">ماركاتنا</h2>
+      <div className="md:container">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 md:mb-6 px-4 md:px-0">ماركاتنا</h2>
         
         <div className="relative">
           {/* Gradient fade left */}
@@ -42,7 +42,7 @@ export const BrandsLinks = () => {
           <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none hidden md:block" />
           
           <div className="overflow-x-auto scrollbar-hide pb-2">
-            <div className="flex gap-3 md:gap-4 px-2">
+            <div className="flex gap-3 md:gap-4 px-4 md:px-2">
               {brands.map((brand) => (
                 <button
                   key={brand.id}
