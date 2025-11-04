@@ -132,17 +132,17 @@ const Index = () => {
       <Navbar />
       
       {/* Search Bar */}
-      <section className="container py-2 md:py-4 pb-1 md:pb-2">
+      <section className="w-full px-3 md:px-6 py-2 md:py-4 pb-1 md:pb-2">
         <SearchBar />
       </section>
 
       {/* Quick Links */}
-      <section className="md:container">
+      <section className="w-full px-3 md:px-6">
         <QuickLinks />
       </section>
 
       {/* Tertiary Banner - Top promotional banner */}
-      <section className="py-2 md:py-3">
+      <section className="w-full px-3 md:px-6 py-2 md:py-3">
         <TertiaryBanner />
       </section>
 
@@ -150,33 +150,33 @@ const Index = () => {
       <HeroBanner />
 
       {/* Secondary Banner - Bottom promotional banner */}
-      <section className="py-2 md:py-3">
+      <section className="w-full px-3 md:px-6 py-2 md:py-3">
         <SecondaryBanner />
       </section>
 
       {/* Brands Links - Quick access to brands */}
-      <section className="py-6 md:py-8">
+      <section className="w-full px-3 md:px-6 py-6 md:py-8">
         <BrandsLinks />
       </section>
 
       {/* Makeup Banner */}
-      <section className="py-6 md:py-8">
+      <section className="w-full px-3 md:px-6 py-6 md:py-8">
         <MakeupBanner />
       </section>
 
       {/* Shop By Problem Section */}
-      <section className="py-6 md:py-8">
+      <section className="w-full px-3 md:px-6 py-6 md:py-8">
         <ShopByProblem />
       </section>
 
       {/* Guarantee Banner */}
-      <section className="container py-6 md:py-8">
+      <section className="w-full px-3 md:px-6 py-6 md:py-8">
         <GuaranteeBanner />
       </section>
 
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
-        <section className="container py-8 md:py-16">
+        <section className="w-full px-3 md:px-6 py-8 md:py-16">
           <div className="mb-4 md:mb-8 text-center">
             <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">وصل حديثاً</h3>
             <p className="text-sm md:text-base text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
@@ -222,7 +222,7 @@ const Index = () => {
 
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="container py-8 md:py-16">
+        <section className="w-full px-3 md:px-6 py-8 md:py-16">
           <div className="mb-4 md:mb-8 text-center">
             <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">منتجات مميزة</h3>
             <p className="text-sm md:text-base text-muted-foreground">أفضل اختياراتنا لك</p>
@@ -267,7 +267,7 @@ const Index = () => {
 
       {/* Expert Choices */}
       {expertChoices && expertChoices.length > 0 && (
-        <section className="container py-8 md:py-16">
+        <section className="w-full px-3 md:px-6 py-8 md:py-16">
           <div className="mb-4 md:mb-8 text-center">
             <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">اختيار خبراءنا</h3>
             <p className="text-sm md:text-base text-muted-foreground">منتجات موصى بها من فريق خبرائنا</p>
