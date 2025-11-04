@@ -23,15 +23,15 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
 
   return (
     <Card
-      className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg"
+      className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg h-full flex flex-col"
       onClick={() => navigate(`/products/${id}`)}
     >
-      <div className="aspect-square overflow-hidden bg-background p-2 relative">
-        <div className="absolute top-0 left-0 z-10 overflow-hidden w-32 h-32">
-          <div className="absolute transform -rotate-45 bg-emerald-500/90 text-white text-center font-bold py-1.5 left-[-38px] top-[26px] w-40 shadow-lg">
-            <div className="flex items-center justify-center gap-1.5">
-              <ShieldCheck className="h-4 w-4" />
-              <span className="text-xs">أصلي ومضمون</span>
+      <div className="aspect-[3/4] overflow-hidden bg-background p-1 relative flex-shrink-0">
+        <div className="absolute top-0 left-0 z-10 overflow-hidden w-24 h-24">
+          <div className="absolute transform -rotate-45 bg-emerald-500/90 text-white text-center font-bold py-1 left-[-30px] top-[18px] w-32 shadow-lg">
+            <div className="flex items-center justify-center gap-1">
+              <ShieldCheck className="h-3 w-3" />
+              <span className="text-[10px]">أصلي ومضمون</span>
             </div>
           </div>
         </div>
@@ -43,47 +43,47 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
             <img
               src={imageUrl}
               alt={nameAr}
-              className={`h-full w-full object-contain transition-transform group-hover:scale-105 ${
+              className={`h-full w-full object-cover transition-transform group-hover:scale-105 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
             />
           </div>
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
             بدون صورة
           </div>
         )}
       </div>
-      <CardContent className="p-3">
-        <h3 className="mb-1.5 text-sm font-semibold line-clamp-2">{nameAr}</h3>
+      <CardContent className="p-2 flex-1 flex flex-col justify-between">
+        <h3 className="mb-1 text-xs font-semibold line-clamp-2 min-h-[2rem]">{nameAr}</h3>
         {minPrice && (
-          <div className="mb-2 space-y-1">
+          <div className="mb-1.5 space-y-0.5">
             {discount ? (
               <>
-                <div className="flex items-center gap-2">
-                  <Badge variant="destructive" className="flex items-center gap-1">
-                    <Tag className="h-3 w-3" />
+                <div className="flex items-center gap-1">
+                  <Badge variant="destructive" className="flex items-center gap-0.5 text-[9px] py-0 px-1.5 h-4">
+                    <Tag className="h-2.5 w-2.5" />
                     خصم {Math.round(discount.percentage)}%
                   </Badge>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-base font-bold text-primary">
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-sm font-bold text-primary">
                     {Math.round(discount.discountedPrice)} د.ع
                   </p>
-                  <p className="text-sm text-muted-foreground line-through">
+                  <p className="text-[10px] text-muted-foreground line-through">
                     {Math.round(minPrice)} د.ع
                   </p>
                 </div>
               </>
             ) : (
-              <p className="text-base font-bold text-primary">
+              <p className="text-sm font-bold text-primary">
                 {Math.round(minPrice)} د.ع
               </p>
             )}
           </div>
         )}
-        <Button className="w-full h-8 text-sm" variant="outline">
+        <Button className="w-full h-7 text-[11px]" variant="outline">
           عرض التفاصيل
         </Button>
       </CardContent>
