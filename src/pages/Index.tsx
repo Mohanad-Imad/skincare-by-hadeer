@@ -110,10 +110,15 @@ const Index = () => {
         <QuickLinks />
       </section>
 
+      {/* Secondary Banner 1 - Top promotional banner */}
+      <section className="py-3">
+        <SecondaryBanner />
+      </section>
+
       {/* Hero Banner - Advertising Carousel */}
       <HeroBanner />
 
-      {/* Secondary Banner - Smaller promotional banner */}
+      {/* Secondary Banner 2 - Bottom promotional banner */}
       <section className="py-3">
         <SecondaryBanner />
       </section>
