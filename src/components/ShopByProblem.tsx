@@ -38,18 +38,18 @@ export const ShopByProblem = () => {
   return (
     <section className="w-full py-12 px-4 bg-gradient-to-b from-background to-muted/20">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-foreground">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-6 md:mb-8 text-foreground">
           التسوق حسب المشكلة
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-4xl mx-auto">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => navigate(`/problems/${category.slug}`)}
-              className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <div className="aspect-square bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
                 {category.image_url ? (
                   <img
                     src={category.image_url}
@@ -57,13 +57,13 @@ export const ShopByProblem = () => {
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 ) : (
-                  <div className="text-6xl">
+                  <div className="text-5xl md:text-6xl">
                     {category.slug === 'skin-body-problems' ? '🧴' : '💆‍♀️'}
                   </div>
                 )}
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-                <h3 className="text-2xl font-bold text-white p-6 w-full text-center">
+              <div className="p-3 md:p-6">
+                <h3 className="text-base md:text-xl lg:text-2xl font-bold text-foreground text-center group-hover:text-primary transition-colors">
                   {category.name_ar}
                 </h3>
               </div>
