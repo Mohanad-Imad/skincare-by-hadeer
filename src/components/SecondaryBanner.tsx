@@ -67,7 +67,7 @@ export const SecondaryBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative w-full h-[200px] rounded-2xl overflow-hidden group cursor-pointer">
+              <div className="relative w-full h-[100px] rounded-2xl overflow-hidden group cursor-pointer">
                 <img
                   src={banner.image_url}
                   alt={banner.title_ar || ""}
@@ -76,22 +76,23 @@ export const SecondaryBanner = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                 
                 <div className="absolute inset-0 flex items-center">
-                  <div className="container mx-auto px-8">
+                  <div className="container mx-auto px-4">
                     <div className="max-w-xl text-right">
                       {banner.title_ar && (
-                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg">
+                        <h2 className="text-base md:text-lg font-bold text-white mb-1 drop-shadow-lg">
                           {banner.title_ar}
                         </h2>
                       )}
                       {banner.description_ar && (
-                        <p className="text-base md:text-lg text-white/95 mb-4 drop-shadow-md">
+                        <p className="text-xs md:text-sm text-white/95 mb-2 drop-shadow-md">
                           {banner.description_ar}
                         </p>
                       )}
                       {banner.link_url && (
                         <Button
                           onClick={() => handleBannerClick(banner.link_url)}
-                          className="bg-white/95 text-primary hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg"
+                          size="sm"
+                          className="bg-white/95 text-primary hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg text-xs md:text-sm"
                         >
                           {banner.button_text_ar || "تسوق الآن"}
                         </Button>

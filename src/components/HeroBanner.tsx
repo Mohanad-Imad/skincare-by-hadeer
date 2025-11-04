@@ -65,7 +65,7 @@ export const HeroBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-[350px] md:h-[450px] overflow-hidden rounded-2xl">
+              <div className="relative h-[175px] md:h-[225px] overflow-hidden rounded-2xl">
                 {/* صورة الخلفية */}
                 <div
                   className="absolute inset-0 bg-cover bg-center"
@@ -81,14 +81,14 @@ export const HeroBanner = () => {
                 <div className="container relative z-10 flex h-full flex-col justify-end">
                   {(banner.title_ar || banner.description_ar) && (
                     <div className="flex-1 flex items-center justify-center">
-                      <div className="max-w-2xl space-y-6 text-center">
+                      <div className="max-w-2xl space-y-2 text-center">
                         {banner.title_ar && (
-                          <h1 className="text-4xl font-black leading-tight md:text-5xl lg:text-6xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
+                          <h1 className="text-xl font-black leading-tight md:text-2xl lg:text-3xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
                             {banner.title_ar}
                           </h1>
                         )}
                         {banner.description_ar && (
-                          <p className="text-lg md:text-xl text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
+                          <p className="text-sm md:text-base text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
                             {banner.description_ar}
                           </p>
                         )}
@@ -96,11 +96,11 @@ export const HeroBanner = () => {
                     </div>
                   )}
                   {banner.link_url && (
-                    <div className="flex justify-center pb-8 animate-fade-in [animation-delay:400ms]">
+                    <div className="flex justify-center pb-4 animate-fade-in [animation-delay:400ms]">
                       <Button
                         asChild
-                        size="lg"
-                        className="bg-white hover:bg-white/90 text-primary font-bold text-base md:text-lg px-8 md:px-10 py-5 md:py-6 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
+                        size="default"
+                        className="bg-white hover:bg-white/90 text-primary font-bold text-sm md:text-base px-6 md:px-8 py-3 md:py-4 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
                       >
                         <Link to={banner.link_url}>
                           {banner.button_text_ar}
