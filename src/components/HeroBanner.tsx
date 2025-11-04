@@ -122,8 +122,8 @@ export const HeroBanner = () => {
               onClick={() => api?.scrollTo(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === current
-                  ? "w-8 bg-gray-700"
-                  : "w-2 bg-gray-400 hover:bg-gray-600"
+                  ? "w-8 bg-primary"
+                  : "w-2 bg-primary/30 hover:bg-primary/50"
               }`}
               aria-label={`الانتقال إلى الصورة ${index + 1}`}
             />

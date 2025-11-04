@@ -76,7 +76,7 @@ export const SearchBar = () => {
   };
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-2xl mx-auto">
+    <div ref={searchRef} className="relative w-full md:max-w-2xl mx-auto">
       <form onSubmit={handleSearch} className="relative">
         <div className="relative">
           <Input
@@ -84,7 +84,7 @@ export const SearchBar = () => {
             placeholder="ابحث عن منتج أو شركة..."
             value={searchTerm}
             onChange={(e) => handleInputChange(e.target.value)}
-            className="w-full pr-12 pl-4 py-6 text-base placeholder:text-sm rounded-full border-2 border-primary/20 focus:border-primary transition-colors"
+            className="w-full pr-12 pl-4 py-4 md:py-6 text-base placeholder:text-sm rounded-full border-2 border-primary/20 focus:border-primary transition-colors"
           />
           {searchTerm && (
             <Button
