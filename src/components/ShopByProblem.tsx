@@ -44,12 +44,12 @@ export const ShopByProblem = () => {
         
         <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-4xl mx-auto">
           {categories.map((category) => (
-            <button
+            <div
               key={category.id}
               onClick={() => navigate(`/problems/${category.slug}`)}
-              className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col gap-2 cursor-pointer group"
             >
-              <div className="aspect-square bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 aspect-square">
                 {category.image_url ? (
                   <img
                     src={category.image_url}
@@ -57,17 +57,15 @@ export const ShopByProblem = () => {
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 ) : (
-                  <div className="text-5xl md:text-6xl">
+                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-5xl md:text-6xl">
                     {category.slug === 'skin-body-problems' ? '🧴' : '💆‍♀️'}
                   </div>
                 )}
               </div>
-              <div className="p-3 md:p-6">
-                <h3 className="text-base md:text-xl lg:text-2xl font-bold text-foreground text-center group-hover:text-primary transition-colors">
-                  {category.name_ar}
-                </h3>
-              </div>
-            </button>
+              <h3 className="text-sm md:text-base font-semibold text-foreground text-center group-hover:text-primary transition-colors">
+                {category.name_ar}
+              </h3>
+            </div>
           ))}
         </div>
       </div>
