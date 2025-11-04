@@ -55,7 +55,12 @@ export default function AdminProblemCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sub_problems")
-        .select("*, problem_categories(name_ar)")
+        .select(`
+          *,
+          problem_categories!sub_problems_category_id_fkey (
+            name_ar
+          )
+        `)
         .order("display_order");
       if (error) throw error;
       return data;
