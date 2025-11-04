@@ -1,12 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu, ChevronDown } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 
 export const Navbar = () => {
@@ -48,20 +47,6 @@ export const Navbar = () => {
       return count || 0;
     },
     enabled: !!session?.user?.id,
-  });
-
-  const { data: makeupCategories } = useQuery({
-    queryKey: ["makeup-categories-navbar"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("makeup_categories")
-        .select("id, name_ar, slug")
-        .eq("is_active", true)
-        .order("display_order");
-      
-      if (error) throw error;
-      return data;
-    },
   });
 
   const displayCartCount = session?.user ? cartCount : getLocalCartCount();
@@ -117,30 +102,6 @@ export const Navbar = () => {
                   <ShoppingBag className="h-4 w-4" />
                   المنتجات
                 </Button>
-
-                <Button
-                  variant={isActive("/makeup") ? "default" : "ghost"}
-                  className="justify-start gap-2"
-                  onClick={() => handleNavigate("/makeup")}
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  المكياج
-                </Button>
-
-                {makeupCategories && makeupCategories.length > 0 && (
-                  <div className="pr-6">
-                    {makeupCategories.map((category) => (
-                      <Button
-                        key={category.id}
-                        variant="ghost"
-                        className="justify-start gap-2 w-full text-sm"
-                        onClick={() => handleNavigate(`/products?makeup=${category.slug}`)}
-                      >
-                        {category.name_ar}
-                      </Button>
-                    ))}
-                  </div>
-                )}
 
                 <Button
                   variant={isActive("/blog") ? "default" : "ghost"}
@@ -246,33 +207,6 @@ export const Navbar = () => {
             <ShoppingBag className="h-4 w-4" />
             المنتجات
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={isActive("/makeup") ? "default" : "ghost"}
-                size="sm"
-                className="gap-1.5"
-              >
-                <ShoppingBag className="h-4 w-4" />
-                المكياج
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-background z-50">
-              <DropdownMenuItem onClick={() => navigate("/makeup")}>
-                جميع أقسام المكياج
-              </DropdownMenuItem>
-              {makeupCategories?.map((category) => (
-                <DropdownMenuItem
-                  key={category.id}
-                  onClick={() => navigate(`/products?makeup=${category.slug}`)}
-                >
-                  {category.name_ar}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           <Button
             variant={isActive("/blog") ? "default" : "ghost"}

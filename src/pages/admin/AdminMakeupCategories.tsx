@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Copy, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -153,6 +154,17 @@ const AdminMakeupCategories = () => {
     }
   };
 
+  const copyToClipboard = (slug: string) => {
+    const url = `${window.location.origin}/products?makeup=${slug}`;
+    navigator.clipboard.writeText(url);
+    toast.success("تم نسخ الرابط");
+  };
+
+  const openInNewTab = (slug: string) => {
+    const url = `${window.location.origin}/products?makeup=${slug}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Navbar />
@@ -262,7 +274,8 @@ const AdminMakeupCategories = () => {
                       <TableRow dir="rtl">
                         <TableHead className="text-right">الصورة</TableHead>
                         <TableHead className="text-right">الاسم</TableHead>
-                        <TableHead className="text-right">الرابط</TableHead>
+                        <TableHead className="text-right">الرابط (Slug)</TableHead>
+                        <TableHead className="text-right">رابط المنتجات</TableHead>
                         <TableHead className="text-right">الترتيب</TableHead>
                         <TableHead className="text-right">الحالة</TableHead>
                         <TableHead className="text-right">الإجراءات</TableHead>
@@ -271,7 +284,7 @@ const AdminMakeupCategories = () => {
                     <TableBody>
                       {isLoading ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center">
+                          <TableCell colSpan={7} className="text-center">
                             جاري التحميل...
                           </TableCell>
                         </TableRow>
@@ -292,7 +305,31 @@ const AdminMakeupCategories = () => {
                               )}
                             </TableCell>
                             <TableCell>{category.name_ar}</TableCell>
-                            <TableCell>{category.slug}</TableCell>
+                            <TableCell>
+                              <code className="bg-muted px-2 py-1 rounded text-sm">
+                                {category.slug}
+                              </code>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => copyToClipboard(category.slug)}
+                                  title="نسخ الرابط"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openInNewTab(category.slug)}
+                                  title="فتح في تبويب جديد"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
                             <TableCell>{category.display_order}</TableCell>
                             <TableCell>
                               {category.is_active ? "نشط" : "غير نشط"}
