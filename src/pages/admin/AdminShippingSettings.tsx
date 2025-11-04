@@ -48,12 +48,14 @@ const AdminShippingSettings = () => {
     mutationFn: async () => {
       const { error } = await supabase
         .from("shipping_settings")
-        .update({
+        .upsert({
+          id: settings?.id || crypto.randomUUID(),
           delivery_fee: deliveryFee,
           is_free_delivery: isFreeDelivery,
           free_delivery_threshold: freeDeliveryThreshold,
-        })
-        .eq("id", settings?.id);
+        }, {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
     },
