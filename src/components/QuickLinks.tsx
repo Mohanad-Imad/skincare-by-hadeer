@@ -53,7 +53,7 @@ export const QuickLinks = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full mt-3">
       <div className="relative">
         {/* Gradient fade left */}
         <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none hidden md:block" />
