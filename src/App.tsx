@@ -42,7 +42,6 @@ import Makeup from "./pages/Makeup";
 import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
 import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
 import ScrollToTop from "./components/ScrollToTop";
-import { CustomerSupportChat } from "./components/CustomerSupportChat";
 
 const queryClient = new QueryClient();
 
@@ -54,7 +53,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <CustomerSupportChat />
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
