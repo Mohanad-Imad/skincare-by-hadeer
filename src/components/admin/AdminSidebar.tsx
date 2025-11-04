@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
+  { title: "الصفحة الرئيسية", url: "/admin", icon: Home },
   { title: "الإحصائيات", url: "/admin/analytics", icon: BarChart3 },
   { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
@@ -22,7 +23,7 @@ const menuItems = [
   { title: "أكواد الخصم", url: "/admin/discount-codes", icon: Percent },
   { title: "خصومات المنتجات", url: "/admin/product-discounts", icon: Tag },
   { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },
-  { title: "المدونة", url: "/admin/blog", icon: FileText },
+  { title: "المدونة", url: "/admin/blog-posts", icon: FileText },
   { title: "البنرات الرئيسية", url: "/admin/banners", icon: ImageIcon },
   { title: "البنرات الثانوية", url: "/admin/secondary-banners", icon: RectangleHorizontal },
   { title: "البنرات العلوية", url: "/admin/tertiary-banners", icon: RectangleHorizontal },
@@ -53,6 +54,7 @@ export function AdminSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      end={item.url === "/admin"}
                       onClick={handleLinkClick}
                       className={({ isActive }) => (isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "")}
                     >

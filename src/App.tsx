@@ -13,6 +13,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminHome from "./pages/admin/AdminHome";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCategories from "./pages/admin/AdminCategories";
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/celebrity-routines" element={<CelebrityRoutines />} />
           <Route path="/celebrity-routines/:id" element={<CelebrityRoutineDetails />} />
           <Route path="/admin" element={<AdminDashboard />}>
+            <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
@@ -68,7 +70,7 @@ const App = () => (
             <Route path="discount-codes" element={<AdminDiscountCodes />} />
             <Route path="product-discounts" element={<AdminProductDiscounts />} />
             <Route path="shipping-settings" element={<AdminShippingSettings />} />
-            <Route path="blog" element={<AdminBlogPosts />} />
+            <Route path="blog-posts" element={<AdminBlogPosts />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
             <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
