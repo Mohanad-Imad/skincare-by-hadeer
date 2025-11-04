@@ -1,10 +1,14 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
-import { ShieldCheck, Award, CheckCircle, Package, Truck, HeadphonesIcon } from "lucide-react";
+import { ShieldCheck, Award, CheckCircle, Package, Truck, HeadphonesIcon, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Guarantee = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
       <SEO
@@ -15,6 +19,15 @@ const Guarantee = () => {
       <Navbar />
       
       <main className="container py-8 md:py-12">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          className="mb-6"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowRight className="ml-2 h-4 w-4" />
+          رجوع
+        </Button>
         {/* Hero Section */}
         <section className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-emerald-500/10 mb-6">
