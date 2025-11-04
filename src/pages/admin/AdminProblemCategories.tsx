@@ -72,11 +72,14 @@ export default function AdminProblemCategories() {
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `problems/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from("product-images")
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from("product-images")
@@ -89,9 +92,9 @@ export default function AdminProblemCategories() {
       }
 
       toast.success("تم رفع الصورة بنجاح");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading image:", error);
-      toast.error("حدث خطأ أثناء رفع الصورة");
+      toast.error(error?.message || "حدث خطأ أثناء رفع الصورة");
     } finally {
       setUploadingImage(false);
     }
@@ -204,8 +207,20 @@ export default function AdminProblemCategories() {
                 </div>
                 <div>
                   <Label>الصورة</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'category')} disabled={uploadingImage} />
-                  {categoryForm.image_url && <img src={categoryForm.image_url} alt="Preview" className="mt-2 h-20 w-20 object-cover rounded" />}
+                  <Input 
+                    type="file" 
+                    accept="image/jpeg,image/jpg,image/png,image/webp" 
+                    onChange={(e) => handleImageUpload(e, 'category')} 
+                    disabled={uploadingImage} 
+                  />
+                  {categoryForm.image_url && (
+                    <img 
+                      src={categoryForm.image_url} 
+                      alt="Preview" 
+                      className="mt-2 h-20 w-20 object-cover rounded" 
+                    />
+                  )}
+                  {uploadingImage && <p className="text-sm text-muted-foreground mt-1">جاري رفع الصورة...</p>}
                 </div>
                 <div>
                   <Label>ترتيب العرض</Label>
@@ -284,8 +299,20 @@ export default function AdminProblemCategories() {
                 </div>
                 <div>
                   <Label>الصورة</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'subproblem')} disabled={uploadingImage} />
-                  {subProblemForm.image_url && <img src={subProblemForm.image_url} alt="Preview" className="mt-2 h-20 w-20 object-cover rounded" />}
+                  <Input 
+                    type="file" 
+                    accept="image/jpeg,image/jpg,image/png,image/webp" 
+                    onChange={(e) => handleImageUpload(e, 'subproblem')} 
+                    disabled={uploadingImage} 
+                  />
+                  {subProblemForm.image_url && (
+                    <img 
+                      src={subProblemForm.image_url} 
+                      alt="Preview" 
+                      className="mt-2 h-20 w-20 object-cover rounded" 
+                    />
+                  )}
+                  {uploadingImage && <p className="text-sm text-muted-foreground mt-1">جاري رفع الصورة...</p>}
                 </div>
                 <div>
                   <Label>ترتيب العرض</Label>
