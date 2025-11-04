@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from "react";
 
 export const TertiaryBanner = () => {
   const navigate = useNavigate();
-  const plugin = useRef(Autoplay({ delay: 2700, stopOnInteraction: true }));
+  const plugin = useRef(Autoplay({ delay: 2500, stopOnInteraction: true }));
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
