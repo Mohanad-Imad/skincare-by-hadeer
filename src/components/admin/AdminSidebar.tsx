@@ -28,6 +28,8 @@ const menuItems = [
   { title: "البنرات الرئيسية", url: "/admin/banners", icon: ImageIcon },
   { title: "البنرات الثانوية", url: "/admin/secondary-banners", icon: RectangleHorizontal },
   { title: "البنرات العلوية", url: "/admin/tertiary-banners", icon: RectangleHorizontal },
+  { title: "بنر المكياج", url: "/admin/makeup-banner", icon: ImageIcon },
+  { title: "أقسام المكياج", url: "/admin/makeup-categories", icon: Grid3x3 },
   { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
   { title: "ماركاتنا", url: "/admin/brands-links", icon: Tag },
 ];

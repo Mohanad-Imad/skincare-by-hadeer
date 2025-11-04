@@ -486,6 +486,93 @@ export type Database = {
         }
         Relationships: []
       }
+      makeup_banner: {
+        Row: {
+          background_color: string | null
+          button_text_ar: string | null
+          button_text_en: string | null
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          text_color: string | null
+          title_ar: string | null
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string | null
+          button_text_ar?: string | null
+          button_text_en?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          text_color?: string | null
+          title_ar?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string | null
+          button_text_ar?: string | null
+          button_text_en?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          text_color?: string | null
+          title_ar?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      makeup_categories: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name_ar: string
+          name_en: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name_ar: string
+          name_en: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name_ar?: string
+          name_en?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
@@ -701,6 +788,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_makeup_categories: {
+        Row: {
+          created_at: string
+          id: string
+          makeup_category_id: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          makeup_category_id: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          makeup_category_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_makeup_categories_makeup_category_id_fkey"
+            columns: ["makeup_category_id"]
+            isOneToOne: false
+            referencedRelation: "makeup_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_makeup_categories_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"

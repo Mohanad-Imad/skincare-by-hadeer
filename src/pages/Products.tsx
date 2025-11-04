@@ -21,6 +21,7 @@ const Products = () => {
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>(searchParams.get("skinType") || "all");
   const [companyFilter, setCompanyFilter] = useState<string>(searchParams.get("company") || "all");
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
+  const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   
@@ -69,7 +70,7 @@ const Products = () => {
   });
 
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, currentPage],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, currentPage],
     queryFn: async () => {
       // تحديد التصنيفات المطلوبة للفلترة
       let categoryIds: string[] = [];
@@ -121,6 +122,12 @@ const Products = () => {
             sub_problems (
               slug
             )
+          ),
+          product_makeup_categories (
+            makeup_category_id,
+            makeup_categories (
+              slug
+            )
           )
         `)
         .eq("is_active", true)
@@ -149,6 +156,15 @@ const Products = () => {
         filtered = filtered.filter((product) => {
           return product.product_sub_problems?.some((psp: any) => 
             psp.sub_problems?.slug === problemFilter
+          );
+        });
+      }
+
+      // فلترة حسب قسم المكياج
+      if (makeupFilter !== "all") {
+        filtered = filtered.filter((product) => {
+          return product.product_makeup_categories?.some((pmc: any) => 
+            pmc.makeup_categories?.slug === makeupFilter
           );
         });
       }
@@ -202,6 +218,7 @@ const Products = () => {
     const company = searchParams.get("company");
     const search = searchParams.get("search");
     const problem = searchParams.get("problem");
+    const makeup = searchParams.get("makeup");
     
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
@@ -209,6 +226,7 @@ const Products = () => {
     if (company) setCompanyFilter(company);
     if (search) setSearchTerm(search);
     if (problem) setProblemFilter(problem);
+    if (makeup) setMakeupFilter(makeup);
   }, [searchParams]);
 
   const structuredData = {

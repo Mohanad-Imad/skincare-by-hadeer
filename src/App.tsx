@@ -38,6 +38,9 @@ import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
 import AdminProblemCategories from "./pages/admin/AdminProblemCategories";
 import ProblemSubCategories from "./pages/ProblemSubCategories";
 import Guarantee from "./pages/Guarantee";
+import Makeup from "./pages/Makeup";
+import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
+import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -66,6 +69,7 @@ const App = () => (
           <Route path="/celebrity-routines/:id" element={<CelebrityRoutineDetails />} />
           <Route path="/problems/:slug" element={<ProblemSubCategories />} />
           <Route path="/guarantee" element={<Guarantee />} />
+          <Route path="/makeup" element={<Makeup />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
@@ -84,6 +88,8 @@ const App = () => (
             <Route path="problem-categories" element={<AdminProblemCategories />} />
             <Route path="consultations" element={<AdminConsultations />} />
             <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />
+            <Route path="makeup-banner" element={<AdminMakeupBanner />} />
+            <Route path="makeup-categories" element={<AdminMakeupCategories />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
