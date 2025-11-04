@@ -201,7 +201,7 @@ const AdminProducts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "products" });
       queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "product" });
       toast.success("تم إضافة المنتج بنجاح");
       setIsDialogOpen(false);
@@ -297,7 +297,7 @@ const AdminProducts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "products" });
       queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "product" });
       toast.success("تم تحديث المنتج بنجاح");
       setIsDialogOpen(false);
@@ -313,7 +313,7 @@ const AdminProducts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "products" });
       queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === "product" });
       toast.success("تم حذف المنتج بنجاح");
     },
