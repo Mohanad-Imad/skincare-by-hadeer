@@ -15,6 +15,7 @@ import {
   Users,
   BarChart3,
   Truck,
+  Grid3x3,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -45,6 +46,14 @@ const AdminHome = () => {
       color: "text-purple-600",
       bgColor: "bg-purple-50 hover:bg-purple-100",
       route: "/admin/categories",
+    },
+    {
+      title: "التسوق حسب المشكلة",
+      description: "إدارة المشاكل والحلول",
+      icon: Grid3x3,
+      color: "text-fuchsia-600",
+      bgColor: "bg-fuchsia-50 hover:bg-fuchsia-100",
+      route: "/admin/problem-categories",
     },
     {
       title: "الطلبات",
