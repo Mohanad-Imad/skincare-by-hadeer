@@ -64,9 +64,9 @@ export const SecondaryBanner = () => {
         ]}
         className="w-full"
       >
-        <CarouselContent>
+        <CarouselContent className="-ml-4">
           {banners.map((banner) => (
-            <CarouselItem key={banner.id}>
+            <CarouselItem key={banner.id} className="pl-4 basis-full">
               <div className="relative w-full h-[200px] rounded-2xl overflow-hidden group cursor-pointer">
                 <img
                   src={banner.image_url}
