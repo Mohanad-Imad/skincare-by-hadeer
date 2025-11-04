@@ -69,19 +69,6 @@ const Products = () => {
     },
   });
 
-  const { data: makeupCategories } = useQuery({
-    queryKey: ["makeup-categories"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("makeup_categories")
-        .select("id, name_ar, slug")
-        .eq("is_active", true)
-        .order("display_order");
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: productsData, isLoading } = useQuery({
     queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, currentPage],
     queryFn: async () => {
@@ -262,7 +249,7 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -272,20 +259,6 @@ const Products = () => {
               className="pr-10"
             />
           </div>
-
-          <Select value={makeupFilter} onValueChange={handleFilterChange(setMakeupFilter, "makeup")}>
-            <SelectTrigger>
-              <SelectValue placeholder="قسم المكياج" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع أقسام المكياج</SelectItem>
-              {makeupCategories?.map((category) => (
-                <SelectItem key={category.id} value={category.slug}>
-                  {category.name_ar}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
 
           <Select 
             value={parentCategoryFilter} 
