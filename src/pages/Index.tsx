@@ -83,6 +83,30 @@ const Index = () => {
     },
   });
 
+  const { data: expertChoices } = useQuery({
+    queryKey: ["expert-choices"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+          *,
+          product_variants (
+            price
+          )
+        `)
+        .eq("is_featured", true)
+        .eq("is_active", true)
+        .limit(8);
+
+      if (error) throw error;
+      
+      return data?.map(product => ({
+        ...product,
+        minPrice: product.product_variants?.[0]?.price
+      })) || [];
+    },
+  });
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -212,6 +236,51 @@ const Index = () => {
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {featuredProducts.map((product) => {
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
+                return (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <ProductCard
+                      id={product.id}
+                      nameAr={product.name_ar}
+                      imageUrl={product.image_url}
+                      minPrice={product.minPrice}
+                      discount={discount}
+                    />
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
+        </section>
+      )}
+
+      {/* Expert Choices */}
+      {expertChoices && expertChoices.length > 0 && (
+        <section className="container py-8 md:py-16">
+          <div className="mb-4 md:mb-8 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">اختيار خبراءنا</h3>
+            <p className="text-sm md:text-base text-muted-foreground">منتجات موصى بها من فريق خبرائنا</p>
+          </div>
+          <Carousel
+            opts={{
+              align: "start",
+              direction: "rtl",
+              slidesToScroll: 1,
+            }}
+            plugins={[
+              Autoplay({
+                delay: 3000,
+              }),
+            ]}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {expertChoices.map((product) => {
                 const discount = product.minPrice 
                   ? calculateDiscount(product.id, product.minPrice, discounts)
                   : null;
