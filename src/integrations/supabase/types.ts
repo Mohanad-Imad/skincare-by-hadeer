@@ -796,6 +796,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean | null
+          is_expert_choice: boolean | null
           is_featured: boolean | null
           is_new_arrival: boolean | null
           name_ar: string
@@ -813,6 +814,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_expert_choice?: boolean | null
           is_featured?: boolean | null
           is_new_arrival?: boolean | null
           name_ar: string
@@ -830,6 +832,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_expert_choice?: boolean | null
           is_featured?: boolean | null
           is_new_arrival?: boolean | null
           name_ar?: string

@@ -94,7 +94,7 @@ const Index = () => {
             price
           )
         `)
-        .eq("is_featured", true)
+        .eq("is_expert_choice", true)
         .eq("is_active", true)
         .limit(8);
 

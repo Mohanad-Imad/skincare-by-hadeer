@@ -60,6 +60,7 @@ const AdminProducts = () => {
     skin_type: [] as string[],
     is_featured: false,
     is_new_arrival: false,
+    is_expert_choice: false,
     is_active: true,
   });
 
@@ -328,6 +329,7 @@ const AdminProducts = () => {
       skin_type: [],
       is_featured: false,
       is_new_arrival: false,
+      is_expert_choice: false,
       is_active: true,
     });
     setParentCategoryId("");
@@ -377,6 +379,7 @@ const AdminProducts = () => {
       skin_type: product.skin_type || [],
       is_featured: product.is_featured,
       is_new_arrival: product.is_new_arrival || false,
+      is_expert_choice: product.is_expert_choice || false,
       is_active: product.is_active,
     });
 
@@ -825,6 +828,16 @@ const AdminProducts = () => {
               </div>
               <div className="flex items-center space-x-2 space-x-reverse">
                 <Switch
+                  id="is_expert_choice"
+                  checked={formData.is_expert_choice}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_expert_choice: checked })
+                  }
+                />
+                <Label htmlFor="is_expert_choice">اختيار خبراءنا</Label>
+              </div>
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <Switch
                   id="is_active"
                   checked={formData.is_active}
                   onCheckedChange={(checked) =>
@@ -957,6 +970,7 @@ const AdminProducts = () => {
               <TableHead>معرّف المنتج (ID)</TableHead>
               <TableHead>مميز</TableHead>
               <TableHead>وصل حديثاً</TableHead>
+              <TableHead>اختيار خبراءنا</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>الإجراءات</TableHead>
             </TableRow>
@@ -987,6 +1001,7 @@ const AdminProducts = () => {
                 </TableCell>
                 <TableCell>{product.is_featured ? "نعم" : "لا"}</TableCell>
                 <TableCell>{product.is_new_arrival ? "نعم" : "لا"}</TableCell>
+                <TableCell>{product.is_expert_choice ? "نعم" : "لا"}</TableCell>
                 <TableCell>{product.is_active ? "نشط" : "غير نشط"}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
