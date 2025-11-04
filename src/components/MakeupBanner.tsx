@@ -25,15 +25,15 @@ const MakeupBanner = () => {
   if (isLoading || !banner) return null;
 
   return (
-    <section
-      className="relative w-full py-16 px-4 cursor-pointer transition-transform hover:scale-[1.02]"
-      style={{
-        backgroundColor: banner.background_color || "#FFC0CB",
-        color: banner.text_color || "#000000",
-      }}
-      onClick={() => navigate("/makeup")}
-    >
-      <div className="container mx-auto">
+    <div className="container mx-auto px-4">
+      <section
+        className="relative w-full py-16 px-8 cursor-pointer transition-transform hover:scale-[1.02] rounded-3xl"
+        style={{
+          backgroundColor: banner.background_color || "#FFC0CB",
+          color: banner.text_color || "#000000",
+        }}
+        onClick={() => navigate("/makeup")}
+      >
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="text-center md:text-right">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -63,8 +63,8 @@ const MakeupBanner = () => {
             </div>
           )}
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 
