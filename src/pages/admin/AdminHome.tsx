@@ -16,6 +16,7 @@ import {
   BarChart3,
   Truck,
   Grid3x3,
+  Palette,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -102,6 +103,22 @@ const AdminHome = () => {
       color: "text-cyan-600",
       bgColor: "bg-cyan-50 hover:bg-cyan-100",
       route: "/admin/tertiary-banners",
+    },
+    {
+      title: "بنر المكياج",
+      description: "إدارة بنر قسم المكياج",
+      icon: Palette,
+      color: "text-pink-600",
+      bgColor: "bg-pink-50 hover:bg-pink-100",
+      route: "/admin/makeup-banner",
+    },
+    {
+      title: "أقسام المكياج",
+      description: "إدارة أقسام وأنواع المكياج",
+      icon: Grid3x3,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50 hover:bg-purple-100",
+      route: "/admin/makeup-categories",
     },
     {
       title: "الروابط السريعة",
