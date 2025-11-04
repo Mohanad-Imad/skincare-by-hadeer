@@ -31,6 +31,7 @@ import CelebrityRoutines from "./pages/CelebrityRoutines";
 import CelebrityRoutineDetails from "./pages/CelebrityRoutineDetails";
 import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
 import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
+import AdminSecondaryBanners from "./pages/admin/AdminSecondaryBanners";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="shipping-settings" element={<AdminShippingSettings />} />
             <Route path="blog" element={<AdminBlogPosts />} />
             <Route path="banners" element={<AdminBanners />} />
+            <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
             <Route path="quick-links" element={<AdminQuickLinks />} />
             <Route path="consultations" element={<AdminConsultations />} />
             <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />

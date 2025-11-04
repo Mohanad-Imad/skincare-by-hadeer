@@ -10,6 +10,7 @@ import { Sparkles } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
 import { SearchBar } from "@/components/SearchBar";
 import { QuickLinks } from "@/components/QuickLinks";
+import { SecondaryBanner } from "@/components/SecondaryBanner";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Index = () => {
@@ -107,6 +108,11 @@ const Index = () => {
       {/* Quick Links */}
       <section className="container">
         <QuickLinks />
+      </section>
+
+      {/* Secondary Banner - Smaller promotional banner */}
+      <section className="container py-4">
+        <SecondaryBanner />
       </section>
 
       {/* Hero Banner - Advertising Carousel */}
