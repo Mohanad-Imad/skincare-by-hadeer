@@ -107,7 +107,7 @@ const Index = () => {
       </section>
 
       {/* Quick Links */}
-      <section className="container">
+      <section className="md:container">
         <QuickLinks />
       </section>
 
