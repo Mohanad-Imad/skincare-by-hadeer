@@ -286,7 +286,7 @@ const AdminMakeupCategories = () => {
                     <div>
                       <Label>القسم الرئيسي (اختياري)</Label>
                       <Select
-                        value={formData.category_id}
+                        value={formData.category_id || undefined}
                         onValueChange={(value) => {
                           setFormData({ ...formData, category_id: value, subcategory_id: "" });
                           setSelectedCategoryId(value);
@@ -296,7 +296,6 @@ const AdminMakeupCategories = () => {
                           <SelectValue placeholder="اختر القسم الرئيسي" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">بدون قسم</SelectItem>
                           {mainCategories?.map((cat) => (
                             <SelectItem key={cat.id} value={cat.id}>
                               {cat.name_ar}
@@ -308,7 +307,7 @@ const AdminMakeupCategories = () => {
                     <div>
                       <Label>القسم الفرعي (اختياري)</Label>
                       <Select
-                        value={formData.subcategory_id}
+                        value={formData.subcategory_id || undefined}
                         onValueChange={(value) =>
                           setFormData({ ...formData, subcategory_id: value })
                         }
@@ -318,7 +317,6 @@ const AdminMakeupCategories = () => {
                           <SelectValue placeholder="اختر القسم الفرعي" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">بدون قسم فرعي</SelectItem>
                           {subCategories?.map((cat) => (
                             <SelectItem key={cat.id} value={cat.id}>
                               {cat.name_ar}
