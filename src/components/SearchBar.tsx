@@ -103,9 +103,9 @@ export const SearchBar = () => {
           <Button
             type="submit"
             size="icon"
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full"
+            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 md:h-10 md:w-10"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
         </div>
       </form>
