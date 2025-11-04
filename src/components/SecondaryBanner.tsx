@@ -67,7 +67,7 @@ export const SecondaryBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative w-full h-[100px] rounded-2xl overflow-hidden group cursor-pointer">
+              <div className="relative w-full h-[100px] overflow-hidden group cursor-pointer">
                 <img
                   src={banner.image_url}
                   alt={banner.title_ar || ""}

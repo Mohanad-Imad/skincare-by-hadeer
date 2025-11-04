@@ -110,13 +110,13 @@ const Index = () => {
         <QuickLinks />
       </section>
 
-      {/* Secondary Banner - Smaller promotional banner */}
-      <section className="container py-4">
-        <SecondaryBanner />
-      </section>
-
       {/* Hero Banner - Advertising Carousel */}
       <HeroBanner />
+
+      {/* Secondary Banner - Smaller promotional banner */}
+      <section className="py-3">
+        <SecondaryBanner />
+      </section>
 
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
