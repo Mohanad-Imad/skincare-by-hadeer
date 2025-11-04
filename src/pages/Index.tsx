@@ -159,14 +159,14 @@ const Index = () => {
         <BrandsLinks />
       </section>
 
-      {/* Shop By Problem Section */}
-      <section className="py-6 md:py-8">
-        <ShopByProblem />
-      </section>
-
       {/* Makeup Banner */}
       <section className="py-6 md:py-8">
         <MakeupBanner />
+      </section>
+
+      {/* Shop By Problem Section */}
+      <section className="py-6 md:py-8">
+        <ShopByProblem />
       </section>
 
       {/* Guarantee Banner */}
