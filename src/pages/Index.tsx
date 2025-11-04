@@ -189,7 +189,7 @@ const Index = () => {
             }}
             plugins={[
               Autoplay({
-                delay: 3000,
+                delay: 2500,
               }),
             ]}
             className="w-full"
@@ -235,7 +235,7 @@ const Index = () => {
             }}
             plugins={[
               Autoplay({
-                delay: 3000,
+                delay: 3200,
               }),
             ]}
             className="w-full"
@@ -280,7 +280,7 @@ const Index = () => {
             }}
             plugins={[
               Autoplay({
-                delay: 3000,
+                delay: 2800,
               }),
             ]}
             className="w-full"
