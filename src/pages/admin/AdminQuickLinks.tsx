@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { Navbar } from "@/components/Navbar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 interface QuickLink {
   id: string;
@@ -170,7 +171,8 @@ const AdminQuickLinks = () => {
       <div className="container mx-auto py-8">
         <div className="flex gap-8">
           <AdminSidebar />
-          <div className="flex-1">
+          <main className="flex-1">
+            <AdminBackButton />
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>إدارة الروابط السريعة</CardTitle>
@@ -361,7 +363,7 @@ const AdminQuickLinks = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </main>
         </div>
       </div>
     </div>

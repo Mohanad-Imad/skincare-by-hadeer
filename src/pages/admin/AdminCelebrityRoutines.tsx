@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Eye, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 interface CelebrityRoutine {
   id: string;
@@ -166,6 +167,7 @@ export default function AdminCelebrityRoutines() {
 
   return (
     <div className="space-y-6">
+      <AdminBackButton />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">إدارة روتين المشاهير</h1>

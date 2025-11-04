@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { DollarSign, ShoppingCart, Package, TrendingUp, Ticket } from "lucide-react";
 import { useState } from "react";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 const COLORS = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
 
@@ -251,6 +252,7 @@ const AdminAnalytics = () => {
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
       <div className="flex-1 p-8">
+        <AdminBackButton />
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">التحليلات والإحصائيات</h1>

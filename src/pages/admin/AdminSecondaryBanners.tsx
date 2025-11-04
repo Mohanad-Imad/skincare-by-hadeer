@@ -26,6 +26,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { SEO } from "@/components/SEO";
 
 interface SecondaryBanner {
@@ -210,6 +211,7 @@ const AdminSecondaryBanners = () => {
       <div className="flex">
         <AdminSidebar />
         <main className="flex-1 p-8">
+          <AdminBackButton />
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>إدارة البانرات الثانوية</CardTitle>

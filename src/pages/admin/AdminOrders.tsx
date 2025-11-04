@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -134,6 +135,7 @@ const AdminOrders = () => {
 
   return (
     <div className="space-y-6">
+      <AdminBackButton />
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">إدارة الطلبات</h2>
         <p className="text-sm text-muted-foreground">

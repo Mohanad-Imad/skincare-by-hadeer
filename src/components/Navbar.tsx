@@ -145,7 +145,7 @@ export const Navbar = () => {
                   <Button
                     variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
                     className="justify-start gap-2"
-                    onClick={() => handleNavigate("/admin/products")}
+                    onClick={() => handleNavigate("/admin")}
                   >
                     <Shield className="h-4 w-4" />
                     الإدارة
@@ -254,7 +254,7 @@ export const Navbar = () => {
             <Button
               variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
               size="sm"
-              onClick={() => navigate("/admin/products")}
+              onClick={() => navigate("/admin")}
               className="gap-1.5"
             >
               <Shield className="h-4 w-4" />

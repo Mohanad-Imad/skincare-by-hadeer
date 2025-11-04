@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import {
   Select,
   SelectContent,
@@ -131,6 +132,7 @@ const AdminCategories = () => {
 
   return (
     <div className="space-y-6">
+      <AdminBackButton />
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">إدارة التصنيفات</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

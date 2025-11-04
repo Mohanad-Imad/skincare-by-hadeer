@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -225,6 +226,7 @@ const AdminProductDiscounts = () => {
       <AdminSidebar />
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
+          <AdminBackButton />
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">إدارة خصومات المنتجات</h1>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {

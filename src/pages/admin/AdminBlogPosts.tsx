@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 const AdminBlogPosts = () => {
   const queryClient = useQueryClient();
@@ -171,6 +172,7 @@ const AdminBlogPosts = () => {
 
   return (
     <div className="space-y-6">
+      <AdminBackButton />
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold">إدارة المقالات</h2>
         <Dialog open={open} onOpenChange={setOpen}>

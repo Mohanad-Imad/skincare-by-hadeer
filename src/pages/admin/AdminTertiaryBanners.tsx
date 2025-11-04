@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -217,6 +218,7 @@ const AdminTertiaryBanners = () => {
       <div className="flex">
         <AdminSidebar />
         <main className="flex-1 p-8">
+          <AdminBackButton />
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>

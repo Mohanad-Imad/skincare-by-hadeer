@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2, Eye, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 interface Consultation {
   id: string;
@@ -141,6 +142,7 @@ export default function AdminConsultations() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <AdminBackButton />
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">إدارة الاستشارات</h1>
         <p className="text-muted-foreground">

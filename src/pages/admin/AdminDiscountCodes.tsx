@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 const AdminDiscountCodes = () => {
   const queryClient = useQueryClient();
@@ -171,6 +172,7 @@ const AdminDiscountCodes = () => {
 
   return (
     <div className="p-6">
+      <AdminBackButton />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">أكواد الخصم</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
+import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
 interface ShippingSettings {
   id: string;
@@ -92,6 +93,7 @@ const AdminShippingSettings = () => {
 
   return (
     <div className="space-y-6">
+      <AdminBackButton />
       <div>
         <h1 className="text-3xl font-bold">إعدادات التوصيل</h1>
         <p className="text-muted-foreground">إدارة رسوم وإعدادات التوصيل</p>
