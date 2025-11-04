@@ -147,7 +147,7 @@ const Index = () => {
       </section>
 
       {/* Hero Banner - Advertising Carousel */}
-      <div className="max-w-[1920px] mx-auto">
+      <div className="max-w-[1920px] mx-auto px-3 md:px-6 xl:px-8 2xl:px-12">
         <HeroBanner />
       </div>
 

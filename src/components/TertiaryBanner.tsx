@@ -67,7 +67,7 @@ export const TertiaryBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative w-full h-[100px] md:h-[120px] lg:h-[150px] overflow-hidden group cursor-pointer">
+              <div className="relative w-full h-[100px] md:h-[120px] lg:h-[150px] xl:h-[180px] 2xl:h-[220px] overflow-hidden group cursor-pointer">
                 <img
                   src={banner.image_url}
                   alt={banner.title_ar || ""}

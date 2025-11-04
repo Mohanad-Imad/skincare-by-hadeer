@@ -25,9 +25,9 @@ const MakeupBanner = () => {
   if (isLoading || !banner) return null;
 
   return (
-    <div className="container mx-auto px-4">
+    <div>
       <section
-        className="relative w-full cursor-pointer transition-transform hover:scale-[1.02] rounded-2xl overflow-hidden h-[175px] md:h-[300px] lg:h-[400px] flex items-center justify-center"
+        className="relative w-full cursor-pointer transition-transform hover:scale-[1.02] rounded-2xl overflow-hidden h-[175px] md:h-[300px] lg:h-[400px] xl:h-[500px] 2xl:h-[600px] flex items-center justify-center"
         onClick={() => navigate("/makeup")}
       >
         {/* Background Image */}
