@@ -127,4 +127,13 @@ All colors MUST be HSL.
   .font-cairo {
     font-family: 'Cairo', sans-serif;
   }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

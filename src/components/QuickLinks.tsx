@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const QuickLinks = () => {
@@ -50,14 +49,14 @@ export const QuickLinks = () => {
   };
 
   return (
-    <div className="w-full py-6">
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-6 pb-4">
+    <div className="w-full py-6 relative">
+      <div className="overflow-x-auto scrollbar-hide relative">
+        <div className="flex gap-4 px-4">
           {quickLinks.map((link) => (
             <button
               key={link.id}
               onClick={() => handleLinkClick(link.link_url)}
-              className="flex flex-col items-center gap-3 min-w-[100px] group"
+              className="flex flex-col items-center gap-3 min-w-[100px] group flex-shrink-0"
             >
               <div className="relative">
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-all duration-300 shadow-md group-hover:shadow-lg">
@@ -75,8 +74,10 @@ export const QuickLinks = () => {
             </button>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
+      {/* Fade edges effect */}
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
     </div>
   );
 };
