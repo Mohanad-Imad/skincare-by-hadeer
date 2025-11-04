@@ -51,24 +51,25 @@ export default function AdminProblemCategories() {
   });
 
   const { data: subProblems } = useQuery({
-    queryKey: ["admin-sub-problems"],
+    queryKey: ["admin-sub-problems", categories],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sub_problems")
         .select("*")
         .order("display_order");
       if (error) throw error;
-      
-      // ربط البيانات مع الأقسام الرئيسية
-      return data?.map((subProblem) => {
-        const category = categories?.find((cat) => cat.id === subProblem.category_id);
-        return {
-          ...subProblem,
-          category_name_ar: category?.name_ar || "",
-        };
-      });
+      return data;
     },
     enabled: !!categories,
+  });
+
+  // ربط البيانات مع الأقسام الرئيسية
+  const subProblemsWithCategories = subProblems?.map((subProblem) => {
+    const category = categories?.find((cat) => cat.id === subProblem.category_id);
+    return {
+      ...subProblem,
+      category_name_ar: category?.name_ar || "",
+    };
   });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'category' | 'subproblem') => {
@@ -367,7 +368,7 @@ export default function AdminProblemCategories() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subProblems?.map((prob: any) => (
+              {subProblemsWithCategories?.map((prob: any) => (
                 <TableRow key={prob.id}>
                   <TableCell>
                     {prob.image_url && <img src={prob.image_url} alt={prob.name_ar} className="h-12 w-12 object-cover rounded" />}
