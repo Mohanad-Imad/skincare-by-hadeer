@@ -160,7 +160,7 @@ const Index = () => {
       </section>
 
       {/* Makeup Banner */}
-      <section className="w-full px-3 md:px-6 py-6 md:py-8">
+      <section className="w-full px-3 md:px-6 py-3 md:py-4">
         <MakeupBanner />
       </section>
 
