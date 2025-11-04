@@ -15,6 +15,8 @@ import { TertiaryBanner } from "@/components/TertiaryBanner";
 import { BrandsLinks } from "@/components/BrandsLinks";
 import { ShopByProblem } from "@/components/ShopByProblem";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -143,24 +145,41 @@ const Index = () => {
             <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">وصل حديثاً</h3>
             <p className="text-sm md:text-base text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {newArrivals.map((product) => {
-              const discount = product.minPrice 
-                ? calculateDiscount(product.id, product.minPrice, discounts)
-                : null;
-                
-              return (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  nameAr={product.name_ar}
-                  imageUrl={product.image_url}
-                  minPrice={product.minPrice}
-                  discount={discount}
-                />
-              );
-            })}
-          </div>
+          <Carousel
+            opts={{
+              align: "start",
+              direction: "rtl",
+              slidesToScroll: 1,
+            }}
+            plugins={[
+              Autoplay({
+                delay: 3000,
+              }),
+            ]}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {newArrivals.map((product) => {
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
+                return (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <ProductCard
+                      id={product.id}
+                      nameAr={product.name_ar}
+                      imageUrl={product.image_url}
+                      minPrice={product.minPrice}
+                      discount={discount}
+                    />
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
         </section>
       )}
 
