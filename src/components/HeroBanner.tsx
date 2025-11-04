@@ -50,7 +50,7 @@ export const HeroBanner = () => {
   }
 
   return (
-    <div className="container py-3 md:py-6">
+    <div className="w-full px-2 md:px-4 py-3 md:py-6">
       <Carousel
         plugins={[plugin.current]}
         className="w-full overflow-hidden rounded-2xl"
