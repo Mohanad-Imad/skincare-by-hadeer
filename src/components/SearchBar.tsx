@@ -84,7 +84,7 @@ export const SearchBar = () => {
             placeholder="ابحث عن منتج أو شركة..."
             value={searchTerm}
             onChange={(e) => handleInputChange(e.target.value)}
-            className="w-full pr-12 pl-4 py-6 text-lg rounded-full border-2 border-primary/20 focus:border-primary transition-colors"
+            className="w-full pr-12 pl-4 py-6 text-base placeholder:text-sm rounded-full border-2 border-primary/20 focus:border-primary transition-colors"
           />
           {searchTerm && (
             <Button

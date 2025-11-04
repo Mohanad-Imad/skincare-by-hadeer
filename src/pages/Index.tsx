@@ -100,7 +100,7 @@ const Index = () => {
       <Navbar />
       
       {/* Search Bar */}
-      <section className="container py-8">
+      <section className="container py-4 pb-2">
         <SearchBar />
       </section>
 

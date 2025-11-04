@@ -49,7 +49,7 @@ export const QuickLinks = () => {
   };
 
   return (
-    <div className="w-full py-6 relative">
+    <div className="w-full py-3 relative">
       <div className="overflow-x-auto scrollbar-hide relative">
         <div className="flex gap-4 px-4">
           {quickLinks.map((link) => (
