@@ -102,17 +102,24 @@ export default function AdminProblemCategories() {
 
   const saveCategoryMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Saving category data:", data);
       if (editingItem) {
         const { error } = await supabase
           .from("problem_categories")
           .update(data)
           .eq("id", editingItem.id);
-        if (error) throw error;
+        if (error) {
+          console.error("Update category error:", error);
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from("problem_categories")
           .insert([data]);
-        if (error) throw error;
+        if (error) {
+          console.error("Insert category error:", error);
+          throw error;
+        }
       }
     },
     onSuccess: () => {
@@ -121,22 +128,32 @@ export default function AdminProblemCategories() {
       setIsDialogOpen(false);
       resetForms();
     },
-    onError: () => toast.error("حدث خطأ"),
+    onError: (error: any) => {
+      console.error("Mutation error:", error);
+      toast.error(error?.message || "حدث خطأ");
+    },
   });
 
   const saveSubProblemMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Saving sub-problem data:", data);
       if (editingItem) {
         const { error } = await supabase
           .from("sub_problems")
           .update(data)
           .eq("id", editingItem.id);
-        if (error) throw error;
+        if (error) {
+          console.error("Update sub-problem error:", error);
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from("sub_problems")
           .insert([data]);
-        if (error) throw error;
+        if (error) {
+          console.error("Insert sub-problem error:", error);
+          throw error;
+        }
       }
     },
     onSuccess: () => {
@@ -145,7 +162,10 @@ export default function AdminProblemCategories() {
       setIsDialogOpen(false);
       resetForms();
     },
-    onError: () => toast.error("حدث خطأ"),
+    onError: (error: any) => {
+      console.error("Mutation error:", error);
+      toast.error(error?.message || "حدث خطأ");
+    },
   });
 
   const resetForms = () => {
