@@ -41,12 +41,17 @@ const AdminDashboard = () => {
           <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-card px-6">
             <SidebarTrigger />
             <div className="flex flex-1 items-center justify-between">
-              <h1 className="text-xl font-bold">لوحة التحكم</h1>
+              <button 
+                onClick={() => navigate("/admin")}
+                className="text-xl font-bold hover:text-primary transition-colors"
+              >
+                لوحة التحكم
+              </button>
               <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="العودة للموقع">
                   <Home className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <Button variant="ghost" size="icon" onClick={handleLogout} title="تسجيل الخروج">
                   <LogOut className="h-5 w-5" />
                 </Button>
               </div>
