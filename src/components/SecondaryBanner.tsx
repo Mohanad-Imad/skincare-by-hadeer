@@ -4,10 +4,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/componen
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const SecondaryBanner = () => {
   const navigate = useNavigate();
+  const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
@@ -53,20 +54,19 @@ export const SecondaryBanner = () => {
     <div className="w-full">
       <Carousel
         setApi={setApi}
+        plugins={[plugin.current]}
         opts={{
           align: "start",
           loop: true,
+          direction: "rtl",
         }}
-        plugins={[
-          Autoplay({
-            delay: 4000,
-          }),
-        ]}
         className="w-full"
+        onMouseEnter={plugin.current.stop}
+        onMouseLeave={plugin.current.reset}
       >
-        <CarouselContent className="-ml-4">
+        <CarouselContent>
           {banners.map((banner) => (
-            <CarouselItem key={banner.id} className="pl-4 basis-full">
+            <CarouselItem key={banner.id}>
               <div className="relative w-full h-[200px] rounded-2xl overflow-hidden group cursor-pointer">
                 <img
                   src={banner.image_url}
