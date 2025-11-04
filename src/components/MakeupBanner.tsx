@@ -52,7 +52,7 @@ const MakeupBanner = () => {
           </h2>
           {banner.description_ar && (
             <p 
-              className="text-xl md:text-2xl mb-8"
+              className="text-xl md:text-2xl"
               style={{
                 color: banner.text_color || "#000000",
               }}
@@ -60,16 +60,6 @@ const MakeupBanner = () => {
               {banner.description_ar}
             </p>
           )}
-          <Button
-            size="lg"
-            className="text-lg px-8 py-6"
-            style={{
-              backgroundColor: banner.text_color || "#000000",
-              color: banner.background_color || "#FFC0CB",
-            }}
-          >
-            {banner.button_text_ar}
-          </Button>
         </div>
       </section>
     </div>
