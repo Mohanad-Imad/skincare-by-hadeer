@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { toast } from "sonner";
 import { z } from "zod";
 import { useLocalCart } from "@/hooks/useLocalCart";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Chrome } from "lucide-react";
 
 const authSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").max(255, "البريد الإلكتروني طويل جداً"),
@@ -154,6 +154,31 @@ const Auth = () => {
   };
 
 
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}${redirectTo}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) throw error;
+      
+      // OAuth will handle the redirect, user data migration will happen after redirect
+    } catch (error: any) {
+      console.error("Google auth error:", error);
+      toast.error("فشل تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى");
+      setLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -269,6 +294,31 @@ const Auth = () => {
             </form>
           ) : (
           <>
+            {/* Google Sign In Button */}
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleGoogleAuth}
+                disabled={loading}
+              >
+                <Chrome className="h-5 w-5" />
+                {isLogin ? "تسجيل الدخول عبر Google" : "التسجيل عبر Google"}
+              </Button>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    أو
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={handleAuth} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
