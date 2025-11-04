@@ -42,7 +42,7 @@ interface SecondaryBanner {
   is_active: boolean;
 }
 
-export default function AdminSecondaryBanners() {
+const AdminSecondaryBanners = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<SecondaryBanner | null>(null);
@@ -429,4 +429,6 @@ export default function AdminSecondaryBanners() {
       </div>
     </div>
   );
-}
+};
+
+export default AdminSecondaryBanners;
