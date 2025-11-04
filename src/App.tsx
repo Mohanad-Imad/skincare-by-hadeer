@@ -21,6 +21,7 @@ import AdminDiscountCodes from "./pages/admin/AdminDiscountCodes";
 import AdminProductDiscounts from "./pages/admin/AdminProductDiscounts";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminBanners from "./pages/admin/AdminBanners";
+import AdminSecondaryBanners from "./pages/admin/AdminSecondaryBanners";
 import AdminShippingSettings from "./pages/admin/AdminShippingSettings";
 import MyOrders from "./pages/MyOrders";
 import Blog from "./pages/Blog";
@@ -31,7 +32,7 @@ import CelebrityRoutines from "./pages/CelebrityRoutines";
 import CelebrityRoutineDetails from "./pages/CelebrityRoutineDetails";
 import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
 import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
-import AdminSecondaryBanners from "./pages/admin/AdminSecondaryBanners";
+import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="blog" element={<AdminBlogPosts />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
+            <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
             <Route path="quick-links" element={<AdminQuickLinks />} />
             <Route path="consultations" element={<AdminConsultations />} />
             <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />

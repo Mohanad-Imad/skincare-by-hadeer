@@ -25,6 +25,7 @@ const menuItems = [
   { title: "المدونة", url: "/admin/blog", icon: FileText },
   { title: "البنرات الرئيسية", url: "/admin/banners", icon: ImageIcon },
   { title: "البنرات الثانوية", url: "/admin/secondary-banners", icon: RectangleHorizontal },
+  { title: "البنرات العلوية", url: "/admin/tertiary-banners", icon: RectangleHorizontal },
   { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
 ];
 
