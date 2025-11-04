@@ -24,8 +24,12 @@ const Makeup = () => {
     },
   });
 
-  const handleCategoryClick = (slug: string) => {
-    navigate(`/products?makeup=${slug}`);
+  const handleCategoryClick = (category: any) => {
+    if (category.category_id && category.subcategory_id) {
+      navigate(`/products?category=${category.category_id}&subCategory=${category.subcategory_id}`);
+    } else {
+      navigate(`/products?makeup=${category.slug}`);
+    }
   };
 
   return (
@@ -57,7 +61,7 @@ const Makeup = () => {
                   <Card
                     key={category.id}
                     className="p-4 cursor-pointer transition-all hover:shadow-lg hover:scale-105"
-                    onClick={() => handleCategoryClick(category.slug)}
+                    onClick={() => handleCategoryClick(category)}
                   >
                     <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-muted flex items-center justify-center">
                       {category.image_url ? (

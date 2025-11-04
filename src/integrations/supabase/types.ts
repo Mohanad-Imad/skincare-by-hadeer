@@ -539,6 +539,7 @@ export type Database = {
       }
       makeup_categories: {
         Row: {
+          category_id: string | null
           created_at: string
           display_order: number
           id: string
@@ -547,9 +548,11 @@ export type Database = {
           name_ar: string
           name_en: string
           slug: string
+          subcategory_id: string | null
           updated_at: string
         }
         Insert: {
+          category_id?: string | null
           created_at?: string
           display_order?: number
           id?: string
@@ -558,9 +561,11 @@ export type Database = {
           name_ar: string
           name_en: string
           slug: string
+          subcategory_id?: string | null
           updated_at?: string
         }
         Update: {
+          category_id?: string | null
           created_at?: string
           display_order?: number
           id?: string
@@ -569,9 +574,25 @@ export type Database = {
           name_ar?: string
           name_en?: string
           slug?: string
+          subcategory_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "makeup_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "makeup_categories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
