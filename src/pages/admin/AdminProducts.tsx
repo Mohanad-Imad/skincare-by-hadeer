@@ -982,14 +982,14 @@ const AdminProducts = () => {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow className="[&>*]:text-left">
-              <TableHead>الاسم</TableHead>
-              <TableHead>معرّف المنتج (ID)</TableHead>
-              <TableHead>مميز</TableHead>
-              <TableHead>وصل حديثاً</TableHead>
-              <TableHead>اختيار خبراءنا</TableHead>
-              <TableHead>الحالة</TableHead>
-              <TableHead>الإجراءات</TableHead>
+            <TableRow dir="rtl">
+              <TableHead className="text-right">الاسم</TableHead>
+              <TableHead className="text-right">معرّف المنتج (ID)</TableHead>
+              <TableHead className="text-right">مميز</TableHead>
+              <TableHead className="text-right">وصل حديثاً</TableHead>
+              <TableHead className="text-right">اختيار خبراءنا</TableHead>
+              <TableHead className="text-right">الحالة</TableHead>
+              <TableHead className="text-right">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
