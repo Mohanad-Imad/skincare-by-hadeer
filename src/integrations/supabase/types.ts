@@ -599,6 +599,42 @@ export type Database = {
           },
         ]
       }
+      problem_categories: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name_ar: string
+          name_en: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name_ar: string
+          name_en: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name_ar?: string
+          name_en?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_discounts: {
         Row: {
           created_at: string
@@ -668,6 +704,42 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_sub_problems: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          sub_problem_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          sub_problem_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          sub_problem_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_sub_problems_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_sub_problems_sub_problem_id_fkey"
+            columns: ["sub_problem_id"]
+            isOneToOne: false
+            referencedRelation: "sub_problems"
             referencedColumns: ["id"]
           },
         ]
@@ -941,6 +1013,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sub_problems: {
+        Row: {
+          category_id: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          name_ar: string
+          name_en: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name_ar: string
+          name_en: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name_ar?: string
+          name_en?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_problems_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "problem_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tertiary_banners: {
         Row: {

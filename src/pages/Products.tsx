@@ -20,6 +20,7 @@ const Products = () => {
   const [subCategoryFilter, setSubCategoryFilter] = useState<string>(searchParams.get("subCategory") || "all");
   const [skinTypeFilter, setSkinTypeFilter] = useState<string>(searchParams.get("skinType") || "all");
   const [companyFilter, setCompanyFilter] = useState<string>(searchParams.get("company") || "all");
+  const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   
@@ -68,7 +69,7 @@ const Products = () => {
   });
 
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, currentPage],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, currentPage],
     queryFn: async () => {
       // تحديد التصنيفات المطلوبة للفلترة
       let categoryIds: string[] = [];
@@ -114,6 +115,12 @@ const Products = () => {
           product_images (
             image_url,
             display_order
+          ),
+          product_sub_problems (
+            sub_problem_id,
+            sub_problems (
+              slug
+            )
           )
         `)
         .eq("is_active", true)
@@ -136,6 +143,15 @@ const Products = () => {
       if (error) throw error;
 
       let filtered = data || [];
+
+      // فلترة حسب المشكلة
+      if (problemFilter !== "all") {
+        filtered = filtered.filter((product) => {
+          return product.product_sub_problems?.some((psp: any) => 
+            psp.sub_problems?.slug === problemFilter
+          );
+        });
+      }
 
       if (skinTypeFilter !== "all") {
         filtered = filtered.filter(
@@ -185,12 +201,14 @@ const Products = () => {
     const skinType = searchParams.get("skinType");
     const company = searchParams.get("company");
     const search = searchParams.get("search");
+    const problem = searchParams.get("problem");
     
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
     if (skinType) setSkinTypeFilter(skinType);
     if (company) setCompanyFilter(company);
     if (search) setSearchTerm(search);
+    if (problem) setProblemFilter(problem);
   }, [searchParams]);
 
   const structuredData = {

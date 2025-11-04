@@ -35,6 +35,7 @@ import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
 import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
 import AdminBrandsLinks from "./pages/admin/AdminBrandsLinks";
 import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
+import ProblemSubCategories from "./pages/ProblemSubCategories";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/consultation" element={<Consultation />} />
           <Route path="/celebrity-routines" element={<CelebrityRoutines />} />
           <Route path="/celebrity-routines/:id" element={<CelebrityRoutineDetails />} />
+          <Route path="/problems/:slug" element={<ProblemSubCategories />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />

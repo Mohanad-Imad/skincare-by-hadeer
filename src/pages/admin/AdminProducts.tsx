@@ -63,6 +63,8 @@ const AdminProducts = () => {
     is_active: true,
   });
 
+  const [selectedSubProblems, setSelectedSubProblems] = useState<string[]>([]);
+
   const [variants, setVariants] = useState<any[]>([]);
   const [newVariant, setNewVariant] = useState({
     size_ar: "",
@@ -110,6 +112,23 @@ const AdminProducts = () => {
     { value: "sensitive", label_ar: "حساسة", label_en: "Sensitive" },
     { value: "normal", label_ar: "عادية", label_en: "Normal" },
   ];
+
+  // جلب أقسام المشاكل
+  const { data: problemCategories } = useQuery({
+    queryKey: ["problem-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("problem_categories")
+        .select(`
+          *,
+          sub_problems (*)
+        `)
+        .eq("is_active", true)
+        .order("display_order");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin-products"],
@@ -164,6 +183,18 @@ const AdminProducts = () => {
           .from("product_variants")
           .insert(variantsData);
         if (variantsError) throw variantsError;
+      }
+
+      // إضافة المشاكل المرتبطة بالمنتج
+      if (selectedSubProblems.length > 0) {
+        const problemsData = selectedSubProblems.map((subProblemId) => ({
+          product_id: product.id,
+          sub_problem_id: subProblemId,
+        }));
+        const { error: problemsError } = await supabase
+          .from("product_sub_problems")
+          .insert(problemsData);
+        if (problemsError) throw problemsError;
       }
     },
     onSuccess: () => {
@@ -246,6 +277,21 @@ const AdminProducts = () => {
           .insert(variantsData);
         if (variantsError) throw variantsError;
       }
+
+      // حذف المشاكل القديمة
+      await supabase.from("product_sub_problems").delete().eq("product_id", id);
+
+      // إضافة المشاكل الجديدة
+      if (selectedSubProblems.length > 0) {
+        const problemsData = selectedSubProblems.map((subProblemId) => ({
+          product_id: id,
+          sub_problem_id: subProblemId,
+        }));
+        const { error: problemsError } = await supabase
+          .from("product_sub_problems")
+          .insert(problemsData);
+        if (problemsError) throw problemsError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -287,6 +333,7 @@ const AdminProducts = () => {
     setParentCategoryId("");
     setVariants([]);
     setProductImages([]);
+    setSelectedSubProblems([]);
     setNewVariant({
       size_ar: "",
       price: "",
@@ -356,6 +403,16 @@ const AdminProducts = () => {
         id: img.id,
         display_order: img.display_order,
       })));
+    }
+
+    // جلب المشاكل المرتبطة بالمنتج
+    const { data: problemsData } = await supabase
+      .from("product_sub_problems")
+      .select("sub_problem_id")
+      .eq("product_id", product.id);
+
+    if (problemsData) {
+      setSelectedSubProblems(problemsData.map((p) => p.sub_problem_id));
     }
 
     setIsDialogOpen(true);
@@ -662,6 +719,39 @@ const AdminProducts = () => {
                   ))}
                 </div>
               </div>
+              
+              {/* المشاكل */}
+              {problemCategories && problemCategories.length > 0 && (
+                <div className="space-y-4 border-t pt-4">
+                  <Label className="text-lg font-semibold">مناسب لعلاج المشاكل التالية</Label>
+                  {problemCategories.map((category) => (
+                    <div key={category.id} className="space-y-2">
+                      <Label className="font-medium text-base">{category.name_ar}</Label>
+                      <div className="space-y-2 pr-4">
+                        {category.sub_problems?.map((subProblem: any) => (
+                          <div key={subProblem.id} className="flex items-center space-x-2 space-x-reverse">
+                            <Checkbox
+                              id={`problem-${subProblem.id}`}
+                              checked={selectedSubProblems.includes(subProblem.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedSubProblems([...selectedSubProblems, subProblem.id]);
+                                } else {
+                                  setSelectedSubProblems(selectedSubProblems.filter((id) => id !== subProblem.id));
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`problem-${subProblem.id}`} className="cursor-pointer text-sm">
+                              {subProblem.name_ar}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <div className="space-y-4 border-t pt-4">
                 <Label className="text-lg font-semibold">الأحجام والأسعار</Label>
                 {variants.length > 0 && (
