@@ -10,7 +10,7 @@ export const GuaranteeBanner = () => {
       className="cursor-pointer overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02] bg-gradient-to-r from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-200/50 dark:border-emerald-800/50"
       onClick={() => navigate("/guarantee")}
     >
-      <CardContent className="p-6 md:p-8">
+      <CardContent className="p-8 md:p-10">
         <div className="flex items-center justify-around gap-4 md:gap-6">
           {/* Logo - على اليمين */}
           <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
