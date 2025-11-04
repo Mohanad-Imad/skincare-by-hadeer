@@ -20,6 +20,7 @@ const menuItems = [
   { title: "الاستشارات", url: "/admin/consultations", icon: MessageSquare },
   { title: "روتين المشاهير", url: "/admin/celebrity-routines", icon: Sparkles },
   { title: "التصنيفات", url: "/admin/categories", icon: Grid3x3 },
+  { title: "التسوق حسب المشكلة", url: "/admin/problem-categories", icon: Grid3x3 },
   { title: "أكواد الخصم", url: "/admin/discount-codes", icon: Percent },
   { title: "خصومات المنتجات", url: "/admin/product-discounts", icon: Tag },
   { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },

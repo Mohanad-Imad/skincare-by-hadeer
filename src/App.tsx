@@ -35,6 +35,7 @@ import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
 import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
 import AdminBrandsLinks from "./pages/admin/AdminBrandsLinks";
 import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
+import AdminProblemCategories from "./pages/admin/AdminProblemCategories";
 import ProblemSubCategories from "./pages/ProblemSubCategories";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -78,6 +79,7 @@ const App = () => (
             <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
             <Route path="quick-links" element={<AdminQuickLinks />} />
             <Route path="brands-links" element={<AdminBrandsLinks />} />
+            <Route path="problem-categories" element={<AdminProblemCategories />} />
             <Route path="consultations" element={<AdminConsultations />} />
             <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />
           </Route>

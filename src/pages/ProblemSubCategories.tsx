@@ -108,16 +108,29 @@ export default function ProblemSubCategories() {
           </h1>
 
           {/* Sub-problems Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {subProblems?.map((subProblem) => (
               <button
                 key={subProblem.id}
                 onClick={() => navigate(`/products?problem=${subProblem.slug}`)}
-                className="group bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
               >
-                <h3 className="text-lg font-semibold text-center text-foreground group-hover:text-primary transition-colors">
-                  {subProblem.name_ar}
-                </h3>
+                <div className="aspect-square bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                  {subProblem.image_url ? (
+                    <img
+                      src={subProblem.image_url}
+                      alt={subProblem.name_ar}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  ) : (
+                    <span className="text-4xl md:text-5xl">💊</span>
+                  )}
+                </div>
+                <div className="p-3 md:p-4">
+                  <h3 className="text-sm md:text-base font-semibold text-center text-foreground group-hover:text-primary transition-colors">
+                    {subProblem.name_ar}
+                  </h3>
+                </div>
               </button>
             ))}
           </div>
