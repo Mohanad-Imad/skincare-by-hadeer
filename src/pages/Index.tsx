@@ -14,6 +14,7 @@ import { SecondaryBanner } from "@/components/SecondaryBanner";
 import { TertiaryBanner } from "@/components/TertiaryBanner";
 import { BrandsLinks } from "@/components/BrandsLinks";
 import { ShopByProblem } from "@/components/ShopByProblem";
+import { GuaranteeBanner } from "@/components/GuaranteeBanner";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
@@ -136,6 +137,11 @@ const Index = () => {
       {/* Shop By Problem Section */}
       <section className="py-6 md:py-8">
         <ShopByProblem />
+      </section>
+
+      {/* Guarantee Banner */}
+      <section className="container py-6 md:py-8">
+        <GuaranteeBanner />
       </section>
 
       {/* New Arrivals */}
