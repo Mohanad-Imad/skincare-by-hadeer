@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
@@ -28,7 +29,7 @@ const Makeup = () => {
     if (category.category_id && category.subcategory_id) {
       navigate(`/products?category=${category.category_id}&subCategory=${category.subcategory_id}`);
     } else {
-      navigate(`/products?makeup=${category.slug}`);
+      toast.error("هذا القسم غير مرتبط بالأقسام الرئيسية");
     }
   };
 

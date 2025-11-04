@@ -187,7 +187,7 @@ const AdminMakeupCategories = () => {
     setFormData({
       name_ar: category.name_ar,
       name_en: category.name_en,
-      slug: category.slug,
+      slug: category.slug || "",
       image_url: category.image_url,
       display_order: category.display_order,
       is_active: category.is_active,
@@ -210,23 +210,21 @@ const AdminMakeupCategories = () => {
   };
 
   const copyToClipboard = (category: any) => {
-    let url = `${window.location.origin}/products`;
-    if (category.category_id && category.subcategory_id) {
-      url += `?category=${category.category_id}&subCategory=${category.subcategory_id}`;
-    } else if (category.slug) {
-      url += `?makeup=${category.slug}`;
+    if (!category.category_id || !category.subcategory_id) {
+      toast.error("لم يتم ربط القسم بالأقسام الرئيسية والفرعية");
+      return;
     }
+    const url = `${window.location.origin}/products?category=${category.category_id}&subCategory=${category.subcategory_id}`;
     navigator.clipboard.writeText(url);
     toast.success("تم نسخ الرابط");
   };
 
   const openInNewTab = (category: any) => {
-    let url = `${window.location.origin}/products`;
-    if (category.category_id && category.subcategory_id) {
-      url += `?category=${category.category_id}&subCategory=${category.subcategory_id}`;
-    } else if (category.slug) {
-      url += `?makeup=${category.slug}`;
+    if (!category.category_id || !category.subcategory_id) {
+      toast.error("لم يتم ربط القسم بالأقسام الرئيسية والفرعية");
+      return;
     }
+    const url = `${window.location.origin}/products?category=${category.category_id}&subCategory=${category.subcategory_id}`;
     window.open(url, '_blank');
   };
 
@@ -267,33 +265,19 @@ const AdminMakeupCategories = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <Label>الرابط (Slug) *</Label>
-                    <Input
-                      required
-                      value={formData.slug}
-                      onChange={(e) =>
-                        setFormData({ ...formData, slug: e.target.value })
-                      }
-                      placeholder="foundation"
-                    />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      استخدم الـ slug للربط المباشر، أو اختر القسم والقسم الفرعي أدناه
-                    </p>
-                  </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>القسم الرئيسي (اختياري)</Label>
+                      <Label>القسم الرئيسي *</Label>
                       <Select
                         value={formData.category_id || undefined}
                         onValueChange={(value) => {
                           setFormData({ ...formData, category_id: value, subcategory_id: "" });
                           setSelectedCategoryId(value);
                         }}
+                        required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="اختر القسم الرئيسي" />
+                          <SelectValue placeholder="اختر القسم الرئيسي *" />
                         </SelectTrigger>
                         <SelectContent>
                           {mainCategories?.map((cat) => (
@@ -305,16 +289,17 @@ const AdminMakeupCategories = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label>القسم الفرعي (اختياري)</Label>
+                      <Label>القسم الفرعي *</Label>
                       <Select
                         value={formData.subcategory_id || undefined}
                         onValueChange={(value) =>
                           setFormData({ ...formData, subcategory_id: value })
                         }
                         disabled={!formData.category_id}
+                        required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="اختر القسم الفرعي" />
+                          <SelectValue placeholder="اختر القسم الفرعي *" />
                         </SelectTrigger>
                         <SelectContent>
                           {subCategories?.map((cat) => (
@@ -370,7 +355,10 @@ const AdminMakeupCategories = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button type="submit">
+                    <Button 
+                      type="submit"
+                      disabled={!formData.category_id || !formData.subcategory_id}
+                    >
                       {editingId ? "تحديث" : "إضافة"}
                     </Button>
                     {editingId && (
@@ -427,9 +415,7 @@ const AdminMakeupCategories = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <code className="bg-muted px-2 py-1 rounded text-sm">
-                                  slug: {category.slug}
-                                </code>
+                                <span className="text-destructive text-sm">غير مرتبط</span>
                               )}
                             </TableCell>
                             <TableCell>
