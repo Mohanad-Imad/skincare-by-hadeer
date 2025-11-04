@@ -55,16 +55,20 @@ export default function AdminProblemCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sub_problems")
-        .select(`
-          *,
-          problem_categories!sub_problems_category_id_fkey (
-            name_ar
-          )
-        `)
+        .select("*")
         .order("display_order");
       if (error) throw error;
-      return data;
+      
+      // ربط البيانات مع الأقسام الرئيسية
+      return data?.map((subProblem) => {
+        const category = categories?.find((cat) => cat.id === subProblem.category_id);
+        return {
+          ...subProblem,
+          category_name_ar: category?.name_ar || "",
+        };
+      });
     },
+    enabled: !!categories,
   });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'category' | 'subproblem') => {
@@ -369,7 +373,7 @@ export default function AdminProblemCategories() {
                     {prob.image_url && <img src={prob.image_url} alt={prob.name_ar} className="h-12 w-12 object-cover rounded" />}
                   </TableCell>
                   <TableCell>{prob.name_ar}</TableCell>
-                  <TableCell>{prob.problem_categories?.name_ar}</TableCell>
+                  <TableCell>{prob.category_name_ar}</TableCell>
                   <TableCell>{prob.is_active ? "نشط" : "غير نشط"}</TableCell>
                   <TableCell>
                     <Button size="icon" variant="ghost" onClick={() => { setEditingItem(prob); setSubProblemForm(prob); setIsDialogOpen(true); }}>
