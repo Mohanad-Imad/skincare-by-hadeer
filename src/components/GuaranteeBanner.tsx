@@ -18,10 +18,13 @@ export const GuaranteeBanner = () => {
           </div>
           
           {/* Content - في المنتصف */}
-          <div className="flex-shrink-0">
-            <h3 className="text-sm md:text-lg font-bold text-foreground whitespace-nowrap">
-              منتجات أصلية ومضمونة <span className="text-xs md:text-sm font-normal text-muted-foreground">تعرفي أكثر على ضمان هدير</span>
+          <div className="flex-shrink-0 text-center">
+            <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
+              منتجات أصلية ومضمونة
             </h3>
+            <p className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
+              تعرفي أكثر على ضمان هدير
+            </p>
           </div>
         </div>
       </CardContent>
