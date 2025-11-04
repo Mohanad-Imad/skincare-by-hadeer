@@ -11,24 +11,21 @@ export const GuaranteeBanner = () => {
       onClick={() => navigate("/guarantee")}
     >
       <CardContent className="p-4 md:p-6">
-        <div className="flex items-center justify-between gap-6 md:gap-8">
+        <div className="flex items-center justify-around gap-4 md:gap-6">
           {/* Logo - على اليمين */}
           <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
           </div>
           
           {/* Content - في المنتصف */}
-          <div className="flex-1 text-center">
-            <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground">
+          <div className="flex-shrink-0">
+            <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
               منتجات أصلية ومضمونة
             </h3>
-            <p className="text-xs md:text-sm text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
               تعرفي أكثر على ضمان هدير
             </p>
           </div>
-          
-          {/* Spacer for balance */}
-          <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14"></div>
         </div>
       </CardContent>
     </Card>
