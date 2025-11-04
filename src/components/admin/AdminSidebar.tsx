@@ -27,6 +27,7 @@ const menuItems = [
   { title: "البنرات الثانوية", url: "/admin/secondary-banners", icon: RectangleHorizontal },
   { title: "البنرات العلوية", url: "/admin/tertiary-banners", icon: RectangleHorizontal },
   { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
+  { title: "ماركاتنا", url: "/admin/brands-links", icon: Tag },
 ];
 
 export function AdminSidebar() {

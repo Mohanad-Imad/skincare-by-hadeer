@@ -32,6 +32,7 @@ import CelebrityRoutines from "./pages/CelebrityRoutines";
 import CelebrityRoutineDetails from "./pages/CelebrityRoutineDetails";
 import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
 import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
+import AdminBrandsLinks from "./pages/admin/AdminBrandsLinks";
 import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
             <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
             <Route path="quick-links" element={<AdminQuickLinks />} />
+            <Route path="brands-links" element={<AdminBrandsLinks />} />
             <Route path="consultations" element={<AdminConsultations />} />
             <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />
           </Route>

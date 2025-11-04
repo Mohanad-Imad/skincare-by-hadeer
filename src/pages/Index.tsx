@@ -12,6 +12,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { QuickLinks } from "@/components/QuickLinks";
 import { SecondaryBanner } from "@/components/SecondaryBanner";
 import { TertiaryBanner } from "@/components/TertiaryBanner";
+import { BrandsLinks } from "@/components/BrandsLinks";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Index = () => {
@@ -122,6 +123,11 @@ const Index = () => {
       {/* Secondary Banner - Bottom promotional banner */}
       <section className="py-2 md:py-3">
         <SecondaryBanner />
+      </section>
+
+      {/* Brands Links - Quick access to brands */}
+      <section className="py-6 md:py-8">
+        <BrandsLinks />
       </section>
 
       {/* New Arrivals */}
