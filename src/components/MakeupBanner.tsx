@@ -27,41 +27,57 @@ const MakeupBanner = () => {
   return (
     <div className="container mx-auto px-4">
       <section
-        className="relative w-full py-16 px-8 cursor-pointer transition-transform hover:scale-[1.02] rounded-3xl"
-        style={{
-          backgroundColor: banner.background_color || "#FFC0CB",
-          color: banner.text_color || "#000000",
-        }}
+        className="relative w-full py-24 px-8 cursor-pointer transition-transform hover:scale-[1.02] rounded-3xl overflow-hidden min-h-[400px] flex items-center justify-center"
         onClick={() => navigate("/makeup")}
       >
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div className="text-center md:text-right">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              {banner.title_ar}
-            </h2>
-            {banner.description_ar && (
-              <p className="text-xl mb-6">{banner.description_ar}</p>
-            )}
-            <Button
-              size="lg"
-              className="text-lg"
+        {/* Background Image */}
+        {banner.image_url && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${banner.image_url})`,
+            }}
+          />
+        )}
+        
+        {/* Overlay with background color */}
+        <div 
+          className="absolute inset-0 opacity-80"
+          style={{
+            backgroundColor: banner.background_color || "#FFC0CB",
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative z-10 text-center max-w-2xl">
+          <h2 
+            className="text-4xl md:text-6xl font-bold mb-4"
+            style={{
+              color: banner.text_color || "#000000",
+            }}
+          >
+            {banner.title_ar}
+          </h2>
+          {banner.description_ar && (
+            <p 
+              className="text-xl md:text-2xl mb-8"
               style={{
-                backgroundColor: banner.text_color || "#000000",
-                color: banner.background_color || "#FFC0CB",
+                color: banner.text_color || "#000000",
               }}
             >
-              {banner.button_text_ar}
-            </Button>
-          </div>
-          {banner.image_url && (
-            <div className="flex justify-center">
-              <img
-                src={banner.image_url}
-                alt={banner.title_ar || "Makeup"}
-                className="max-w-full h-auto rounded-lg shadow-lg"
-              />
-            </div>
+              {banner.description_ar}
+            </p>
           )}
+          <Button
+            size="lg"
+            className="text-lg px-8 py-6"
+            style={{
+              backgroundColor: banner.text_color || "#000000",
+              color: banner.background_color || "#FFC0CB",
+            }}
+          >
+            {banner.button_text_ar}
+          </Button>
         </div>
       </section>
     </div>
