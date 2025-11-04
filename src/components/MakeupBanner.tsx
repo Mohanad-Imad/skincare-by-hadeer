@@ -39,14 +39,6 @@ const MakeupBanner = () => {
             }}
           />
         )}
-        
-        {/* Overlay with background color */}
-        <div 
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundColor: banner.background_color || "#FFC0CB",
-          }}
-        />
 
         {/* Content */}
         <div className="relative z-10 text-center max-w-2xl">
