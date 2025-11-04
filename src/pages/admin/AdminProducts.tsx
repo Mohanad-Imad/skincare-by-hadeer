@@ -44,6 +44,7 @@ const AdminProducts = () => {
   const [subCategoryFilter, setSubCategoryFilter] = useState("all");
   const [featuredFilter, setFeaturedFilter] = useState("all");
   const [newArrivalFilter, setNewArrivalFilter] = useState("all");
+  const [expertChoiceFilter, setExpertChoiceFilter] = useState("all");
   const [activeFilter, setActiveFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
@@ -529,11 +530,14 @@ const AdminProducts = () => {
     const matchesNewArrival = newArrivalFilter === "all" ||
       (newArrivalFilter === "new" && product.is_new_arrival) ||
       (newArrivalFilter === "not_new" && !product.is_new_arrival);
+    const matchesExpertChoice = expertChoiceFilter === "all" ||
+      (expertChoiceFilter === "expert" && product.is_expert_choice) ||
+      (expertChoiceFilter === "not_expert" && !product.is_expert_choice);
     const matchesActive = activeFilter === "all" ||
       (activeFilter === "active" && product.is_active) ||
       (activeFilter === "inactive" && !product.is_active);
     
-    return matchesSearch && matchesCategory && matchesFeatured && matchesNewArrival && matchesActive;
+    return matchesSearch && matchesCategory && matchesFeatured && matchesNewArrival && matchesExpertChoice && matchesActive;
   });
 
   // Pagination calculations
@@ -937,6 +941,19 @@ const AdminProducts = () => {
                 <SelectItem value="all">الكل</SelectItem>
                 <SelectItem value="new">وصلت حديثاً</SelectItem>
                 <SelectItem value="not_new">قديمة</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="expertChoice">اختيار خبراءنا</Label>
+            <Select value={expertChoiceFilter} onValueChange={(value) => handleFilterChange(setExpertChoiceFilter, value)}>
+              <SelectTrigger id="expertChoice">
+                <SelectValue placeholder="الكل" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="expert">اختيار خبراءنا</SelectItem>
+                <SelectItem value="not_expert">ليس اختيار خبراءنا</SelectItem>
               </SelectContent>
             </Select>
           </div>
