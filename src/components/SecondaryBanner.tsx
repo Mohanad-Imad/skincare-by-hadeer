@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
+import { useState, useEffect } from "react";
 
 export const SecondaryBanner = () => {
   const navigate = useNavigate();
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
 
   const { data: banners, isLoading } = useQuery({
     queryKey: ["secondary-banners"],
@@ -21,6 +24,16 @@ export const SecondaryBanner = () => {
       return data;
     },
   });
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   if (isLoading || !banners || banners.length === 0) {
     return null;
@@ -39,6 +52,7 @@ export const SecondaryBanner = () => {
   return (
     <div className="w-full">
       <Carousel
+        setApi={setApi}
         opts={{
           align: "start",
           loop: true,
@@ -90,6 +104,23 @@ export const SecondaryBanner = () => {
           ))}
         </CarouselContent>
       </Carousel>
+      
+      {banners.length > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => api?.scrollTo(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === current
+                  ? "w-8 bg-primary"
+                  : "w-2 bg-primary/30 hover:bg-primary/50"
+              }`}
+              aria-label={`الانتقال إلى البنر ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
