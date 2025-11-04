@@ -67,7 +67,7 @@ export const SecondaryBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative w-full h-[100px] overflow-hidden group cursor-pointer">
+              <div className="relative w-full h-[100px] md:h-[120px] lg:h-[150px] overflow-hidden group cursor-pointer">
                 <img
                   src={banner.image_url}
                   alt={banner.title_ar || ""}
@@ -79,12 +79,12 @@ export const SecondaryBanner = () => {
                   <div className="container mx-auto px-4">
                     <div className="max-w-xl text-right">
                       {banner.title_ar && (
-                        <h2 className="text-base md:text-lg font-bold text-white mb-1 drop-shadow-lg">
+                        <h2 className="text-sm md:text-lg lg:text-xl font-bold text-white mb-1 drop-shadow-lg">
                           {banner.title_ar}
                         </h2>
                       )}
                       {banner.description_ar && (
-                        <p className="text-xs md:text-sm text-white/95 mb-2 drop-shadow-md">
+                        <p className="text-xs md:text-sm lg:text-base text-white/95 mb-2 drop-shadow-md">
                           {banner.description_ar}
                         </p>
                       )}
@@ -92,7 +92,7 @@ export const SecondaryBanner = () => {
                         <Button
                           onClick={() => handleBannerClick(banner.link_url)}
                           size="sm"
-                          className="bg-white/95 text-primary hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg text-xs md:text-sm"
+                          className="bg-white/95 text-primary hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg text-xs md:text-sm lg:text-base px-3 md:px-4 py-1.5 md:py-2"
                         >
                           {banner.button_text_ar || "تسوق الآن"}
                         </Button>

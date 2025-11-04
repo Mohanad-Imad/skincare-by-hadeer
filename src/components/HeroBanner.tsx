@@ -50,7 +50,7 @@ export const HeroBanner = () => {
   }
 
   return (
-    <div className="container py-6">
+    <div className="container py-3 md:py-6">
       <Carousel
         plugins={[plugin.current]}
         className="w-full overflow-hidden rounded-2xl"
@@ -65,7 +65,7 @@ export const HeroBanner = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-[175px] md:h-[225px] overflow-hidden rounded-2xl">
+              <div className="relative h-[175px] md:h-[300px] lg:h-[400px] overflow-hidden rounded-2xl">
                 {/* صورة الخلفية */}
                 <div
                   className="absolute inset-0 bg-cover bg-center"
@@ -81,14 +81,14 @@ export const HeroBanner = () => {
                 <div className="container relative z-10 flex h-full flex-col justify-end">
                   {(banner.title_ar || banner.description_ar) && (
                     <div className="flex-1 flex items-center justify-center">
-                      <div className="max-w-2xl space-y-2 text-center">
+                      <div className="max-w-2xl space-y-1 md:space-y-2 text-center">
                         {banner.title_ar && (
-                          <h1 className="text-xl font-black leading-tight md:text-2xl lg:text-3xl text-white drop-shadow-2xl animate-fade-in tracking-tight">
+                          <h1 className="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight text-white drop-shadow-2xl animate-fade-in tracking-tight">
                             {banner.title_ar}
                           </h1>
                         )}
                         {banner.description_ar && (
-                          <p className="text-sm md:text-base text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
+                          <p className="text-sm md:text-lg lg:text-xl text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
                             {banner.description_ar}
                           </p>
                         )}
@@ -96,11 +96,11 @@ export const HeroBanner = () => {
                     </div>
                   )}
                   {banner.link_url && (
-                    <div className="flex justify-center pb-4 animate-fade-in [animation-delay:400ms]">
+                    <div className="flex justify-center pb-3 md:pb-4 lg:pb-6 animate-fade-in [animation-delay:400ms]">
                       <Button
                         asChild
                         size="default"
-                        className="bg-white hover:bg-white/90 text-primary font-bold text-sm md:text-base px-6 md:px-8 py-3 md:py-4 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
+                        className="bg-white hover:bg-white/90 text-primary font-bold text-xs md:text-base lg:text-lg px-4 md:px-6 lg:px-8 py-2 md:py-3 lg:py-4 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
                       >
                         <Link to={banner.link_url}>
                           {banner.button_text_ar}

@@ -102,7 +102,7 @@ const Index = () => {
       <Navbar />
       
       {/* Search Bar */}
-      <section className="container py-4 pb-2">
+      <section className="container py-2 md:py-4 pb-1 md:pb-2">
         <SearchBar />
       </section>
 
@@ -112,7 +112,7 @@ const Index = () => {
       </section>
 
       {/* Tertiary Banner - Top promotional banner */}
-      <section className="py-3">
+      <section className="py-2 md:py-3">
         <TertiaryBanner />
       </section>
 
@@ -120,16 +120,16 @@ const Index = () => {
       <HeroBanner />
 
       {/* Secondary Banner - Bottom promotional banner */}
-      <section className="py-3">
+      <section className="py-2 md:py-3">
         <SecondaryBanner />
       </section>
 
       {/* New Arrivals */}
       {newArrivals && newArrivals.length > 0 && (
-        <section className="container py-16">
-          <div className="mb-8 text-center">
-            <h3 className="text-3xl font-bold mb-2">وصل حديثاً</h3>
-            <p className="text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
+        <section className="container py-8 md:py-16">
+          <div className="mb-4 md:mb-8 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">وصل حديثاً</h3>
+            <p className="text-sm md:text-base text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {newArrivals.map((product) => {
@@ -155,10 +155,10 @@ const Index = () => {
 
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="container py-16">
-          <div className="mb-8 text-center">
-            <h3 className="text-3xl font-bold mb-2">منتجات مميزة</h3>
-            <p className="text-muted-foreground">أفضل اختياراتنا لك</p>
+        <section className="container py-8 md:py-16">
+          <div className="mb-4 md:mb-8 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">منتجات مميزة</h3>
+            <p className="text-sm md:text-base text-muted-foreground">أفضل اختياراتنا لك</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredProducts.map((product) => {
