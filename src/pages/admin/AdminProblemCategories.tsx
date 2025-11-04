@@ -146,11 +146,13 @@ export default function AdminProblemCategories() {
 
   const saveSubProblemMutation = useMutation({
     mutationFn: async (data: any) => {
-      console.log("Saving sub-problem data:", data);
+      // إزالة الحقول التي تم إضافتها على جانب العميل
+      const { category_name_ar, ...dbData } = data;
+      console.log("Saving sub-problem data:", dbData);
       if (editingItem) {
         const { error } = await supabase
           .from("sub_problems")
-          .update(data)
+          .update(dbData)
           .eq("id", editingItem.id);
         if (error) {
           console.error("Update sub-problem error:", error);
@@ -159,7 +161,7 @@ export default function AdminProblemCategories() {
       } else {
         const { error } = await supabase
           .from("sub_problems")
-          .insert([data]);
+          .insert([dbData]);
         if (error) {
           console.error("Insert sub-problem error:", error);
           throw error;
@@ -377,7 +379,12 @@ export default function AdminProblemCategories() {
                   <TableCell>{prob.category_name_ar}</TableCell>
                   <TableCell>{prob.is_active ? "نشط" : "غير نشط"}</TableCell>
                   <TableCell>
-                    <Button size="icon" variant="ghost" onClick={() => { setEditingItem(prob); setSubProblemForm(prob); setIsDialogOpen(true); }}>
+                    <Button size="icon" variant="ghost" onClick={() => { 
+                      const { category_name_ar, ...cleanProb } = prob; 
+                      setEditingItem(cleanProb); 
+                      setSubProblemForm(cleanProb); 
+                      setIsDialogOpen(true); 
+                    }}>
                       <Edit className="h-4 w-4" />
                     </Button>
                   </TableCell>
