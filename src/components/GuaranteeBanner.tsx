@@ -11,14 +11,14 @@ export const GuaranteeBanner = () => {
       onClick={() => navigate("/guarantee")}
     >
       <CardContent className="p-4 md:p-6">
-        <div className="flex flex-col items-center text-center gap-3">
-          {/* Logo */}
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Logo - على اليمين */}
           <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
           </div>
           
-          {/* Content */}
-          <div>
+          {/* Content - على اليسار */}
+          <div className="flex-1 text-right">
             <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground">
               منتجات أصلية ومضمونة
             </h3>
