@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -265,6 +266,11 @@ export const Navbar = () => {
 
         {/* Right Side: Cart (mobile) & Logo (mobile center) / Cart & Auth (desktop right) */}
         <div className="flex items-center gap-2">
+          {/* Theme Toggle - Mobile */}
+          <div className="lg:hidden">
+            <ThemeToggle />
+          </div>
+          
           {/* Cart - Mobile Only */}
           <Button variant="ghost" size="sm" className="relative lg:hidden" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
@@ -286,6 +292,8 @@ export const Navbar = () => {
 
           {/* Cart & Auth - Desktop Only (right side) */}
           <div className="hidden lg:flex items-center gap-1">
+            <ThemeToggle />
+            
             <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
               <ShoppingCart className="h-4 w-4" />
               {displayCartCount > 0 && (
