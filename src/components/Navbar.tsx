@@ -8,6 +8,8 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeSelector } from "@/components/ThemeSelector";
+import { Separator } from "@/components/ui/separator";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -153,11 +155,13 @@ export const Navbar = () => {
                   </Button>
                 )}
 
-              <div className="border-t pt-2 mt-2">
-                <div className="mb-2">
-                  <ThemeToggle />
-                </div>
-                
+              <Separator className="my-3" />
+              
+              <ThemeSelector />
+              
+              <Separator className="my-3" />
+              
+              <div className="px-2">
                 {session ? (
                   <Button
                     variant="ghost"
