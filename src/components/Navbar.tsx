@@ -153,27 +153,31 @@ export const Navbar = () => {
                   </Button>
                 )}
 
-                <div className="border-t pt-2 mt-2">
-                  {session ? (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-2"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="h-4 w-4" />
-                      تسجيل الخروج
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-2"
-                      onClick={() => handleNavigate("/auth")}
-                    >
-                      <User className="h-4 w-4" />
-                      تسجيل الدخول
-                    </Button>
-                  )}
+              <div className="border-t pt-2 mt-2">
+                <div className="mb-2">
+                  <ThemeToggle />
                 </div>
+                
+                {session ? (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    تسجيل الخروج
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2"
+                    onClick={() => handleNavigate("/auth")}
+                  >
+                    <User className="h-4 w-4" />
+                    تسجيل الدخول
+                  </Button>
+                )}
+              </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -266,11 +270,6 @@ export const Navbar = () => {
 
         {/* Right Side: Cart (mobile) & Logo (mobile center) / Cart & Auth (desktop right) */}
         <div className="flex items-center gap-2">
-          {/* Theme Toggle - Mobile */}
-          <div className="lg:hidden">
-            <ThemeToggle />
-          </div>
-          
           {/* Cart - Mobile Only */}
           <Button variant="ghost" size="sm" className="relative lg:hidden" onClick={() => navigate("/cart")}>
             <ShoppingCart className="h-4 w-4" />
