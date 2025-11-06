@@ -17,25 +17,23 @@ export const ThemeSelector = () => {
   const isDark = theme === "dark";
 
   return (
-    <div className="px-2 py-2">
+    <div className="px-2 py-2 flex justify-center">
       <button
         onClick={() => setTheme(isDark ? "light" : "dark")}
-        className="relative h-7 w-full rounded-full bg-gradient-to-r from-primary/20 to-accent dark:from-accent dark:to-muted transition-all duration-500 overflow-hidden shadow-sm hover:shadow-md border border-border"
+        className="relative h-7 w-24 rounded-full bg-gradient-to-r from-primary/20 to-accent dark:from-accent dark:to-muted transition-all duration-500 overflow-hidden shadow-sm hover:shadow-md border border-border"
         aria-label="Toggle theme"
       >
         {/* Background decorations */}
         <div className="absolute inset-0 transition-opacity duration-500">
           {/* Day mode clouds */}
           <div className={`absolute transition-opacity duration-500 ${isDark ? 'opacity-0' : 'opacity-100'}`}>
-            <Cloud className="absolute top-1 right-8 h-2 w-2 text-primary/40" />
-            <Cloud className="absolute top-1.5 right-12 h-1.5 w-1.5 text-primary/30" />
+            <Cloud className="absolute top-1 right-6 h-2 w-2 text-primary/40" />
           </div>
           
           {/* Night mode stars */}
           <div className={`absolute transition-opacity duration-500 ${isDark ? 'opacity-100' : 'opacity-0'}`}>
-            <Star className="absolute top-1 right-8 h-1 w-1 text-foreground fill-foreground" />
-            <Star className="absolute top-2 right-10 h-0.5 w-0.5 text-foreground/70 fill-foreground/70" />
-            <Star className="absolute top-1.5 left-10 h-1 w-1 text-foreground/60 fill-foreground/60" />
+            <Star className="absolute top-1 right-6 h-1 w-1 text-foreground fill-foreground" />
+            <Star className="absolute top-2 left-7 h-0.5 w-0.5 text-foreground/60 fill-foreground/60" />
           </div>
         </div>
 
@@ -55,6 +53,15 @@ export const ThemeSelector = () => {
             <Sun className="h-3 w-3 text-primary-foreground" />
           )}
         </div>
+
+        {/* Label */}
+        <span className={`absolute top-1/2 -translate-y-1/2 text-[10px] font-medium transition-all duration-500 ${
+          isDark 
+            ? 'left-7 text-foreground' 
+            : 'right-7 text-foreground'
+        }`}>
+          {isDark ? 'ليلي' : 'نهاري'}
+        </span>
       </button>
     </div>
   );
