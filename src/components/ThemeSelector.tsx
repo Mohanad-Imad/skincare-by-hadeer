@@ -17,7 +17,7 @@ export const ThemeSelector = () => {
   const isDark = theme === "dark";
 
   return (
-    <div className="px-2 py-2 flex justify-center">
+    <div className="px-2 py-2">
       <button
         onClick={() => setTheme(isDark ? "light" : "dark")}
         className="relative h-7 w-24 rounded-full bg-gradient-to-r from-primary/20 to-accent dark:from-accent dark:to-muted transition-all duration-500 overflow-hidden shadow-sm hover:shadow-md border border-border"
