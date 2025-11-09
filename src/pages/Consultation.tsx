@@ -178,8 +178,10 @@ export default function Consultation() {
       toast.success("تم إرسال الاستشارة بنجاح! سنتواصل معك قريباً");
       navigate("/my-orders");
     } catch (error: any) {
-      console.error("Error submitting consultation:", error);
-      toast.error("حدث خطأ أثناء إرسال الاستشارة");
+      if (import.meta.env.DEV) {
+        console.error("Error submitting consultation:", error);
+      }
+      toast.error("حدث خطأ أثناء إرسال الاستشارة. يرجى المحاولة مرة أخرى");
     } finally {
       setIsSubmitting(false);
     }

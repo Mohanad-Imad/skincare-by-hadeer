@@ -86,7 +86,9 @@ const Auth = () => {
       clearLocalCart();
       toast.success("تم نقل منتجات السلة بنجاح");
     } catch (error) {
-      console.error("Error migrating cart:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error migrating cart:", error);
+      }
     }
   };
 
@@ -146,7 +148,9 @@ const Auth = () => {
       setConfirmPassword("");
       navigate("/");
     } catch (error: any) {
-      console.error("Password update error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Password update error:", error);
+      }
       toast.error("فشل تحديث كلمة المرور. يرجى المحاولة مرة أخرى");
     } finally {
       setLoading(false);
@@ -173,7 +177,9 @@ const Auth = () => {
       
       // OAuth will handle the redirect, user data migration will happen after redirect
     } catch (error: any) {
-      console.error("Google auth error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Google auth error:", error);
+      }
       toast.error("فشل تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى");
       setLoading(false);
     }
@@ -236,7 +242,9 @@ const Auth = () => {
         navigate(redirectTo);
       }
     } catch (error: any) {
-      console.error("Auth error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Auth error:", error);
+      }
       toast.error(isLogin ? "فشل تسجيل الدخول. يرجى التحقق من البيانات" : "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى");
     } finally {
       setLoading(false);

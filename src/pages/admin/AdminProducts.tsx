@@ -494,7 +494,9 @@ const AdminProducts = () => {
       setProductImages([...productImages, ...uploadedUrls]);
       toast.success("تم رفع الصور بنجاح");
     } catch (error) {
-      console.error("Error uploading images:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error uploading images:", error);
+      }
       toast.error("حدث خطأ أثناء رفع الصور");
     } finally {
       setUploadingImages(false);

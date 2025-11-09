@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<any>(null);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
+  const lastDiscountAttempt = useRef<number>(0);
   const { data: discounts } = useProductDiscounts();
 
   const { data: shippingSettings } = useQuery({
@@ -79,11 +80,32 @@ const Checkout = () => {
   });
 
   const applyDiscountCode = async () => {
-    if (!discountCode.trim()) {
+    const code = discountCode.trim();
+    
+    if (!code) {
       toast.error("الرجاء إدخال كود الخصم");
       return;
     }
 
+    // Rate limiting: 2 second cooldown
+    const now = Date.now();
+    if (now - lastDiscountAttempt.current < 2000) {
+      toast.error("الرجاء الانتظار قبل المحاولة مرة أخرى");
+      return;
+    }
+
+    // Validate format and length
+    if (code.length > 50) {
+      toast.error("كود الخصم طويل جداً");
+      return;
+    }
+
+    if (!/^[A-Z0-9]+$/i.test(code)) {
+      toast.error("كود الخصم يجب أن يحتوي على أحرف وأرقام فقط");
+      return;
+    }
+
+    lastDiscountAttempt.current = now;
     setIsCheckingCode(true);
     try {
       const { data, error } = await supabase
@@ -113,8 +135,10 @@ const Checkout = () => {
       setAppliedDiscount(data);
       toast.success(`تم تطبيق الخصم ${data.discount_percentage}%`);
     } catch (error) {
-      console.error("Error applying discount:", error);
-      toast.error("حدث خطأ أثناء تطبيق الخصم");
+      if (import.meta.env.DEV) {
+        console.error("Error applying discount:", error);
+      }
+      toast.error("حدث خطأ أثناء تطبيق كود الخصم");
     } finally {
       setIsCheckingCode(false);
     }
@@ -225,8 +249,10 @@ const Checkout = () => {
       navigate("/order-confirmation");
     },
     onError: (error) => {
-      console.error("Error creating order:", error);
-      toast.error("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى");
+      if (import.meta.env.DEV) {
+        console.error("Error creating order:", error);
+      }
+      toast.error("حدث خطأ أثناء إنشاء الطلب. يرجى المحاولة مرة أخرى");
     },
   });
 

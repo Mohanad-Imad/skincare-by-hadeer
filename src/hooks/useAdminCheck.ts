@@ -32,7 +32,9 @@ export const useAdminCheck = () => {
 
         setIsAdmin(data);
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error checking admin status:", error);
+        }
         toast.error("حدث خطأ. يرجى المحاولة مرة أخرى");
         navigate("/");
       } finally {
