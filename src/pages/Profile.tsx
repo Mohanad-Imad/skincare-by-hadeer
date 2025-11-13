@@ -41,7 +41,7 @@ export default function Profile() {
     queryFn: async () => {
       if (!session?.user?.id) return null;
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("*")
         .eq("id", session.user.id)

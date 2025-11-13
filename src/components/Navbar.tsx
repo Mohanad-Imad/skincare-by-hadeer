@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, User, Package, Shield, LogOut, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu, Grid3x3, ChevronDown } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu, Grid3x3, ChevronDown } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
@@ -19,7 +18,6 @@ export const Navbar = () => {
   const { getLocalCartCount } = useLocalCart();
   const [isOpen, setIsOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -55,10 +53,27 @@ export const Navbar = () => {
     enabled: !!session?.user?.id,
   });
 
+  const { data: profile } = useQuery<{ full_name: string; avatar_url: string } | null>({
+    queryKey: ["navbar-profile", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await (supabase as any)
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) return null;
+      return data as { full_name: string; avatar_url: string };
+    },
+    enabled: !!session?.user?.id,
+  });
+
   const { data: categories = [] } = useQuery<any[]>({
     queryKey: ["navbar-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("categories")
         .select("*")
         .is("parent_category_id", null)
@@ -72,7 +87,7 @@ export const Navbar = () => {
   const { data: subCategories = [] } = useQuery<any[]>({
     queryKey: ["navbar-sub-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("categories")
         .select("*")
         .not("parent_category_id", "is", null)
@@ -84,16 +99,6 @@ export const Navbar = () => {
   });
 
   const displayCartCount = session?.user ? cartCount : getLocalCartCount();
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    await queryClient.invalidateQueries({ queryKey: ["session"] });
-    await queryClient.invalidateQueries({ queryKey: ["is-admin"] });
-    await queryClient.invalidateQueries({ queryKey: ["cart-count"] });
-    toast.success("تم تسجيل الخروج بنجاح");
-    navigate("/");
-    setIsOpen(false);
-  };
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -269,14 +274,21 @@ export const Navbar = () => {
               
               <div className="px-2">
                 {session ? (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2"
-                    onClick={handleLogout}
+                  <button
+                    onClick={() => handleNavigate("/profile")}
+                    className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                   >
-                    <LogOut className="h-4 w-4" />
-                    تسجيل الخروج
-                  </Button>
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 text-right">
+                      <p className="font-medium text-sm">{profile?.full_name || "مستخدم"}</p>
+                      <p className="text-xs text-muted-foreground">{session.user.email}</p>
+                    </div>
+                  </button>
                 ) : (
                   <Button
                     variant="ghost"
@@ -435,10 +447,18 @@ export const Navbar = () => {
             </Button>
             
             {session ? (
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1.5">
-                <LogOut className="h-4 w-4" />
-                خروج
-              </Button>
+              <button
+                onClick={() => navigate("/profile")}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-accent transition-colors"
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url} />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                    {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{profile?.full_name || "حسابي"}</span>
+              </button>
             ) : (
               <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
                 <User className="h-4 w-4" />

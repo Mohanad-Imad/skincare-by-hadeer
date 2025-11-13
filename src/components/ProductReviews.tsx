@@ -37,7 +37,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
     queryFn: async () => {
       if (!session?.user?.id) return null;
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("full_name, avatar_url")
         .eq("id", session.user.id)
