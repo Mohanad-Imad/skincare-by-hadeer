@@ -106,7 +106,7 @@ const AdminStoreSettings = () => {
 
       const adjustmentAmount = adjustmentType === "increase" ? amount : -amount;
 
-      const { data, error } = await supabase.rpc("update_all_product_prices", {
+      const { data, error } = await supabase.rpc("update_all_product_prices" as any, {
         amount_to_add: adjustmentAmount,
         p_change_type: adjustmentType,
         p_admin_id: user.id,
