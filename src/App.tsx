@@ -46,6 +46,7 @@ import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
 import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
 import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
 import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
+import AdminNotifications from "./pages/admin/AdminNotifications";
 import SubmitReview from "./pages/SubmitReview";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingReviewButton } from "./components/FloatingReviewButton";
@@ -85,6 +86,8 @@ const App = () => (
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="customer-reviews" element={<AdminCustomerReviews />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="categories" element={<AdminCategories />} />
@@ -103,7 +106,6 @@ const App = () => (
             <Route path="makeup-banner" element={<AdminMakeupBanner />} />
             <Route path="makeup-categories" element={<AdminMakeupCategories />} />
             <Route path="store-settings" element={<AdminStoreSettings />} />
-            <Route path="customer-reviews" element={<AdminCustomerReviews />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

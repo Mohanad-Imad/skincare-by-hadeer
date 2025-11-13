@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -11,10 +11,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 
 const menuItems = [
   { title: "الصفحة الرئيسية", url: "/admin", icon: Home },
   { title: "الإحصائيات", url: "/admin/analytics", icon: BarChart3 },
+  { title: "الإشعارات", url: "/admin/notifications", icon: Bell, showBadge: true },
+  { title: "آراء العملاء", url: "/admin/customer-reviews", icon: MessageCircleMore },
   { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "الاستشارات", url: "/admin/consultations", icon: MessageSquare },
@@ -37,6 +41,7 @@ const menuItems = [
 
 export function AdminSidebar() {
   const { setOpenMobile, setOpen, isMobile } = useSidebar();
+  const { data: unreadCount } = useUnreadNotifications();
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -64,6 +69,11 @@ export function AdminSidebar() {
                     >
                       <item.icon className="ml-2 h-4 w-4" />
                       <span>{item.title}</span>
+                      {item.showBadge && unreadCount && unreadCount > 0 && (
+                        <Badge variant="destructive" className="mr-auto">
+                          {unreadCount}
+                        </Badge>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
