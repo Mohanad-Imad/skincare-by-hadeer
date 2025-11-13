@@ -348,9 +348,9 @@ const AdminCategories = () => {
                     </TableCell>
                     <TableCell className="font-bold">{mainCategory.name_ar}</TableCell>
                     <TableCell className="font-bold">{mainCategory.name_en}</TableCell>
-                    <TableCell>{mainCategory.display_order}</TableCell>
+                    <TableCell>{(mainCategory as any).display_order || 0}</TableCell>
                     <TableCell>
-                      {mainCategory.is_active ? (
+                      {(mainCategory as any).is_active ? (
                         <span className="flex items-center gap-1 text-green-600">
                           <Eye className="h-4 w-4" />
                           نشط
@@ -397,9 +397,9 @@ const AdminCategories = () => {
                         </TableCell>
                         <TableCell className="pr-8">↳ {subCategory.name_ar}</TableCell>
                         <TableCell>↳ {subCategory.name_en}</TableCell>
-                        <TableCell>{subCategory.display_order}</TableCell>
+                        <TableCell>{(subCategory as any).display_order || 0}</TableCell>
                         <TableCell>
-                          {subCategory.is_active ? (
+                          {(subCategory as any).is_active ? (
                             <span className="flex items-center gap-1 text-green-600">
                               <Eye className="h-4 w-4" />
                               نشط
