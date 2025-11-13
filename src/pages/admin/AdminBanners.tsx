@@ -141,7 +141,7 @@ const AdminBanners = () => {
     setIsDialogOpen(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, imageType: 'desktop' | 'tablet' | 'mobile') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -171,7 +171,7 @@ const AdminBanners = () => {
         data: { publicUrl },
       } = supabase.storage.from("product-images").getPublicUrl(filePath);
 
-      setFormData({ ...formData, image_url: publicUrl });
+      setFormData({ ...formData, [`image_url_${imageType}`]: publicUrl });
       toast.success("تم رفع الصورة بنجاح");
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -224,30 +224,19 @@ const AdminBanners = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>صورة البنر *</Label>
-                {formData.image_url && (
-                  <img
-                    src={formData.image_url}
-                    alt="Preview"
-                    className="h-32 w-full rounded object-cover"
-                  />
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={uploading}
-                    size="icon"
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Label>صورة Desktop</Label>
+                <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
+                {formData.image_url_desktop && <img src={formData.image_url_desktop} className="mt-2 h-20 rounded" />}
+              </div>
+              <div className="space-y-2">
+                <Label>صورة Tablet</Label>
+                <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'tablet'); }} />
+                {formData.image_url_tablet && <img src={formData.image_url_tablet} className="mt-2 h-20 rounded" />}
+              </div>
+              <div className="space-y-2">
+                <Label>صورة Mobile</Label>
+                <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'mobile'); }} />
+                {formData.image_url_mobile && <img src={formData.image_url_mobile} className="mt-2 h-20 rounded" />}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="link_url">رابط البنر</Label>
