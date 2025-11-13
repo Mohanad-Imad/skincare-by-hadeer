@@ -66,6 +66,8 @@ export default function AdminNotifications() {
     
     if (notification.related_table === "customer_reviews") {
       navigate("/admin/customer-reviews");
+    } else if (notification.related_table === "orders") {
+      navigate("/admin/orders");
     }
   };
 
