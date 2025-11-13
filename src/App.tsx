@@ -46,6 +46,7 @@ import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
 import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
 import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
 import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
+import AdminProductReviews from "./pages/admin/AdminProductReviews";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import SubmitReview from "./pages/SubmitReview";
 import ScrollToTop from "./components/ScrollToTop";
@@ -88,6 +89,7 @@ const App = () => (
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="customer-reviews" element={<AdminCustomerReviews />} />
+            <Route path="product-reviews" element={<AdminProductReviews />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="categories" element={<AdminCategories />} />

@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore, Star } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -19,6 +19,7 @@ const menuItems = [
   { title: "الإحصائيات", url: "/admin/analytics", icon: BarChart3 },
   { title: "الإشعارات", url: "/admin/notifications", icon: Bell, showBadge: true },
   { title: "آراء العملاء", url: "/admin/customer-reviews", icon: MessageCircleMore },
+  { title: "تقييمات المنتجات", url: "/admin/product-reviews", icon: Star },
   { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "الاستشارات", url: "/admin/consultations", icon: MessageSquare },
