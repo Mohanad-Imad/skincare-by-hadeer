@@ -234,25 +234,14 @@ export const Navbar = () => {
                 </Button>
 
                 {session && (
-                  <>
-                    <Button
-                      variant={isActive("/profile") ? "default" : "ghost"}
-                      className="justify-start gap-2"
-                      onClick={() => handleNavigate("/profile")}
-                    >
-                      <User className="h-4 w-4" />
-                      حسابي
-                    </Button>
-                    
-                    <Button
-                      variant={isActive("/my-orders") ? "default" : "ghost"}
-                      className="justify-start gap-2"
-                      onClick={() => handleNavigate("/my-orders")}
-                    >
-                      <Package className="h-4 w-4" />
-                      طلباتي
-                    </Button>
-                  </>
+                  <Button
+                    variant={isActive("/my-orders") ? "default" : "ghost"}
+                    className="justify-start gap-2"
+                    onClick={() => handleNavigate("/my-orders")}
+                  >
+                    <Package className="h-4 w-4" />
+                    طلباتي
+                  </Button>
                 )}
 
                 {isAdmin && (
@@ -376,27 +365,15 @@ export const Navbar = () => {
           </Button>
 
           {session && (
-            <>
-              <Button
-                variant={isActive("/profile") ? "default" : "ghost"}
-                size="sm"
-                onClick={() => navigate("/profile")}
-                className="gap-1.5"
-              >
-                <User className="h-4 w-4" />
-                حسابي
-              </Button>
-              
-              <Button
-                variant={isActive("/my-orders") ? "default" : "ghost"}
-                size="sm"
-                onClick={() => navigate("/my-orders")}
-                className="gap-1.5"
-              >
-                <Package className="h-4 w-4" />
-                طلباتي
-              </Button>
-            </>
+            <Button
+              variant={isActive("/my-orders") ? "default" : "ghost"}
+              size="sm"
+              onClick={() => navigate("/my-orders")}
+              className="gap-1.5"
+            >
+              <Package className="h-4 w-4" />
+              طلباتي
+            </Button>
           )}
 
           {isAdmin && (
@@ -412,17 +389,26 @@ export const Navbar = () => {
           )}
         </div>
 
-        {/* Right Side: Cart (mobile) & Logo (mobile center) / Cart & Auth (desktop right) */}
+        {/* Right Side: Avatar (mobile) & Logo (mobile center) / Cart & Auth (desktop right) */}
         <div className="flex items-center gap-2">
-          {/* Cart - Mobile Only */}
-          <Button variant="ghost" size="sm" className="relative lg:hidden" onClick={() => navigate("/cart")}>
-            <ShoppingCart className="h-4 w-4" />
-            {displayCartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                {displayCartCount}
-              </span>
-            )}
-          </Button>
+          {/* Avatar - Mobile Only */}
+          {session ? (
+            <button
+              onClick={() => navigate("/profile")}
+              className="lg:hidden flex items-center gap-2"
+            >
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                  {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          ) : (
+            <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => navigate("/auth")}>
+              <User className="h-4 w-4" />
+            </Button>
+          )}
 
           {/* Logo - Mobile Only (centered with absolute positioning) */}
           <h1 
