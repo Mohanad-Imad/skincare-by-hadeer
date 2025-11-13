@@ -63,24 +63,95 @@ export const HeroBanner = () => {
         onMouseLeave={plugin.current.reset}
       >
         <CarouselContent>
-          {banners.map((banner) => (
-            <CarouselItem key={banner.id}>
-              <div className="relative h-[175px] md:h-[300px] lg:h-[400px] xl:h-[500px] 2xl:h-[600px] overflow-hidden rounded-2xl">
-                {/* صورة الخلفية */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{
-                    backgroundImage: `url(${banner.image_url})`,
-                  }}
-                >
-                  {/* طبقة شفافة للتباين */}
-                  <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/50 to-black/30" />
-                </div>
+          {banners.map((banner: any) => {
+            const desktopImage = banner.image_url_desktop || banner.image_url;
+            const tabletImage = banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
+            const mobileImage = banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
+            
+            return banner.link_url ? (
+              <CarouselItem key={banner.id}>
+                <Link to={banner.link_url} className="cursor-pointer block">
+                  <div className="relative h-[175px] md:h-[300px] lg:h-[400px] xl:h-[500px] 2xl:h-[600px] overflow-hidden rounded-2xl group">
+                    {/* صورة الخلفية - responsive */}
+                    <div className="absolute inset-0">
+                      {/* Mobile image */}
+                      <div
+                        className="absolute inset-0 bg-cover bg-center md:hidden"
+                        style={{
+                          backgroundImage: `url(${mobileImage})`,
+                        }}
+                      />
+                      {/* Tablet image */}
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hidden md:block lg:hidden"
+                        style={{
+                          backgroundImage: `url(${tabletImage})`,
+                        }}
+                      />
+                      {/* Desktop image */}
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hidden lg:block"
+                        style={{
+                          backgroundImage: `url(${desktopImage})`,
+                        }}
+                      />
+                      {/* طبقة شفافة للتباين */}
+                      <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/50 to-black/30 group-hover:from-black/60 group-hover:via-black/40 group-hover:to-black/20 transition-all duration-300" />
+                    </div>
 
-                {/* المحتوى */}
-                <div className="container relative z-10 flex h-full flex-col justify-end">
-                  {(banner.title_ar || banner.description_ar) && (
-                    <div className="flex-1 flex items-center justify-center">
+                    {/* المحتوى */}
+                    <div className="container relative z-10 flex h-full flex-col justify-center items-center">
+                      {(banner.title_ar || banner.description_ar) && (
+                        <div className="max-w-2xl space-y-1 md:space-y-2 text-center">
+                          {banner.title_ar && (
+                            <h1 className="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight text-white drop-shadow-2xl animate-fade-in tracking-tight">
+                              {banner.title_ar}
+                            </h1>
+                          )}
+                          {banner.description_ar && (
+                            <p className="text-sm md:text-lg lg:text-xl text-white font-medium drop-shadow-lg animate-fade-in [animation-delay:200ms] leading-relaxed">
+                              {banner.description_ar}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              </CarouselItem>
+            ) : (
+              <CarouselItem key={banner.id}>
+                <div className="relative h-[175px] md:h-[300px] lg:h-[400px] xl:h-[500px] 2xl:h-[600px] overflow-hidden rounded-2xl">
+                  {/* صورة الخلفية - responsive */}
+                  <div className="absolute inset-0">
+                    {/* Mobile image */}
+                    <div
+                      className="absolute inset-0 bg-cover bg-center md:hidden"
+                      style={{
+                        backgroundImage: `url(${mobileImage})`,
+                      }}
+                    />
+                    {/* Tablet image */}
+                    <div
+                      className="absolute inset-0 bg-cover bg-center hidden md:block lg:hidden"
+                      style={{
+                        backgroundImage: `url(${tabletImage})`,
+                      }}
+                    />
+                    {/* Desktop image */}
+                    <div
+                      className="absolute inset-0 bg-cover bg-center hidden lg:block"
+                      style={{
+                        backgroundImage: `url(${desktopImage})`,
+                      }}
+                    />
+                    {/* طبقة شفافة للتباين */}
+                    <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/50 to-black/30" />
+                  </div>
+
+                  {/* المحتوى */}
+                  <div className="container relative z-10 flex h-full flex-col justify-center items-center">
+                    {(banner.title_ar || banner.description_ar) && (
                       <div className="max-w-2xl space-y-1 md:space-y-2 text-center">
                         {banner.title_ar && (
                           <h1 className="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight text-white drop-shadow-2xl animate-fade-in tracking-tight">
@@ -93,25 +164,12 @@ export const HeroBanner = () => {
                           </p>
                         )}
                       </div>
-                    </div>
-                  )}
-                  {banner.link_url && (
-                    <div className="flex justify-center pb-3 md:pb-4 lg:pb-6 animate-fade-in [animation-delay:400ms]">
-                      <Button
-                        asChild
-                        size="default"
-                        className="bg-white hover:bg-white/90 text-primary font-bold text-xs md:text-base lg:text-lg px-4 md:px-6 lg:px-8 py-2 md:py-3 lg:py-4 rounded-full shadow-2xl hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 hover:scale-110"
-                      >
-                        <Link to={banner.link_url}>
-                          {banner.button_text_ar}
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            </CarouselItem>
-          ))}
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
       </Carousel>
       {banners.length > 1 && (
