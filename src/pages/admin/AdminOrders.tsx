@@ -170,13 +170,13 @@ const AdminOrders = () => {
   const printThermalLabel = async (order: any) => {
     // Fetch store settings
     const { data: storeSettings } = await supabase
-      .from("store_settings")
+      .from("store_settings" as any)
       .select("*")
       .limit(1)
       .single();
     
-    const storeName = storeSettings?.store_name || "اسم المتجر";
-    const currency = storeSettings?.currency || "ريال";
+    const storeName = (storeSettings as any)?.store_name || "اسم المتجر";
+    const currency = (storeSettings as any)?.currency || "ريال";
     
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;

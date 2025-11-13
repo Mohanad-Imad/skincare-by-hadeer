@@ -19,12 +19,12 @@ const AdminStoreSettings = () => {
     queryKey: ["store-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("store_settings")
+        .from("store_settings" as any)
         .select("*")
         .limit(1)
         .single();
       if (error) throw error;
-      return data;
+      return data as any;
     },
   });
 
@@ -40,20 +40,20 @@ const AdminStoreSettings = () => {
       if (!settings?.id) {
         // Create new settings
         const { error } = await supabase
-          .from("store_settings")
+          .from("store_settings" as any)
           .insert({
             store_name: storeName,
             currency: currency,
-          });
+          } as any);
         if (error) throw error;
       } else {
         // Update existing settings
         const { error } = await supabase
-          .from("store_settings")
+          .from("store_settings" as any)
           .update({
             store_name: storeName,
             currency: currency,
-          })
+          } as any)
           .eq("id", settings.id);
         if (error) throw error;
       }
