@@ -35,7 +35,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["product-reviews", productId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("product_reviews")
         .select("*")
         .eq("product_id", productId)
@@ -53,7 +53,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
         throw new Error("يجب تسجيل الدخول لإضافة تقييم");
       }
 
-      const { error } = await supabase.from("product_reviews").insert({
+      const { error } = await (supabase as any).from("product_reviews").insert({
         product_id: productId,
         user_id: session.user.id,
         rating: reviewData.rating,
@@ -96,12 +96,12 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   };
 
   const averageRating = reviews?.length
-    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    ? (reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length).toFixed(1)
     : "0";
 
   const ratingDistribution = [5, 4, 3, 2, 1].map((star) => ({
     stars: star,
-    count: reviews?.filter((r) => r.rating === star).length || 0,
+    count: reviews?.filter((r: any) => r.rating === star).length || 0,
   }));
 
   return (
@@ -249,7 +249,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
             </CardContent>
           </Card>
         ) : (
-          reviews.map((review) => (
+          reviews.map((review: any) => (
             <Card key={review.id}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">

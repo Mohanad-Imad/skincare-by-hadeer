@@ -17,7 +17,7 @@ export default function AdminProductReviews() {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["admin-product-reviews"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("product_reviews")
         .select(`
           *,
@@ -31,12 +31,12 @@ export default function AdminProductReviews() {
       if (error) throw error;
       return data;
     },
-    enabled: isAdmin,
+    enabled: isAdmin === true,
   });
 
   const updateReviewMutation = useMutation({
     mutationFn: async ({ id, is_approved }: { id: string; is_approved: boolean }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("product_reviews")
         .update({ is_approved })
         .eq("id", id);
@@ -54,7 +54,7 @@ export default function AdminProductReviews() {
 
   const deleteReviewMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("product_reviews").delete().eq("id", id);
+      const { error } = await (supabase as any).from("product_reviews").delete().eq("id", id);
 
       if (error) throw error;
     },
