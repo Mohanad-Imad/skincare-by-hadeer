@@ -232,9 +232,9 @@ export default function Profile() {
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Profile Header */}
           <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="relative">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <div className="relative flex-shrink-0">
                   <Avatar className="h-24 w-24">
                     <AvatarImage src={avatarPreview || profile?.avatar_url} />
                     <AvatarFallback className="text-2xl">
@@ -258,7 +258,7 @@ export default function Profile() {
                   )}
                 </div>
                 
-                <div className="flex-1 text-center md:text-right">
+                <div className="flex-1 w-full text-center md:text-right">
                   {isEditing ? (
                     <div className="space-y-3">
                       <div>
@@ -269,7 +269,7 @@ export default function Profile() {
                           placeholder="أدخل اسمك الكامل"
                         />
                       </div>
-                      <div className="grid md:grid-cols-2 gap-3">
+                      <div className="grid gap-3 md:grid-cols-2">
                         <div>
                           <Label>رقم الهاتف</Label>
                           <Input
@@ -295,22 +295,22 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <h2 className="text-2xl font-bold">{profile?.full_name || "مستخدم جديد"}</h2>
-                      <div className="flex flex-col md:flex-row gap-4 text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          <span>{session.user.email}</span>
+                      <h2 className="text-xl md:text-2xl font-bold break-words">{profile?.full_name || "مستخدم جديد"}</h2>
+                      <div className="flex flex-col gap-2 text-sm md:text-base text-muted-foreground">
+                        <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
+                          <Mail className="h-4 w-4 flex-shrink-0" />
+                          <span className="break-all">{session.user.email}</span>
                         </div>
                         {profile?.phone && (
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4" />
+                          <div className="flex items-center justify-center md:justify-start gap-2">
+                            <Phone className="h-4 w-4 flex-shrink-0" />
                             <span>{profile.phone}</span>
                           </div>
                         )}
                         {profile?.address && (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{profile.address}</span>
+                          <div className="flex items-center justify-center md:justify-start gap-2">
+                            <MapPin className="h-4 w-4 flex-shrink-0" />
+                            <span className="break-words line-clamp-2">{profile.address}</span>
                           </div>
                         )}
                       </div>
@@ -318,12 +318,13 @@ export default function Profile() {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-full md:w-auto flex-shrink-0">
                   {isEditing ? (
                     <>
                       <Button
                         onClick={() => updateProfileMutation.mutate()}
                         disabled={updateProfileMutation.isPending}
+                        className="w-full md:w-auto"
                       >
                         حفظ التغييرات
                       </Button>
@@ -337,17 +338,18 @@ export default function Profile() {
                           setAvatarPreview(profile?.avatar_url || "");
                           setAvatarFile(null);
                         }}
+                        className="w-full md:w-auto"
                       >
                         إلغاء
                       </Button>
                     </>
                   ) : (
                     <>
-                      <Button onClick={() => setIsEditing(true)}>
+                      <Button onClick={() => setIsEditing(true)} className="w-full md:w-auto">
                         <User className="ml-2 h-4 w-4" />
                         تعديل البروفايل
                       </Button>
-                      <Button variant="destructive" onClick={handleLogout}>
+                      <Button variant="destructive" onClick={handleLogout} className="w-full md:w-auto">
                         <LogOut className="ml-2 h-4 w-4" />
                         تسجيل الخروج
                       </Button>
