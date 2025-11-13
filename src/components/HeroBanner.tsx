@@ -12,7 +12,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { useRef, useState, useEffect } from "react";
 
 export const HeroBanner = () => {
-  const plugin = useRef(Autoplay({ delay: 3200, stopOnInteraction: true }));
+  const plugin = useRef(Autoplay({ delay: 3200, stopOnInteraction: false }));
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
@@ -56,6 +56,7 @@ export const HeroBanner = () => {
         className="w-full overflow-hidden rounded-2xl"
         opts={{
           align: "start",
+          loop: true,
           direction: "rtl",
         }}
         setApi={setApi}
