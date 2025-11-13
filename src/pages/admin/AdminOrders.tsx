@@ -167,11 +167,22 @@ const AdminOrders = () => {
   }, [orders, statusFilter, dateFrom, dateTo]);
 
   // Print thermal label for an order
-  const printThermalLabel = (order: any) => {
+  const printThermalLabel = async (order: any) => {
+    // Fetch store settings
+    const { data: storeSettings } = await supabase
+      .from("store_settings")
+      .select("*")
+      .limit(1)
+      .single();
+    
+    const storeName = storeSettings?.store_name || "اسم المتجر";
+    const currency = storeSettings?.currency || "ريال";
+    
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     const orderItems = order.order_items || [];
+    const totalItems = orderItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
     const itemsList = orderItems.map((item: any) => 
       `${item.product_name_ar} - ${item.variant_size_ar} × ${item.quantity}`
     ).join('<br>');
@@ -238,7 +249,7 @@ const AdminOrders = () => {
         </style>
       </head>
       <body>
-        <div class="header">اسم المتجر</div>
+        <div class="header">${storeName}</div>
         <div class="order-id">طلب #${order.id.slice(0, 8)}</div>
         
         <div class="section">
@@ -256,13 +267,18 @@ const AdminOrders = () => {
           <div class="value">${order.customer_address}</div>
         </div>
         
+        <div class="section">
+          <div class="label">عدد المنتجات:</div>
+          <div class="value">${totalItems}</div>
+        </div>
+        
         <div class="items">
-          <div class="label">المنتجات:</div>
+          <div class="label">تفاصيل المنتجات:</div>
           <div class="value">${itemsList}</div>
         </div>
         
         <div class="total">
-          الإجمالي: ${Math.round(Number(order.total_amount))} ريال
+          الإجمالي: ${Math.round(Number(order.total_amount))} ${currency}
         </div>
         
         ${order.notes ? `
