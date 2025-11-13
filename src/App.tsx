@@ -49,6 +49,7 @@ import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
 import AdminProductReviews from "./pages/admin/AdminProductReviews";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminInventory from "./pages/admin/AdminInventory";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="inventory" element={<AdminInventory />} />
             <Route path="customer-reviews" element={<AdminCustomerReviews />} />
             <Route path="product-reviews" element={<AdminProductReviews />} />
             <Route path="products" element={<AdminProducts />} />

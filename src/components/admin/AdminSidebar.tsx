@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore, Star, Users } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore, Star, Users, Boxes } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -22,6 +22,7 @@ const menuItems = [
   { title: "آراء العملاء", url: "/admin/customer-reviews", icon: MessageCircleMore },
   { title: "تقييمات المنتجات", url: "/admin/product-reviews", icon: Star },
   { title: "المنتجات", url: "/admin/products", icon: Package },
+  { title: "المخزون", url: "/admin/inventory", icon: Boxes },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "الاستشارات", url: "/admin/consultations", icon: MessageSquare },
   { title: "روتين المشاهير", url: "/admin/celebrity-routines", icon: Sparkles },

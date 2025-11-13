@@ -79,10 +79,17 @@ const ProductDetails = () => {
     staleTime: 0,
   });
 
-  // تعيين أول variant تلقائياً عند تحميل المنتج
+  // تعيين أول variant متاح تلقائياً عند تحميل المنتج
   useEffect(() => {
     if (product && product.product_variants && product.product_variants.length > 0 && !selectedVariant) {
-      setSelectedVariant(product.product_variants[0].id);
+      // اختيار أول variant متاح (غير منفذ)
+      const availableVariant = product.product_variants.find((v: any) => v.stock_quantity > 0);
+      if (availableVariant) {
+        setSelectedVariant(availableVariant.id);
+      } else {
+        // إذا كانت جميع الأحجام منفذة، اختر الأول
+        setSelectedVariant(product.product_variants[0].id);
+      }
     }
   }, [product, selectedVariant]);
   const handleAddToCart = () => {
@@ -90,6 +97,12 @@ const ProductDetails = () => {
 
     const variantData = product.product_variants.find((v: any) => v.id === selectedVariant);
     if (!variantData) return;
+
+    // التحقق من توفر المخزون
+    if (variantData.stock_quantity === 0) {
+      toast.error("عذراً، هذا الحجم غير متوفر حالياً");
+      return;
+    }
 
     // حساب السعر النهائي بعد الخصم
     const discount = calculateDiscount(product.id, variantData.price, discounts);
@@ -333,13 +346,34 @@ const ProductDetails = () => {
                 <div className="space-y-3">
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
+                    const isOutOfStock = variant.stock_quantity === 0;
                     
                     return (
-                      <div key={variant.id} className="flex items-center justify-between rounded-lg border p-4">
+                      <div 
+                        key={variant.id} 
+                        className={`flex items-center justify-between rounded-lg border p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
+                      >
                         <div className="flex items-center space-x-2 space-x-reverse">
-                          <RadioGroupItem value={variant.id} id={variant.id} />
-                          <Label htmlFor={variant.id} className="cursor-pointer">
+                          <RadioGroupItem 
+                            value={variant.id} 
+                            id={variant.id} 
+                            disabled={isOutOfStock}
+                          />
+                          <Label 
+                            htmlFor={variant.id} 
+                            className={`${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                          >
                             {variant.size_ar}
+                            {isOutOfStock && (
+                              <Badge variant="destructive" className="mr-2">
+                                نفذت الكمية
+                              </Badge>
+                            )}
+                            {!isOutOfStock && variant.stock_quantity <= 5 && (
+                              <Badge variant="secondary" className="mr-2">
+                                متبقي {variant.stock_quantity}
+                              </Badge>
+                            )}
                           </Label>
                         </div>
                         <div className="flex flex-col items-end gap-1">
