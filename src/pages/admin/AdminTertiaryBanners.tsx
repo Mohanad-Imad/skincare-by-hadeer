@@ -182,7 +182,7 @@ const AdminTertiaryBanners = () => {
     setIsDialogOpen(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, imageType: 'desktop' | 'tablet' | 'mobile') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -200,7 +200,7 @@ const AdminTertiaryBanners = () => {
         data: { publicUrl },
       } = supabase.storage.from("product-images").getPublicUrl(filePath);
 
-      setFormData({ ...formData, image_url: publicUrl });
+      setFormData({ ...formData, [`image_url_${imageType}`]: publicUrl });
       toast.success("تم رفع الصورة بنجاح");
     } catch (error) {
       toast.error("حدث خطأ أثناء رفع الصورة");
@@ -292,20 +292,19 @@ const AdminTertiaryBanners = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="image">صورة البنر</Label>
-                      <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                      {formData.image_url && (
-                        <img
-                          src={formData.image_url}
-                          alt="Preview"
-                          className="mt-2 h-32 w-full object-cover rounded"
-                        />
-                      )}
+                      <Label>صورة Desktop</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
+                      {formData.image_url_desktop && <img src={formData.image_url_desktop} className="mt-2 h-20 rounded" />}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>صورة Tablet</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'tablet'); }} />
+                      {formData.image_url_tablet && <img src={formData.image_url_tablet} className="mt-2 h-20 rounded" />}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>صورة Mobile</Label>
+                      <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'mobile'); }} />
+                      {formData.image_url_mobile && <img src={formData.image_url_mobile} className="mt-2 h-20 rounded" />}
                     </div>
 
                     <div className="space-y-2">
