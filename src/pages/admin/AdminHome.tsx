@@ -17,6 +17,7 @@ import {
   Truck,
   Grid3x3,
   Palette,
+  Settings,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -137,6 +138,12 @@ const AdminHome = () => {
       description: "تكوين خيارات التوصيل",
       icon: Truck,
       route: "/admin/shipping-settings",
+    },
+    {
+      title: "إعدادات المتجر",
+      description: "اسم المتجر والعملة",
+      icon: Settings,
+      route: "/admin/store-settings",
     },
   ];
 
