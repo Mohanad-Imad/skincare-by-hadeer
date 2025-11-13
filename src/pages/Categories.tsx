@@ -148,7 +148,7 @@ const Categories = () => {
                             return (
                               <Link
                                 key={subCategory.id}
-                                to={`/products?category=${subCategory.id}`}
+                                to={`/products?category=${category.id}&subCategory=${subCategory.id}`}
                                 className="group flex flex-col items-center p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md bg-card"
                               >
                                 {subCategory.image_url && (
