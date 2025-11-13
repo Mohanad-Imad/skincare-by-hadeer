@@ -403,7 +403,7 @@ const Products = () => {
 
         {/* Products Grid */}
         {isLoading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {Array.from({ length: itemsPerPage }).map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="aspect-square w-full" />
@@ -414,7 +414,7 @@ const Products = () => {
           </div>
         ) : products && products.length > 0 ? (
           <>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {products.map((product) => {
                 const discount = product.minPrice 
                   ? calculateDiscount(product.id, product.minPrice, discounts)

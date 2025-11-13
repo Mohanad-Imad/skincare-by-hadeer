@@ -26,12 +26,12 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
       className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg h-full flex flex-col"
       onClick={() => navigate(`/products/${id}`)}
     >
-      <div className="aspect-[3/4] overflow-hidden bg-background p-1 relative flex-shrink-0">
-        <div className="absolute top-0 left-0 z-10 overflow-hidden w-24 h-24">
-          <div className="absolute transform -rotate-45 bg-emerald-500/90 text-white text-center font-bold py-1 left-[-30px] top-[18px] w-32 shadow-lg">
-            <div className="flex items-center justify-center gap-1">
-              <ShieldCheck className="h-3 w-3" />
-              <span className="text-[10px]">أصلي ومضمون</span>
+      <div className="aspect-square overflow-hidden bg-background p-1 relative flex-shrink-0">
+        <div className="absolute top-0 left-0 z-10 overflow-hidden w-20 h-20">
+          <div className="absolute transform -rotate-45 bg-emerald-500/90 text-white text-center font-bold py-0.5 left-[-28px] top-[15px] w-28 shadow-lg">
+            <div className="flex items-center justify-center gap-0.5">
+              <ShieldCheck className="h-2.5 w-2.5" />
+              <span className="text-[9px]">أصلي ومضمون</span>
             </div>
           </div>
         </div>
@@ -55,35 +55,35 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
           </div>
         )}
       </div>
-      <CardContent className="p-2 flex-1 flex flex-col justify-between">
-        <h3 className="mb-1 text-xs font-semibold line-clamp-2 min-h-[2rem]">{nameAr}</h3>
+      <CardContent className="p-1.5 flex-1 flex flex-col justify-between">
+        <h3 className="mb-0.5 text-[11px] font-semibold line-clamp-2 min-h-[1.75rem] leading-tight">{nameAr}</h3>
         {minPrice && (
-          <div className="mb-1.5 space-y-0.5">
+          <div className="mb-1 space-y-0.5">
             {discount ? (
               <>
-                <div className="flex items-center gap-1">
-                  <Badge variant="destructive" className="flex items-center gap-0.5 text-[9px] py-0 px-1.5 h-4">
-                    <Tag className="h-2.5 w-2.5" />
-                    خصم {Math.round(discount.percentage)}%
+                <div className="flex items-center gap-0.5">
+                  <Badge variant="destructive" className="flex items-center gap-0.5 text-[8px] py-0 px-1 h-3.5">
+                    <Tag className="h-2 w-2" />
+                    {Math.round(discount.percentage)}%
                   </Badge>
                 </div>
-                <div className="flex items-baseline gap-1.5">
-                  <p className="text-sm font-bold text-primary">
+                <div className="flex items-baseline gap-1">
+                  <p className="text-xs font-bold text-primary">
                     {Math.round(discount.discountedPrice)} د.ع
                   </p>
-                  <p className="text-[10px] text-muted-foreground line-through">
+                  <p className="text-[9px] text-muted-foreground line-through">
                     {Math.round(minPrice)} د.ع
                   </p>
                 </div>
               </>
             ) : (
-              <p className="text-sm font-bold text-primary">
+              <p className="text-xs font-bold text-primary">
                 {Math.round(minPrice)} د.ع
               </p>
             )}
           </div>
         )}
-        <Button className="w-full h-7 text-[11px]" variant="outline">
+        <Button className="w-full h-6 text-[10px] py-0" variant="outline">
           عرض التفاصيل
         </Button>
       </CardContent>
