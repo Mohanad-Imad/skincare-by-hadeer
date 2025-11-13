@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,23 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       const { data } = await supabase.auth.getSession();
       return data.session;
     },
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) return null;
+      return data;
+    },
+    enabled: !!session?.user?.id,
   });
 
   const { data: reviews, isLoading } = useQuery({
@@ -76,6 +93,13 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       toast.error(error.message || "حدث خطأ أثناء إرسال التقييم");
     },
   });
+
+  // Auto-fill customer name from profile
+  useEffect(() => {
+    if (profile?.full_name && !customerName) {
+      setCustomerName(profile.full_name);
+    }
+  }, [profile, customerName]);
 
   const handleSubmitReview = () => {
     if (!customerName.trim()) {

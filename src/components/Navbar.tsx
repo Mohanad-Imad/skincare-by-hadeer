@@ -229,14 +229,25 @@ export const Navbar = () => {
                 </Button>
 
                 {session && (
-                  <Button
-                    variant={isActive("/my-orders") ? "default" : "ghost"}
-                    className="justify-start gap-2"
-                    onClick={() => handleNavigate("/my-orders")}
-                  >
-                    <Package className="h-4 w-4" />
-                    طلباتي
-                  </Button>
+                  <>
+                    <Button
+                      variant={isActive("/profile") ? "default" : "ghost"}
+                      className="justify-start gap-2"
+                      onClick={() => handleNavigate("/profile")}
+                    >
+                      <User className="h-4 w-4" />
+                      حسابي
+                    </Button>
+                    
+                    <Button
+                      variant={isActive("/my-orders") ? "default" : "ghost"}
+                      className="justify-start gap-2"
+                      onClick={() => handleNavigate("/my-orders")}
+                    >
+                      <Package className="h-4 w-4" />
+                      طلباتي
+                    </Button>
+                  </>
                 )}
 
                 {isAdmin && (
@@ -353,15 +364,27 @@ export const Navbar = () => {
           </Button>
 
           {session && (
-            <Button
-              variant={isActive("/my-orders") ? "default" : "ghost"}
-              size="sm"
-              onClick={() => navigate("/my-orders")}
-              className="gap-1.5"
-            >
-              <Package className="h-4 w-4" />
-              طلباتي
-            </Button>
+            <>
+              <Button
+                variant={isActive("/profile") ? "default" : "ghost"}
+                size="sm"
+                onClick={() => navigate("/profile")}
+                className="gap-1.5"
+              >
+                <User className="h-4 w-4" />
+                حسابي
+              </Button>
+              
+              <Button
+                variant={isActive("/my-orders") ? "default" : "ghost"}
+                size="sm"
+                onClick={() => navigate("/my-orders")}
+                className="gap-1.5"
+              >
+                <Package className="h-4 w-4" />
+                طلباتي
+              </Button>
+            </>
           )}
 
           {isAdmin && (
