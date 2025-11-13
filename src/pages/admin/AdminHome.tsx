@@ -18,6 +18,7 @@ import {
   Grid3x3,
   Palette,
   Settings,
+  MessageCircle,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -120,6 +121,12 @@ const AdminHome = () => {
       description: "متابعة طلبات الاستشارات",
       icon: MessageSquare,
       route: "/admin/consultations",
+    },
+    {
+      title: "آراء العملاء",
+      description: "مراجعة والموافقة على آراء العملاء",
+      icon: MessageCircle,
+      route: "/admin/customer-reviews",
     },
     {
       title: "روتينات المشاهير",

@@ -16,6 +16,7 @@ import { BrandsLinks } from "@/components/BrandsLinks";
 import { ShopByProblem } from "@/components/ShopByProblem";
 import { GuaranteeBanner } from "@/components/GuaranteeBanner";
 import MakeupBanner from "@/components/MakeupBanner";
+import { CustomerReviews } from "@/components/CustomerReviews";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
@@ -174,6 +175,11 @@ const Index = () => {
       {/* Guarantee Banner */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-6 md:pb-8 xl:pb-10 max-w-[1920px] mx-auto">
         <GuaranteeBanner />
+      </section>
+
+      {/* Customer Reviews */}
+      <section className="w-full max-w-[1920px] mx-auto">
+        <CustomerReviews />
       </section>
 
       {/* New Arrivals */}
