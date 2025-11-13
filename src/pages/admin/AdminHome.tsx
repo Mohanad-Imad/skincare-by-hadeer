@@ -19,6 +19,7 @@ import {
   Palette,
   Settings,
   MessageCircle,
+  Bell,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -33,13 +34,55 @@ const AdminHome = () => {
 
   const cards: QuickAccessCard[] = [
     {
+      title: "الإحصائيات",
+      description: "عرض تقارير المبيعات والأداء",
+      icon: BarChart3,
+      route: "/admin/analytics",
+    },
+    {
+      title: "الإشعارات",
+      description: "عرض جميع الإشعارات والتنبيهات",
+      icon: Bell,
+      route: "/admin/notifications",
+    },
+    {
+      title: "آراء العملاء",
+      description: "مراجعة والموافقة على آراء العملاء",
+      icon: MessageCircle,
+      route: "/admin/customer-reviews",
+    },
+    {
+      title: "تقييمات المنتجات",
+      description: "إدارة تقييمات المنتجات",
+      icon: Star,
+      route: "/admin/product-reviews",
+    },
+    {
       title: "المنتجات",
       description: "إدارة المنتجات والمخزون",
       icon: Package,
       route: "/admin/products",
     },
     {
-      title: "الفئات",
+      title: "الطلبات",
+      description: "متابعة وإدارة الطلبات",
+      icon: ShoppingBag,
+      route: "/admin/orders",
+    },
+    {
+      title: "الاستشارات",
+      description: "متابعة طلبات الاستشارات",
+      icon: MessageSquare,
+      route: "/admin/consultations",
+    },
+    {
+      title: "روتين المشاهير",
+      description: "إدارة روتينات العناية",
+      icon: Users,
+      route: "/admin/celebrity-routines",
+    },
+    {
+      title: "التصنيفات",
       description: "تنظيم فئات المنتجات",
       icon: FolderTree,
       route: "/admin/categories",
@@ -49,12 +92,6 @@ const AdminHome = () => {
       description: "إدارة المشاكل والحلول",
       icon: Grid3x3,
       route: "/admin/problem-categories",
-    },
-    {
-      title: "الطلبات",
-      description: "متابعة وإدارة الطلبات",
-      icon: ShoppingBag,
-      route: "/admin/orders",
     },
     {
       title: "أكواد الخصم",
@@ -69,6 +106,24 @@ const AdminHome = () => {
       route: "/admin/product-discounts",
     },
     {
+      title: "إعدادات التوصيل",
+      description: "تكوين خيارات التوصيل",
+      icon: Truck,
+      route: "/admin/shipping-settings",
+    },
+    {
+      title: "إعدادات المتجر",
+      description: "اسم المتجر والعملة",
+      icon: Settings,
+      route: "/admin/store-settings",
+    },
+    {
+      title: "المدونة",
+      description: "نشر وإدارة المقالات",
+      icon: FileText,
+      route: "/admin/blog-posts",
+    },
+    {
       title: "البنرات الرئيسية",
       description: "إدارة بنرات الصفحة الرئيسية",
       icon: Image,
@@ -81,7 +136,7 @@ const AdminHome = () => {
       route: "/admin/secondary-banners",
     },
     {
-      title: "البنرات الثلاثية",
+      title: "البنرات العلوية",
       description: "بنرات ترويجية أخرى",
       icon: ImagePlus,
       route: "/admin/tertiary-banners",
@@ -109,48 +164,6 @@ const AdminHome = () => {
       description: "إدارة الماركات والعلامات",
       icon: Star,
       route: "/admin/brands-links",
-    },
-    {
-      title: "المدونة",
-      description: "نشر وإدارة المقالات",
-      icon: FileText,
-      route: "/admin/blog-posts",
-    },
-    {
-      title: "الاستشارات",
-      description: "متابعة طلبات الاستشارات",
-      icon: MessageSquare,
-      route: "/admin/consultations",
-    },
-    {
-      title: "آراء العملاء",
-      description: "مراجعة والموافقة على آراء العملاء",
-      icon: MessageCircle,
-      route: "/admin/customer-reviews",
-    },
-    {
-      title: "روتينات المشاهير",
-      description: "إدارة روتينات العناية",
-      icon: Users,
-      route: "/admin/celebrity-routines",
-    },
-    {
-      title: "الإحصائيات",
-      description: "عرض تقارير المبيعات",
-      icon: BarChart3,
-      route: "/admin/analytics",
-    },
-    {
-      title: "إعدادات الشحن",
-      description: "تكوين خيارات التوصيل",
-      icon: Truck,
-      route: "/admin/shipping-settings",
-    },
-    {
-      title: "إعدادات المتجر",
-      description: "اسم المتجر والعملة",
-      icon: Settings,
-      route: "/admin/store-settings",
     },
   ];
 
