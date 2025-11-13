@@ -45,6 +45,7 @@ import Makeup from "./pages/Makeup";
 import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
 import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
 import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
+import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -98,6 +99,7 @@ const App = () => (
             <Route path="makeup-banner" element={<AdminMakeupBanner />} />
             <Route path="makeup-categories" element={<AdminMakeupCategories />} />
             <Route path="store-settings" element={<AdminStoreSettings />} />
+            <Route path="customer-reviews" element={<AdminCustomerReviews />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
