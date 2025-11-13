@@ -48,6 +48,7 @@ import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
 import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
 import AdminProductReviews from "./pages/admin/AdminProductReviews";
 import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminUsers from "./pages/admin/AdminUsers";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
@@ -90,6 +91,7 @@ const App = () => (
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="users" element={<AdminUsers />} />
             <Route path="customer-reviews" element={<AdminCustomerReviews />} />
             <Route path="product-reviews" element={<AdminProductReviews />} />
             <Route path="products" element={<AdminProducts />} />

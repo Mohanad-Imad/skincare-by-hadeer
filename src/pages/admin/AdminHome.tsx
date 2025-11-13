@@ -20,6 +20,7 @@ import {
   Settings,
   MessageCircle,
   Bell,
+  UserCircle,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -44,6 +45,12 @@ const AdminHome = () => {
       description: "عرض جميع الإشعارات والتنبيهات",
       icon: Bell,
       route: "/admin/notifications",
+    },
+    {
+      title: "المستخدمين",
+      description: "إدارة ومتابعة المستخدمين",
+      icon: UserCircle,
+      route: "/admin/users",
     },
     {
       title: "آراء العملاء",
