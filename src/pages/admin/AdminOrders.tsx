@@ -238,7 +238,7 @@ const AdminOrders = () => {
         </style>
       </head>
       <body>
-        <div class="header">ملصق شحن</div>
+        <div class="header">اسم المتجر</div>
         <div class="order-id">طلب #${order.id.slice(0, 8)}</div>
         
         <div class="section">
@@ -262,7 +262,7 @@ const AdminOrders = () => {
         </div>
         
         <div class="total">
-          الإجمالي: ${Number(order.total_amount).toFixed(2)} ريال
+          الإجمالي: ${Math.round(Number(order.total_amount))} ريال
         </div>
         
         ${order.notes ? `
