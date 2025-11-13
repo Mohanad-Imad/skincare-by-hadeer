@@ -62,7 +62,7 @@ export const SecondaryBanner = () => {
         }}
         className="w-full"
         onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
+        onMouseLeave={() => plugin.current.play()}
       >
         <CarouselContent>
           {banners.map((banner: any) => {
@@ -94,7 +94,7 @@ export const SecondaryBanner = () => {
                     alt={banner.title_ar || ""}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 hidden lg:block"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent group-hover:from-black/50 group-hover:via-black/20 transition-all duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/10 to-transparent group-hover:from-black/10 group-hover:via-transparent transition-all duration-300" />
                   
                   <div className="absolute inset-0 flex items-center">
                     <div className="container mx-auto px-4">

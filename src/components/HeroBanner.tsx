@@ -61,7 +61,7 @@ export const HeroBanner = () => {
         }}
         setApi={setApi}
         onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
+        onMouseLeave={() => plugin.current.play()}
       >
         <CarouselContent>
           {banners.map((banner: any) => {
@@ -97,7 +97,7 @@ export const HeroBanner = () => {
                         }}
                       />
                       {/* طبقة شفافة للتباين */}
-                      <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/50 to-black/30 group-hover:from-black/60 group-hover:via-black/40 group-hover:to-black/20 transition-all duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10 group-hover:from-black/20 group-hover:via-black/10 group-hover:to-transparent transition-all duration-300" />
                     </div>
 
                     {/* المحتوى */}
@@ -147,7 +147,7 @@ export const HeroBanner = () => {
                       }}
                     />
                     {/* طبقة شفافة للتباين */}
-                    <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/50 to-black/30" />
+                    <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10" />
                   </div>
 
                   {/* المحتوى */}
