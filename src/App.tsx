@@ -49,6 +49,7 @@ import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
 import AdminProductReviews from "./pages/admin/AdminProductReviews";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import SubmitReview from "./pages/SubmitReview";
+import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingReviewButton } from "./components/FloatingReviewButton";
 
@@ -84,6 +85,7 @@ const App = () => (
           <Route path="/guarantee" element={<Guarantee />} />
           <Route path="/makeup" element={<Makeup />} />
           <Route path="/submit-review" element={<SubmitReview />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
