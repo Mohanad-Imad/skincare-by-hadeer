@@ -139,6 +139,7 @@ const AdminSecondaryBanners = () => {
       image_url_desktop: "",
       image_url_tablet: "",
       image_url_mobile: "",
+      image_url: "",
       link_url: "",
       display_order: 0,
       is_active: true,
@@ -153,6 +154,7 @@ const AdminSecondaryBanners = () => {
       image_url_desktop: banner.image_url_desktop || "",
       image_url_tablet: banner.image_url_tablet || "",
       image_url_mobile: banner.image_url_mobile || "",
+      image_url: banner.image_url || "",
       link_url: banner.link_url || "",
       display_order: banner.display_order,
       is_active: banner.is_active,
@@ -289,7 +291,6 @@ const AdminSecondaryBanners = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>الصورة</TableHead>
-                      <TableHead>العنوان</TableHead>
                       <TableHead>الرابط</TableHead>
                       <TableHead>الترتيب</TableHead>
                       <TableHead>الحالة</TableHead>
@@ -301,14 +302,13 @@ const AdminSecondaryBanners = () => {
                       <TableRow key={banner.id}>
                         <TableCell>
                           <img
-                            src={banner.image_url}
-                            alt={banner.title_ar || ""}
+                            src={banner.image_url_desktop || banner.image_url}
+                            alt="بنر"
                             className="h-16 w-24 object-cover rounded"
                           />
                         </TableCell>
-                        <TableCell>{banner.title_ar}</TableCell>
                         <TableCell className="max-w-xs truncate">
-                          {banner.link_url}
+                          {banner.link_url || "لا يوجد رابط"}
                         </TableCell>
                         <TableCell>{banner.display_order}</TableCell>
                         <TableCell>

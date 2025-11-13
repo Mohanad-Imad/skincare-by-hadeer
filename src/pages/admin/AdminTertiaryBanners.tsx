@@ -147,6 +147,7 @@ const AdminTertiaryBanners = () => {
       image_url_desktop: "",
       image_url_tablet: "",
       image_url_mobile: "",
+      image_url: "",
       link_url: "",
       display_order: 0,
       is_active: true,
@@ -161,6 +162,7 @@ const AdminTertiaryBanners = () => {
       image_url_desktop: banner.image_url_desktop || "",
       image_url_tablet: banner.image_url_tablet || "",
       image_url_mobile: banner.image_url_mobile || "",
+      image_url: banner.image_url || "",
       link_url: banner.link_url || "",
       display_order: banner.display_order,
       is_active: banner.is_active,
@@ -225,58 +227,6 @@ const AdminTertiaryBanners = () => {
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="title_ar">العنوان (عربي)</Label>
-                        <Input
-                          id="title_ar"
-                          value={formData.title_ar}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title_ar: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="title_en">العنوان (إنجليزي)</Label>
-                        <Input
-                          id="title_en"
-                          value={formData.title_en}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title_en: e.target.value })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="description_ar">الوصف (عربي)</Label>
-                        <Textarea
-                          id="description_ar"
-                          value={formData.description_ar}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              description_ar: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="description_en">الوصف (إنجليزي)</Label>
-                        <Textarea
-                          id="description_en"
-                          value={formData.description_en}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              description_en: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
                       <Label>صورة Desktop</Label>
                       <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
@@ -303,35 +253,6 @@ const AdminTertiaryBanners = () => {
                         }
                         placeholder="/products أو رابط خارجي"
                       />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="button_text_ar">نص الزر (عربي)</Label>
-                        <Input
-                          id="button_text_ar"
-                          value={formData.button_text_ar}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              button_text_ar: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="button_text_en">نص الزر (إنجليزي)</Label>
-                        <Input
-                          id="button_text_en"
-                          value={formData.button_text_en}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              button_text_en: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -387,14 +308,13 @@ const AdminTertiaryBanners = () => {
                       className="flex items-center gap-4 p-4 border rounded-lg"
                     >
                       <img
-                        src={banner.image_url}
-                        alt={banner.title_ar || ""}
+                        src={banner.image_url_desktop || banner.image_url}
+                        alt="بنر"
                         className="h-20 w-40 object-cover rounded"
                       />
                       <div className="flex-1">
-                        <h3 className="font-semibold">{banner.title_ar}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {banner.description_ar}
+                          {banner.link_url || "لا يوجد رابط"}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs">
