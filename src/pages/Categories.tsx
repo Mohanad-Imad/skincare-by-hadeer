@@ -28,6 +28,20 @@ const Categories = () => {
     },
   });
 
+  const { data: subCategories = [], isLoading: subCategoriesLoading } = useQuery<any[]>({
+    queryKey: ["sub-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .not("parent_category_id", "is", null)
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const { data: allProducts = [], isLoading: productsLoading } = useQuery<any[]>({
     queryKey: ["products-by-categories"],
     queryFn: async () => {
@@ -57,7 +71,12 @@ const Categories = () => {
     return allProducts.filter(product => product.category_id === categoryId).length;
   };
 
-  const isLoading = categoriesLoading || productsLoading;
+  const getSubCategoriesForParent = (parentId: string) => {
+    if (!subCategories) return [];
+    return subCategories.filter(sub => sub.parent_category_id === parentId);
+  };
+
+  const isLoading = categoriesLoading || productsLoading || subCategoriesLoading;
 
   return (
     <>
@@ -94,44 +113,57 @@ const Categories = () => {
               {categories?.map((category) => {
                 const categoryProducts = getProductsForCategory(category.id);
                 const totalCount = getCategoryProductCount(category.id);
+                const categorySubCategories = getSubCategoriesForParent(category.id);
 
                 return (
                   <section key={category.id} className="space-y-8">
-                    {category.image_url && (
-                      <div className="w-full h-64 overflow-hidden rounded-lg">
-                        <img 
-                          src={category.image_url} 
-                          alt={category.name_ar} 
-                          className="w-full h-full object-cover"
-                        />
+                    <Link to={`/products?category=${category.id}`} className="block group">
+                      {category.image_url && (
+                        <div className="w-full aspect-square overflow-hidden rounded-lg mb-4">
+                          <img 
+                            src={category.image_url} 
+                            alt={category.name_ar} 
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                        </div>
+                      )}
+                      <h2 className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        {category.name_ar}
+                      </h2>
+                    </Link>
+
+                    {categorySubCategories.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {categorySubCategories.map((subCategory) => {
+                          const subCategoryCount = getCategoryProductCount(subCategory.id);
+                          return (
+                            <Link
+                              key={subCategory.id}
+                              to={`/products?category=${subCategory.id}`}
+                              className="group flex flex-col items-center p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md"
+                            >
+                              {subCategory.image_url && (
+                                <div className="w-full aspect-square overflow-hidden rounded-md mb-3">
+                                  <img 
+                                    src={subCategory.image_url} 
+                                    alt={subCategory.name_ar} 
+                                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                  />
+                                </div>
+                              )}
+                              <h3 className="text-base font-semibold text-center group-hover:text-primary transition-colors">
+                                {subCategory.name_ar}
+                              </h3>
+                              {subCategoryCount > 0 && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  ({subCategoryCount} منتج)
+                                </p>
+                              )}
+                            </Link>
+                          );
+                        })}
                       </div>
                     )}
-                    
-                    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-                      <div className="space-y-3 max-w-2xl">
-                        <h2 className="text-3xl font-bold text-foreground">
-                          {category.name_ar}
-                        </h2>
-                        {category.description_ar && (
-                          <p className="text-lg text-muted-foreground leading-relaxed">
-                            {category.description_ar}
-                          </p>
-                        )}
-                      </div>
-                      
-                      {totalCount > 0 && (
-                        <Button 
-                          variant="ghost" 
-                          asChild
-                          className="self-start md:self-auto gap-2 group"
-                        >
-                          <Link to={`/products?category=${category.id}`}>
-                            <span>عرض جميع المنتجات ({totalCount})</span>
-                            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
 
                     {categoryProducts.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -154,7 +186,7 @@ const Categories = () => {
                           );
                         })}
                       </div>
-                    ) : (
+                    ) : categorySubCategories.length === 0 && (
                       <div className="text-center py-12 bg-muted/30 rounded-lg">
                         <p className="text-lg text-muted-foreground">لا توجد منتجات في هذا القسم حالياً</p>
                         <p className="text-sm text-muted-foreground mt-2">سيتم إضافة منتجات جديدة قريباً</p>
