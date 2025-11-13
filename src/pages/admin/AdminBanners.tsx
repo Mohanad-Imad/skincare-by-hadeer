@@ -118,10 +118,14 @@ const AdminBanners = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const dataToSubmit = {
+      ...formData,
+      image_url: formData.image_url_desktop || formData.image_url_tablet || formData.image_url_mobile || ""
+    };
     if (editingBanner) {
-      updateMutation.mutate({ id: editingBanner.id, ...formData });
+      updateMutation.mutate({ id: editingBanner.id, ...dataToSubmit });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(dataToSubmit);
     }
   };
 
