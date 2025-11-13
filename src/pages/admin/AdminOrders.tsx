@@ -339,6 +339,164 @@ const AdminOrders = () => {
     toast.success("تم تصدير البيانات بنجاح");
   };
 
+  // Print all filtered orders
+  const printAllOrders = async () => {
+    if (!currentOrders || currentOrders.length === 0) {
+      toast.error("لا توجد طلبات للطباعة");
+      return;
+    }
+
+    toast.info("جاري تحضير الملصقات للطباعة...");
+
+    // Fetch store settings once
+    const { data: storeSettings } = await supabase
+      .from("store_settings" as any)
+      .select("*")
+      .limit(1)
+      .single();
+    
+    const storeName = (storeSettings as any)?.store_name || "اسم المتجر";
+    const currency = (storeSettings as any)?.currency || "ريال";
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error("تعذر فتح نافذة الطباعة");
+      return;
+    }
+
+    // Build HTML for all labels
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>طباعة جميع الطلبات</title>
+        <style>
+          @media print {
+            @page {
+              size: 100mm 150mm;
+              margin: 5mm;
+            }
+            body {
+              margin: 0;
+              padding: 0;
+            }
+            .page-break {
+              page-break-after: always;
+            }
+          }
+          .label {
+            font-family: 'Arial', sans-serif;
+            width: 100mm;
+            padding: 5mm;
+            font-size: 12pt;
+            line-height: 1.4;
+          }
+          .header {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+          }
+          .order-id {
+            font-size: 14pt;
+            margin: 10px 0;
+            font-weight: bold;
+          }
+          .section {
+            margin: 10px 0;
+          }
+          .label-text {
+            font-weight: bold;
+            margin-top: 5px;
+          }
+          .value {
+            margin-right: 5px;
+          }
+          .items {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+          }
+          .total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #000;
+            font-size: 14pt;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+    `;
+
+    currentOrders.forEach((order, index) => {
+      const orderItems = order.order_items || [];
+      const totalItems = orderItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      const itemsList = orderItems.map((item: any) => 
+        `${item.product_name_ar} - ${item.variant_size_ar} × ${item.quantity}`
+      ).join('<br>');
+
+      htmlContent += `
+        <div class="label ${index < currentOrders.length - 1 ? 'page-break' : ''}">
+          <div class="header">${storeName}</div>
+          <div class="order-id">طلب #${order.id.slice(0, 8)}</div>
+          
+          <div class="section">
+            <div class="label-text">العميل:</div>
+            <div class="value">${order.customer_name}</div>
+          </div>
+          
+          <div class="section">
+            <div class="label-text">الهاتف:</div>
+            <div class="value">${order.customer_phone}</div>
+          </div>
+          
+          <div class="section">
+            <div class="label-text">العنوان:</div>
+            <div class="value">${order.customer_address}</div>
+          </div>
+          
+          <div class="section">
+            <div class="label-text">عدد المنتجات:</div>
+            <div class="value">${totalItems}</div>
+          </div>
+          
+          <div class="items">
+            <div class="label-text">تفاصيل المنتجات:</div>
+            <div class="value">${itemsList}</div>
+          </div>
+          
+          <div class="total">
+            الإجمالي: ${Math.round(Number(order.total_amount))} ${currency}
+          </div>
+          
+          ${order.notes ? `
+            <div class="section">
+              <div class="label-text">ملاحظات:</div>
+              <div class="value">${order.notes}</div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+
+    htmlContent += `
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    setTimeout(() => {
+      printWindow.print();
+      toast.success(`تم تحضير ${currentOrders.length} ملصق للطباعة`);
+    }, 500);
+  };
+
   if (isLoading) return <div className="p-8">جاري التحميل...</div>;
 
   // Calculate pagination
@@ -353,6 +511,10 @@ const AdminOrders = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">إدارة الطلبات</h1>
         <div className="flex gap-2">
+          <Button onClick={printAllOrders} variant="outline" className="gap-2">
+            <Printer className="h-4 w-4" />
+            طباعة الكل
+          </Button>
           <Button onClick={exportToExcel} variant="outline" className="gap-2">
             <FileDown className="h-4 w-4" />
             تصدير Excel
