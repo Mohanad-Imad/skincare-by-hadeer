@@ -145,11 +145,21 @@ const AdminOrders = () => {
       
       // Date range filter
       const orderDate = new Date(order.created_at);
-      if (dateFrom && new Date(dateFrom) > orderDate) {
-        return false;
+      
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        fromDate.setHours(0, 0, 0, 0);
+        if (orderDate < fromDate) {
+          return false;
+        }
       }
-      if (dateTo && new Date(dateTo) < orderDate) {
-        return false;
+      
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999);
+        if (orderDate > toDate) {
+          return false;
+        }
       }
       
       return true;
@@ -284,9 +294,9 @@ const AdminOrders = () => {
       "الهاتف": order.customer_phone,
       "العنوان": order.customer_address,
       "الحالة": statusLabels[order.status as keyof typeof statusLabels],
-      "المبلغ الإجمالي": Number(order.total_amount).toFixed(2),
-      "مبلغ الشحن": Number(order.shipping_amount).toFixed(2),
-      "الخصم": Number(order.discount_amount || 0).toFixed(2),
+      "المبلغ الإجمالي": Math.round(Number(order.total_amount)),
+      "مبلغ الشحن": Math.round(Number(order.shipping_amount)),
+      "الخصم": Math.round(Number(order.discount_amount || 0)),
       "التاريخ": format(new Date(order.created_at), "yyyy-MM-dd HH:mm"),
       "ملاحظات": order.notes || "",
     }));
