@@ -11,10 +11,15 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter } from "lucide-react";
+import { useState, useMemo } from "react";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import * as XLSX from "xlsx";
+import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,6 +62,9 @@ const AdminOrders = () => {
   const queryClient = useQueryClient();
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -125,22 +133,268 @@ const AdminOrders = () => {
     });
   };
 
-  if (isLoading) return <div>جاري التحميل...</div>;
+  // Filter orders
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    
+    return orders.filter((order) => {
+      // Status filter
+      if (statusFilter !== "all" && order.status !== statusFilter) {
+        return false;
+      }
+      
+      // Date range filter
+      const orderDate = new Date(order.created_at);
+      if (dateFrom && new Date(dateFrom) > orderDate) {
+        return false;
+      }
+      if (dateTo && new Date(dateTo) < orderDate) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [orders, statusFilter, dateFrom, dateTo]);
 
-  const totalOrders = orders?.length || 0;
-  const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
+  // Print thermal label for an order
+  const printThermalLabel = (order: any) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const orderItems = order.order_items || [];
+    const itemsList = orderItems.map((item: any) => 
+      `${item.product_name_ar} - ${item.variant_size_ar} × ${item.quantity}`
+    ).join('<br>');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>طلب #${order.id.slice(0, 8)}</title>
+        <style>
+          @media print {
+            @page {
+              size: 100mm 150mm;
+              margin: 5mm;
+            }
+            body {
+              margin: 0;
+              padding: 0;
+            }
+          }
+          body {
+            font-family: 'Arial', sans-serif;
+            width: 100mm;
+            padding: 5mm;
+            font-size: 12pt;
+            line-height: 1.4;
+          }
+          .header {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+          }
+          .order-id {
+            font-size: 14pt;
+            margin: 10px 0;
+            font-weight: bold;
+          }
+          .section {
+            margin: 10px 0;
+          }
+          .label {
+            font-weight: bold;
+            margin-top: 5px;
+          }
+          .value {
+            margin-right: 5px;
+          }
+          .items {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+          }
+          .total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #000;
+            font-size: 14pt;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">ملصق شحن</div>
+        <div class="order-id">طلب #${order.id.slice(0, 8)}</div>
+        
+        <div class="section">
+          <div class="label">العميل:</div>
+          <div class="value">${order.customer_name}</div>
+        </div>
+        
+        <div class="section">
+          <div class="label">الهاتف:</div>
+          <div class="value">${order.customer_phone}</div>
+        </div>
+        
+        <div class="section">
+          <div class="label">العنوان:</div>
+          <div class="value">${order.customer_address}</div>
+        </div>
+        
+        <div class="items">
+          <div class="label">المنتجات:</div>
+          <div class="value">${itemsList}</div>
+        </div>
+        
+        <div class="total">
+          الإجمالي: ${Number(order.total_amount).toFixed(2)} ريال
+        </div>
+        
+        ${order.notes ? `
+          <div class="section">
+            <div class="label">ملاحظات:</div>
+            <div class="value">${order.notes}</div>
+          </div>
+        ` : ''}
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  };
+
+  // Export to Excel
+  const exportToExcel = () => {
+    if (!filteredOrders || filteredOrders.length === 0) {
+      toast.error("لا توجد طلبات للتصدير");
+      return;
+    }
+
+    const excelData = filteredOrders.map((order) => ({
+      "رقم الطلب": order.id.slice(0, 8),
+      "اسم العميل": order.customer_name,
+      "الهاتف": order.customer_phone,
+      "العنوان": order.customer_address,
+      "الحالة": statusLabels[order.status as keyof typeof statusLabels],
+      "المبلغ الإجمالي": Number(order.total_amount).toFixed(2),
+      "مبلغ الشحن": Number(order.shipping_amount).toFixed(2),
+      "الخصم": Number(order.discount_amount || 0).toFixed(2),
+      "التاريخ": format(new Date(order.created_at), "yyyy-MM-dd HH:mm"),
+      "ملاحظات": order.notes || "",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "الطلبات");
+    
+    // Set column widths
+    ws['!cols'] = [
+      { wch: 15 }, // رقم الطلب
+      { wch: 20 }, // اسم العميل
+      { wch: 15 }, // الهاتف
+      { wch: 30 }, // العنوان
+      { wch: 15 }, // الحالة
+      { wch: 12 }, // المبلغ
+      { wch: 12 }, // الشحن
+      { wch: 12 }, // الخصم
+      { wch: 18 }, // التاريخ
+      { wch: 30 }, // ملاحظات
+    ];
+
+    XLSX.writeFile(wb, `orders_${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    toast.success("تم تصدير البيانات بنجاح");
+  };
+
+  if (isLoading) return <div className="p-8">جاري التحميل...</div>;
+
+  // Calculate pagination
+  const totalPages = Math.ceil((filteredOrders?.length || 0) / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentOrders = orders?.slice(startIndex, endIndex) || [];
+  const currentOrders = filteredOrders?.slice(startIndex, endIndex) || [];
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6">
       <AdminBackButton />
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">إدارة الطلبات</h2>
-        <p className="text-sm text-muted-foreground">
-          إجمالي الطلبات: {totalOrders}
-        </p>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">إدارة الطلبات</h1>
+        <div className="flex gap-2">
+          <Button onClick={exportToExcel} variant="outline" className="gap-2">
+            <FileDown className="h-4 w-4" />
+            تصدير Excel
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="bg-card border rounded-lg p-4 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Filter className="h-5 w-5" />
+          <h2 className="text-lg font-semibold">فلترة الطلبات</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="status-filter">الحالة</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="status-filter">
+                <SelectValue placeholder="اختر الحالة" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع الحالات</SelectItem>
+                <SelectItem value="new">جديد</SelectItem>
+                <SelectItem value="processing">قيد المعالجة</SelectItem>
+                <SelectItem value="shipped">تم الشحن</SelectItem>
+                <SelectItem value="delivered">تم التوصيل</SelectItem>
+                <SelectItem value="cancelled">ملغي</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="date-from">من تاريخ</Label>
+            <Input
+              id="date-from"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="date-to">إلى تاريخ</Label>
+            <Input
+              id="date-to"
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </div>
+        </div>
+        {(statusFilter !== "all" || dateFrom || dateTo) && (
+          <div className="mt-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setStatusFilter("all");
+                setDateFrom("");
+                setDateTo("");
+              }}
+            >
+              إعادة تعيين الفلاتر
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="text-sm text-muted-foreground mb-4">
+        عرض {currentOrders.length} من أصل {filteredOrders?.length || 0} طلب
       </div>
 
       <div className="rounded-md border">
@@ -200,6 +454,14 @@ const AdminOrders = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => printThermalLabel(order)}
+                        title="طباعة ملصق حراري"
+                      >
+                        <Printer className="h-4 w-4" />
+                      </Button>
                       <OrderStatusSelect
                         value={order.status}
                         onValueChange={(value) =>
