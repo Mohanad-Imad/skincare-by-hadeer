@@ -16,13 +16,13 @@ export default function AdminCustomerReviews() {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["admin-reviews"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("customer_reviews")
         .select("*")
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
@@ -40,7 +40,7 @@ export default function AdminCustomerReviews() {
         updates.is_active = is_active;
       }
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("customer_reviews")
         .update(updates)
         .eq("id", id);

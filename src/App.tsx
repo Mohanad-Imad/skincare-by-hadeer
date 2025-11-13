@@ -46,6 +46,7 @@ import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
 import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
 import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
 import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
+import SubmitReview from "./pages/SubmitReview";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const App = () => (
           <Route path="/problems/:slug" element={<ProblemSubCategories />} />
           <Route path="/guarantee" element={<Guarantee />} />
           <Route path="/makeup" element={<Makeup />} />
+          <Route path="/submit-review" element={<SubmitReview />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
