@@ -41,7 +41,6 @@ import Guarantee from "./pages/Guarantee";
 import Makeup from "./pages/Makeup";
 import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
 import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
-import AdminAnnouncementBar from "./pages/admin/AdminAnnouncementBar";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -81,7 +80,6 @@ const App = () => (
             <Route path="product-discounts" element={<AdminProductDiscounts />} />
             <Route path="shipping-settings" element={<AdminShippingSettings />} />
             <Route path="blog-posts" element={<AdminBlogPosts />} />
-            <Route path="announcement-bar" element={<AdminAnnouncementBar />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
             <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
