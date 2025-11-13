@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { ArrowRight } from "lucide-react";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
@@ -30,6 +31,8 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<any>(null);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
+  const [useDifferentAddress, setUseDifferentAddress] = useState(false);
+  const [saveNewAddress, setSaveNewAddress] = useState(false);
   const lastDiscountAttempt = useRef<number>(0);
   const { data: discounts } = useProductDiscounts();
 
@@ -52,6 +55,32 @@ const Checkout = () => {
       return data.session;
     },
   });
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await (supabase as any)
+        .from("profiles")
+        .select("full_name, phone, address")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) return null;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  // تلقائياً ملء الحقول من البروفايل
+  useEffect(() => {
+    if (profile && !useDifferentAddress) {
+      if (profile.full_name) setCustomerName(profile.full_name);
+      if (profile.phone) setCustomerPhone(profile.phone);
+      if (profile.address) setCustomerAddress(profile.address);
+    }
+  }, [profile, useDifferentAddress]);
 
   const { data: cartItems } = useQuery({
     queryKey: ["cart", session?.user?.id],
@@ -144,10 +173,35 @@ const Checkout = () => {
     }
   };
 
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: { full_name: string; phone: string; address: string }) => {
+      if (!session?.user?.id) throw new Error("غير مسجل");
+      
+      const { error } = await (supabase as any)
+        .from("profiles")
+        .update(data)
+        .eq("id", session.user.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+  });
+
   const createOrderMutation = useMutation({
     mutationFn: async () => {
       if (!session?.user || !cartItems || cartItems.length === 0) {
         throw new Error("السلة فارغة");
+      }
+      
+      // حفظ العنوان الجديد في البروفايل إذا اختار المستخدم ذلك
+      if (saveNewAddress && useDifferentAddress) {
+        await updateProfileMutation.mutateAsync({
+          full_name: customerName,
+          phone: customerPhone,
+          address: customerAddress,
+        });
       }
 
       // حساب المجموع مع الخصومات
@@ -334,6 +388,27 @@ const Checkout = () => {
               <div className="rounded-lg border p-6">
                 <h2 className="mb-4 text-xl font-semibold">معلومات التوصيل</h2>
                 
+                {profile && (profile.full_name || profile.phone || profile.address) && (
+                  <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted/50 p-3">
+                    <Checkbox
+                      id="useDifferentAddress"
+                      checked={useDifferentAddress}
+                      onCheckedChange={(checked) => {
+                        setUseDifferentAddress(checked as boolean);
+                        if (!checked && profile) {
+                          // استرجاع البيانات من البروفايل
+                          if (profile.full_name) setCustomerName(profile.full_name);
+                          if (profile.phone) setCustomerPhone(profile.phone);
+                          if (profile.address) setCustomerAddress(profile.address);
+                        }
+                      }}
+                    />
+                    <Label htmlFor="useDifferentAddress" className="cursor-pointer text-sm">
+                      استخدام عنوان مختلف عن عنوان البروفايل
+                    </Label>
+                  </div>
+                )}
+                
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="name">الاسم الكامل *</Label>
@@ -366,6 +441,19 @@ const Checkout = () => {
                       rows={3}
                     />
                   </div>
+                  
+                  {useDifferentAddress && (
+                    <div className="flex items-center gap-2 rounded-lg bg-primary/5 p-3">
+                      <Checkbox
+                        id="saveNewAddress"
+                        checked={saveNewAddress}
+                        onCheckedChange={(checked) => setSaveNewAddress(checked as boolean)}
+                      />
+                      <Label htmlFor="saveNewAddress" className="cursor-pointer text-sm">
+                        حفظ هذه المعلومات في البروفايل
+                      </Label>
+                    </div>
+                  )}
 
                   <div>
                     <Label htmlFor="notes">ملاحظات (اختياري)</Label>
