@@ -20,7 +20,8 @@ const Categories = () => {
         .from("categories")
         .select("*")
         .is("parent_category_id", null)
-        .order("name_ar");
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
       if (error) throw error;
       return data;
     },
@@ -97,6 +98,16 @@ const Categories = () => {
 
                 return (
                   <section key={category.id} className="space-y-8">
+                    {category.image_url && (
+                      <div className="w-full h-64 overflow-hidden rounded-lg">
+                        <img 
+                          src={category.image_url} 
+                          alt={category.name_ar} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
                     <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
                       <div className="space-y-3 max-w-2xl">
                         <h2 className="text-3xl font-bold text-foreground">
