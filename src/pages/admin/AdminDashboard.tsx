@@ -61,6 +61,10 @@ const AdminDashboard = () => {
       navigate("/admin/customer-reviews");
     } else if (notification.related_table === "orders") {
       navigate("/admin/orders");
+    } else if (notification.related_table === "consultations") {
+      navigate("/admin/consultations");
+    } else if (notification.related_table === "product_reviews") {
+      navigate("/admin/product-reviews");
     }
   };
 

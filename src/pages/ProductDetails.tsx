@@ -14,6 +14,7 @@ import { ShoppingCart, ArrowRight, Tag } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { MiniCart } from "@/components/MiniCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { ProductReviews } from "@/components/ProductReviews";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -382,6 +383,11 @@ const ProductDetails = () => {
             </Button>
           </div>
         </div>
+      </div>
+      
+      {/* Reviews Section */}
+      <div className="container mx-auto px-4 py-12">
+        <ProductReviews productId={id!} />
       </div>
       
       {addedProduct && (
