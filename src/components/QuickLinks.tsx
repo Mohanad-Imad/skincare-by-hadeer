@@ -29,8 +29,8 @@ export const QuickLinks = () => {
           <div className="flex gap-3 md:gap-4 px-4 md:px-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="flex-shrink-0 w-24 md:w-32">
-                <div className="bg-card rounded-lg p-3 md:p-4 shadow-sm">
-                  <Skeleton className="aspect-square rounded-md" />
+                <div className="bg-card rounded-lg p-3 md:p-4 shadow-sm h-[140px] md:h-[180px] flex flex-col">
+                  <Skeleton className="aspect-square rounded-md flex-shrink-0" />
                   <Skeleton className="h-4 w-full mt-2" />
                 </div>
               </div>
@@ -82,15 +82,15 @@ export const QuickLinks = () => {
                 onClick={() => handleLinkClick(link.link_url)}
                 className="group flex-shrink-0 w-24 md:w-32"
               >
-                <div className="bg-card rounded-lg p-3 md:p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                  <div className="aspect-square flex items-center justify-center overflow-hidden rounded-md">
+                <div className="bg-card rounded-lg p-3 md:p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 h-[140px] md:h-[180px] flex flex-col">
+                  <div className="aspect-square flex items-center justify-center overflow-hidden rounded-md flex-shrink-0">
                     <img
                       src={link.image_url}
                       alt={link.title_ar}
                       className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
-                  <p className="text-xs md:text-sm font-medium text-center mt-2 text-card-foreground line-clamp-2">
+                  <p className="text-xs md:text-sm font-medium text-center mt-2 text-card-foreground line-clamp-2 flex-grow flex items-center justify-center">
                     {link.title_ar}
                   </p>
                 </div>
