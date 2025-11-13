@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRef } from "react";
 
 export const QuickLinks = () => {
   const navigate = useNavigate();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: quickLinks, isLoading } = useQuery({
     queryKey: ["quick-links"],
@@ -52,6 +54,13 @@ export const QuickLinks = () => {
     }
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollContainerRef.current) {
+      e.preventDefault();
+      scrollContainerRef.current.scrollLeft += e.deltaY;
+    }
+  };
+
   return (
     <div className="w-full mt-3">
       <div className="relative">
@@ -61,7 +70,11 @@ export const QuickLinks = () => {
         {/* Gradient fade right */}
         <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none hidden md:block" />
         
-        <div className="overflow-x-auto scrollbar-hide pb-2">
+        <div 
+          ref={scrollContainerRef}
+          onWheel={handleWheel}
+          className="overflow-x-auto scrollbar-hide pb-2 cursor-grab active:cursor-grabbing"
+        >
           <div className="flex gap-3 md:gap-4 px-4 md:px-2">
             {quickLinks.map((link) => (
               <button
