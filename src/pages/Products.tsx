@@ -12,6 +12,11 @@ import { Search } from "lucide-react";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,6 +28,8 @@ const Products = () => {
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
   
   const { data: discounts } = useProductDiscounts();
@@ -60,12 +67,14 @@ const Products = () => {
         }
       });
       
-      return Array.from(companiesMap.entries()).map(([key, value]) => ({
-        key,
-        displayName: value.ar || value.en,
-        ar: value.ar,
-        en: value.en,
-      }));
+      return Array.from(companiesMap.entries())
+        .map(([key, value]) => ({
+          key,
+          displayName: value.ar || value.en,
+          ar: value.ar,
+          en: value.en,
+        }))
+        .sort((a, b) => (a.displayName || "").localeCompare(b.displayName || "", "ar"));
     },
   });
 
@@ -311,19 +320,71 @@ const Products = () => {
             </Select>
           )}
 
-          <Select value={companyFilter} onValueChange={handleFilterChange(setCompanyFilter, "company")}>
-            <SelectTrigger>
-              <SelectValue placeholder="الشركة المصنعة" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع الشركات</SelectItem>
-              {companies?.map((company) => (
-                <SelectItem key={company.key} value={company.key}>
-                  {company.displayName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={companyOpen}
+                className="w-full justify-between text-right"
+              >
+                {companyFilter === "all"
+                  ? "الشركة المصنعة"
+                  : companies?.find((company) => company.key === companyFilter)?.displayName}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0 bg-popover" align="start">
+              <Command>
+                <CommandInput 
+                  placeholder="ابحث عن شركة..." 
+                  value={companySearch}
+                  onValueChange={setCompanySearch}
+                  className="text-right"
+                />
+                <CommandList>
+                  <CommandEmpty>لا توجد نتائج</CommandEmpty>
+                  <CommandGroup>
+                    <CommandItem
+                      value="all"
+                      onSelect={() => {
+                        handleFilterChange(setCompanyFilter, "company")("all");
+                        setCompanyOpen(false);
+                        setCompanySearch("");
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "ml-2 h-4 w-4",
+                          companyFilter === "all" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      جميع الشركات
+                    </CommandItem>
+                    {companies?.map((company) => (
+                      <CommandItem
+                        key={company.key}
+                        value={company.displayName}
+                        onSelect={() => {
+                          handleFilterChange(setCompanyFilter, "company")(company.key);
+                          setCompanyOpen(false);
+                          setCompanySearch("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "ml-2 h-4 w-4",
+                            companyFilter === company.key ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {company.displayName}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
 
           <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter, "skinType")}>
             <SelectTrigger>
