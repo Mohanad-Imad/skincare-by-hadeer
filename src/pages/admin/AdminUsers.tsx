@@ -25,10 +25,10 @@ const AdminUsers = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      // Get profiles data with user info including email
+      // Get profiles data with user info
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, full_name, phone, address, email, created_at, updated_at")
+        .select("id, full_name, phone, address, created_at, updated_at")
         .order("created_at", { ascending: false });
 
       if (profilesError) {
@@ -84,7 +84,6 @@ const AdminUsers = () => {
     const searchLower = searchTerm.toLowerCase();
     return (
       user.full_name?.toLowerCase().includes(searchLower) ||
-      user.email?.toLowerCase().includes(searchLower) ||
       user.phone?.toLowerCase().includes(searchLower) ||
       user.id?.toLowerCase().includes(searchLower)
     );
@@ -211,7 +210,7 @@ const AdminUsers = () => {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Mail className="h-4 w-4 text-muted-foreground" />
-                            {user.email || "غير محدد"}
+                            <span className="text-muted-foreground text-sm">غير متوفر</span>
                           </div>
                         </TableCell>
                         <TableCell>

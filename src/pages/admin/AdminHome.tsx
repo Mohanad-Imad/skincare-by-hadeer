@@ -21,6 +21,7 @@ import {
   MessageCircle,
   Bell,
   UserCircle,
+  Boxes,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -69,6 +70,12 @@ const AdminHome = () => {
       description: "إدارة المنتجات والمخزون",
       icon: Package,
       route: "/admin/products",
+    },
+    {
+      title: "المخزون",
+      description: "متابعة الكميات المتوفرة",
+      icon: Boxes,
+      route: "/admin/inventory",
     },
     {
       title: "الطلبات",
