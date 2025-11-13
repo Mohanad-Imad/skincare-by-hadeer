@@ -108,7 +108,7 @@ export const CustomerReviews = () => {
                     </div>
 
                     <div className="text-xs text-muted-foreground pt-2 border-t">
-                      {new Date(review.created_at).toLocaleDateString("ar-SA", {
+                      {new Date(review.created_at).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Star, MessageCircle } from "lucide-react";
+import { Star, MessageCircle, Upload, X } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +36,7 @@ const reviewSchema = z.object({
     .trim()
     .min(10, { message: "الرأي يجب أن يكون 10 أحرف على الأقل" })
     .max(1000, { message: "الرأي يجب أن يكون أقل من 1000 حرف" }),
-  customer_image: z.string().url().optional().or(z.literal("")),
+  customer_image: z.instanceof(File).optional().nullable(),
 });
 
 type ReviewFormValues = z.infer<typeof reviewSchema>;
@@ -46,6 +46,7 @@ export default function SubmitReview() {
   const [user, setUser] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
@@ -53,7 +54,7 @@ export default function SubmitReview() {
       customer_name: "",
       rating: 0,
       comment: "",
-      customer_image: "",
+      customer_image: null,
     },
   });
 
@@ -92,6 +93,37 @@ export default function SubmitReview() {
     return () => subscription.unsubscribe();
   }, [navigate, form]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("يجب أن يكون الملف صورة");
+        return;
+      }
+
+      form.setValue("customer_image", file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    form.setValue("customer_image", null);
+    setImagePreview(null);
+  };
+
   const onSubmit = async (values: ReviewFormValues) => {
     if (!user) {
       toast.error("يجب تسجيل الدخول لإضافة رأيك");
@@ -107,6 +139,26 @@ export default function SubmitReview() {
     setIsSubmitting(true);
 
     try {
+      let imageUrl = null;
+
+      // Upload image if provided
+      if (values.customer_image) {
+        const fileExt = values.customer_image.name.split(".").pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("customer-reviews")
+          .upload(fileName, values.customer_image);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("customer-reviews")
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrl;
+      }
+
       const { error } = await (supabase as any)
         .from("customer_reviews")
         .insert({
@@ -114,7 +166,7 @@ export default function SubmitReview() {
           customer_name: values.customer_name.trim(),
           rating: values.rating,
           comment: values.comment.trim(),
-          customer_image: values.customer_image || null,
+          customer_image: imageUrl,
           status: "pending",
         });
 
@@ -238,19 +290,52 @@ export default function SubmitReview() {
                   <FormField
                     control={form.control}
                     name="customer_image"
-                    render={({ field }) => (
+                    render={({ field: { value, onChange, ...field } }) => (
                       <FormItem>
-                        <FormLabel className="text-base">رابط صورتك (اختياري)</FormLabel>
+                        <FormLabel className="text-base">صورتك (اختياري)</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="https://example.com/image.jpg"
-                            type="url"
-                            {...field}
-                            className="text-base"
-                          />
+                          <div className="space-y-4">
+                            {!imagePreview ? (
+                              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors">
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                  <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                                  <p className="mb-2 text-sm text-muted-foreground">
+                                    <span className="font-semibold">اضغط لرفع الصورة</span>
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    PNG, JPG أو WEBP (بحد أقصى 5MB)
+                                  </p>
+                                </div>
+                                <Input
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={handleImageChange}
+                                  {...field}
+                                />
+                              </label>
+                            ) : (
+                              <div className="relative">
+                                <img
+                                  src={imagePreview}
+                                  alt="معاينة"
+                                  className="w-full h-48 object-cover rounded-lg"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 left-2"
+                                  onClick={removeImage}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </FormControl>
                         <FormDescription>
-                          يمكنك إضافة رابط لصورتك الشخصية
+                          يمكنك إضافة صورتك الشخصية
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

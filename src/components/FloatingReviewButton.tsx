@@ -23,11 +23,13 @@ export const FloatingReviewButton = () => {
   return (
     <Button
       onClick={() => navigate("/submit-review")}
-      className="fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
-      size="icon"
+      className="fixed bottom-6 left-6 z-50 h-16 px-6 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 bg-gradient-to-r from-primary to-primary/80"
       aria-label="شاركنا رأيك"
     >
-      <MessageCircle className="h-6 w-6" />
+      <div className="flex items-center gap-2">
+        <MessageCircle className="h-5 w-5" />
+        <span className="font-semibold">شاركنا رأيك</span>
+      </div>
     </Button>
   );
 };
