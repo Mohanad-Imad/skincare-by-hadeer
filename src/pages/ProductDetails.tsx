@@ -365,12 +365,12 @@ const ProductDetails = () => {
                           >
                             {variant.size_ar}
                             {isOutOfStock && (
-                              <Badge variant="destructive" className="mr-2">
+                              <Badge variant="destructive" className="mr-4">
                                 نفذت الكمية
                               </Badge>
                             )}
                             {!isOutOfStock && variant.stock_quantity <= 5 && (
-                              <Badge variant="secondary" className="mr-2">
+                              <Badge variant="secondary" className="mr-4">
                                 متبقي {variant.stock_quantity}
                               </Badge>
                             )}
