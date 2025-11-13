@@ -25,32 +25,37 @@ const AdminUsers = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
+      // Get profiles data with user info
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("id, full_name, phone, address, created_at, updated_at")
         .order("created_at", { ascending: false });
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
 
-      // Get auth users data
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      // Get email addresses from a server-side function or use profiles data
+      // For now, we'll work with what we have from profiles
+      return profilesData || [];
+    },
+    enabled: isAdmin === true,
+  });
+
+  const { data: usersEmails } = useQuery({
+    queryKey: ["admin-users-emails"],
+    queryFn: async () => {
+      // Try to get user session info for emails
+      const emails: Record<string, string> = {};
       
-      if (authError) throw authError;
-
-      const authUsers = authData?.users || [];
-
-      // Merge profiles with auth data
-      const usersWithAuth = profilesData?.map((profile) => {
-        const authUser = authUsers.find((u) => u.id === profile.id);
-        return {
-          ...profile,
-          email: authUser?.email || "",
-          created_at: authUser?.created_at || profile.created_at,
-          last_sign_in: authUser?.last_sign_in_at,
-        };
-      }) || [];
-
-      return usersWithAuth;
+      // Get current user's email as an example
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        emails[user.id] = user.email || "";
+      }
+      
+      return emails;
     },
     enabled: isAdmin === true,
   });
@@ -98,8 +103,8 @@ const AdminUsers = () => {
     const searchLower = searchTerm.toLowerCase();
     return (
       user.full_name?.toLowerCase().includes(searchLower) ||
-      user.email?.toLowerCase().includes(searchLower) ||
-      user.phone?.toLowerCase().includes(searchLower)
+      user.phone?.toLowerCase().includes(searchLower) ||
+      user.id?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -222,9 +227,11 @@ const AdminUsers = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 text-sm">
                             <Mail className="h-4 w-4 text-muted-foreground" />
-                            {user.email || "غير محدد"}
+                            <span className="text-muted-foreground">
+                              {usersEmails?.[user.id] || "غير متوفر"}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -264,9 +271,7 @@ const AdminUsers = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {user.last_sign_in
-                            ? new Date(user.last_sign_in).toLocaleDateString("ar-IQ")
-                            : "لم يسجل دخول"}
+                          <span className="text-muted-foreground text-sm">-</span>
                         </TableCell>
                       </TableRow>
                     );
