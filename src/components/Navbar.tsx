@@ -128,60 +128,69 @@ export const Navbar = () => {
                   الرئيسية
                 </Button>
 
-                <div className="space-y-1">
-                  <div className="px-2 py-1 text-sm font-semibold text-muted-foreground">الأقسام</div>
-                  {categories.map((category: any) => {
-                    const categorySubCategories = subCategories.filter((sub: any) => sub.parent_category_id === category.id);
-                    
-                    if (categorySubCategories.length > 0) {
-                      return (
-                        <Collapsible key={category.id}>
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="w-full justify-start gap-2 font-medium"
-                            >
-                              <Grid3x3 className="h-4 w-4" />
-                              {category.name_ar}
-                              <ChevronDown className="h-4 w-4 mr-auto transition-transform data-[state=open]:rotate-180" />
-                            </Button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="pr-6 space-y-1">
-                            <Button
-                              variant="ghost"
-                              className="w-full justify-start gap-2 text-sm"
-                              onClick={() => handleNavigate(`/products?category=${category.id}`)}
-                            >
-                              الكل
-                            </Button>
-                            {categorySubCategories.map((subCategory: any) => (
+                <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2"
+                    >
+                      <Grid3x3 className="h-4 w-4" />
+                      الأقسام
+                      <ChevronDown className={`h-4 w-4 mr-auto transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pr-4 space-y-1">
+                    {categories.map((category: any) => {
+                      const categorySubCategories = subCategories.filter((sub: any) => sub.parent_category_id === category.id);
+                      
+                      if (categorySubCategories.length > 0) {
+                        return (
+                          <Collapsible key={category.id}>
+                            <CollapsibleTrigger asChild>
                               <Button
-                                key={subCategory.id}
                                 variant="ghost"
-                                className="w-full justify-start gap-2 text-sm text-muted-foreground hover:text-foreground"
-                                onClick={() => handleNavigate(`/products?category=${category.id}&subCategory=${subCategory.id}`)}
+                                className="w-full justify-start gap-2 text-sm font-medium"
                               >
-                                {subCategory.name_ar}
+                                {category.name_ar}
+                                <ChevronDown className="h-3 w-3 mr-auto transition-transform data-[state=open]:rotate-180" />
                               </Button>
-                            ))}
-                          </CollapsibleContent>
-                        </Collapsible>
-                      );
-                    } else {
-                      return (
-                        <Button
-                          key={category.id}
-                          variant="ghost"
-                          className="w-full justify-start gap-2 font-medium"
-                          onClick={() => handleNavigate(`/products?category=${category.id}`)}
-                        >
-                          <Grid3x3 className="h-4 w-4" />
-                          {category.name_ar}
-                        </Button>
-                      );
-                    }
-                  })}
-                </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="pr-4 space-y-1">
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 text-xs"
+                                onClick={() => handleNavigate(`/products?category=${category.id}`)}
+                              >
+                                الكل
+                              </Button>
+                              {categorySubCategories.map((subCategory: any) => (
+                                <Button
+                                  key={subCategory.id}
+                                  variant="ghost"
+                                  className="w-full justify-start gap-2 text-xs text-muted-foreground hover:text-foreground"
+                                  onClick={() => handleNavigate(`/products?category=${category.id}&subCategory=${subCategory.id}`)}
+                                >
+                                  {subCategory.name_ar}
+                                </Button>
+                              ))}
+                            </CollapsibleContent>
+                          </Collapsible>
+                        );
+                      } else {
+                        return (
+                          <Button
+                            key={category.id}
+                            variant="ghost"
+                            className="w-full justify-start gap-2 text-sm font-medium"
+                            onClick={() => handleNavigate(`/products?category=${category.id}`)}
+                          >
+                            {category.name_ar}
+                          </Button>
+                        );
+                      }
+                    })}
+                  </CollapsibleContent>
+                </Collapsible>
 
                 <Button
                   variant={isActive("/products") ? "default" : "ghost"}
