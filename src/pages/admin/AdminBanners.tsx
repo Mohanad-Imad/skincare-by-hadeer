@@ -200,17 +200,17 @@ const AdminBanners = () => {
             </DialogHeader>
              <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>صورة Desktop</Label>
+                <Label>صورة Desktop (القياس المقترح: 1920x600)</Label>
                 <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
                 {formData.image_url_desktop && <img src={formData.image_url_desktop} className="mt-2 h-20 rounded" />}
               </div>
               <div className="space-y-2">
-                <Label>صورة Tablet</Label>
+                <Label>صورة Tablet (القياس المقترح: 1024x400)</Label>
                 <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'tablet'); }} />
                 {formData.image_url_tablet && <img src={formData.image_url_tablet} className="mt-2 h-20 rounded" />}
               </div>
               <div className="space-y-2">
-                <Label>صورة Mobile</Label>
+                <Label>صورة Mobile (القياس المقترح: 768x400)</Label>
                 <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'mobile'); }} />
                 {formData.image_url_mobile && <img src={formData.image_url_mobile} className="mt-2 h-20 rounded" />}
               </div>
