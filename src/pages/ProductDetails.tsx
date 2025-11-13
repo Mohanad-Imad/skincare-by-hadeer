@@ -353,7 +353,7 @@ const ProductDetails = () => {
                         key={variant.id} 
                         className={`flex items-center justify-between rounded-lg border p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
                       >
-                        <div className="flex items-center space-x-2 space-x-reverse">
+                        <div className="flex items-center gap-3">
                           <RadioGroupItem 
                             value={variant.id} 
                             id={variant.id} 
@@ -364,17 +364,17 @@ const ProductDetails = () => {
                             className={`${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {variant.size_ar}
-                            {isOutOfStock && (
-                              <Badge variant="destructive" className="mr-4">
-                                نفذت الكمية
-                              </Badge>
-                            )}
-                            {!isOutOfStock && variant.stock_quantity <= 5 && (
-                              <Badge variant="secondary" className="mr-4">
-                                متبقي {variant.stock_quantity}
-                              </Badge>
-                            )}
                           </Label>
+                          {isOutOfStock && (
+                            <Badge variant="destructive">
+                              نفذت الكمية
+                            </Badge>
+                          )}
+                          {!isOutOfStock && variant.stock_quantity <= 5 && (
+                            <Badge variant="secondary">
+                              متبقي {variant.stock_quantity}
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex flex-col items-end gap-1">
                           {variantDiscount ? (
