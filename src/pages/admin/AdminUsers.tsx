@@ -25,10 +25,10 @@ const AdminUsers = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      // Get profiles data with user info
+      // Get profiles data with user info including email
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, full_name, phone, address, created_at, updated_at")
+        .select("id, full_name, phone, address, email, created_at, updated_at")
         .order("created_at", { ascending: false });
 
       if (profilesError) {
@@ -36,26 +36,7 @@ const AdminUsers = () => {
         throw profilesError;
       }
 
-      // Get email addresses from a server-side function or use profiles data
-      // For now, we'll work with what we have from profiles
       return profilesData || [];
-    },
-    enabled: isAdmin === true,
-  });
-
-  const { data: usersEmails } = useQuery({
-    queryKey: ["admin-users-emails"],
-    queryFn: async () => {
-      // Try to get user session info for emails
-      const emails: Record<string, string> = {};
-      
-      // Get current user's email as an example
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        emails[user.id] = user.email || "";
-      }
-      
-      return emails;
     },
     enabled: isAdmin === true,
   });
@@ -103,6 +84,7 @@ const AdminUsers = () => {
     const searchLower = searchTerm.toLowerCase();
     return (
       user.full_name?.toLowerCase().includes(searchLower) ||
+      user.email?.toLowerCase().includes(searchLower) ||
       user.phone?.toLowerCase().includes(searchLower) ||
       user.id?.toLowerCase().includes(searchLower)
     );
@@ -227,11 +209,9 @@ const AdminUsers = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-2">
                             <Mail className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">
-                              {usersEmails?.[user.id] || "غير متوفر"}
-                            </span>
+                            {user.email || "غير محدد"}
                           </div>
                         </TableCell>
                         <TableCell>
