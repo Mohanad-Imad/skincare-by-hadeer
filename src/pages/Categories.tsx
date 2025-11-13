@@ -116,10 +116,10 @@ const Categories = () => {
                 const categorySubCategories = getSubCategoriesForParent(category.id);
 
                 return (
-                  <section key={category.id} className="space-y-8">
-                    <Link to={`/products?category=${category.id}`} className="block group">
+                  <section key={category.id} className="space-y-6">
+                    <Link to={`/products?category=${category.id}`} className="flex items-center gap-6 group">
                       {category.image_url && (
-                        <div className="w-full aspect-square overflow-hidden rounded-lg mb-4">
+                        <div className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-lg">
                           <img 
                             src={category.image_url} 
                             alt={category.name_ar} 
@@ -127,66 +127,81 @@ const Categories = () => {
                           />
                         </div>
                       )}
-                      <h2 className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {category.name_ar}
-                      </h2>
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
+                          {category.name_ar}
+                        </h2>
+                        {totalCount > 0 && (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {totalCount} منتج
+                          </p>
+                        )}
+                      </div>
                     </Link>
 
                     {categorySubCategories.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {categorySubCategories.map((subCategory) => {
-                          const subCategoryCount = getCategoryProductCount(subCategory.id);
-                          return (
-                            <Link
-                              key={subCategory.id}
-                              to={`/products?category=${subCategory.id}`}
-                              className="group flex flex-col items-center p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md"
-                            >
-                              {subCategory.image_url && (
-                                <div className="w-full aspect-square overflow-hidden rounded-md mb-3">
-                                  <img 
-                                    src={subCategory.image_url} 
-                                    alt={subCategory.name_ar} 
-                                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                  />
-                                </div>
-                              )}
-                              <h3 className="text-base font-semibold text-center group-hover:text-primary transition-colors">
-                                {subCategory.name_ar}
-                              </h3>
-                              {subCategoryCount > 0 && (
-                                <p className="text-sm text-muted-foreground mt-1">
-                                  ({subCategoryCount} منتج)
-                                </p>
-                              )}
-                            </Link>
-                          );
-                        })}
+                      <div className="mr-0 lg:mr-12">
+                        <h3 className="text-lg font-semibold mb-4 text-muted-foreground">الأقسام الفرعية</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {categorySubCategories.map((subCategory) => {
+                            const subCategoryCount = getCategoryProductCount(subCategory.id);
+                            return (
+                              <Link
+                                key={subCategory.id}
+                                to={`/products?category=${subCategory.id}`}
+                                className="group flex flex-col items-center p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md bg-card"
+                              >
+                                {subCategory.image_url && (
+                                  <div className="w-20 h-20 overflow-hidden rounded-md mb-3">
+                                    <img 
+                                      src={subCategory.image_url} 
+                                      alt={subCategory.name_ar} 
+                                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                    />
+                                  </div>
+                                )}
+                                <h4 className="text-sm font-semibold text-center group-hover:text-primary transition-colors">
+                                  {subCategory.name_ar}
+                                </h4>
+                                {subCategoryCount > 0 && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    ({subCategoryCount} منتج)
+                                  </p>
+                                )}
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
-                    {categoryProducts.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {categoryProducts.map((product) => {
-                          const lowestPrice = product.product_variants && product.product_variants.length > 0
-                            ? Math.min(...product.product_variants.map((v: any) => parseFloat(v.price)))
-                            : 0;
-                          
-                          const discountInfo = calculateDiscount(product.id, lowestPrice, discounts);
+                    {categoryProducts.length > 0 && (
+                      <div className="mr-0 lg:mr-12">
+                        <h3 className="text-lg font-semibold mb-4 text-muted-foreground">المنتجات المميزة</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                          {categoryProducts.map((product) => {
+                            const lowestPrice = product.product_variants && product.product_variants.length > 0
+                              ? Math.min(...product.product_variants.map((v: any) => parseFloat(v.price)))
+                              : 0;
+                            
+                            const discountInfo = calculateDiscount(product.id, lowestPrice, discounts);
 
-                          return (
-                            <ProductCard
-                              key={product.id}
-                              id={product.id}
-                              nameAr={product.name_ar}
-                              imageUrl={product.image_url}
-                              minPrice={lowestPrice}
-                              discount={discountInfo}
-                            />
-                          );
-                        })}
+                            return (
+                              <ProductCard
+                                key={product.id}
+                                id={product.id}
+                                nameAr={product.name_ar}
+                                imageUrl={product.image_url}
+                                minPrice={lowestPrice}
+                                discount={discountInfo}
+                              />
+                            );
+                          })}
+                        </div>
                       </div>
-                    ) : categorySubCategories.length === 0 && (
+                    )}
+                    
+                    {categoryProducts.length === 0 && categorySubCategories.length === 0 && (
                       <div className="text-center py-12 bg-muted/30 rounded-lg">
                         <p className="text-lg text-muted-foreground">لا توجد منتجات في هذا القسم حالياً</p>
                         <p className="text-sm text-muted-foreground mt-2">سيتم إضافة منتجات جديدة قريباً</p>
