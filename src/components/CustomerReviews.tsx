@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { MessageCircle } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -19,7 +21,7 @@ export const CustomerReviews = () => {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["customer-reviews"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("customer_reviews")
         .select("*")
         .eq("status", "approved")
@@ -28,7 +30,7 @@ export const CustomerReviews = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
@@ -54,9 +56,17 @@ export const CustomerReviews = () => {
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
             آراء عملائنا
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-4">
             ماذا يقول عملاؤنا عن منتجاتنا وخدماتنا
           </p>
+          <Button
+            onClick={() => window.location.href = "/submit-review"}
+            variant="outline"
+            className="gap-2"
+          >
+            <MessageCircle className="h-4 w-4" />
+            شاركنا رأيك
+          </Button>
         </div>
 
         <Carousel
