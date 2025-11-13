@@ -48,6 +48,7 @@ import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
 import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
 import SubmitReview from "./pages/SubmitReview";
 import ScrollToTop from "./components/ScrollToTop";
+import { FloatingReviewButton } from "./components/FloatingReviewButton";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <FloatingReviewButton />
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
