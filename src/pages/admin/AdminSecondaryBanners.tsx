@@ -31,14 +31,11 @@ import { SEO } from "@/components/SEO";
 
 interface SecondaryBanner {
   id: string;
-  title_ar: string | null;
-  title_en: string | null;
-  description_ar: string | null;
-  description_en: string | null;
-  image_url: string;
+  image_url_desktop?: string;
+  image_url_tablet?: string;
+  image_url_mobile?: string;
+  image_url?: string;
   link_url: string | null;
-  button_text_ar: string | null;
-  button_text_en: string | null;
   display_order: number;
   is_active: boolean;
 }
@@ -48,14 +45,11 @@ const AdminSecondaryBanners = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<SecondaryBanner | null>(null);
   const [formData, setFormData] = useState({
-    title_ar: "",
-    title_en: "",
-    description_ar: "",
-    description_en: "",
-    image_url: "",
+    image_url_desktop: "",
+    image_url_tablet: "",
+    image_url_mobile: "",
+    image_url: "", // fallback for backward compatibility
     link_url: "",
-    button_text_ar: "تسوق الآن",
-    button_text_en: "Shop Now",
     display_order: 0,
     is_active: true,
   });
@@ -142,14 +136,10 @@ const AdminSecondaryBanners = () => {
 
   const resetForm = () => {
     setFormData({
-      title_ar: "",
-      title_en: "",
-      description_ar: "",
-      description_en: "",
-      image_url: "",
+      image_url_desktop: "",
+      image_url_tablet: "",
+      image_url_mobile: "",
       link_url: "",
-      button_text_ar: "تسوق الآن",
-      button_text_en: "Shop Now",
       display_order: 0,
       is_active: true,
     });
@@ -160,14 +150,10 @@ const AdminSecondaryBanners = () => {
   const handleEdit = (banner: SecondaryBanner) => {
     setEditingBanner(banner);
     setFormData({
-      title_ar: banner.title_ar || "",
-      title_en: banner.title_en || "",
-      description_ar: banner.description_ar || "",
-      description_en: banner.description_en || "",
-      image_url: banner.image_url,
+      image_url_desktop: banner.image_url_desktop || "",
+      image_url_tablet: banner.image_url_tablet || "",
+      image_url_mobile: banner.image_url_mobile || "",
       link_url: banner.link_url || "",
-      button_text_ar: banner.button_text_ar || "تسوق الآن",
-      button_text_en: banner.button_text_en || "Shop Now",
       display_order: banner.display_order,
       is_active: banner.is_active,
     });
@@ -229,52 +215,6 @@ const AdminSecondaryBanners = () => {
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="title_ar">العنوان (عربي)</Label>
-                        <Input
-                          id="title_ar"
-                          value={formData.title_ar}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title_ar: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="title_en">العنوان (إنجليزي)</Label>
-                        <Input
-                          id="title_en"
-                          value={formData.title_en}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title_en: e.target.value })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="description_ar">الوصف (عربي)</Label>
-                        <Textarea
-                          id="description_ar"
-                          value={formData.description_ar}
-                          onChange={(e) =>
-                            setFormData({ ...formData, description_ar: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="description_en">الوصف (إنجليزي)</Label>
-                        <Textarea
-                          id="description_en"
-                          value={formData.description_en}
-                          onChange={(e) =>
-                            setFormData({ ...formData, description_en: e.target.value })
-                          }
-                        />
-                      </div>
-                    </div>
-
                     <div>
                       <Label>صورة Desktop</Label>
                       <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
@@ -292,7 +232,7 @@ const AdminSecondaryBanners = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="link_url">رابط URL</Label>
+                      <Label htmlFor="link_url">رابط البنر (اختياري)</Label>
                       <Input
                         id="link_url"
                         value={formData.link_url}
@@ -301,29 +241,6 @@ const AdminSecondaryBanners = () => {
                         }
                         placeholder="/products أو https://example.com"
                       />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="button_text_ar">نص الزر (عربي)</Label>
-                        <Input
-                          id="button_text_ar"
-                          value={formData.button_text_ar}
-                          onChange={(e) =>
-                            setFormData({ ...formData, button_text_ar: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="button_text_en">نص الزر (إنجليزي)</Label>
-                        <Input
-                          id="button_text_en"
-                          value={formData.button_text_en}
-                          onChange={(e) =>
-                            setFormData({ ...formData, button_text_en: e.target.value })
-                          }
-                        />
-                      </div>
                     </div>
 
                     <div>

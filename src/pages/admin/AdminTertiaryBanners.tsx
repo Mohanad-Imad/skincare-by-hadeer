@@ -29,14 +29,11 @@ import { SEO } from "@/components/SEO";
 
 interface TertiaryBanner {
   id: string;
-  title_ar: string | null;
-  title_en: string | null;
-  description_ar: string | null;
-  description_en: string | null;
-  image_url: string;
+  image_url_desktop?: string;
+  image_url_tablet?: string;
+  image_url_mobile?: string;
+  image_url?: string;
   link_url: string | null;
-  button_text_ar: string | null;
-  button_text_en: string | null;
   display_order: number;
   is_active: boolean;
 }
@@ -46,14 +43,11 @@ const AdminTertiaryBanners = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<TertiaryBanner | null>(null);
   const [formData, setFormData] = useState({
-    title_ar: "",
-    title_en: "",
-    description_ar: "",
-    description_en: "",
-    image_url: "",
+    image_url_desktop: "",
+    image_url_tablet: "",
+    image_url_mobile: "",
+    image_url: "", // fallback for backward compatibility
     link_url: "",
-    button_text_ar: "تسوق الآن",
-    button_text_en: "Shop Now",
     display_order: 0,
     is_active: true,
   });
@@ -150,14 +144,10 @@ const AdminTertiaryBanners = () => {
 
   const resetForm = () => {
     setFormData({
-      title_ar: "",
-      title_en: "",
-      description_ar: "",
-      description_en: "",
-      image_url: "",
+      image_url_desktop: "",
+      image_url_tablet: "",
+      image_url_mobile: "",
       link_url: "",
-      button_text_ar: "تسوق الآن",
-      button_text_en: "Shop Now",
       display_order: 0,
       is_active: true,
     });
@@ -168,14 +158,10 @@ const AdminTertiaryBanners = () => {
   const handleEdit = (banner: TertiaryBanner) => {
     setEditingBanner(banner);
     setFormData({
-      title_ar: banner.title_ar || "",
-      title_en: banner.title_en || "",
-      description_ar: banner.description_ar || "",
-      description_en: banner.description_en || "",
-      image_url: banner.image_url,
+      image_url_desktop: banner.image_url_desktop || "",
+      image_url_tablet: banner.image_url_tablet || "",
+      image_url_mobile: banner.image_url_mobile || "",
       link_url: banner.link_url || "",
-      button_text_ar: banner.button_text_ar || "تسوق الآن",
-      button_text_en: banner.button_text_en || "Shop Now",
       display_order: banner.display_order,
       is_active: banner.is_active,
     });

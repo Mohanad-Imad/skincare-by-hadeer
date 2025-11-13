@@ -32,11 +32,10 @@ const AdminBanners = () => {
   const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
-    title_ar: "",
-    description_ar: "",
-    image_url: "",
+    image_url_desktop: "",
+    image_url_tablet: "",
+    image_url_mobile: "",
     link_url: "",
-    button_text_ar: "تسوق الآن",
     display_order: 0,
     is_active: true,
   });
@@ -107,11 +106,10 @@ const AdminBanners = () => {
 
   const resetForm = () => {
     setFormData({
-      title_ar: "",
-      description_ar: "",
-      image_url: "",
+      image_url_desktop: "",
+      image_url_tablet: "",
+      image_url_mobile: "",
       link_url: "",
-      button_text_ar: "تسوق الآن",
       display_order: 0,
       is_active: true,
     });
@@ -130,11 +128,10 @@ const AdminBanners = () => {
   const handleEdit = (banner: any) => {
     setEditingBanner(banner);
     setFormData({
-      title_ar: banner.title_ar,
-      description_ar: banner.description_ar || "",
-      image_url: banner.image_url,
+      image_url_desktop: banner.image_url_desktop || "",
+      image_url_tablet: banner.image_url_tablet || "",
+      image_url_mobile: banner.image_url_mobile || "",
       link_url: banner.link_url || "",
-      button_text_ar: banner.button_text_ar || "تسوق الآن",
       display_order: banner.display_order,
       is_active: banner.is_active,
     });
@@ -201,28 +198,7 @@ const AdminBanners = () => {
                 {editingBanner ? "تعديل بنر" : "إضافة بنر جديد"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title_ar">العنوان</Label>
-                <Input
-                  id="title_ar"
-                  value={formData.title_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title_ar: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_ar">الوصف</Label>
-                <Textarea
-                  id="description_ar"
-                  value={formData.description_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_ar: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
+             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>صورة Desktop</Label>
                 <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
@@ -239,24 +215,14 @@ const AdminBanners = () => {
                 {formData.image_url_mobile && <img src={formData.image_url_mobile} className="mt-2 h-20 rounded" />}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="link_url">رابط البنر</Label>
+                <Label htmlFor="link_url">رابط البنر (اختياري)</Label>
                 <Input
                   id="link_url"
                   value={formData.link_url}
                   onChange={(e) =>
                     setFormData({ ...formData, link_url: e.target.value })
                   }
-                  placeholder="/products"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="button_text_ar">نص الزر</Label>
-                <Input
-                  id="button_text_ar"
-                  value={formData.button_text_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, button_text_ar: e.target.value })
-                  }
+                  placeholder="/products أو https://example.com"
                 />
               </div>
               <div className="space-y-2">
