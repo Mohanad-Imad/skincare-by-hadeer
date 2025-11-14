@@ -27,7 +27,9 @@ const AdminStoreSettings = () => {
   const queryClient = useQueryClient();
   const [storeName, setStoreName] = useState("");
   const [currency, setCurrency] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState("");
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [aboutAr, setAboutAr] = useState("");
   const [aboutEn, setAboutEn] = useState("");
   const [phone, setPhone] = useState("");
@@ -40,6 +42,9 @@ const AdminStoreSettings = () => {
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [footerTextAr, setFooterTextAr] = useState("");
   const [footerTextEn, setFooterTextEn] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("");
+  const [secondaryColor, setSecondaryColor] = useState("");
+  const [accentColor, setAccentColor] = useState("");
   const [priceAdjustment, setPriceAdjustment] = useState("");
   const [adjustmentType, setAdjustmentType] = useState<"increase" | "decrease">("increase");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -87,8 +92,37 @@ const AdminStoreSettings = () => {
       setWhatsappUrl(settings.whatsapp_url || "");
       setFooterTextAr(settings.footer_text_ar || "");
       setFooterTextEn(settings.footer_text_en || "");
+      setPrimaryColor(settings.theme_primary_color || "");
+      setSecondaryColor(settings.theme_secondary_color || "");
+      setAccentColor(settings.theme_accent_color || "");
     }
   }, [settings]);
+
+  const handleLogoUpload = async (file: File) => {
+    setIsUploadingLogo(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setLogoUrl(publicUrl);
+      toast.success("تم رفع الشعار بنجاح");
+    } catch (error: any) {
+      toast.error("فشل رفع الشعار: " + error.message);
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
 
   const updateSettingsMutation = useMutation({
     mutationFn: async () => {
@@ -108,6 +142,9 @@ const AdminStoreSettings = () => {
         whatsapp_url: whatsappUrl,
         footer_text_ar: footerTextAr,
         footer_text_en: footerTextEn,
+        theme_primary_color: primaryColor || '330 81% 65%',
+        theme_secondary_color: secondaryColor || '60 4.8% 95.9%',
+        theme_accent_color: accentColor || '60 4.8% 95.9%',
       };
 
       if (!settings?.id) {
@@ -208,13 +245,69 @@ const AdminStoreSettings = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="logoUrl">رابط شعار المتجر (اختياري)</Label>
-              <Input
-                id="logoUrl"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="أدخل رابط الشعار"
-              />
+              <Label htmlFor="logoFile">شعار المتجر (رفع صورة)</Label>
+              <div className="flex flex-col gap-2">
+                <Input
+                  id="logoFile"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setLogoFile(file);
+                      handleLogoUpload(file);
+                    }
+                  }}
+                  disabled={isUploadingLogo}
+                />
+                {logoUrl && (
+                  <div className="mt-2">
+                    <img src={logoUrl} alt="Logo" className="h-16 w-16 object-contain border rounded" />
+                  </div>
+                )}
+                {isUploadingLogo && <p className="text-sm text-muted-foreground">جاري رفع الصورة...</p>}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>ألوان المتجر</CardTitle>
+            <CardDescription>تخصيص ألوان المتجر (قيم HSL)</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="primaryColor">اللون الأساسي</Label>
+                <Input
+                  id="primaryColor"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  placeholder="مثال: 330 81% 65%"
+                />
+                <p className="text-xs text-muted-foreground">صيغة HSL بدون hsl()</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="secondaryColor">اللون الثانوي</Label>
+                <Input
+                  id="secondaryColor"
+                  value={secondaryColor}
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  placeholder="مثال: 60 4.8% 95.9%"
+                />
+                <p className="text-xs text-muted-foreground">صيغة HSL بدون hsl()</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="accentColor">لون التمييز</Label>
+                <Input
+                  id="accentColor"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="مثال: 60 4.8% 95.9%"
+                />
+                <p className="text-xs text-muted-foreground">صيغة HSL بدون hsl()</p>
+              </div>
             </div>
           </CardContent>
         </Card>

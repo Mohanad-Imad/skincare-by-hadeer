@@ -54,6 +54,7 @@ import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingReviewButton } from "./components/FloatingReviewButton";
+import { DynamicTheme } from "./components/DynamicTheme";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <DynamicTheme />
         <Toaster />
         <Sonner />
         <BrowserRouter>
