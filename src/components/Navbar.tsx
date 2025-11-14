@@ -19,6 +19,21 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
 
+  const { data: settings } = useQuery({
+    queryKey: ["store-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_settings" as any)
+        .select("*")
+        .limit(1)
+        .single();
+      if (error) throw error;
+      return data as any;
+    },
+  });
+
+  const storeName = settings?.store_name || "متجر هدير للعناية بالبشرة";
+
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -294,12 +309,17 @@ export const Navbar = () => {
           </Sheet>
 
           {/* Logo - Desktop Only (left side) */}
-          <h1 
-            className="hidden lg:block cursor-pointer text-lg font-bold text-primary whitespace-nowrap" 
+          <div 
+            className="hidden lg:flex items-center gap-2 cursor-pointer" 
             onClick={() => navigate("/")}
           >
-            متجر هدير للعناية بالبشرة
-          </h1>
+            {settings?.logo_url && (
+              <img src={settings.logo_url} alt={storeName} className="h-8 w-8 object-contain" />
+            )}
+            <h1 className="text-lg font-bold text-primary whitespace-nowrap">
+              {storeName}
+            </h1>
+          </div>
         </div>
 
         {/* Center: Desktop Navigation Links */}
@@ -411,13 +431,18 @@ export const Navbar = () => {
           )}
 
           {/* Logo - Mobile Only (centered with absolute positioning) */}
-          <h1 
-            className="lg:hidden cursor-pointer text-base font-bold text-primary whitespace-nowrap sm:text-lg absolute left-1/2 -translate-x-1/2" 
+          <div 
+            className="lg:hidden cursor-pointer flex items-center gap-2 absolute left-1/2 -translate-x-1/2" 
             onClick={() => navigate("/")}
           >
-            <span className="hidden md:inline">متجر هدير للعناية بالبشرة</span>
-            <span className="md:hidden">متجر هدير</span>
-          </h1>
+            {settings?.logo_url && (
+              <img src={settings.logo_url} alt={storeName} className="h-6 w-6 object-contain" />
+            )}
+            <h1 className="text-base font-bold text-primary whitespace-nowrap sm:text-lg">
+              <span className="hidden md:inline">{storeName}</span>
+              <span className="md:hidden">{storeName.split(' ')[0]}</span>
+            </h1>
+          </div>
 
           {/* Cart & Auth - Desktop Only (right side) */}
           <div className="hidden lg:flex items-center gap-1">
