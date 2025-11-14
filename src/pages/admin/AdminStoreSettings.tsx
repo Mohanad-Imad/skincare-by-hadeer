@@ -27,6 +27,19 @@ const AdminStoreSettings = () => {
   const queryClient = useQueryClient();
   const [storeName, setStoreName] = useState("");
   const [currency, setCurrency] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [aboutAr, setAboutAr] = useState("");
+  const [aboutEn, setAboutEn] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [addressAr, setAddressAr] = useState("");
+  const [addressEn, setAddressEn] = useState("");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
+  const [tiktokUrl, setTiktokUrl] = useState("");
+  const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [footerTextAr, setFooterTextAr] = useState("");
+  const [footerTextEn, setFooterTextEn] = useState("");
   const [priceAdjustment, setPriceAdjustment] = useState("");
   const [adjustmentType, setAdjustmentType] = useState<"increase" | "decrease">("increase");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -59,30 +72,55 @@ const AdminStoreSettings = () => {
 
   useEffect(() => {
     if (settings) {
-      setStoreName(settings.store_name);
-      setCurrency(settings.currency);
+      setStoreName(settings.store_name || "");
+      setCurrency(settings.currency || "");
+      setLogoUrl(settings.logo_url || "");
+      setAboutAr(settings.about_ar || "");
+      setAboutEn(settings.about_en || "");
+      setPhone(settings.phone || "");
+      setEmail(settings.email || "");
+      setAddressAr(settings.address_ar || "");
+      setAddressEn(settings.address_en || "");
+      setFacebookUrl(settings.facebook_url || "");
+      setInstagramUrl(settings.instagram_url || "");
+      setTiktokUrl(settings.tiktok_url || "");
+      setWhatsappUrl(settings.whatsapp_url || "");
+      setFooterTextAr(settings.footer_text_ar || "");
+      setFooterTextEn(settings.footer_text_en || "");
     }
   }, [settings]);
 
   const updateSettingsMutation = useMutation({
     mutationFn: async () => {
+      const settingsData = {
+        store_name: storeName,
+        currency: currency,
+        logo_url: logoUrl || null,
+        about_ar: aboutAr,
+        about_en: aboutEn,
+        phone: phone,
+        email: email,
+        address_ar: addressAr,
+        address_en: addressEn,
+        facebook_url: facebookUrl,
+        instagram_url: instagramUrl,
+        tiktok_url: tiktokUrl,
+        whatsapp_url: whatsappUrl,
+        footer_text_ar: footerTextAr,
+        footer_text_en: footerTextEn,
+      };
+
       if (!settings?.id) {
         // Create new settings
         const { error } = await supabase
           .from("store_settings" as any)
-          .insert({
-            store_name: storeName,
-            currency: currency,
-          } as any);
+          .insert(settingsData as any);
         if (error) throw error;
       } else {
         // Update existing settings
         const { error } = await supabase
           .from("store_settings" as any)
-          .update({
-            store_name: storeName,
-            currency: currency,
-          } as any)
+          .update(settingsData as any)
           .eq("id", settings.id);
         if (error) throw error;
       }
@@ -141,43 +179,202 @@ const AdminStoreSettings = () => {
     <div className="container mx-auto p-6">
       <AdminBackButton />
       
-      {/* Store Settings Card */}
-      <Card className="max-w-2xl mx-auto mt-6">
-        <CardHeader>
-          <CardTitle>إعدادات المتجر</CardTitle>
-          <CardDescription>
-            قم بتخصيص اسم المتجر والعملة المستخدمة
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="store-name">اسم المتجر</Label>
-            <Input
-              id="store-name"
-              value={storeName}
-              onChange={(e) => setStoreName(e.target.value)}
-              placeholder="أدخل اسم المتجر"
-            />
-          </div>
+      {/* Store Settings Section */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>المعلومات الأساسية</CardTitle>
+            <CardDescription>قم بتعديل معلومات المتجر الأساسية</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="storeName">اسم المتجر</Label>
+                <Input
+                  id="storeName"
+                  value={storeName}
+                  onChange={(e) => setStoreName(e.target.value)}
+                  placeholder="أدخل اسم المتجر"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="currency">العملة</Label>
+                <Input
+                  id="currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  placeholder="أدخل العملة (مثال: ريال، دينار)"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="logoUrl">رابط شعار المتجر (اختياري)</Label>
+              <Input
+                id="logoUrl"
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                placeholder="أدخل رابط الشعار"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="space-y-2">
-            <Label htmlFor="currency">العملة</Label>
-            <Input
-              id="currency"
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              placeholder="مثال: ريال، دينار، دولار"
-            />
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>نبذة عن المتجر</CardTitle>
+            <CardDescription>معلومات تعريفية عن المتجر</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="aboutAr">النبذة (عربي)</Label>
+              <Input
+                id="aboutAr"
+                value={aboutAr}
+                onChange={(e) => setAboutAr(e.target.value)}
+                placeholder="أدخل النبذة بالعربية"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="aboutEn">النبذة (English)</Label>
+              <Input
+                id="aboutEn"
+                value={aboutEn}
+                onChange={(e) => setAboutEn(e.target.value)}
+                placeholder="Enter description in English"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          <Button 
+        <Card>
+          <CardHeader>
+            <CardTitle>معلومات الاتصال</CardTitle>
+            <CardDescription>بيانات التواصل مع المتجر</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">رقم الهاتف</Label>
+                <Input
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+964XXXXXXXXXX"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">البريد الإلكتروني</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="addressAr">العنوان (عربي)</Label>
+                <Input
+                  id="addressAr"
+                  value={addressAr}
+                  onChange={(e) => setAddressAr(e.target.value)}
+                  placeholder="أدخل العنوان بالعربية"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="addressEn">العنوان (English)</Label>
+                <Input
+                  id="addressEn"
+                  value={addressEn}
+                  onChange={(e) => setAddressEn(e.target.value)}
+                  placeholder="Enter address in English"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>روابط التواصل الاجتماعي</CardTitle>
+            <CardDescription>روابط حساباتك على مواقع التواصل</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="facebookUrl">رابط Facebook</Label>
+                <Input
+                  id="facebookUrl"
+                  value={facebookUrl}
+                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  placeholder="https://facebook.com/..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="instagramUrl">رابط Instagram</Label>
+                <Input
+                  id="instagramUrl"
+                  value={instagramUrl}
+                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  placeholder="https://instagram.com/..."
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tiktokUrl">رابط TikTok</Label>
+                <Input
+                  id="tiktokUrl"
+                  value={tiktokUrl}
+                  onChange={(e) => setTiktokUrl(e.target.value)}
+                  placeholder="https://tiktok.com/..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="whatsappUrl">رابط WhatsApp</Label>
+                <Input
+                  id="whatsappUrl"
+                  value={whatsappUrl}
+                  onChange={(e) => setWhatsappUrl(e.target.value)}
+                  placeholder="https://wa.me/..."
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="footerTextAr">نص التابعنا (عربي)</Label>
+                <Input
+                  id="footerTextAr"
+                  value={footerTextAr}
+                  onChange={(e) => setFooterTextAr(e.target.value)}
+                  placeholder="أدخل النص بالعربية"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="footerTextEn">نص التابعنا (English)</Label>
+                <Input
+                  id="footerTextEn"
+                  value={footerTextEn}
+                  onChange={(e) => setFooterTextEn(e.target.value)}
+                  placeholder="Enter text in English"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button
             onClick={() => updateSettingsMutation.mutate()}
             disabled={updateSettingsMutation.isPending}
+            size="lg"
           >
-            {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ الإعدادات"}
+            {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ جميع الإعدادات"}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Bulk Price Management Card */}
       <Card className="max-w-2xl mx-auto mt-6">

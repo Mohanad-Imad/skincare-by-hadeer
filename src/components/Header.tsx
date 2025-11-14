@@ -1,4 +1,4 @@
-import { ShoppingCart, User, LogOut, Shield, Package } from "lucide-react";
+import { ShoppingCart, User, LogOut, Shield, Package, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,19 @@ import { toast } from "sonner";
 export const Header = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: settings } = useQuery({
+    queryKey: ["store-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_settings" as any)
+        .select("*")
+        .limit(1)
+        .single();
+      if (error) throw error;
+      return data as any;
+    },
+  });
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -99,12 +112,19 @@ export const Header = () => {
           )}
         </div>
 
-        <h1
-          className="cursor-pointer text-xl font-bold text-primary"
+        <div
+          className="cursor-pointer flex items-center gap-2"
           onClick={() => navigate("/")}
         >
-          متجر العناية بالبشرة
-        </h1>
+          {settings?.logo_url ? (
+            <img src={settings.logo_url} alt={settings.store_name} className="h-8 w-8 object-contain" />
+          ) : (
+            <ShoppingBag className="h-6 w-6 text-primary" />
+          )}
+          <h1 className="text-xl font-bold text-primary">
+            {settings?.store_name || "متجر العناية بالبشرة"}
+          </h1>
+        </div>
       </div>
     </header>
   );
