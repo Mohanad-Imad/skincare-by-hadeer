@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          related_id: string | null
+          related_table: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          related_id?: string | null
+          related_table?: string | null
+          title: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          related_id?: string | null
+          related_table?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       banners: {
         Row: {
           button_text_ar: string | null
@@ -24,6 +57,9 @@ export type Database = {
           display_order: number
           id: string
           image_url: string
+          image_url_desktop: string | null
+          image_url_mobile: string | null
+          image_url_tablet: string | null
           is_active: boolean
           link_url: string | null
           title_ar: string | null
@@ -39,6 +75,9 @@ export type Database = {
           display_order?: number
           id?: string
           image_url: string
+          image_url_desktop?: string | null
+          image_url_mobile?: string | null
+          image_url_tablet?: string | null
           is_active?: boolean
           link_url?: string | null
           title_ar?: string | null
@@ -54,6 +93,9 @@ export type Database = {
           display_order?: number
           id?: string
           image_url?: string
+          image_url_desktop?: string | null
+          image_url_mobile?: string | null
+          image_url_tablet?: string | null
           is_active?: boolean
           link_url?: string | null
           title_ar?: string | null
@@ -192,8 +234,10 @@ export type Database = {
           created_at: string | null
           description_ar: string | null
           description_en: string | null
+          display_order: number | null
           id: string
           image_url: string | null
+          is_active: boolean | null
           name_ar: string
           name_en: string
           parent_category_id: string | null
@@ -202,8 +246,10 @@ export type Database = {
           created_at?: string | null
           description_ar?: string | null
           description_en?: string | null
+          display_order?: number | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           name_ar: string
           name_en: string
           parent_category_id?: string | null
@@ -212,8 +258,10 @@ export type Database = {
           created_at?: string | null
           description_ar?: string | null
           description_en?: string | null
+          display_order?: number | null
           id?: string
           image_url?: string | null
+          is_active?: boolean | null
           name_ar?: string
           name_en?: string
           parent_category_id?: string | null
@@ -447,6 +495,54 @@ export type Database = {
           uses_serums?: boolean
           uses_sunscreen?: boolean
           work_environment?: string | null
+        }
+        Relationships: []
+      }
+      customer_reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          customer_image: string | null
+          customer_name: string
+          display_order: number
+          id: string
+          is_active: boolean
+          rating: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          customer_image?: string | null
+          customer_name: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          rating: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          customer_image?: string | null
+          customer_name?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          rating?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -707,6 +803,41 @@ export type Database = {
           },
         ]
       }
+      price_history: {
+        Row: {
+          admin_id: string | null
+          affected_products_count: number
+          change_amount: number
+          change_type: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          affected_products_count?: number
+          change_amount: number
+          change_type: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          admin_id?: string | null
+          affected_products_count?: number
+          change_amount?: number
+          change_type?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       problem_categories: {
         Row: {
           created_at: string
@@ -845,6 +976,53 @@ export type Database = {
           },
           {
             foreignKeyName: "product_makeup_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_reviews: {
+        Row: {
+          comment: string
+          created_at: string | null
+          customer_name: string
+          id: string
+          is_approved: boolean | null
+          is_verified_purchase: boolean | null
+          product_id: string
+          rating: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          customer_name: string
+          id?: string
+          is_approved?: boolean | null
+          is_verified_purchase?: boolean | null
+          product_id: string
+          rating: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          customer_name?: string
+          id?: string
+          is_approved?: boolean | null
+          is_verified_purchase?: boolean | null
+          product_id?: string
+          rating?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -997,7 +1175,9 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          avatar_url: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string
           phone: string | null
@@ -1005,7 +1185,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          avatar_url?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
@@ -1013,7 +1195,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          avatar_url?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
@@ -1096,6 +1280,9 @@ export type Database = {
           display_order: number
           id: string
           image_url: string
+          image_url_desktop: string | null
+          image_url_mobile: string | null
+          image_url_tablet: string | null
           is_active: boolean
           link_url: string | null
           title_ar: string | null
@@ -1111,6 +1298,9 @@ export type Database = {
           display_order?: number
           id?: string
           image_url: string
+          image_url_desktop?: string | null
+          image_url_mobile?: string | null
+          image_url_tablet?: string | null
           is_active?: boolean
           link_url?: string | null
           title_ar?: string | null
@@ -1126,6 +1316,9 @@ export type Database = {
           display_order?: number
           id?: string
           image_url?: string
+          image_url_desktop?: string | null
+          image_url_mobile?: string | null
+          image_url_tablet?: string | null
           is_active?: boolean
           link_url?: string | null
           title_ar?: string | null
@@ -1158,6 +1351,78 @@ export type Database = {
           id?: string
           is_free_delivery?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      store_settings: {
+        Row: {
+          about_ar: string | null
+          about_en: string | null
+          address_ar: string | null
+          address_en: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          facebook_url: string | null
+          footer_text_ar: string | null
+          footer_text_en: string | null
+          id: string
+          instagram_url: string | null
+          logo_url: string | null
+          phone: string | null
+          store_name: string
+          theme_accent_color: string | null
+          theme_primary_color: string | null
+          theme_secondary_color: string | null
+          tiktok_url: string | null
+          updated_at: string
+          whatsapp_url: string | null
+        }
+        Insert: {
+          about_ar?: string | null
+          about_en?: string | null
+          address_ar?: string | null
+          address_en?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          facebook_url?: string | null
+          footer_text_ar?: string | null
+          footer_text_en?: string | null
+          id?: string
+          instagram_url?: string | null
+          logo_url?: string | null
+          phone?: string | null
+          store_name?: string
+          theme_accent_color?: string | null
+          theme_primary_color?: string | null
+          theme_secondary_color?: string | null
+          tiktok_url?: string | null
+          updated_at?: string
+          whatsapp_url?: string | null
+        }
+        Update: {
+          about_ar?: string | null
+          about_en?: string | null
+          address_ar?: string | null
+          address_en?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          facebook_url?: string | null
+          footer_text_ar?: string | null
+          footer_text_en?: string | null
+          id?: string
+          instagram_url?: string | null
+          logo_url?: string | null
+          phone?: string | null
+          store_name?: string
+          theme_accent_color?: string | null
+          theme_primary_color?: string | null
+          theme_secondary_color?: string | null
+          tiktok_url?: string | null
+          updated_at?: string
+          whatsapp_url?: string | null
         }
         Relationships: []
       }
@@ -1218,6 +1483,9 @@ export type Database = {
           display_order: number
           id: string
           image_url: string
+          image_url_desktop: string | null
+          image_url_mobile: string | null
+          image_url_tablet: string | null
           is_active: boolean
           link_url: string | null
           title_ar: string | null
@@ -1233,6 +1501,9 @@ export type Database = {
           display_order?: number
           id?: string
           image_url: string
+          image_url_desktop?: string | null
+          image_url_mobile?: string | null
+          image_url_tablet?: string | null
           is_active?: boolean
           link_url?: string | null
           title_ar?: string | null
@@ -1248,6 +1519,9 @@ export type Database = {
           display_order?: number
           id?: string
           image_url?: string
+          image_url_desktop?: string | null
+          image_url_mobile?: string | null
+          image_url_tablet?: string | null
           is_active?: boolean
           link_url?: string | null
           title_ar?: string | null
@@ -1283,6 +1557,16 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      update_all_product_prices: {
+        Args: {
+          amount_to_add: number
+          p_admin_id: string
+          p_change_type: string
+        }
+        Returns: {
+          updated_count: number
+        }[]
+      }
     }
     Enums: {
       order_status: "new" | "processing" | "shipped" | "delivered" | "cancelled"

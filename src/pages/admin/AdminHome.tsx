@@ -127,7 +127,7 @@ const AdminHome = () => {
     },
     {
       title: "إعدادات المتجر",
-      description: "اسم المتجر والعملة",
+      description: "تخصيص المتجر ومعلومات الاتصال",
       icon: Settings,
       route: "/admin/store-settings",
     },
