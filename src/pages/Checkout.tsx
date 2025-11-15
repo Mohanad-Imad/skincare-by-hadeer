@@ -384,9 +384,8 @@ const Checkout = () => {
         </Button>
         <h1 className="mb-8 text-3xl font-bold">إتمام الطلب</h1>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6 pb-32">
+          <form onSubmit={handleSubmit} className="space-y-6">
               <div className="rounded-lg border p-6">
                 <h2 className="mb-4 text-xl font-semibold">معلومات التوصيل</h2>
                 
@@ -514,65 +513,32 @@ const Checkout = () => {
                   <p className="font-semibold">الدفع عند الاستلام</p>
                 </div>
               </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={createOrderMutation.isPending}
-              >
-                {createOrderMutation.isPending ? "جاري إرسال الطلب..." : "تأكيد الطلب"}
-              </Button>
             </form>
-          </div>
-
-          <div className="h-fit rounded-lg border p-6">
-            <h3 className="mb-4 text-xl font-bold">ملخص الطلب</h3>
-            <div className="mb-4 space-y-2">
-              {cartItems?.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span>
-                    {item.product_variants.products.name_ar} ({item.quantity}×)
-                  </span>
-                  <span>
-                    {Math.round(item.product_variants.price * item.quantity)} د.ع
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-2 border-t pt-4">
-              <div className="flex justify-between text-sm">
-                <span>المجموع الفرعي:</span>
-                <span>{Math.round(subtotal)} د.ع</span>
-              </div>
-              {appliedDiscount && (
-                <div className="flex justify-between text-sm text-green-600">
-                  <span>الخصم ({appliedDiscount.discount_percentage}%):</span>
-                  <span>-{Math.round(discountAmount)} د.ع</span>
-                </div>
-              )}
-              {shippingAmount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span>رسوم التوصيل:</span>
-                  <span>{Math.round(shippingAmount)} د.ع</span>
-                </div>
-              )}
-              {shippingAmount === 0 && shippingSettings && (
-                <div className="flex justify-between text-sm text-green-600">
-                  <span>التوصيل:</span>
-                  <span>مجاني</span>
-                </div>
-              )}
-              <div className="flex justify-between text-lg font-bold">
-                <span>المجموع:</span>
-                <span className="text-primary">{Math.round(total)} د.ع</span>
-              </div>
-            </div>
-          </div>
         </div>
+
+        {/* زر تأكيد الطلب العائم */}
+        {cartItems && cartItems.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
+            <div className="container flex items-center justify-between gap-3">
+              <div className="flex flex-col">
+                <span className="text-xs opacity-90">المجموع الكلي</span>
+                <span className="text-xl font-bold">{Math.round(total)} د.ع</span>
+              </div>
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={handleSubmit}
+                disabled={createOrderMutation.isPending}
+                className="flex-1 max-w-[200px] font-bold"
+              >
+                {createOrderMutation.isPending ? "جاري الإرسال..." : "تأكيد الطلب"}
+              </Button>
+            </div>
+          </div>
+        )}
+        
+        <Footer />
       </div>
-      
-      <Footer />
     </div>
   );
 };
