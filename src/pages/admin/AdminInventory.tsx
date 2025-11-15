@@ -17,11 +17,20 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { toast } from "sonner";
-import { Search, Package, AlertTriangle } from "lucide-react";
+import { Search, Package, AlertTriangle, Filter, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AdminInventory = () => {
   const { isAdmin, isLoading: isCheckingAdmin } = useAdminCheck();
   const [searchTerm, setSearchTerm] = useState("");
+  const [companyFilter, setCompanyFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [minStock, setMinStock] = useState<string>("");
+  const [maxStock, setMaxStock] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: products, isLoading } = useQuery({
@@ -33,6 +42,12 @@ const AdminInventory = () => {
           id,
           name_ar,
           image_url,
+          company_name_ar,
+          is_active,
+          category_id,
+          categories (
+            name_ar
+          ),
           product_variants (
             id,
             size_ar,
@@ -91,8 +106,53 @@ const AdminInventory = () => {
 
   const filteredProducts = products?.filter((product) => {
     const searchLower = searchTerm.toLowerCase();
-    return product.name_ar?.toLowerCase().includes(searchLower);
+    const nameMatch = product.name_ar?.toLowerCase().includes(searchLower);
+    
+    // Company filter
+    const companyMatch = !companyFilter || product.company_name_ar === companyFilter;
+    
+    // Category filter
+    const categoryMatch = !categoryFilter || product.category_id === categoryFilter;
+    
+    // Status filter
+    const statusMatch = !statusFilter || 
+      (statusFilter === "active" && product.is_active) ||
+      (statusFilter === "inactive" && !product.is_active);
+    
+    // Check variants for price and stock filters
+    const hasMatchingVariant = product.product_variants?.some((variant: any) => {
+      // Price filter
+      const priceMatch = (!minPrice || variant.price >= parseFloat(minPrice)) &&
+                         (!maxPrice || variant.price <= parseFloat(maxPrice));
+      
+      // Stock filter
+      const stockMatch = (!minStock || variant.stock_quantity >= parseInt(minStock)) &&
+                         (!maxStock || variant.stock_quantity <= parseInt(maxStock));
+      
+      return priceMatch && stockMatch;
+    });
+    
+    return nameMatch && companyMatch && categoryMatch && statusMatch && 
+           (hasMatchingVariant || (!minPrice && !maxPrice && !minStock && !maxStock));
   });
+
+  // Get unique companies and categories for filters
+  const uniqueCompanies = Array.from(new Set(products?.map(p => p.company_name_ar).filter(Boolean))) as string[];
+  const uniqueCategories = Array.from(new Set(
+    products?.map((p: any) => ({ id: p.category_id, name: p.categories?.name_ar }))
+      .filter((c: any) => c.id && c.name)
+  ));
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setCompanyFilter("");
+    setCategoryFilter("");
+    setMinPrice("");
+    setMaxPrice("");
+    setStatusFilter("");
+    setMinStock("");
+    setMaxStock("");
+  };
 
   const lowStockCount = products?.reduce((count, product) => {
     const lowStockVariants = product.product_variants?.filter((v: any) => v.stock_quantity > 0 && v.stock_quantity <= 5).length || 0;
@@ -152,17 +212,138 @@ const AdminInventory = () => {
         </Card>
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="ابحث عن منتج..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pr-10"
-          />
+      {/* Search and Filters */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="ابحث عن منتج..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            الفلاتر
+          </Button>
+          {(companyFilter || categoryFilter || minPrice || maxPrice || statusFilter || minStock || maxStock) && (
+            <Button
+              variant="ghost"
+              onClick={clearFilters}
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              مسح الفلاتر
+            </Button>
+          )}
         </div>
+
+        {showFilters && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Company Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">الشركة</label>
+                  <Select value={companyFilter} onValueChange={setCompanyFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="جميع الشركات" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">جميع الشركات</SelectItem>
+                      {uniqueCompanies.map((company) => (
+                        <SelectItem key={company} value={company}>
+                          {company}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Category Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">التصنيف</label>
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="جميع التصنيفات" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">جميع التصنيفات</SelectItem>
+                      {uniqueCategories.map((category: any) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Status Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">الحالة</label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="جميع الحالات" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">جميع الحالات</SelectItem>
+                      <SelectItem value="active">نشط</SelectItem>
+                      <SelectItem value="inactive">غير نشط</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Price Range */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">نطاق السعر</label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="من"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="w-full"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="إلى"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Stock Range */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">نطاق الكمية</label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="من"
+                      value={minStock}
+                      onChange={(e) => setMinStock(e.target.value)}
+                      className="w-full"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="إلى"
+                      value={maxStock}
+                      onChange={(e) => setMaxStock(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Inventory Table */}
