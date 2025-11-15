@@ -237,11 +237,11 @@ const ProductDetails = () => {
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
-        <div className="md:grid md:gap-8 md:grid-cols-2">
-          {/* Product Images Gallery - Hidden on mobile, visible on desktop */}
-          <div className="hidden md:block space-y-4">
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Product Images Gallery */}
+          <div className="space-y-4">
             {/* Main Image */}
-            <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
+            <div className="aspect-square overflow-hidden rounded-2xl bg-secondary shadow-lg">
               {productImages.length > 0 ? (
                 <img
                   src={productImages[selectedImageIndex]}
@@ -260,7 +260,7 @@ const ProductDetails = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`aspect-square overflow-hidden rounded-md border-2 transition-all ${selectedImageIndex === index ? "border-primary ring-2 ring-primary/20" : "border-transparent hover:border-primary/50"}`}
+                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${selectedImageIndex === index ? "border-primary scale-105 shadow-md" : "border-transparent hover:border-primary/50 opacity-70 hover:opacity-100"}`}
                   >
                     <img
                       src={imageUrl}
@@ -273,82 +273,63 @@ const ProductDetails = () => {
             )}
           </div>
 
-          {/* Mobile: Compact Product Card */}
-          <div className="md:hidden">
-            {/* Main Image with rounded corners */}
-            <div className="aspect-square overflow-hidden rounded-3xl bg-secondary mb-4">
-              {productImages.length > 0 ? (
-                <img
-                  src={productImages[selectedImageIndex]}
-                  alt={`${product.name_ar} - صورة ${selectedImageIndex + 1}`}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-muted-foreground">بدون صورة</div>
-              )}
-            </div>
-
-            {/* Thumbnails dots */}
-            {productImages.length > 1 && (
-              <div className="flex justify-center gap-2 mb-4">
-                {productImages.map((_, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`h-2 rounded-full transition-all ${selectedImageIndex === index ? "w-6 bg-primary" : "w-2 bg-muted"}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Product Info */}
-          <div className="space-y-3 md:space-y-6">
+          <div className="space-y-6">
             <div>
               {/* Breadcrumbs */}
-              <div className="mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
-                <span className="rounded-md bg-primary/10 px-2 py-1 md:px-3 md:py-1.5 font-medium text-primary/90">
+              <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
+                <span className="rounded-lg bg-primary/10 px-3 py-1.5 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
                   المنتجات
                 </span>
                 <svg 
-                  className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground rotate-180" 
+                  className="h-4 w-4 text-muted-foreground rotate-180" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <span className="rounded-md bg-primary/15 px-2 py-1 md:px-3 md:py-1.5 font-medium text-primary">
+                <span className="rounded-lg bg-primary/15 px-3 py-1.5 font-medium text-primary hover:bg-primary/25 transition-colors">
                   {product.categories?.parent?.name_ar || "العناية بالبشرة"}
                 </span>
                 {(product.categories?.parent || (!product.categories?.parent_category_id && product.categories)) && (
                   <>
                     <svg 
-                      className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground rotate-180" 
+                      className="h-4 w-4 text-muted-foreground rotate-180" 
                       fill="none" 
                       viewBox="0 0 24 24" 
                       stroke="currentColor"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                    <span className="rounded-md bg-primary/20 px-2 py-1 md:px-3 md:py-1.5 font-semibold text-primary">
+                    <span className="rounded-lg bg-primary/20 px-3 py-1.5 font-semibold text-primary hover:bg-primary/30 transition-colors">
                       {product.categories?.name_ar || "تصنيف فرعي"}
                     </span>
                   </>
                 )}
               </div>
               
-              <h1 className="mb-2 text-2xl md:text-3xl font-bold">{product.name_ar}</h1>
+              <h1 className="mb-3 text-3xl md:text-4xl font-bold leading-tight">{product.name_ar}</h1>
               {product.company_name_ar && (
-                <p className="mt-2 text-base md:text-lg font-semibold text-muted-foreground">الشركة: {product.company_name_ar}</p>
+                <p className="text-lg text-muted-foreground flex items-center gap-2">
+                  <span className="font-semibold">الشركة:</span>
+                  <span className="text-primary">{product.company_name_ar}</span>
+                </p>
               )}
             </div>
 
-            {product.description_ar && <p className="text-base md:text-lg leading-relaxed">{product.description_ar}</p>}
+            {product.description_ar && (
+              <p className="text-base md:text-lg leading-relaxed text-foreground/90 bg-muted/30 p-4 rounded-xl">
+                {product.description_ar}
+              </p>
+            )}
 
             {product.skin_type && product.skin_type.length > 0 && (
-              <div>
-                <h3 className="mb-2 text-sm md:text-base font-semibold">مناسب لنوع البشرة:</h3>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border border-primary/20">
+                <h3 className="mb-3 text-base font-semibold flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                  مناسب لنوع البشرة
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {product.skin_type.map((type: string) => {
                     const skinTypeLabels: Record<string, string> = {
@@ -359,7 +340,10 @@ const ProductDetails = () => {
                       normal: "عادية",
                     };
                     return (
-                      <span key={type} className="rounded-full bg-secondary px-3 py-1 text-sm">
+                      <span 
+                        key={type} 
+                        className="rounded-full bg-background border border-primary/30 px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors"
+                      >
                         {skinTypeLabels[type] || type}
                       </span>
                     );
@@ -368,48 +352,30 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Size Selection - Mobile: Horizontal Pills, Desktop: List */}
-            <div>
-              <Label className="mb-2 md:mb-3 block text-sm md:text-base font-semibold">اختاري الحجم</Label>
+            {/* Size Selection */}
+            <div className="bg-card border rounded-xl p-5 shadow-sm">
+              <Label className="mb-4 block text-lg font-bold flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                اختاري الحجم والسعر
+              </Label>
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
-                {/* Mobile: Horizontal Pills */}
-                <div className="flex md:hidden gap-2 overflow-x-auto pb-2">
+                <div className="space-y-3">
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
                     const isSelected = selectedVariant === variant.id;
                     
                     return (
-                      <button
-                        key={variant.id}
-                        type="button"
-                        onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
-                        disabled={isOutOfStock}
-                        className={`flex-shrink-0 px-6 py-3 rounded-full border-2 transition-all text-sm font-medium whitespace-nowrap ${
+                      <div 
+                        key={variant.id} 
+                        className={`flex items-center justify-between rounded-xl border-2 p-4 transition-all cursor-pointer hover:shadow-md ${
                           isOutOfStock 
                             ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
                             : isSelected 
-                              ? 'border-primary bg-primary text-primary-foreground' 
-                              : 'border-border hover:border-primary'
+                              ? 'border-primary bg-primary/5 shadow-md scale-[1.02]' 
+                              : 'border-border hover:border-primary/50'
                         }`}
-                      >
-                        {variant.size_ar}
-                        {isOutOfStock && <span className="mr-1 text-xs">(نفذ)</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Desktop: List View */}
-                <div className="hidden md:block space-y-3">
-                  {product.product_variants.map((variant: any) => {
-                    const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
-                    const isOutOfStock = variant.stock_quantity === 0;
-                    
-                    return (
-                      <div 
-                        key={variant.id} 
-                        className={`flex items-center justify-between rounded-lg border p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
+                        onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
                       >
                         <div className="flex items-center gap-3">
                           <RadioGroupItem 
@@ -419,17 +385,17 @@ const ProductDetails = () => {
                           />
                           <Label 
                             htmlFor={variant.id} 
-                            className={`${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            className={`text-base font-medium ${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {variant.size_ar}
                           </Label>
                           {isOutOfStock && (
-                            <Badge variant="destructive">
+                            <Badge variant="destructive" className="text-xs">
                               نفذت الكمية
                             </Badge>
                           )}
                           {!isOutOfStock && variant.stock_quantity <= 5 && (
-                            <Badge variant="secondary">
+                            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
                               متبقي {variant.stock_quantity}
                             </Badge>
                           )}
@@ -438,13 +404,13 @@ const ProductDetails = () => {
                           {variantDiscount ? (
                             <>
                               <div className="flex items-center gap-2">
-                                <Badge variant="destructive" className="flex items-center gap-1">
+                                <Badge variant="destructive" className="flex items-center gap-1 text-xs animate-pulse">
                                   <Tag className="h-3 w-3" />
                                   خصم {Math.round(variantDiscount.percentage)}%
                                 </Badge>
                               </div>
                               <div className="flex items-baseline gap-2">
-                                <span className="font-bold text-primary">
+                                <span className="text-xl font-bold text-primary">
                                   {Math.round(variantDiscount.discountedPrice)} د.ع
                                 </span>
                                 <span className="text-sm text-muted-foreground line-through">
@@ -453,7 +419,7 @@ const ProductDetails = () => {
                               </div>
                             </>
                           ) : (
-                            <span className="font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            <span className="text-xl font-bold text-primary">{Math.round(variant.price)} د.ع</span>
                           )}
                         </div>
                       </div>
@@ -463,50 +429,18 @@ const ProductDetails = () => {
               </RadioGroup>
             </div>
 
-            {/* Price and Add to Cart - Mobile Sticky */}
-            <div className="md:hidden">
-              {selectedVariant && (() => {
-                const variant = product.product_variants.find((v: any) => v.id === selectedVariant);
-                if (!variant) return null;
-                const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
-                const finalPrice = variantDiscount ? variantDiscount.discountedPrice : variant.price;
-                
-                return (
-                  <div className="flex items-center justify-between gap-4 bg-card/80 backdrop-blur-sm p-4 rounded-2xl border shadow-lg">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">السعر الإجمالي</p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold text-primary">{Math.round(finalPrice)} د.ع</span>
-                        {variantDiscount && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            {Math.round(variant.price)} د.ع
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      size="lg"
-                      disabled={!selectedVariant || addToCartMutation.isPending || variant.stock_quantity === 0}
-                      onClick={handleAddToCart}
-                      className="flex-1 max-w-[160px] h-12 text-base rounded-full"
-                    >
-                      {addToCartMutation.isPending ? "جاري..." : "أضيفي للسلة"}
-                    </Button>
-                  </div>
-                );
-              })()}
+            {/* Add to Cart Button */}
+            <div className="sticky bottom-4 z-10">
+              <Button
+                size="lg"
+                disabled={!selectedVariant || addToCartMutation.isPending}
+                onClick={handleAddToCart}
+                className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              >
+                <ShoppingCart className="ml-2 h-5 w-5" />
+                {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
+              </Button>
             </div>
-
-            {/* Desktop Add to Cart */}
-            <Button
-              size="lg"
-              disabled={!selectedVariant || addToCartMutation.isPending}
-              onClick={handleAddToCart}
-              className="hidden md:flex w-full mt-12 text-lg"
-            >
-              <ShoppingCart className="ml-2 h-5 w-5" />
-              {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
-            </Button>
           </div>
         </div>
       </div>
