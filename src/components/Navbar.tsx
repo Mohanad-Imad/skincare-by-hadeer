@@ -121,7 +121,7 @@ export const Navbar = () => {
         .from("navigation_links")
         .select("*")
         .eq("is_active", true)
-        .in("location", ["navbar", "both"])
+        .eq("show_in_navbar", true)
         .order("display_order", { ascending: true });
       if (error) throw error;
       return (data || []) as any[];
