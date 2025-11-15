@@ -598,6 +598,7 @@ export type Database = {
           features: Json | null
           id: string
           is_active: boolean
+          logo_url: string | null
           page_description_ar: string
           page_description_en: string
           page_subtitle_ar: string | null
@@ -623,6 +624,7 @@ export type Database = {
           features?: Json | null
           id?: string
           is_active?: boolean
+          logo_url?: string | null
           page_description_ar?: string
           page_description_en?: string
           page_subtitle_ar?: string | null
@@ -648,6 +650,7 @@ export type Database = {
           features?: Json | null
           id?: string
           is_active?: boolean
+          logo_url?: string | null
           page_description_ar?: string
           page_description_en?: string
           page_subtitle_ar?: string | null

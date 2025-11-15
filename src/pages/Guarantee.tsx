@@ -100,8 +100,12 @@ const Guarantee = () => {
         </Button>
 
         <section className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-emerald-500/10 mb-6">
-            <ShieldCheck className="w-10 h-10 md:w-12 md:h-12 text-emerald-500" />
+          <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-emerald-500/10 mb-6 overflow-hidden">
+            {guaranteeSettings.logo_url ? (
+              <img src={guaranteeSettings.logo_url} alt="Guarantee" className="w-full h-full object-contain p-2" />
+            ) : (
+              <ShieldCheck className="w-10 h-10 md:w-12 md:h-12 text-emerald-500" />
+            )}
           </div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             {guaranteeSettings.page_title_ar}

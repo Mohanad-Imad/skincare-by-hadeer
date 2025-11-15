@@ -9,12 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ShieldCheck, Plus, Trash2 } from "lucide-react";
+import { ShieldCheck, Plus, Trash2, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AdminGuarantee = () => {
   const queryClient = useQueryClient();
   const [features, setFeatures] = useState<any[]>([]);
+  const [isActive, setIsActive] = useState(true);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const { data: guaranteeSettings, isLoading } = useQuery({
     queryKey: ["admin-guarantee-settings"],
@@ -26,6 +29,8 @@ const AdminGuarantee = () => {
       if (error) throw error;
       if (data) {
         setFeatures((data.features as any[]) || []);
+        setIsActive(data.is_active);
+        setLogoPreview(data.logo_url);
       }
       return data;
     },
@@ -33,15 +38,35 @@ const AdminGuarantee = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (values: any) => {
+      let logoUrl = values.logo_url;
+
+      if (logoFile) {
+        const fileExt = logoFile.name.split('.').pop();
+        const fileName = `guarantee-logo-${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('guarantee-images')
+          .upload(fileName, logoFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('guarantee-images')
+          .getPublicUrl(fileName);
+
+        logoUrl = publicUrl;
+      }
+
       const { error } = await supabase
         .from("guarantee_settings")
-        .update(values)
+        .update({ ...values, logo_url: logoUrl })
         .eq("id", guaranteeSettings?.id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-guarantee-settings"] });
       queryClient.invalidateQueries({ queryKey: ["guarantee-settings"] });
+      setLogoFile(null);
       toast.success("تم تحديث إعدادات الضمان بنجاح");
     },
     onError: () => {
@@ -49,12 +74,29 @@ const AdminGuarantee = () => {
     },
   });
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
     const values = {
-      is_active: formData.get("is_active") === "true",
+      is_active: isActive,
       banner_title_ar: formData.get("banner_title_ar"),
       banner_description_ar: formData.get("banner_description_ar"),
       page_title_ar: formData.get("page_title_ar"),
@@ -64,6 +106,7 @@ const AdminGuarantee = () => {
       contact_title_ar: formData.get("contact_title_ar"),
       contact_description_ar: formData.get("contact_description_ar"),
       features: features,
+      logo_url: logoPreview,
     };
 
     updateMutation.mutate(values);
@@ -116,7 +159,6 @@ const AdminGuarantee = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Status */}
         <Card>
           <CardHeader>
             <CardTitle>حالة العرض</CardTitle>
@@ -124,16 +166,46 @@ const AdminGuarantee = () => {
           <CardContent>
             <div className="flex items-center gap-2">
               <Switch
-                name="is_active"
-                defaultChecked={guaranteeSettings?.is_active}
-                value={guaranteeSettings?.is_active ? "true" : "false"}
+                checked={isActive}
+                onCheckedChange={setIsActive}
               />
               <Label>عرض صفحة الضمان والبنر</Label>
             </div>
           </CardContent>
         </Card>
 
-        {/* Banner Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle>شعار الضمان</CardTitle>
+            <CardDescription>صورة تظهر في البنر وصفحة الضمان</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {logoPreview && (
+              <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
+                <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1"
+                  onClick={removeLogo}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+            <div>
+              <Label htmlFor="logo">رفع شعار</Label>
+              <Input
+                id="logo"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>إعدادات البنر</CardTitle>
@@ -161,7 +233,6 @@ const AdminGuarantee = () => {
           </CardContent>
         </Card>
 
-        {/* Page Content */}
         <Card>
           <CardHeader>
             <CardTitle>محتوى الصفحة</CardTitle>
@@ -198,7 +269,6 @@ const AdminGuarantee = () => {
           </CardContent>
         </Card>
 
-        {/* Features */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -270,7 +340,6 @@ const AdminGuarantee = () => {
           </CardContent>
         </Card>
 
-        {/* Terms */}
         <Card>
           <CardHeader>
             <CardTitle>الشروط والأحكام</CardTitle>
@@ -287,7 +356,6 @@ const AdminGuarantee = () => {
           </CardContent>
         </Card>
 
-        {/* Contact Section */}
         <Card>
           <CardHeader>
             <CardTitle>قسم التواصل</CardTitle>
