@@ -28,13 +28,13 @@ export const GuaranteeBanner = () => {
       onClick={() => navigate("/guarantee")}
     >
       <CardContent className="p-8 md:p-10 xl:p-12 2xl:p-14">
-        <div className="flex items-center justify-around gap-4 md:gap-6">
-          {/* Logo - على اليمين */}
-          <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center overflow-hidden">
+        <div className="flex items-center justify-around gap-6 md:gap-8">
+          {/* Logo - على اليمين - صورة عمودية كبيرة */}
+          <div className="flex-shrink-0 w-32 h-48 md:w-40 md:h-56 rounded-lg bg-emerald-500/10 flex items-center justify-center overflow-hidden">
             {guaranteeSettings.logo_url ? (
-              <img src={guaranteeSettings.logo_url} alt="Guarantee" className="w-full h-full object-contain p-1" />
+              <img src={guaranteeSettings.logo_url} alt="Guarantee" className="w-full h-full object-contain" />
             ) : (
-              <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
+              <ShieldCheck className="w-16 h-16 md:w-20 md:h-20 text-emerald-600 dark:text-emerald-400" />
             )}
           </div>
           
