@@ -181,6 +181,12 @@ const AdminHome = () => {
       route: "/admin/quick-links",
     },
     {
+      title: "روابط التنقل",
+      description: "إدارة روابط النافبار والسايدبار",
+      icon: Link,
+      route: "/admin/navigation-links",
+    },
+    {
       title: "ماركاتنا",
       description: "إدارة الماركات والعلامات",
       icon: Star,

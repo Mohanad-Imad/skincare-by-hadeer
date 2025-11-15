@@ -771,6 +771,45 @@ export type Database = {
           },
         ]
       }
+      navigation_links: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon: string
+          id: string
+          is_active: boolean
+          location: string
+          title_ar: string
+          title_en: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon: string
+          id?: string
+          is_active?: boolean
+          location?: string
+          title_ar: string
+          title_en?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          location?: string
+          title_ar?: string
+          title_en?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
