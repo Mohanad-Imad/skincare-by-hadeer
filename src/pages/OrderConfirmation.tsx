@@ -11,7 +11,7 @@ const OrderConfirmation = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <CheckoutStepper currentStep={3} />
+      <CheckoutStepper currentStep={4} />
       <div className="container flex min-h-[80vh] items-center justify-center py-16">
         <div className="text-center">
           <div className="mb-6 flex justify-center">

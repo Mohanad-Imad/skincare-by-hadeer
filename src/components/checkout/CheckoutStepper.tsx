@@ -2,13 +2,14 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CheckoutStepperProps {
-  currentStep: 1 | 2 | 3;
+  currentStep: 1 | 2 | 3 | 4;
 }
 
 const steps = [
-  { number: 1, label: "السلة", labelEn: "Cart" },
-  { number: 2, label: "معلومات التوصيل", labelEn: "Checkout" },
-  { number: 3, label: "تأكيد الطلب", labelEn: "Confirmation" },
+  { number: 1, label: "أضف إلى السلة", labelEn: "Add to Cart" },
+  { number: 2, label: "إتمام الطلب", labelEn: "Complete Order" },
+  { number: 3, label: "معلومات التوصيل", labelEn: "Delivery Info" },
+  { number: 4, label: "تأكيد الطلب", labelEn: "Order Confirmation" },
 ];
 
 export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {

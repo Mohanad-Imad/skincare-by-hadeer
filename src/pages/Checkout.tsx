@@ -372,7 +372,7 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <CheckoutStepper currentStep={2} />
+      <CheckoutStepper currentStep={3} />
       <div className="container py-8">
         <Button
           variant="ghost"
