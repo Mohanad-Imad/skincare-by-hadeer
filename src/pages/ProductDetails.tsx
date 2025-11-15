@@ -313,13 +313,13 @@ const ProductDetails = () => {
             <h1 className="text-lg md:text-xl font-bold leading-tight">{product.name_ar}</h1>
 
             {/* 2. السعر مع اختيار الحجم */}
-            <div className="bg-card border rounded-xl p-4 shadow-sm">
-              <Label className="mb-3 block text-xs font-bold flex items-center gap-2">
+            <div className="bg-card border rounded-xl p-3 shadow-sm">
+              <Label className="mb-2 block text-xs font-bold flex items-center gap-1.5">
                 <span className="w-1 h-1 bg-primary rounded-full"></span>
                 اختاري الحجم
               </Label>
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
@@ -328,55 +328,55 @@ const ProductDetails = () => {
                     return (
                       <div 
                         key={variant.id} 
-                        className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all cursor-pointer hover:shadow-md ${
+                        className={`flex items-center justify-between rounded-lg border p-2.5 transition-all cursor-pointer ${
                           isOutOfStock 
                             ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
                             : isSelected 
-                              ? 'border-primary bg-primary/5 shadow-md scale-[1.01]' 
+                              ? 'border-primary bg-primary/5 shadow-sm' 
                               : 'border-border hover:border-primary/50'
                         }`}
                         onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <RadioGroupItem 
                             value={variant.id} 
                             id={variant.id} 
                             disabled={isOutOfStock}
-                            className="border-2"
                           />
-                          <Label 
-                            htmlFor={variant.id} 
-                            className={`text-base font-medium cursor-pointer ${isOutOfStock ? 'cursor-not-allowed' : ''}`}
-                          >
-                            {variant.size_ar}
-                          </Label>
-                          {isOutOfStock && (
-                            <Badge variant="secondary" className="text-xs">
-                              غير متوفر
+                          <div className="flex items-center gap-1.5">
+                            <Label 
+                              htmlFor={variant.id} 
+                              className={`text-sm font-medium cursor-pointer ${isOutOfStock ? 'cursor-not-allowed' : ''}`}
+                            >
+                              {variant.size_ar}
+                            </Label>
+                            {isOutOfStock && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                غير متوفر
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {variantDiscount && (
+                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                              -{Math.round(variantDiscount.percentage)}%
                             </Badge>
                           )}
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {variantDiscount ? (
-                            <>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="destructive" className="flex items-center gap-1 text-xs animate-pulse">
-                                  <Tag className="h-3 w-3" />
-                                  خصم {Math.round(variantDiscount.percentage)}%
-                                </Badge>
-                              </div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-lg font-bold text-primary">
-                                  {Math.round(variantDiscount.discountedPrice)} د.ع
+                          <div className="text-right">
+                            {variantDiscount ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-bold text-primary">
+                                  {Math.round(variantDiscount.discountedPrice)}
                                 </span>
-                                <span className="text-xs text-muted-foreground line-through">
-                                  {Math.round(variant.price)} د.ع
+                                <span className="text-[10px] text-muted-foreground line-through">
+                                  {Math.round(variant.price)}
                                 </span>
                               </div>
-                            </>
-                          ) : (
-                            <span className="text-lg font-bold text-primary">{Math.round(variant.price)} د.ع</span>
-                          )}
+                            ) : (
+                              <span className="text-sm font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
