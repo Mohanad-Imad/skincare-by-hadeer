@@ -95,6 +95,7 @@ export default function AdminNavigationLinks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-links"] });
       toast({
         title: "تم التحديث",
         description: "تم تحديث حالة الرابط بنجاح",
@@ -120,6 +121,7 @@ export default function AdminNavigationLinks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-links"] });
       toast({
         title: "تم التحديث",
         description: "تم تحديث ظهور الرابط في شريط التنقل",
@@ -145,6 +147,7 @@ export default function AdminNavigationLinks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-links"] });
       toast({
         title: "تم التحديث",
         description: "تم تحديث ظهور الرابط في القائمة الجانبية",
@@ -178,6 +181,7 @@ export default function AdminNavigationLinks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-links"] });
       toast({
         title: "تم الإضافة",
         description: "تم إضافة الرابط بنجاح",
@@ -205,6 +209,7 @@ export default function AdminNavigationLinks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-links"] });
       toast({
         title: "تم التحديث",
         description: "تم تحديث الرابط بنجاح",
@@ -233,6 +238,7 @@ export default function AdminNavigationLinks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-links"] });
       toast({
         title: "تم الحذف",
         description: "تم حذف الرابط بنجاح",
