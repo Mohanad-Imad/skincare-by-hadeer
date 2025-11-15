@@ -33,12 +33,10 @@ const MakeupBanner = () => {
         {/* Background Image */}
         {banner.image_url && (
           <div 
-            className="absolute inset-0 bg-cover bg-center will-change-transform"
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${banner.image_url})`,
             }}
-            role="img"
-            aria-label={banner.title_ar || 'Makeup banner'}
           />
         )}
 

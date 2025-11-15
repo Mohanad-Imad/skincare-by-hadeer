@@ -30,8 +30,8 @@ export const PWASplashScreen = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center animate-in fade-in will-change-transform">
-      <div className="text-center space-y-6 animate-in zoom-in-95 duration-500 will-change-transform">
+    <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center animate-in fade-in">
+      <div className="text-center space-y-6 animate-in zoom-in-95 duration-500">
         {storeSettings?.logo_url ? (
           <img 
             src={storeSettings.logo_url} 

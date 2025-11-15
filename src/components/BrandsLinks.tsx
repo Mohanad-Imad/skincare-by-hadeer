@@ -54,10 +54,6 @@ export const BrandsLinks = () => {
                       <img
                         src={brand.image_url}
                         alt={brand.title_ar}
-                        width="126"
-                        height="126"
-                        loading="lazy"
-                        decoding="async"
                         className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>

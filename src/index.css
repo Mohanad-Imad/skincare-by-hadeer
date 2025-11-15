@@ -105,36 +105,10 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-cairo;
     direction: rtl;
-    /* Prevent layout shifts during font loading */
-    font-display: optional;
   }
 
   html {
     direction: rtl;
-    /* Reserve space for scrollbar to prevent layout shift */
-    overflow-y: scroll;
-  }
-  
-  /* Prevent layout shifts from images */
-  img {
-    content-visibility: auto;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-  
-  /* Optimize performance and prevent forced reflows */
-  .container,
-  footer,
-  section {
-    contain: layout style;
-  }
-  
-  /* Optimize animations - use only transform and opacity */
-  * {
-    /* Ensure animations use GPU acceleration */
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
   }
 }
 
