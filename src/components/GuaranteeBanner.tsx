@@ -32,7 +32,15 @@ export const GuaranteeBanner = () => {
           {/* Logo - على اليمين */}
           <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center overflow-hidden">
             {guaranteeSettings.logo_url ? (
-              <img src={guaranteeSettings.logo_url} alt="Guarantee" className="w-full h-full object-contain p-1" />
+              <img 
+                src={guaranteeSettings.logo_url} 
+                alt="Guarantee" 
+                width="70"
+                height="70"
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-contain p-1" 
+              />
             ) : (
               <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
             )}
