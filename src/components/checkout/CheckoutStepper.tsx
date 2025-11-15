@@ -34,6 +34,7 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
           {steps.map((step) => {
             const isCompleted = step.number < currentStep;
             const isCurrent = step.number === currentStep;
+            const isLastStepCompleted = isCurrent && step.number === steps.length;
 
             return (
               <div
@@ -46,12 +47,12 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                   className={cn(
                     "w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500",
                     "border-2 bg-background shadow-sm",
-                    isCompleted && "bg-primary border-primary text-primary-foreground",
-                    isCurrent && "border-primary text-primary scale-110 shadow-md ring-2 ring-primary/20",
+                    (isCompleted || isLastStepCompleted) && "bg-primary border-primary text-primary-foreground",
+                    isCurrent && !isLastStepCompleted && "border-primary text-primary scale-110 shadow-md ring-2 ring-primary/20",
                     !isCompleted && !isCurrent && "border-muted text-muted-foreground"
                   )}
                 >
-                  {isCompleted ? (
+                  {isCompleted || isLastStepCompleted ? (
                     <Check className="w-4 h-4 md:w-5 md:h-5" strokeWidth={2.5} />
                   ) : (
                     <span className="text-xs md:text-sm font-bold">{step.number}</span>
@@ -63,9 +64,8 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                   <p
                     className={cn(
                       "text-[10px] md:text-xs font-medium transition-all duration-300 leading-tight",
-                      isCurrent && "text-primary font-semibold",
-                      isCompleted && "text-foreground",
-                      !isCompleted && !isCurrent && "text-muted-foreground"
+                      (isCurrent || isCompleted || isLastStepCompleted) && "text-primary font-semibold",
+                      !isCompleted && !isCurrent && !isLastStepCompleted && "text-muted-foreground"
                     )}
                   >
                     {step.label}
