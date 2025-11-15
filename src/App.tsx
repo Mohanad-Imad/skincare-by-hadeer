@@ -4,61 +4,66 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Products from "./pages/Products";
-import Categories from "./pages/Categories";
-import ProductDetails from "./pages/ProductDetails";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import OrderConfirmation from "./pages/OrderConfirmation";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminHome from "./pages/admin/AdminHome";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminBlogPosts from "./pages/admin/AdminBlogPosts";
-import AdminDiscountCodes from "./pages/admin/AdminDiscountCodes";
-import AdminProductDiscounts from "./pages/admin/AdminProductDiscounts";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminBanners from "./pages/admin/AdminBanners";
-import AdminSecondaryBanners from "./pages/admin/AdminSecondaryBanners";
-import AdminShippingSettings from "./pages/admin/AdminShippingSettings";
-import MyOrders from "./pages/MyOrders";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Consultation from "./pages/Consultation";
-import AdminConsultations from "./pages/admin/AdminConsultations";
-import CelebrityRoutines from "./pages/CelebrityRoutines";
-import CelebrityRoutineDetails from "./pages/CelebrityRoutineDetails";
-import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
-import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
-import AdminBrandsLinks from "./pages/admin/AdminBrandsLinks";
-import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
-import AdminProblemCategories from "./pages/admin/AdminProblemCategories";
-import ProblemSubCategories from "./pages/ProblemSubCategories";
-import Guarantee from "./pages/Guarantee";
-import Makeup from "./pages/Makeup";
-import AdminMakeupBanner from "./pages/admin/AdminMakeupBanner";
-import AdminMakeupCategories from "./pages/admin/AdminMakeupCategories";
-import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
-import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
-import AdminProductReviews from "./pages/admin/AdminProductReviews";
-import AdminNotifications from "./pages/admin/AdminNotifications";
-import AdminGuarantee from "./pages/admin/AdminGuarantee";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminInventory from "./pages/admin/AdminInventory";
-import SubmitReview from "./pages/SubmitReview";
-import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingReviewButton } from "./components/FloatingReviewButton";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { PWASplashScreen } from "./components/PWASplashScreen";
+
+// Lazy load non-critical routes for better performance
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Products = lazy(() => import("./pages/Products"));
+const Categories = lazy(() => import("./pages/Categories"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
+const MyOrders = lazy(() => import("./pages/MyOrders"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Consultation = lazy(() => import("./pages/Consultation"));
+const CelebrityRoutines = lazy(() => import("./pages/CelebrityRoutines"));
+const CelebrityRoutineDetails = lazy(() => import("./pages/CelebrityRoutineDetails"));
+const ProblemSubCategories = lazy(() => import("./pages/ProblemSubCategories"));
+const Guarantee = lazy(() => import("./pages/Guarantee"));
+const Makeup = lazy(() => import("./pages/Makeup"));
+const SubmitReview = lazy(() => import("./pages/SubmitReview"));
+const Profile = lazy(() => import("./pages/Profile"));
+
+// Admin pages - lazy loaded
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminHome = lazy(() => import("./pages/admin/AdminHome"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminBlogPosts = lazy(() => import("./pages/admin/AdminBlogPosts"));
+const AdminDiscountCodes = lazy(() => import("./pages/admin/AdminDiscountCodes"));
+const AdminProductDiscounts = lazy(() => import("./pages/admin/AdminProductDiscounts"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
+const AdminSecondaryBanners = lazy(() => import("./pages/admin/AdminSecondaryBanners"));
+const AdminShippingSettings = lazy(() => import("./pages/admin/AdminShippingSettings"));
+const AdminConsultations = lazy(() => import("./pages/admin/AdminConsultations"));
+const AdminCelebrityRoutines = lazy(() => import("./pages/admin/AdminCelebrityRoutines"));
+const AdminQuickLinks = lazy(() => import("./pages/admin/AdminQuickLinks"));
+const AdminBrandsLinks = lazy(() => import("./pages/admin/AdminBrandsLinks"));
+const AdminTertiaryBanners = lazy(() => import("./pages/admin/AdminTertiaryBanners"));
+const AdminProblemCategories = lazy(() => import("./pages/admin/AdminProblemCategories"));
+const AdminMakeupBanner = lazy(() => import("./pages/admin/AdminMakeupBanner"));
+const AdminMakeupCategories = lazy(() => import("./pages/admin/AdminMakeupCategories"));
+const AdminStoreSettings = lazy(() => import("./pages/admin/AdminStoreSettings"));
+const AdminCustomerReviews = lazy(() => import("./pages/admin/AdminCustomerReviews"));
+const AdminProductReviews = lazy(() => import("./pages/admin/AdminProductReviews"));
+const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
+const AdminGuarantee = lazy(() => import("./pages/admin/AdminGuarantee"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminInventory = lazy(() => import("./pages/admin/AdminInventory"));
 
 const queryClient = new QueryClient();
 
@@ -75,8 +80,9 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <FloatingReviewButton />
-          <Routes>
-          <Route path="/" element={<Index />} />
+          <Suspense fallback={<div className="min-h-screen" />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -125,10 +131,11 @@ const App = () => (
             <Route path="store-settings" element={<AdminStoreSettings />} />
             <Route path="guarantee" element={<AdminGuarantee />} />
           </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          </Suspense>
+        </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
   </HelmetProvider>
