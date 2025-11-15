@@ -274,44 +274,44 @@ const ProductDetails = () => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               {/* Breadcrumbs */}
-              <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
-                <span className="rounded-lg bg-primary/10 px-3 py-1.5 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
+              <div className="mb-3 flex items-center gap-2 text-xs flex-wrap">
+                <span className="rounded-lg bg-primary/10 px-2.5 py-1 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
                   المنتجات
                 </span>
                 <svg 
-                  className="h-4 w-4 text-muted-foreground rotate-180" 
+                  className="h-3 w-3 text-muted-foreground rotate-180" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <span className="rounded-lg bg-primary/15 px-3 py-1.5 font-medium text-primary hover:bg-primary/25 transition-colors">
+                <span className="rounded-lg bg-primary/15 px-2.5 py-1 font-medium text-primary hover:bg-primary/25 transition-colors">
                   {product.categories?.parent?.name_ar || "العناية بالبشرة"}
                 </span>
                 {(product.categories?.parent || (!product.categories?.parent_category_id && product.categories)) && (
                   <>
                     <svg 
-                      className="h-4 w-4 text-muted-foreground rotate-180" 
+                      className="h-3 w-3 text-muted-foreground rotate-180" 
                       fill="none" 
                       viewBox="0 0 24 24" 
                       stroke="currentColor"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                    <span className="rounded-lg bg-primary/20 px-3 py-1.5 font-semibold text-primary hover:bg-primary/30 transition-colors">
+                    <span className="rounded-lg bg-primary/20 px-2.5 py-1 font-semibold text-primary hover:bg-primary/30 transition-colors">
                       {product.categories?.name_ar || "تصنيف فرعي"}
                     </span>
                   </>
                 )}
               </div>
               
-              <h1 className="mb-3 text-3xl md:text-4xl font-bold leading-tight">{product.name_ar}</h1>
+              <h1 className="mb-2 text-xl md:text-2xl font-bold leading-tight">{product.name_ar}</h1>
               {product.company_name_ar && (
-                <p className="text-lg text-muted-foreground flex items-center gap-2">
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <span className="font-semibold">الشركة:</span>
                   <span className="text-primary">{product.company_name_ar}</span>
                 </p>
@@ -319,7 +319,7 @@ const ProductDetails = () => {
             </div>
 
             {product.description_ar && (
-              <p className="text-base md:text-lg leading-relaxed text-foreground/90 bg-muted/30 p-4 rounded-xl">
+              <p className="text-sm leading-relaxed text-foreground/90 bg-muted/30 p-3 rounded-lg">
                 {product.description_ar}
               </p>
             )}
