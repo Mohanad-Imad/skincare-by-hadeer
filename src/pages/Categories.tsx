@@ -143,17 +143,17 @@ const Categories = () => {
                     {categorySubCategories.length > 0 && (
                       <div className="mr-0 lg:mr-12">
                         <h3 className="text-lg font-semibold mb-4 text-muted-foreground">الأقسام الفرعية</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {categorySubCategories.map((subCategory) => {
                             const subCategoryCount = getCategoryProductCount(subCategory.id);
                             return (
                               <Link
                                 key={subCategory.id}
                                 to={`/products?category=${category.id}&subCategory=${subCategory.id}`}
-                                className="group flex flex-col items-center p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md bg-card"
+                                className="group flex items-center gap-4 p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md bg-card"
                               >
                                 {subCategory.image_url && (
-                                  <div className="w-20 h-20 overflow-hidden rounded-md mb-3">
+                                  <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md">
                                     <img 
                                       src={subCategory.image_url} 
                                       alt={subCategory.name_ar} 
@@ -161,14 +161,16 @@ const Categories = () => {
                                     />
                                   </div>
                                 )}
-                                <h4 className="text-sm font-semibold text-center group-hover:text-primary transition-colors">
-                                  {subCategory.name_ar}
-                                </h4>
-                                {subCategoryCount > 0 && (
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    ({subCategoryCount} منتج)
-                                  </p>
-                                )}
+                                <div className="flex-1 text-right">
+                                  <h4 className="text-sm font-semibold group-hover:text-primary transition-colors">
+                                    {subCategory.name_ar}
+                                  </h4>
+                                  {subCategoryCount > 0 && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      ({subCategoryCount} منتج)
+                                    </p>
+                                  )}
+                                </div>
                               </Link>
                             );
                           })}
