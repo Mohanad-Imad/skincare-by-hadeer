@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Music, Phone, Mail, MapPin, ShoppingBag } from "lucide-react";
+import { Facebook, Instagram, Music, Phone, Mail, MapPin, ShoppingBag, MessageCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -70,6 +70,12 @@ export const Footer = () => {
               <li>
                 <Link to="/my-orders" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   طلباتي
+                </Link>
+              </li>
+              <li>
+                <Link to="/submit-review" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  شاركنا رأيك
                 </Link>
               </li>
             </ul>
