@@ -224,23 +224,7 @@ const AdminStoreSettings = () => {
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (updates: any) => {
-      const settingsData = updates || {
-        store_name: storeName,
-        currency: currency,
-        logo_url: logoUrl || null,
-        about_ar: aboutAr,
-        about_en: aboutEn,
-        phone: phone,
-        email: email,
-        address_ar: addressAr,
-        address_en: addressEn,
-        facebook_url: facebookUrl,
-        instagram_url: instagramUrl,
-        tiktok_url: tiktokUrl,
-        whatsapp_url: whatsappUrl,
-        footer_text_ar: footerTextAr,
-        footer_text_en: footerTextEn,
-      };
+      const settingsData = updates;
 
       if (!settings?.id) {
         // Create new settings
@@ -305,7 +289,23 @@ const AdminStoreSettings = () => {
   });
 
   const handleSaveBasicInfo = () => {
-    updateSettingsMutation.mutate({});
+    updateSettingsMutation.mutate({
+      store_name: storeName,
+      currency: currency,
+      logo_url: logoUrl || null,
+      about_ar: aboutAr,
+      about_en: aboutEn,
+      phone: phone,
+      email: email,
+      address_ar: addressAr,
+      address_en: addressEn,
+      facebook_url: facebookUrl,
+      instagram_url: instagramUrl,
+      tiktok_url: tiktokUrl,
+      whatsapp_url: whatsappUrl,
+      footer_text_ar: footerTextAr,
+      footer_text_en: footerTextEn,
+    });
   };
 
   const handleSaveColors = () => {
