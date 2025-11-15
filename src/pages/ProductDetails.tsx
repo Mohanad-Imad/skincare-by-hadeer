@@ -274,52 +274,52 @@ const ProductDetails = () => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <div>
               {/* Breadcrumbs */}
-              <div className="mb-4 flex items-center gap-2 text-sm">
-                <span className="rounded-md bg-primary/10 px-3 py-1.5 font-medium text-primary/90">
+              <div className="mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+                <span className="rounded-md bg-primary/10 px-2 py-1 md:px-3 md:py-1.5 font-medium text-primary/90">
                   المنتجات
                 </span>
                 <svg 
-                  className="h-4 w-4 text-muted-foreground rotate-180" 
+                  className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground rotate-180" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <span className="rounded-md bg-primary/15 px-3 py-1.5 font-medium text-primary">
+                <span className="rounded-md bg-primary/15 px-2 py-1 md:px-3 md:py-1.5 font-medium text-primary">
                   {product.categories?.parent?.name_ar || "العناية بالبشرة"}
                 </span>
                 {(product.categories?.parent || (!product.categories?.parent_category_id && product.categories)) && (
                   <>
                     <svg 
-                      className="h-4 w-4 text-muted-foreground rotate-180" 
+                      className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground rotate-180" 
                       fill="none" 
                       viewBox="0 0 24 24" 
                       stroke="currentColor"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                    <span className="rounded-md bg-primary/20 px-3 py-1.5 font-semibold text-primary">
+                    <span className="rounded-md bg-primary/20 px-2 py-1 md:px-3 md:py-1.5 font-semibold text-primary">
                       {product.categories?.name_ar || "تصنيف فرعي"}
                     </span>
                   </>
                 )}
               </div>
               
-              <h1 className="mb-2 text-3xl font-bold">{product.name_ar}</h1>
+              <h1 className="mb-2 text-2xl md:text-3xl font-bold">{product.name_ar}</h1>
               {product.company_name_ar && (
-                <p className="mt-2 text-lg font-semibold text-muted-foreground">الشركة: {product.company_name_ar}</p>
+                <p className="mt-2 text-base md:text-lg font-semibold text-muted-foreground">الشركة: {product.company_name_ar}</p>
               )}
             </div>
 
-            {product.description_ar && <p className="text-lg leading-relaxed">{product.description_ar}</p>}
+            {product.description_ar && <p className="text-base md:text-lg leading-relaxed">{product.description_ar}</p>}
 
             {product.skin_type && product.skin_type.length > 0 && (
               <div>
-                <h3 className="mb-2 font-semibold">مناسب لنوع البشرة:</h3>
+                <h3 className="mb-2 text-sm md:text-base font-semibold">مناسب لنوع البشرة:</h3>
                 <div className="flex flex-wrap gap-2">
                   {product.skin_type.map((type: string) => {
                     const skinTypeLabels: Record<string, string> = {
@@ -341,9 +341,9 @@ const ProductDetails = () => {
 
             {/* Size Selection */}
             <div>
-              <Label className="mb-3 block text-lg font-semibold">اختاري الحجم</Label>
+              <Label className="mb-2 md:mb-3 block text-base md:text-lg font-semibold">اختاري الحجم</Label>
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
@@ -351,9 +351,9 @@ const ProductDetails = () => {
                     return (
                       <div 
                         key={variant.id} 
-                        className={`flex items-center justify-between rounded-lg border p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
+                        className={`flex items-center justify-between rounded-lg border p-3 md:p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                           <RadioGroupItem 
                             value={variant.id} 
                             id={variant.id} 
@@ -361,41 +361,41 @@ const ProductDetails = () => {
                           />
                           <Label 
                             htmlFor={variant.id} 
-                            className={`${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            className={`text-sm md:text-base ${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {variant.size_ar}
                           </Label>
                           {isOutOfStock && (
-                            <Badge variant="destructive">
+                            <Badge variant="destructive" className="text-xs md:text-sm">
                               نفذت الكمية
                             </Badge>
                           )}
                           {!isOutOfStock && variant.stock_quantity <= 5 && (
-                            <Badge variant="secondary">
+                            <Badge variant="secondary" className="text-xs md:text-sm">
                               متبقي {variant.stock_quantity}
                             </Badge>
                           )}
                         </div>
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex flex-col items-end gap-0.5 md:gap-1">
                           {variantDiscount ? (
                             <>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="destructive" className="flex items-center gap-1">
-                                  <Tag className="h-3 w-3" />
+                              <div className="flex items-center gap-1 md:gap-2">
+                                <Badge variant="destructive" className="flex items-center gap-1 text-xs md:text-sm">
+                                  <Tag className="h-2.5 w-2.5 md:h-3 md:w-3" />
                                   خصم {Math.round(variantDiscount.percentage)}%
                                 </Badge>
                               </div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="font-bold text-primary">
+                              <div className="flex items-baseline gap-1.5 md:gap-2">
+                                <span className="text-sm md:text-base font-bold text-primary">
                                   {Math.round(variantDiscount.discountedPrice)} د.ع
                                 </span>
-                                <span className="text-sm text-muted-foreground line-through">
+                                <span className="text-xs md:text-sm text-muted-foreground line-through">
                                   {Math.round(variant.price)} د.ع
                                 </span>
                               </div>
                             </>
                           ) : (
-                            <span className="font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            <span className="text-sm md:text-base font-bold text-primary">{Math.round(variant.price)} د.ع</span>
                           )}
                         </div>
                       </div>
@@ -410,9 +410,9 @@ const ProductDetails = () => {
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
               onClick={handleAddToCart}
-              className="w-full mt-12"
+              className="w-full mt-6 md:mt-12 text-base md:text-lg"
             >
-              <ShoppingCart className="ml-2 h-5 w-5 " />
+              <ShoppingCart className="ml-2 h-4 w-4 md:h-5 md:w-5" />
               {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
             </Button>
           </div>
