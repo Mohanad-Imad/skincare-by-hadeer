@@ -41,18 +41,22 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
       onClick={() => navigate(`/products/${id}`)}
     >
       <div className="aspect-square overflow-hidden bg-background p-1 relative flex-shrink-0">
-        <div className="absolute top-2 left-2 z-10">
-          <div className="bg-emerald-600 text-white rounded-lg px-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.3)] border border-emerald-700/30 flex flex-col items-center gap-0.5 min-w-[60px]">
-            {guaranteeSettings?.logo_url ? (
-              <img 
-                src={guaranteeSettings.logo_url} 
-                alt="guarantee" 
-                className="h-5 w-5 object-contain drop-shadow-sm"
-              />
-            ) : (
-              <ShieldCheck className="h-4 w-4 drop-shadow-sm" />
-            )}
-            <span className="text-[8px] font-bold leading-tight text-center drop-shadow-sm whitespace-nowrap">أصلي ومضمون</span>
+        <div className="absolute top-0 left-0 z-10">
+          <div className="relative w-24 h-24">
+            <div className="absolute top-0 left-0 w-full h-full bg-emerald-600/80 backdrop-blur-sm shadow-lg" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}>
+            </div>
+            <div className="absolute top-3 left-3 flex flex-col items-center gap-0.5">
+              {guaranteeSettings?.logo_url ? (
+                <img 
+                  src={guaranteeSettings.logo_url} 
+                  alt="guarantee" 
+                  className="h-7 w-7 object-contain drop-shadow-md"
+                />
+              ) : (
+                <ShieldCheck className="h-6 w-6 text-white drop-shadow-md" />
+              )}
+              <span className="text-[7px] font-bold text-white leading-tight text-center drop-shadow-md whitespace-nowrap">أصلي<br/>ومضمون</span>
+            </div>
           </div>
         </div>
         {imageUrl ? (
