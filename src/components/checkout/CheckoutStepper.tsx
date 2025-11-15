@@ -19,7 +19,7 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
           {/* Progress Line */}
           <div 
             className="absolute top-4 md:top-6 h-0.5 md:h-1 bg-muted rounded-full" 
-            style={{ zIndex: 0, left: "10%", right: "10%" }}
+            style={{ zIndex: 0, left: "16.66%", right: "16.66%" }}
           >
             <div
               className="h-full bg-gradient-to-r from-primary to-primary transition-all duration-700 ease-out rounded-full"
