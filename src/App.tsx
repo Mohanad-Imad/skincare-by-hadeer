@@ -56,6 +56,7 @@ import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import { FloatingReviewButton } from "./components/FloatingReviewButton";
 import { DynamicTheme } from "./components/DynamicTheme";
+import { DynamicMetadata } from "./components/DynamicMetadata";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { PWASplashScreen } from "./components/PWASplashScreen";
 
@@ -66,6 +67,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <DynamicTheme />
+        <DynamicMetadata />
         <PWASplashScreen />
         <PWAInstallPrompt />
         <Toaster />
