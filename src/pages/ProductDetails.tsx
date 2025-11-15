@@ -325,12 +325,12 @@ const ProductDetails = () => {
             )}
 
             {product.skin_type && product.skin_type.length > 0 && (
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border border-primary/20">
-                <h3 className="mb-3 text-base font-semibold flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-3 rounded-lg border border-primary/20">
+                <h3 className="mb-2 text-sm font-semibold flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   مناسب لنوع البشرة
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {product.skin_type.map((type: string) => {
                     const skinTypeLabels: Record<string, string> = {
                       oily: "دهنية",
@@ -342,7 +342,7 @@ const ProductDetails = () => {
                     return (
                       <span 
                         key={type} 
-                        className="rounded-full bg-background border border-primary/30 px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors"
+                        className="rounded-full bg-background border border-primary/30 px-3 py-1 text-xs font-medium hover:bg-primary/20 transition-colors"
                       >
                         {skinTypeLabels[type] || type}
                       </span>
@@ -353,13 +353,13 @@ const ProductDetails = () => {
             )}
 
             {/* Size Selection */}
-            <div className="bg-card border rounded-xl p-5 shadow-sm">
-              <Label className="mb-4 block text-lg font-bold flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+            <div className="bg-card border rounded-lg p-3 shadow-sm">
+              <Label className="mb-3 block text-sm font-bold flex items-center gap-2">
+                <span className="w-1 h-1 bg-primary rounded-full"></span>
                 اختاري الحجم والسعر
               </Label>
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
@@ -368,7 +368,7 @@ const ProductDetails = () => {
                     return (
                       <div 
                         key={variant.id} 
-                        className={`flex items-center justify-between rounded-xl border-2 p-4 transition-all cursor-pointer hover:shadow-md ${
+                        className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all cursor-pointer hover:shadow-md ${
                           isOutOfStock 
                             ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
                             : isSelected 
@@ -377,7 +377,7 @@ const ProductDetails = () => {
                         }`}
                         onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2.5">
                           <RadioGroupItem 
                             value={variant.id} 
                             id={variant.id} 
@@ -385,41 +385,39 @@ const ProductDetails = () => {
                           />
                           <Label 
                             htmlFor={variant.id} 
-                            className={`text-base font-medium ${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            className={`text-sm font-medium ${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {variant.size_ar}
                           </Label>
                           {isOutOfStock && (
-                            <Badge variant="destructive" className="text-xs">
+                            <Badge variant="destructive" className="text-xs h-5">
                               نفذت الكمية
                             </Badge>
                           )}
                           {!isOutOfStock && variant.stock_quantity <= 5 && (
-                            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
+                            <Badge variant="secondary" className="text-xs h-5 bg-orange-100 text-orange-800 border-orange-200">
                               متبقي {variant.stock_quantity}
                             </Badge>
                           )}
                         </div>
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex flex-col items-end gap-0.5">
                           {variantDiscount ? (
                             <>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="destructive" className="flex items-center gap-1 text-xs animate-pulse">
-                                  <Tag className="h-3 w-3" />
-                                  خصم {Math.round(variantDiscount.percentage)}%
-                                </Badge>
-                              </div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-xl font-bold text-primary">
+                              <Badge variant="destructive" className="flex items-center gap-1 text-xs h-5 mb-1 animate-pulse">
+                                <Tag className="h-2.5 w-2.5" />
+                                خصم {Math.round(variantDiscount.percentage)}%
+                              </Badge>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-base font-bold text-primary">
                                   {Math.round(variantDiscount.discountedPrice)} د.ع
                                 </span>
-                                <span className="text-sm text-muted-foreground line-through">
+                                <span className="text-xs text-muted-foreground line-through">
                                   {Math.round(variant.price)} د.ع
                                 </span>
                               </div>
                             </>
                           ) : (
-                            <span className="text-xl font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            <span className="text-base font-bold text-primary">{Math.round(variant.price)} د.ع</span>
                           )}
                         </div>
                       </div>
@@ -435,9 +433,9 @@ const ProductDetails = () => {
                 size="lg"
                 disabled={!selectedVariant || addToCartMutation.isPending}
                 onClick={handleAddToCart}
-                className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                className="w-full h-12 text-base font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
               >
-                <ShoppingCart className="ml-2 h-5 w-5" />
+                <ShoppingCart className="ml-2 h-4 w-4" />
                 {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
               </Button>
             </div>
