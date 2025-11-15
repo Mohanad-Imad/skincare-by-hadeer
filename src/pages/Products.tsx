@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
@@ -485,8 +484,6 @@ const Products = () => {
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
         )}
       </div>
-      
-      <Footer />
     </div>
   );
 };

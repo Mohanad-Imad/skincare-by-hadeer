@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -468,8 +467,6 @@ const ProductDetails = () => {
           session={session}
         />
       )}
-
-      <Footer />
     </div>
   );
 };

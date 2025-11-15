@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -255,8 +254,6 @@ const Cart = () => {
             </div>
           </div>
         )}
-
-        <Footer />
       </div>
     );
   }
@@ -392,8 +389,6 @@ const Cart = () => {
           </div>
         </div>
       )}
-      
-      <Footer />
     </div>
   );
 };

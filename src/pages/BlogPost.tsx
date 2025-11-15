@@ -2,7 +2,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Calendar, User, ArrowRight } from "lucide-react";
@@ -118,8 +117,6 @@ const BlogPost = () => {
           </div>
         </div>
       </article>
-      
-      <Footer />
     </div>
   );
 };

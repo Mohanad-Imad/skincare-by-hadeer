@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, User } from "lucide-react";
@@ -90,8 +89,6 @@ const Blog = () => {
           </div>
         )}
       </div>
-      
-      <Footer />
     </div>
   );
 };
