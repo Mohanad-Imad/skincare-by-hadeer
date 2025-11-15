@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const OrderConfirmation = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <CheckoutStepper currentStep={3} />
       <div className="container flex min-h-[80vh] items-center justify-center py-16">
         <div className="text-center">
           <div className="mb-6 flex justify-center">
