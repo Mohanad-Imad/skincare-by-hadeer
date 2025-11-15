@@ -143,14 +143,14 @@ const Categories = () => {
                     {categorySubCategories.length > 0 && (
                       <div className="mr-0 lg:mr-12">
                         <h3 className="text-lg font-semibold mb-4 text-muted-foreground">الأقسام الفرعية</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                           {categorySubCategories.map((subCategory) => {
                             const subCategoryCount = getCategoryProductCount(subCategory.id);
                             return (
                               <Link
                                 key={subCategory.id}
                                 to={`/products?category=${category.id}&subCategory=${subCategory.id}`}
-                                className="group flex items-center gap-4 p-4 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md bg-card"
+                                className="group flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary transition-all hover:shadow-md bg-card"
                               >
                                 {subCategory.image_url && (
                                   <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md">
@@ -161,8 +161,8 @@ const Categories = () => {
                                     />
                                   </div>
                                 )}
-                                <div className="flex-1 text-right">
-                                  <h4 className="text-sm font-semibold group-hover:text-primary transition-colors">
+                                <div className="flex-1 text-right min-w-0">
+                                  <h4 className="text-sm font-semibold group-hover:text-primary transition-colors truncate">
                                     {subCategory.name_ar}
                                   </h4>
                                   {subCategoryCount > 0 && (
