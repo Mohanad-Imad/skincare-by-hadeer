@@ -30,8 +30,12 @@ export const GuaranteeBanner = () => {
       <CardContent className="p-8 md:p-10 xl:p-12 2xl:p-14">
         <div className="flex items-center justify-around gap-4 md:gap-6">
           {/* Logo - على اليمين */}
-          <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-emerald-500/10 flex items-center justify-center overflow-hidden">
+            {guaranteeSettings.logo_url ? (
+              <img src={guaranteeSettings.logo_url} alt="Guarantee" className="w-full h-full object-contain p-1" />
+            ) : (
+              <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
+            )}
           </div>
           
           {/* Content - في المنتصف */}
