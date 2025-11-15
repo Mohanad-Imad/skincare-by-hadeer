@@ -132,191 +132,192 @@ const Index = () => {
       />
       <Navbar />
       
-      {/* Search Bar */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-4 pb-1 md:pb-2 max-w-[1920px] mx-auto">
-        <SearchBar />
-      </section>
-
-      {/* Quick Links */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 max-w-[1920px] mx-auto">
-        <QuickLinks />
-      </section>
-
-      {/* Tertiary Banner - Top promotional banner */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
-        <TertiaryBanner />
-      </section>
-
-      {/* Hero Banner - Advertising Carousel */}
-      <div className="max-w-[1920px] mx-auto px-3 md:px-6 xl:px-8 2xl:px-12">
-        <HeroBanner />
-      </div>
-
-      {/* Secondary Banner - Bottom promotional banner */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
-        <SecondaryBanner />
-      </section>
-
-      {/* Brands Links - Quick access to brands */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
-        <BrandsLinks />
-      </section>
-
-      {/* Makeup Banner */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-2 md:pb-3 max-w-[1920px] mx-auto">
-        <MakeupBanner />
-      </section>
-
-      {/* Shop By Problem Section */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
-        <ShopByProblem />
-      </section>
-
-      {/* Guarantee Banner */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-6 md:pb-8 xl:pb-10 max-w-[1920px] mx-auto min-h-[150px]">
-        <GuaranteeBanner />
-      </section>
-
-      {/* Customer Reviews */}
-      <section className="w-full max-w-[1920px] mx-auto">
-        <CustomerReviews />
-      </section>
-
-      {/* New Arrivals */}
-      {newArrivals && newArrivals.length > 0 && (
-        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
-          <div className="mb-4 md:mb-8 xl:mb-10 text-center">
-            <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">وصل حديثاً</h3>
-            <p className="text-sm md:text-base xl:text-lg text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
-          </div>
-          <Carousel
-            opts={{
-              align: "start",
-              direction: "rtl",
-              slidesToScroll: 1,
-            }}
-            plugins={[
-              Autoplay({
-                delay: 2500,
-              }),
-            ]}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {newArrivals.map((product) => {
-                const discount = product.minPrice 
-                  ? calculateDiscount(product.id, product.minPrice, discounts)
-                  : null;
-                  
-                return (
-                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
-                    <ProductCard
-                      id={product.id}
-                      nameAr={product.name_ar}
-                      imageUrl={product.image_url}
-                      minPrice={product.minPrice}
-                      discount={discount}
-                    />
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+      <main>
+        {/* Search Bar */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-4 pb-1 md:pb-2 max-w-[1920px] mx-auto">
+          <SearchBar />
         </section>
-      )}
 
-
-      {/* Featured Products */}
-      {featuredProducts && featuredProducts.length > 0 && (
-        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
-          <div className="mb-4 md:mb-8 xl:mb-10 text-center">
-            <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">منتجات مميزة</h3>
-            <p className="text-sm md:text-base xl:text-lg text-muted-foreground">أفضل اختياراتنا لك</p>
-          </div>
-          <Carousel
-            opts={{
-              align: "start",
-              direction: "rtl",
-              slidesToScroll: 1,
-            }}
-            plugins={[
-              Autoplay({
-                delay: 2200,
-              }),
-            ]}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {featuredProducts.map((product) => {
-                const discount = product.minPrice 
-                  ? calculateDiscount(product.id, product.minPrice, discounts)
-                  : null;
-                  
-                return (
-                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
-                    <ProductCard
-                      id={product.id}
-                      nameAr={product.name_ar}
-                      imageUrl={product.image_url}
-                      minPrice={product.minPrice}
-                      discount={discount}
-                    />
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+        {/* Quick Links */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 max-w-[1920px] mx-auto">
+          <QuickLinks />
         </section>
-      )}
 
-      {/* Expert Choices */}
-      {expertChoices && expertChoices.length > 0 && (
-        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
-          <div className="mb-4 md:mb-8 xl:mb-10 text-center">
-            <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">اختيار خبراءنا</h3>
-            <p className="text-sm md:text-base xl:text-lg text-muted-foreground">منتجات موصى بها من فريق خبرائنا</p>
-          </div>
-          <Carousel
-            opts={{
-              align: "start",
-              direction: "rtl",
-              slidesToScroll: 1,
-            }}
-            plugins={[
-              Autoplay({
-                delay: 2800,
-              }),
-            ]}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {expertChoices.map((product) => {
-                const discount = product.minPrice 
-                  ? calculateDiscount(product.id, product.minPrice, discounts)
-                  : null;
-                  
-                return (
-                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
-                    <ProductCard
-                      id={product.id}
-                      nameAr={product.name_ar}
-                      imageUrl={product.image_url}
-                      minPrice={product.minPrice}
-                      discount={discount}
-                    />
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+        {/* Tertiary Banner - Top promotional banner */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
+          <TertiaryBanner />
         </section>
-      )}
+
+        {/* Hero Banner - Advertising Carousel */}
+        <div className="max-w-[1920px] mx-auto px-3 md:px-6 xl:px-8 2xl:px-12">
+          <HeroBanner />
+        </div>
+
+        {/* Secondary Banner - Bottom promotional banner */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
+          <SecondaryBanner />
+        </section>
+
+        {/* Brands Links - Quick access to brands */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
+          <BrandsLinks />
+        </section>
+
+        {/* Makeup Banner */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-2 md:pb-3 max-w-[1920px] mx-auto">
+          <MakeupBanner />
+        </section>
+
+        {/* Shop By Problem Section */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
+          <ShopByProblem />
+        </section>
+
+        {/* Guarantee Banner */}
+        <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-6 md:pb-8 xl:pb-10 max-w-[1920px] mx-auto min-h-[150px]">
+          <GuaranteeBanner />
+        </section>
+
+        {/* Customer Reviews */}
+        <section className="w-full max-w-[1920px] mx-auto">
+          <CustomerReviews />
+        </section>
+
+        {/* New Arrivals */}
+        {newArrivals && newArrivals.length > 0 && (
+          <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
+            <div className="mb-4 md:mb-8 xl:mb-10 text-center">
+              <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">وصل حديثاً</h3>
+              <p className="text-sm md:text-base xl:text-lg text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
+            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                direction: "rtl",
+                slidesToScroll: 1,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 2500,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {newArrivals.map((product) => {
+                  const discount = product.minPrice 
+                    ? calculateDiscount(product.id, product.minPrice, discounts)
+                    : null;
+                    
+                  return (
+                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
+                      <ProductCard
+                        id={product.id}
+                        nameAr={product.name_ar}
+                        imageUrl={product.image_url}
+                        minPrice={product.minPrice}
+                        discount={discount}
+                      />
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </section>
+        )}
+
+        {/* Featured Products */}
+        {featuredProducts && featuredProducts.length > 0 && (
+          <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
+            <div className="mb-4 md:mb-8 xl:mb-10 text-center">
+              <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">المنتجات المميزة</h3>
+              <p className="text-sm md:text-base xl:text-lg text-muted-foreground">تسوقي مجموعة مختارة من أفضل منتجاتنا</p>
+            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                direction: "rtl",
+                slidesToScroll: 1,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 3000,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {featuredProducts.map((product) => {
+                  const discount = product.minPrice 
+                    ? calculateDiscount(product.id, product.minPrice, discounts)
+                    : null;
+                    
+                  return (
+                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
+                      <ProductCard
+                        id={product.id}
+                        nameAr={product.name_ar}
+                        imageUrl={product.image_url}
+                        minPrice={product.minPrice}
+                        discount={discount}
+                      />
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </section>
+        )}
+
+        {/* Expert Choices */}
+        {expertChoices && expertChoices.length > 0 && (
+          <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
+            <div className="mb-4 md:mb-8 xl:mb-10 text-center">
+              <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">اختيار خبراءنا</h3>
+              <p className="text-sm md:text-base xl:text-lg text-muted-foreground">منتجات موصى بها من فريق خبرائنا</p>
+            </div>
+            <Carousel
+              opts={{
+                align: "start",
+                direction: "rtl",
+                slidesToScroll: 1,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 2800,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {expertChoices.map((product) => {
+                  const discount = product.minPrice 
+                    ? calculateDiscount(product.id, product.minPrice, discounts)
+                    : null;
+                    
+                  return (
+                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
+                      <ProductCard
+                        id={product.id}
+                        nameAr={product.name_ar}
+                        imageUrl={product.image_url}
+                        minPrice={product.minPrice}
+                        discount={discount}
+                      />
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </section>
+        )}
+      </main>
       
       <Footer />
     </div>
