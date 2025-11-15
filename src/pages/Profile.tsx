@@ -133,8 +133,18 @@ export default function Profile() {
   const uploadAvatar = async (userId: string) => {
     if (!avatarFile) return profile?.avatar_url;
 
+    // Delete old avatar if exists
+    if (profile?.avatar_url) {
+      const oldPath = profile.avatar_url.split('/avatars/')[1];
+      if (oldPath) {
+        await supabase.storage
+          .from("avatars")
+          .remove([oldPath]);
+      }
+    }
+
     const fileExt = avatarFile.name.split(".").pop();
-    const fileName = `${userId}-${Math.random()}.${fileExt}`;
+    const fileName = `avatar.${fileExt}`;
     const filePath = `${userId}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -143,7 +153,10 @@ export default function Profile() {
         upsert: true
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw uploadError;
+    }
 
     const { data } = supabase.storage
       .from("avatars")
