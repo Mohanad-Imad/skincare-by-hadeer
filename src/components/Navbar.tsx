@@ -128,6 +128,20 @@ export const Navbar = () => {
     },
   });
 
+  const { data: sidebarLinks = [] } = useQuery<any[]>({
+    queryKey: ["sidebar-links"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("navigation_links")
+        .select("*")
+        .eq("is_active", true)
+        .eq("show_in_sidebar", true)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return (data || []) as any[];
+    },
+  });
+
   const displayCartCount = session?.user ? cartCount : getLocalCartCount();
 
   const isActive = (path: string) => location.pathname === path;
@@ -241,7 +255,7 @@ export const Navbar = () => {
                   </CollapsibleContent>
                 </Collapsible>
 
-                {navigationLinks.map((link: any) => {
+                {sidebarLinks.map((link: any) => {
                   return (
                     <Button
                       key={link.id}
