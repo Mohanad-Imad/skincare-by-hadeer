@@ -232,11 +232,45 @@ const ProductDetails = () => {
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="mb-4 gap-2"
+          className="mb-2 gap-2"
         >
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
+        
+        {/* Breadcrumbs */}
+        <div className="flex items-center gap-2 text-xs flex-wrap mb-4">
+          <span className="rounded-lg bg-primary/10 px-2.5 py-1 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
+            المنتجات
+          </span>
+          <svg 
+            className="h-3 w-3 text-muted-foreground rotate-180" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          {product.categories?.parent && (
+            <>
+              <span className="rounded-lg bg-primary/15 px-2.5 py-1 font-medium text-primary hover:bg-primary/25 transition-colors">
+                {product.categories.parent.name_ar || "تصنيف رئيسي"}
+              </span>
+              <svg 
+                className="h-3 w-3 text-muted-foreground rotate-180" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="rounded-lg bg-primary/20 px-2.5 py-1 font-semibold text-primary hover:bg-primary/30 transition-colors">
+                {product.categories?.name_ar || "تصنيف فرعي"}
+              </span>
+            </>
+          )}
+        </div>
+
         <div className="grid gap-8 md:grid-cols-2">
           {/* Product Images Gallery */}
           <div className="space-y-4">
@@ -275,39 +309,6 @@ const ProductDetails = () => {
 
           {/* Product Info */}
           <div className="space-y-4">
-            {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-xs flex-wrap">
-              <span className="rounded-lg bg-primary/10 px-2.5 py-1 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
-                المنتجات
-              </span>
-              <svg 
-                className="h-3 w-3 text-muted-foreground rotate-180" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              {product.categories?.parent && (
-                <>
-                  <span className="rounded-lg bg-primary/15 px-2.5 py-1 font-medium text-primary hover:bg-primary/25 transition-colors">
-                    {product.categories.parent.name_ar || "تصنيف رئيسي"}
-                  </span>
-                  <svg 
-                    className="h-3 w-3 text-muted-foreground rotate-180" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span className="rounded-lg bg-primary/20 px-2.5 py-1 font-semibold text-primary hover:bg-primary/30 transition-colors">
-                    {product.categories?.name_ar || "تصنيف فرعي"}
-                  </span>
-                </>
-              )}
-            </div>
-            
             {/* 1. الاسم */}
             <h1 className="text-2xl md:text-3xl font-bold leading-tight">{product.name_ar}</h1>
 
