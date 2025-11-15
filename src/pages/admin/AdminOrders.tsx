@@ -873,61 +873,21 @@ const AdminOrders = () => {
                       <div className="space-y-3">
                         <h4 className="font-semibold text-sm">المنتجات المطلوبة:</h4>
                         {order.order_items && order.order_items.length > 0 ? (
-                          <div className="overflow-x-auto">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead className="font-bold w-32">البيان</TableHead>
-                                  {order.order_items.map((item: any, index: number) => (
-                                    <TableHead key={item.id} className="text-center font-bold">
-                                      منتج {index + 1}
-                                    </TableHead>
-                                  ))}
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                <TableRow>
-                                  <TableCell className="font-medium bg-muted/50">اسم المنتج</TableCell>
-                                  {order.order_items.map((item: any) => (
-                                    <TableCell key={item.id} className="text-center">
-                                      {item.product_name_ar}
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium bg-muted/50">الحجم</TableCell>
-                                  {order.order_items.map((item: any) => (
-                                    <TableCell key={item.id} className="text-center">
-                                      {item.variant_size_ar}
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium bg-muted/50">السعر</TableCell>
-                                  {order.order_items.map((item: any) => (
-                                    <TableCell key={item.id} className="text-center">
-                                      {Math.round(Number(item.price))} د.ع
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium bg-muted/50">الكمية</TableCell>
-                                  {order.order_items.map((item: any) => (
-                                    <TableCell key={item.id} className="text-center font-bold text-lg">
-                                      {item.quantity}
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium bg-muted/50">المجموع الفرعي</TableCell>
-                                  {order.order_items.map((item: any) => (
-                                    <TableCell key={item.id} className="text-center font-semibold">
-                                      {Math.round(Number(item.subtotal))} د.ع
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                              </TableBody>
-                            </Table>
+                          <div className="space-y-2">
+                            {order.order_items.map((item: any) => (
+                              <div key={item.id} className="flex justify-between items-center p-3 bg-background rounded-md border">
+                                <div className="flex-1">
+                                  <p className="font-medium">{item.product_name_ar}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    الحجم: {item.variant_size_ar}
+                                  </p>
+                                </div>
+                                <div className="text-left">
+                                  <p className="text-sm">الكمية: {item.quantity}</p>
+                                  <p className="font-medium">{Math.round(item.subtotal)} د.ع</p>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground">لا توجد منتجات</p>
