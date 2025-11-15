@@ -298,45 +298,116 @@ const AdminOrders = () => {
   };
 
   // Export to Excel
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!filteredOrders || filteredOrders.length === 0) {
       toast.error("لا توجد طلبات للتصدير");
       return;
     }
 
-    const excelData = filteredOrders.map((order) => ({
-      "رقم الطلب": order.id.slice(0, 8),
-      "اسم العميل": order.customer_name,
-      "الهاتف": order.customer_phone,
-      "العنوان": order.customer_address,
-      "الحالة": statusLabels[order.status as keyof typeof statusLabels],
-      "المبلغ الإجمالي": Math.round(Number(order.total_amount)),
-      "مبلغ الشحن": Math.round(Number(order.shipping_amount)),
-      "الخصم": Math.round(Number(order.discount_amount || 0)),
-      "التاريخ": format(new Date(order.created_at), "yyyy-MM-dd HH:mm"),
-      "ملاحظات": order.notes || "",
-    }));
+    try {
+      // Fetch store settings for currency
+      const { data: storeSettings } = await supabase
+        .from("store_settings")
+        .select("currency")
+        .limit(1)
+        .single();
+      
+      const currency = storeSettings?.currency || "د.ع";
 
-    const ws = XLSX.utils.json_to_sheet(excelData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "الطلبات");
-    
-    // Set column widths
-    ws['!cols'] = [
-      { wch: 15 }, // رقم الطلب
-      { wch: 20 }, // اسم العميل
-      { wch: 15 }, // الهاتف
-      { wch: 30 }, // العنوان
-      { wch: 15 }, // الحالة
-      { wch: 12 }, // المبلغ
-      { wch: 12 }, // الشحن
-      { wch: 12 }, // الخصم
-      { wch: 18 }, // التاريخ
-      { wch: 30 }, // ملاحظات
-    ];
+      const wb = XLSX.utils.book_new();
 
-    XLSX.writeFile(wb, `orders_${format(new Date(), "yyyy-MM-dd")}.xlsx`);
-    toast.success("تم تصدير البيانات بنجاح");
+      // Create detailed products sheet
+      const productsData: any[] = [];
+      
+      filteredOrders.forEach((order) => {
+        const orderItems = order.order_items || [];
+        
+        orderItems.forEach((item: any, index: number) => {
+          productsData.push({
+            "رقم الطلب": order.id.slice(0, 8),
+            "اسم العميل": order.customer_name,
+            "الهاتف": order.customer_phone,
+            "العنوان": order.customer_address,
+            "المنتج": item.product_name_ar,
+            "الحجم": item.variant_size_ar,
+            "السعر": Math.round(Number(item.price)),
+            "الكمية": item.quantity,
+            "المجموع الفرعي": Math.round(Number(item.subtotal)),
+            "حالة الطلب": statusLabels[order.status as keyof typeof statusLabels],
+            "ملاحظات": order.notes || "",
+            "تاريخ الطلب": format(new Date(order.created_at), "yyyy-MM-dd HH:mm"),
+          });
+        });
+      });
+
+      const wsProducts = XLSX.utils.json_to_sheet(productsData);
+      
+      // Set column widths for products sheet
+      wsProducts['!cols'] = [
+        { wch: 12 }, // رقم الطلب
+        { wch: 20 }, // اسم العميل
+        { wch: 15 }, // الهاتف
+        { wch: 30 }, // العنوان
+        { wch: 25 }, // المنتج
+        { wch: 15 }, // الحجم
+        { wch: 10 }, // السعر
+        { wch: 8 },  // الكمية
+        { wch: 15 }, // المجموع
+        { wch: 15 }, // الحالة
+        { wch: 30 }, // ملاحظات
+        { wch: 18 }, // التاريخ
+      ];
+
+      XLSX.utils.book_append_sheet(wb, wsProducts, "تفاصيل المنتجات");
+
+      // Create orders summary sheet
+      const ordersData = filteredOrders.map((order) => {
+        const orderItems = order.order_items || [];
+        const totalItems = orderItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
+        const subtotal = orderItems.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0);
+        
+        return {
+          "رقم الطلب": order.id.slice(0, 8),
+          "اسم العميل": order.customer_name,
+          "الهاتف": order.customer_phone,
+          "العنوان": order.customer_address,
+          "عدد المنتجات": totalItems,
+          "المجموع الفرعي": Math.round(subtotal),
+          "الخصم": Math.round(Number(order.discount_amount || 0)),
+          "التوصيل": Math.round(Number(order.shipping_amount)),
+          "المجموع الكلي": Math.round(Number(order.total_amount)),
+          "الحالة": statusLabels[order.status as keyof typeof statusLabels],
+          "التاريخ": format(new Date(order.created_at), "yyyy-MM-dd HH:mm"),
+          "ملاحظات": order.notes || "",
+        };
+      });
+
+      const wsOrders = XLSX.utils.json_to_sheet(ordersData);
+      
+      // Set column widths for orders sheet
+      wsOrders['!cols'] = [
+        { wch: 12 }, // رقم الطلب
+        { wch: 20 }, // اسم العميل
+        { wch: 15 }, // الهاتف
+        { wch: 30 }, // العنوان
+        { wch: 12 }, // عدد المنتجات
+        { wch: 15 }, // المجموع الفرعي
+        { wch: 10 }, // الخصم
+        { wch: 10 }, // التوصيل
+        { wch: 15 }, // المجموع الكلي
+        { wch: 15 }, // الحالة
+        { wch: 18 }, // التاريخ
+        { wch: 30 }, // ملاحظات
+      ];
+
+      XLSX.utils.book_append_sheet(wb, wsOrders, "ملخص الطلبات");
+
+      XLSX.writeFile(wb, `orders_detailed_${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+      toast.success("تم تصدير البيانات بنجاح");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      toast.error("حدث خطأ أثناء التصدير");
+    }
   };
 
   // Export single order details to Excel
