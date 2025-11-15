@@ -2,28 +2,27 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CheckoutStepperProps {
-  currentStep: 1 | 2 | 3 | 4;
+  currentStep: 1 | 2 | 3;
 }
 
 const steps = [
   { number: 1, label: "أضف إلى السلة", labelEn: "Add to Cart" },
   { number: 2, label: "إتمام الطلب", labelEn: "Complete Order" },
   { number: 3, label: "معلومات التوصيل", labelEn: "Delivery Info" },
-  { number: 4, label: "تأكيد الطلب", labelEn: "Order Confirmation" },
 ];
 
 export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
   return (
-    <div className="w-full py-4 md:py-6 bg-muted/20">
-      <div className="max-w-4xl mx-auto px-2 md:px-4">
+    <div className="w-full py-6 md:py-8 bg-gradient-to-b from-muted/30 to-background">
+      <div className="max-w-3xl mx-auto px-3 md:px-6">
         <div className="flex items-center justify-between relative">
           {/* Progress Line */}
           <div 
-            className="absolute top-4 md:top-5 h-0.5 bg-muted" 
-            style={{ zIndex: 0, left: "5%", right: "5%" }}
+            className="absolute top-5 md:top-6 h-1 bg-muted rounded-full overflow-hidden" 
+            style={{ zIndex: 0, left: "8%", right: "8%" }}
           >
             <div
-              className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-in-out"
+              className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary transition-all duration-1000 ease-out"
               style={{
                 width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
               }}
@@ -45,26 +44,26 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                 {/* Circle */}
                 <div
                   className={cn(
-                    "w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500",
-                    "border-2 bg-background shadow-sm",
-                    (isCompleted || isLastStepCompleted) && "bg-primary border-primary text-primary-foreground",
-                    isCurrent && !isLastStepCompleted && "border-primary text-primary scale-110 shadow-md ring-2 ring-primary/20",
-                    !isCompleted && !isCurrent && "border-muted text-muted-foreground"
+                    "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500",
+                    "border-[3px] bg-background shadow-lg",
+                    (isCompleted || isLastStepCompleted) && "bg-gradient-to-br from-primary to-primary/80 border-primary text-primary-foreground shadow-primary/30 animate-scale-in",
+                    isCurrent && !isLastStepCompleted && "border-primary text-primary scale-125 shadow-xl ring-4 ring-primary/30",
+                    !isCompleted && !isCurrent && "border-muted-foreground/30 text-muted-foreground"
                   )}
                 >
                   {isCompleted || isLastStepCompleted ? (
-                    <Check className="w-4 h-4 md:w-5 md:h-5" strokeWidth={2.5} />
+                    <Check className="w-5 h-5 md:w-6 md:h-6" strokeWidth={3} />
                   ) : (
-                    <span className="text-xs md:text-sm font-bold">{step.number}</span>
+                    <span className="text-sm md:text-base font-bold">{step.number}</span>
                   )}
                 </div>
 
                 {/* Label */}
-                <div className="mt-1.5 md:mt-2 text-center max-w-[70px] md:max-w-[100px]">
+                <div className="mt-2 md:mt-3 text-center max-w-[90px] md:max-w-[110px]">
                   <p
                     className={cn(
-                      "text-[10px] md:text-xs font-medium transition-all duration-300 leading-tight",
-                      (isCurrent || isCompleted || isLastStepCompleted) && "text-primary font-semibold",
+                      "text-[11px] md:text-sm font-semibold transition-all duration-300 leading-tight",
+                      (isCurrent || isCompleted || isLastStepCompleted) && "text-primary",
                       !isCompleted && !isCurrent && !isLastStepCompleted && "text-muted-foreground"
                     )}
                   >
