@@ -148,6 +148,20 @@ export const Navbar = () => {
                   الرئيسية
                 </Button>
 
+                <Button
+                  variant={isActive("/cart") ? "default" : "ghost"}
+                  className="justify-start gap-2 relative"
+                  onClick={() => handleNavigate("/cart")}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  السلة
+                  {displayCartCount > 0 && (
+                    <span className="mr-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                      {displayCartCount}
+                    </span>
+                  )}
+                </Button>
+
                 <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                   <CollapsibleTrigger asChild>
                     <Button
