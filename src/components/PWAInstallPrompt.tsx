@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Download } from 'lucide-react';
+import { X, Download, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -7,25 +7,49 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+};
+
+const isInStandaloneMode = () => {
+  return (window.matchMedia('(display-mode: standalone)').matches) || 
+         (window.navigator as any).standalone === true;
+};
+
 export const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      
-      // Check if user has dismissed the prompt before
-      const dismissed = localStorage.getItem('pwa-install-dismissed');
-      if (!dismissed) {
-        setShowPrompt(true);
-      }
-    };
+    // Check if already installed
+    if (isInStandaloneMode()) {
+      return;
+    }
 
-    window.addEventListener('beforeinstallprompt', handler);
+    const iOS = isIOS();
+    setIsIOSDevice(iOS);
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    // Check if user has dismissed the prompt before
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    
+    if (iOS && !dismissed) {
+      // Show iOS instructions
+      setShowPrompt(true);
+    } else {
+      // Android/Desktop - listen for beforeinstallprompt
+      const handler = (e: Event) => {
+        e.preventDefault();
+        setDeferredPrompt(e as BeforeInstallPromptEvent);
+        
+        if (!dismissed) {
+          setShowPrompt(true);
+        }
+      };
+
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+    }
   }, []);
 
   const handleInstallClick = async () => {
@@ -61,23 +85,40 @@ export const PWAInstallPrompt = () => {
         
         <div className="flex items-start gap-3 mb-3">
           <div className="bg-primary/10 p-2 rounded-lg">
-            <Download className="h-5 w-5 text-primary" />
+            {isIOSDevice ? (
+              <Share className="h-5 w-5 text-primary" />
+            ) : (
+              <Download className="h-5 w-5 text-primary" />
+            )}
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-sm mb-1">أضف التطبيق للشاشة الرئيسية</h3>
-            <p className="text-xs text-muted-foreground">
-              استمتع بتجربة أفضل وأسرع مع تطبيقنا على شاشتك الرئيسية
-            </p>
+            {isIOSDevice ? (
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>لتثبيت التطبيق على آيفون:</p>
+                <ol className="list-decimal list-inside space-y-0.5 mr-2">
+                  <li>اضغط على زر المشاركة <Share className="inline h-3 w-3" /> في الأسفل</li>
+                  <li>اختر "إضافة إلى الشاشة الرئيسية"</li>
+                  <li>اضغط "إضافة"</li>
+                </ol>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                استمتع بتجربة أفضل وأسرع مع تطبيقنا على شاشتك الرئيسية
+              </p>
+            )}
           </div>
         </div>
         
-        <Button 
-          onClick={handleInstallClick}
-          className="w-full"
-          size="sm"
-        >
-          تثبيت التطبيق
-        </Button>
+        {!isIOSDevice && (
+          <Button 
+            onClick={handleInstallClick}
+            className="w-full"
+            size="sm"
+          >
+            تثبيت التطبيق
+          </Button>
+        )}
       </div>
     </div>
   );
