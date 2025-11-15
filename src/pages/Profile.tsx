@@ -135,16 +135,16 @@ export default function Profile() {
 
     const fileExt = avatarFile.name.split(".").pop();
     const fileName = `${userId}-${Math.random()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from("customer-reviews")
+      .from("avatars")
       .upload(filePath, avatarFile);
 
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
-      .from("customer-reviews")
+      .from("avatars")
       .getPublicUrl(filePath);
 
     return data.publicUrl;
