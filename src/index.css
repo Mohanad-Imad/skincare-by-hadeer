@@ -118,6 +118,8 @@ All colors MUST be HSL.
   /* Prevent layout shifts from images */
   img {
     content-visibility: auto;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
   
   /* Optimize performance and prevent forced reflows */

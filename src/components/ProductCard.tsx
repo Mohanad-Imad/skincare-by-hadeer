@@ -48,6 +48,10 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
                 <img 
                   src={guaranteeSettings.logo_url} 
                   alt="guarantee" 
+                  width="12"
+                  height="12"
+                  loading="lazy"
+                  decoding="async"
                   className="h-3 w-3 object-contain drop-shadow-sm"
                 />
               ) : (
@@ -65,6 +69,8 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
             <img
               src={imageUrl}
               alt={nameAr}
+              loading="lazy"
+              decoding="async"
               className={`h-full w-full object-cover transition-transform group-hover:scale-105 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
