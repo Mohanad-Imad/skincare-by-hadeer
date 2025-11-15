@@ -105,8 +105,6 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-cairo;
     direction: rtl;
-    /* Prevent layout shifts during font loading */
-    font-display: optional;
   }
 
   html {
