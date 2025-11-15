@@ -263,6 +263,29 @@ const Cart = () => {
             </div>
           )}
         </div>
+
+        {/* زر إتمام الطلب العائم للمستخدم غير المسجل */}
+        {localCartItems && localCartItems.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg p-4 md:hidden z-50">
+            <div className="container flex items-center justify-between gap-4">
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">المجموع</span>
+                <span className="text-lg font-bold text-primary">{Math.round(localTotal)} د.ع</span>
+              </div>
+              <Button
+                size="lg"
+                onClick={() => {
+                  toast.info("يجب تسجيل الدخول لإتمام الطلب");
+                  navigate("/auth");
+                }}
+                className="flex-1 max-w-xs"
+              >
+                تسجيل الدخول لإتمام الطلب
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Footer />
       </div>
     );
@@ -297,55 +320,45 @@ const Cart = () => {
                 <div key={item.id} className="rounded-lg border p-4">
                   <div className="flex gap-4">
                     {/* صورة المنتج */}
-                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
-                      {item.product_variants.products.image_url ? (
-                        <img
-                          src={item.product_variants.products.image_url}
-                          alt={item.product_variants.products.name_ar}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                          بدون صورة
-                        </div>
-                      )}
-                    </div>
+                    <img
+                      src={item.product_variants.products.image_url || "/placeholder.svg"}
+                      alt={item.product_variants.products.name_ar}
+                      className="h-24 w-24 rounded-md object-cover"
+                      loading="lazy"
+                    />
 
-                    {/* معلومات المنتج */}
-                    <div className="flex flex-1 flex-col gap-3">
-                      <div className="space-y-1">
-                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
-                          {item.product_variants.products.name_ar}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {item.product_variants.size_ar}
-                        </p>
-                      </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">
+                        {item.product_variants.products.name_ar}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {item.product_variants.size_ar}
+                      </p>
                       
-                      {/* السعر والخصم */}
-                      <div>
+                      {/* السعر مع الخصم */}
+                      <div className="flex items-center gap-2 flex-wrap">
                         {(() => {
-                          const discount = calculateDiscount(
-                            item.product_variants.products.id,
-                            item.product_variants.price,
-                            discounts
-                          );
-                          return discount ? (
-                            <div className="space-y-1.5">
-                              <Badge variant="destructive" className="flex items-center gap-1 w-fit">
-                                <Tag className="h-3 w-3" />
-                                خصم {Math.round(discount.percentage)}%
-                              </Badge>
-                              <div className="flex items-baseline gap-2">
+                          const productId = item.product_variants.products.id;
+                          const originalPrice = item.product_variants.price;
+                          const discount = calculateDiscount(productId, originalPrice, discounts);
+                          
+                          if (discount) {
+                            return (
+                              <>
+                                <Badge variant="destructive" className="text-xs">
+                                  خصم {discount.percentage}%
+                                </Badge>
                                 <p className="font-bold text-primary text-lg">
                                   {Math.round(discount.discountedPrice)} د.ع
                                 </p>
                                 <p className="text-sm text-muted-foreground line-through">
-                                  {Math.round(item.product_variants.price)} د.ع
+                                  {Math.round(originalPrice)} د.ع
                                 </p>
-                              </div>
-                            </div>
-                          ) : (
+                              </>
+                            );
+                          }
+                          
+                          return (
                             <p className="font-bold text-primary text-lg">
                               {Math.round(item.product_variants.price)} د.ع
                             </p>
@@ -418,6 +431,25 @@ const Cart = () => {
           </div>
         )}
       </div>
+
+      {/* زر إتمام الطلب العائم */}
+      {cartItems && cartItems.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg p-4 md:hidden z-50">
+          <div className="container flex items-center justify-between gap-4">
+            <div className="flex flex-col">
+              <span className="text-sm text-muted-foreground">المجموع</span>
+              <span className="text-lg font-bold text-primary">{Math.round(total)} د.ع</span>
+            </div>
+            <Button
+              size="lg"
+              onClick={() => navigate("/checkout")}
+              className="flex-1 max-w-xs"
+            >
+              إتمام الطلب
+            </Button>
+          </div>
+        </div>
+      )}
       
       <Footer />
     </div>
