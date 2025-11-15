@@ -34,7 +34,7 @@ export const BrandsLinks = () => {
       <div className="md:container">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 md:mb-6 px-4 md:px-0">ماركاتنا</h2>
         
-        <div className="relative min-h-[200px]">
+        <div className="relative">
           {/* Gradient fade left */}
           <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none hidden md:block" />
           

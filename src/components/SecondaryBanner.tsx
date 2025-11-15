@@ -65,7 +65,7 @@ export const SecondaryBanner = () => {
         onMouseLeave={() => plugin.current.play()}
       >
         <CarouselContent>
-          {banners.map((banner: any, index: number) => {
+          {banners.map((banner: any) => {
             const desktopImage = banner.image_url_desktop || banner.image_url;
             const tabletImage = banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
             const mobileImage = banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
@@ -80,24 +80,18 @@ export const SecondaryBanner = () => {
                   <img
                     src={mobileImage}
                     alt={banner.title_ar || ""}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 md:hidden"
                   />
                   {/* Tablet image */}
                   <img
                     src={tabletImage}
                     alt={banner.title_ar || ""}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 hidden md:block lg:hidden"
                   />
                   {/* Desktop image */}
                   <img
                     src={desktopImage}
                     alt={banner.title_ar || ""}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 hidden lg:block"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/10 to-transparent group-hover:from-black/10 group-hover:via-transparent transition-all duration-300" />

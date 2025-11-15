@@ -20,10 +20,10 @@ export const GuaranteeBanner = () => {
     },
   });
 
-  if (!guaranteeSettings) return <div className="min-h-[100px]" />;
+  if (!guaranteeSettings) return null;
 
   return (
-    <Card
+    <Card 
       className="cursor-pointer overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02] bg-gradient-to-r from-emerald-50/80 to-teal-50/80 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-200/50 dark:border-emerald-800/50"
       onClick={() => navigate("/guarantee")}
     >
@@ -48,9 +48,9 @@ export const GuaranteeBanner = () => {
           
           {/* Content - في المنتصف */}
           <div className="flex-shrink-0 text-center">
-            <h2 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
+            <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
               {guaranteeSettings.banner_title_ar || "منتجات أصلية ومضمونة"}
-            </h2>
+            </h3>
             <p className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
               {guaranteeSettings.banner_description_ar || "تعرفي أكثر على ضمان هدير"}
             </p>

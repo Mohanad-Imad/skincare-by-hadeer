@@ -64,11 +64,10 @@ export const HeroBanner = () => {
         onMouseLeave={() => plugin.current.play()}
       >
         <CarouselContent>
-          {banners.map((banner: any, index: number) => {
+          {banners.map((banner: any) => {
             const desktopImage = banner.image_url_desktop || banner.image_url;
             const tabletImage = banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
             const mobileImage = banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
-            const isFirstBanner = index === 0;
             
             return banner.link_url ? (
               <CarouselItem key={banner.id}>
@@ -77,31 +76,25 @@ export const HeroBanner = () => {
                     {/* صورة الخلفية - responsive */}
                     <div className="absolute inset-0">
                       {/* Mobile image */}
-                      <img
-                        src={mobileImage}
-                        alt={banner.title_ar || 'Banner'}
-                        fetchPriority={isFirstBanner ? 'high' : 'auto'}
-                        loading={isFirstBanner ? 'eager' : 'lazy'}
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover md:hidden"
+                      <div
+                        className="absolute inset-0 bg-cover bg-center md:hidden"
+                        style={{
+                          backgroundImage: `url(${mobileImage})`,
+                        }}
                       />
                       {/* Tablet image */}
-                      <img
-                        src={tabletImage}
-                        alt={banner.title_ar || 'Banner'}
-                        fetchPriority={isFirstBanner ? 'high' : 'auto'}
-                        loading={isFirstBanner ? 'eager' : 'lazy'}
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover hidden md:block lg:hidden"
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hidden md:block lg:hidden"
+                        style={{
+                          backgroundImage: `url(${tabletImage})`,
+                        }}
                       />
                       {/* Desktop image */}
-                      <img
-                        src={desktopImage}
-                        alt={banner.title_ar || 'Banner'}
-                        fetchPriority={isFirstBanner ? 'high' : 'auto'}
-                        loading={isFirstBanner ? 'eager' : 'lazy'}
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover hidden lg:block"
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hidden lg:block"
+                        style={{
+                          backgroundImage: `url(${desktopImage})`,
+                        }}
                       />
                       {/* طبقة شفافة للتباين */}
                       <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10 group-hover:from-black/20 group-hover:via-black/10 group-hover:to-transparent transition-all duration-300" />
@@ -133,31 +126,25 @@ export const HeroBanner = () => {
                   {/* صورة الخلفية - responsive */}
                   <div className="absolute inset-0">
                     {/* Mobile image */}
-                    <img
-                      src={mobileImage}
-                      alt={banner.title_ar || 'Banner'}
-                      fetchPriority={isFirstBanner ? 'high' : 'auto'}
-                      loading={isFirstBanner ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover md:hidden"
+                    <div
+                      className="absolute inset-0 bg-cover bg-center md:hidden"
+                      style={{
+                        backgroundImage: `url(${mobileImage})`,
+                      }}
                     />
                     {/* Tablet image */}
-                    <img
-                      src={tabletImage}
-                      alt={banner.title_ar || 'Banner'}
-                      fetchPriority={isFirstBanner ? 'high' : 'auto'}
-                      loading={isFirstBanner ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover hidden md:block lg:hidden"
+                    <div
+                      className="absolute inset-0 bg-cover bg-center hidden md:block lg:hidden"
+                      style={{
+                        backgroundImage: `url(${tabletImage})`,
+                      }}
                     />
                     {/* Desktop image */}
-                    <img
-                      src={desktopImage}
-                      alt={banner.title_ar || 'Banner'}
-                      fetchPriority={isFirstBanner ? 'high' : 'auto'}
-                      loading={isFirstBanner ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover hidden lg:block"
+                    <div
+                      className="absolute inset-0 bg-cover bg-center hidden lg:block"
+                      style={{
+                        backgroundImage: `url(${desktopImage})`,
+                      }}
                     />
                     {/* طبقة شفافة للتباين */}
                     <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10" />
