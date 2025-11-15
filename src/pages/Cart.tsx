@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -128,9 +129,10 @@ const Cart = () => {
 
   // عرض السلة المؤقتة للمستخدمين غير المسجلين
   if (!session) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <CheckoutStepper currentStep={1} />
         <div className="container py-8">
           <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
 
