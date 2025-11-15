@@ -42,18 +42,18 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
     >
       <div className="aspect-square overflow-hidden bg-background p-1 relative flex-shrink-0">
         <div className="absolute top-0 left-0 z-10 overflow-hidden w-20 h-20">
-          <div className="absolute transform -rotate-45 bg-emerald-600 text-white text-center font-bold py-1.5 left-[-28px] top-[14px] w-28 shadow-[0_2px_8px_rgba(0,0,0,0.3)] border-y border-emerald-700/30">
-            <div className="flex flex-col items-center justify-center gap-0.5">
+          <div className="absolute transform -rotate-45 bg-emerald-600 text-white text-center font-bold py-1 left-[-28px] top-[14px] w-28 shadow-[0_2px_8px_rgba(0,0,0,0.3)] border-y border-emerald-700/30">
+            <div className="flex items-center justify-center gap-1">
               {guaranteeSettings?.logo_url ? (
                 <img 
                   src={guaranteeSettings.logo_url} 
                   alt="guarantee" 
-                  className="h-6 w-6 object-contain drop-shadow-sm"
+                  className="h-3 w-3 object-contain drop-shadow-sm"
                 />
               ) : (
-                <ShieldCheck className="h-4 w-4 drop-shadow-sm" />
+                <ShieldCheck className="h-2.5 w-2.5 drop-shadow-sm" />
               )}
-              <span className="text-[8px] font-bold drop-shadow-sm leading-tight">أصلي ومضمون</span>
+              <span className="text-[9px] font-bold drop-shadow-sm">أصلي ومضمون</span>
             </div>
           </div>
         </div>
