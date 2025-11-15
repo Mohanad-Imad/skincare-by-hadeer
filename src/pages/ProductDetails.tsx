@@ -385,20 +385,7 @@ const ProductDetails = () => {
               </RadioGroup>
             </div>
 
-            {/* 3. زر إضافة إلى السلة - عائم */}
-            <div className="sticky bottom-4 z-20 pt-2">
-              <Button
-                size="lg"
-                disabled={!selectedVariant || addToCartMutation.isPending}
-                onClick={handleAddToCart}
-                className="w-full h-12 text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
-              >
-                <ShoppingCart className="ml-2 h-5 w-5" />
-                {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
-              </Button>
-            </div>
-
-            {/* 4. الشركة */}
+            {/* 3. الشركة */}
             {product.company_name_ar && (
               <div className="bg-muted/30 p-3 rounded-lg">
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
@@ -455,6 +442,21 @@ const ProductDetails = () => {
               <ProductReviews productId={id!} />
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* زر إضافة إلى السلة - عائم في أسفل الشاشة */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t p-3 shadow-lg">
+        <div className="container">
+          <Button
+            size="lg"
+            disabled={!selectedVariant || addToCartMutation.isPending}
+            onClick={handleAddToCart}
+            className="w-full h-11 text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+          >
+            <ShoppingCart className="ml-2 h-5 w-5" />
+            {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
+          </Button>
         </div>
       </div>
       
