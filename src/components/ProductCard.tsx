@@ -41,23 +41,17 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
       onClick={() => navigate(`/products/${id}`)}
     >
       <div className="aspect-square overflow-hidden bg-background p-1 relative flex-shrink-0">
-        <div className="absolute top-0 left-0 z-10">
-          <div className="relative w-24 h-24">
-            <div className="absolute top-0 left-0 w-full h-full bg-emerald-600/80 backdrop-blur-sm shadow-lg" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}>
-            </div>
-            <div className="absolute top-3 left-3 flex flex-col items-center gap-0.5">
-              {guaranteeSettings?.logo_url ? (
-                <img 
-                  src={guaranteeSettings.logo_url} 
-                  alt="guarantee" 
-                  className="h-7 w-7 object-contain drop-shadow-md"
-                />
-              ) : (
-                <ShieldCheck className="h-6 w-6 text-white drop-shadow-md" />
-              )}
-              <span className="text-[7px] font-bold text-white leading-tight text-center drop-shadow-md whitespace-nowrap">أصلي<br/>ومضمون</span>
-            </div>
-          </div>
+        <div className="absolute top-2 left-2 z-10 flex flex-col items-center gap-0.5">
+          {guaranteeSettings?.logo_url ? (
+            <img 
+              src={guaranteeSettings.logo_url} 
+              alt="guarantee" 
+              className="h-8 w-8 object-contain drop-shadow-lg"
+            />
+          ) : (
+            <ShieldCheck className="h-7 w-7 text-emerald-600 drop-shadow-lg" />
+          )}
+          <span className="text-[8px] font-bold text-emerald-700 leading-tight text-center drop-shadow-sm whitespace-nowrap bg-white/90 px-1.5 py-0.5 rounded">أصلي ومضمون</span>
         </div>
         {imageUrl ? (
           <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center relative">
