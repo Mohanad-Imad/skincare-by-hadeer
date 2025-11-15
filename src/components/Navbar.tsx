@@ -450,7 +450,7 @@ export const Navbar = () => {
             onClick={() => navigate("/")}
           >
             {settings?.logo_url && (
-              <img src={settings.logo_url} alt={storeName} className="h-6 w-6 object-contain" />
+              <img src={settings.logo_url} alt={storeName} className="h-5 w-5 object-contain" />
             )}
             <h1 className="text-base font-bold text-primary whitespace-nowrap sm:text-lg">
               <span className="hidden md:inline">{storeName}</span>
