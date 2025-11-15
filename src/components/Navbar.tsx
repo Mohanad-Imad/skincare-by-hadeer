@@ -448,7 +448,7 @@ export const Navbar = () => {
           <div className="hidden lg:flex items-center gap-1">
             <ThemeToggle />
             
-            <Button variant="ghost" size="sm" className="relative" onClick={() => navigate("/cart")}>
+            <Button variant="ghost" size="sm" className="relative px-3" onClick={() => navigate("/cart")}>
               <ShoppingCart className="h-4 w-4" />
               {displayCartCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
