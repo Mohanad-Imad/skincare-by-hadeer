@@ -14,9 +14,57 @@ const steps = [
 
 export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
   return (
-    <div className="w-full py-8 bg-muted/30">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-between relative">
+    <div className="w-full py-4 md:py-8 bg-muted/30">
+      <div className="max-w-5xl mx-auto px-2 md:px-4">
+        {/* Mobile View - Vertical */}
+        <div className="md:hidden">
+          <div className="flex flex-col gap-3">
+            {steps.map((step) => {
+              const isCompleted = step.number < currentStep;
+              const isCurrent = step.number === currentStep;
+
+              return (
+                <div
+                  key={step.number}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg transition-all",
+                    isCurrent && "bg-primary/10 ring-2 ring-primary/30",
+                    isCompleted && "bg-muted"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                      "border-2 transition-all",
+                      isCompleted && "bg-primary border-primary text-primary-foreground",
+                      isCurrent && "border-primary text-primary scale-110",
+                      !isCompleted && !isCurrent && "border-muted-foreground text-muted-foreground"
+                    )}
+                  >
+                    {isCompleted ? (
+                      <Check className="w-5 h-5" strokeWidth={3} />
+                    ) : (
+                      <span className="text-base font-bold">{step.number}</span>
+                    )}
+                  </div>
+                  <p
+                    className={cn(
+                      "text-sm font-semibold",
+                      isCurrent && "text-primary",
+                      isCompleted && "text-foreground",
+                      !isCompleted && !isCurrent && "text-muted-foreground"
+                    )}
+                  >
+                    {step.label}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop View - Horizontal */}
+        <div className="hidden md:flex items-center justify-between relative">
           {/* Progress Line */}
           <div className="absolute top-8 left-0 right-0 h-1 bg-muted" style={{ zIndex: 0, left: "10%", right: "10%" }}>
             <div
@@ -28,7 +76,7 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
           </div>
 
           {/* Steps */}
-          {steps.map((step, index) => {
+          {steps.map((step) => {
             const isCompleted = step.number < currentStep;
             const isCurrent = step.number === currentStep;
 
@@ -38,7 +86,6 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                 className="flex flex-col items-center relative flex-1"
                 style={{ zIndex: 1 }}
               >
-                {/* Circle */}
                 <div
                   className={cn(
                     "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500",
@@ -55,7 +102,6 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                   )}
                 </div>
 
-                {/* Label */}
                 <div className="mt-4 text-center max-w-[120px]">
                   <p
                     className={cn(
