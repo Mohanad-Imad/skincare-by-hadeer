@@ -143,87 +143,99 @@ const Cart = () => {
             <div className="grid gap-8 lg:grid-cols-3">
               <div className="lg:col-span-2 space-y-4">
                 {localCartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 rounded-lg border p-4">
-                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
-                      {item.products.image_url ? (
-                        <img
-                          src={item.products.image_url}
-                          alt={item.products.name_ar}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                          بدون صورة
+                  <div key={item.id} className="rounded-lg border p-4">
+                    <div className="flex gap-4">
+                      {/* صورة المنتج */}
+                      <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
+                        {item.products.image_url ? (
+                          <img
+                            src={item.products.image_url}
+                            alt={item.products.name_ar}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                            بدون صورة
+                          </div>
+                        )}
+                      </div>
+
+                      {/* معلومات المنتج */}
+                      <div className="flex flex-1 flex-col gap-3">
+                        <div className="space-y-1">
+                          <h3 className="font-semibold text-base leading-tight line-clamp-2">
+                            {item.products.name_ar}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{item.size_ar}</p>
                         </div>
-                      )}
+                        
+                        {/* السعر والخصم */}
+                        <div>
+                          {(() => {
+                            const discount = calculateDiscount(item.products.id, item.price, discounts);
+                            return discount ? (
+                              <div className="space-y-1.5">
+                                <Badge variant="destructive" className="flex items-center gap-1 w-fit">
+                                  <Tag className="h-3 w-3" />
+                                  خصم {Math.round(discount.percentage)}%
+                                </Badge>
+                                <div className="flex items-baseline gap-2">
+                                  <p className="font-bold text-primary text-lg">
+                                    {Math.round(discount.discountedPrice)} د.ع
+                                  </p>
+                                  <p className="text-sm text-muted-foreground line-through">
+                                    {Math.round(item.price)} د.ع
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="font-bold text-primary text-lg">
+                                {Math.round(item.price)} د.ع
+                              </p>
+                            );
+                          })()}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex flex-1 flex-col justify-between">
-                      <div>
-                        <h3 className="font-semibold">{item.products.name_ar}</h3>
-                        <p className="text-sm text-muted-foreground">{item.size_ar}</p>
-                        {(() => {
-                          const discount = calculateDiscount(item.products.id, item.price, discounts);
-                          return discount ? (
-                            <div className="mt-1 space-y-1">
-                              <Badge variant="destructive" className="flex items-center gap-1 w-fit">
-                                <Tag className="h-3 w-3" />
-                                خصم {Math.round(discount.percentage)}%
-                              </Badge>
-                              <div className="flex items-baseline gap-2">
-                                <p className="font-bold text-primary">
-                                  {Math.round(discount.discountedPrice)} د.ع
-                                </p>
-                                <p className="text-sm text-muted-foreground line-through">
-                                  {Math.round(item.price)} د.ع
-                                </p>
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="mt-1 font-bold text-primary">
-                              {Math.round(item.price)} د.ع
-                            </p>
-                          );
-                        })()}
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-8 w-8"
-                            onClick={() =>
-                              updateLocalCartQuantity(item.id, Math.max(1, item.quantity - 1))
-                            }
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-8 w-8"
-                            onClick={() =>
-                              updateLocalCartQuantity(item.id, item.quantity + 1)
-                            }
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-
+                    {/* الكمية وزر الحذف */}
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                      <div className="flex items-center gap-2">
                         <Button
                           size="icon"
-                          variant="destructive"
+                          variant="outline"
                           className="h-8 w-8"
-                          onClick={() => {
-                            removeFromLocalCart(item.id);
-                            toast.success("تم حذف المنتج من السلة");
-                          }}
+                          onClick={() =>
+                            updateLocalCartQuantity(item.id, Math.max(1, item.quantity - 1))
+                          }
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-12 text-center font-medium">{item.quantity}</span>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() =>
+                            updateLocalCartQuantity(item.id, item.quantity + 1)
+                          }
+                        >
+                          <Plus className="h-4 w-4" />
                         </Button>
                       </div>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          removeFromLocalCart(item.id);
+                          toast.success("تم حذف المنتج من السلة");
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        حذف
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -279,98 +291,108 @@ const Cart = () => {
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4 rounded-lg border p-4">
-                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
-                    {item.product_variants.products.image_url ? (
-                      <img
-                        src={item.product_variants.products.image_url}
-                        alt={item.product_variants.products.name_ar}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                        بدون صورة
+                <div key={item.id} className="rounded-lg border p-4">
+                  <div className="flex gap-4">
+                    {/* صورة المنتج */}
+                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary">
+                      {item.product_variants.products.image_url ? (
+                        <img
+                          src={item.product_variants.products.image_url}
+                          alt={item.product_variants.products.name_ar}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                          بدون صورة
+                        </div>
+                      )}
+                    </div>
+
+                    {/* معلومات المنتج */}
+                    <div className="flex flex-1 flex-col gap-3">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
+                          {item.product_variants.products.name_ar}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {item.product_variants.size_ar}
+                        </p>
                       </div>
-                    )}
+                      
+                      {/* السعر والخصم */}
+                      <div>
+                        {(() => {
+                          const discount = calculateDiscount(
+                            item.product_variants.products.id,
+                            item.product_variants.price,
+                            discounts
+                          );
+                          return discount ? (
+                            <div className="space-y-1.5">
+                              <Badge variant="destructive" className="flex items-center gap-1 w-fit">
+                                <Tag className="h-3 w-3" />
+                                خصم {Math.round(discount.percentage)}%
+                              </Badge>
+                              <div className="flex items-baseline gap-2">
+                                <p className="font-bold text-primary text-lg">
+                                  {Math.round(discount.discountedPrice)} د.ع
+                                </p>
+                                <p className="text-sm text-muted-foreground line-through">
+                                  {Math.round(item.product_variants.price)} د.ع
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="font-bold text-primary text-lg">
+                              {Math.round(item.product_variants.price)} د.ع
+                            </p>
+                          );
+                        })()}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex flex-1 flex-col justify-between">
-                    <div>
-                      <h3 className="font-semibold">
-                        {item.product_variants.products.name_ar}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {item.product_variants.size_ar}
-                      </p>
-                      {(() => {
-                        const discount = calculateDiscount(
-                          item.product_variants.products.id,
-                          item.product_variants.price,
-                          discounts
-                        );
-                        return discount ? (
-                          <div className="mt-1 space-y-1">
-                            <Badge variant="destructive" className="flex items-center gap-1 w-fit">
-                              <Tag className="h-3 w-3" />
-                              خصم {Math.round(discount.percentage)}%
-                            </Badge>
-                            <div className="flex items-baseline gap-2">
-                              <p className="font-bold text-primary">
-                                {Math.round(discount.discountedPrice)} د.ع
-                              </p>
-                              <p className="text-sm text-muted-foreground line-through">
-                                {Math.round(item.product_variants.price)} د.ع
-                              </p>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="mt-1 font-bold text-primary">
-                            {Math.round(item.product_variants.price)} د.ع
-                          </p>
-                        );
-                      })()}
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8"
-                          onClick={() =>
-                            updateQuantityMutation.mutate({
-                              id: item.id,
-                              quantity: Math.max(1, item.quantity - 1),
-                            })
-                          }
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8"
-                          onClick={() =>
-                            updateQuantityMutation.mutate({
-                              id: item.id,
-                              quantity: item.quantity + 1,
-                            })
-                          }
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-
+                  {/* الكمية وزر الحذف */}
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                    <div className="flex items-center gap-2">
                       <Button
                         size="icon"
-                        variant="destructive"
+                        variant="outline"
                         className="h-8 w-8"
-                        onClick={() => deleteItemMutation.mutate(item.id)}
+                        onClick={() =>
+                          updateQuantityMutation.mutate({
+                            id: item.id,
+                            quantity: Math.max(1, item.quantity - 1),
+                          })
+                        }
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-12 text-center font-medium">{item.quantity}</span>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8"
+                        onClick={() =>
+                          updateQuantityMutation.mutate({
+                            id: item.id,
+                            quantity: item.quantity + 1,
+                          })
+                        }
+                      >
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </div>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => deleteItemMutation.mutate(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      حذف
+                    </Button>
                   </div>
                 </div>
               ))}
