@@ -24,18 +24,28 @@ export const PWAInstallPrompt = () => {
   useEffect(() => {
     // Check if already installed
     if (isInStandaloneMode()) {
+      console.log('Already in standalone mode');
       return;
     }
 
     const iOS = isIOS();
+    console.log('Is iOS device:', iOS);
     setIsIOSDevice(iOS);
 
     // Check if user has dismissed the prompt before
     const dismissed = localStorage.getItem('pwa-install-dismissed');
+    console.log('Previously dismissed:', dismissed);
     
-    if (iOS && !dismissed) {
-      // Show iOS instructions
-      setShowPrompt(true);
+    if (iOS) {
+      // Show iOS instructions after a short delay
+      const timer = setTimeout(() => {
+        if (!dismissed) {
+          console.log('Showing iOS prompt');
+          setShowPrompt(true);
+        }
+      }, 2000);
+      
+      return () => clearTimeout(timer);
     } else {
       // Android/Desktop - listen for beforeinstallprompt
       const handler = (e: Event) => {
