@@ -310,11 +310,11 @@ const ProductDetails = () => {
           {/* Product Info */}
           <div className="space-y-4">
             {/* 1. الاسم */}
-            <h1 className="text-2xl md:text-3xl font-bold leading-tight">{product.name_ar}</h1>
+            <h1 className="text-lg md:text-xl font-bold leading-tight">{product.name_ar}</h1>
 
             {/* 2. السعر مع اختيار الحجم */}
             <div className="bg-card border rounded-xl p-4 shadow-sm">
-              <Label className="mb-3 block text-base font-bold flex items-center gap-2">
+              <Label className="mb-3 block text-xs font-bold flex items-center gap-2">
                 <span className="w-1 h-1 bg-primary rounded-full"></span>
                 اختاري الحجم
               </Label>
