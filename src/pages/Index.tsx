@@ -173,7 +173,7 @@ const Index = () => {
       </section>
 
       {/* Guarantee Banner */}
-      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-6 md:pb-8 xl:pb-10 max-w-[1920px] mx-auto">
+      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-6 md:pb-8 xl:pb-10 max-w-[1920px] mx-auto min-h-[150px]">
         <GuaranteeBanner />
       </section>
 
