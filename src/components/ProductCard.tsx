@@ -48,10 +48,10 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
                 <img 
                   src={guaranteeSettings.logo_url} 
                   alt="guarantee" 
-                  className="h-4 w-4 object-contain drop-shadow-sm"
+                  className="h-6 w-6 object-contain drop-shadow-sm"
                 />
               ) : (
-                <ShieldCheck className="h-3 w-3 drop-shadow-sm" />
+                <ShieldCheck className="h-4 w-4 drop-shadow-sm" />
               )}
               <span className="text-[8px] font-bold drop-shadow-sm leading-tight">أصلي ومضمون</span>
             </div>
