@@ -14,61 +14,13 @@ const steps = [
 
 export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
   return (
-    <div className="w-full py-4 md:py-8 bg-muted/30">
-      <div className="max-w-5xl mx-auto px-2 md:px-4">
-        {/* Mobile View - Vertical */}
-        <div className="md:hidden">
-          <div className="flex flex-col gap-3">
-            {steps.map((step) => {
-              const isCompleted = step.number < currentStep;
-              const isCurrent = step.number === currentStep;
-
-              return (
-                <div
-                  key={step.number}
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg transition-all",
-                    isCurrent && "bg-primary/10 ring-2 ring-primary/30",
-                    isCompleted && "bg-muted"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                      "border-2 transition-all",
-                      isCompleted && "bg-primary border-primary text-primary-foreground",
-                      isCurrent && "border-primary text-primary scale-110",
-                      !isCompleted && !isCurrent && "border-muted-foreground text-muted-foreground"
-                    )}
-                  >
-                    {isCompleted ? (
-                      <Check className="w-5 h-5" strokeWidth={3} />
-                    ) : (
-                      <span className="text-base font-bold">{step.number}</span>
-                    )}
-                  </div>
-                  <p
-                    className={cn(
-                      "text-sm font-semibold",
-                      isCurrent && "text-primary",
-                      isCompleted && "text-foreground",
-                      !isCompleted && !isCurrent && "text-muted-foreground"
-                    )}
-                  >
-                    {step.label}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Desktop View - Horizontal */}
-        <div className="hidden md:flex items-center justify-between relative">
+    <div className="w-full py-6 bg-muted/20">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="flex items-center justify-between relative">
           {/* Progress Line */}
-          <div className="absolute top-8 left-0 right-0 h-1 bg-muted" style={{ zIndex: 0, left: "10%", right: "10%" }}>
+          <div className="absolute top-5 left-0 right-0 h-0.5 bg-muted" style={{ zIndex: 0, left: "8%", right: "8%" }}>
             <div
-              className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-in-out rounded-full"
+              className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-in-out"
               style={{
                 width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
               }}
@@ -88,25 +40,25 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
               >
                 <div
                   className={cn(
-                    "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500",
-                    "border-4 bg-background shadow-md",
-                    isCompleted && "bg-gradient-to-br from-primary to-primary/90 border-primary text-primary-foreground shadow-lg shadow-primary/30",
-                    isCurrent && "border-primary text-primary scale-125 shadow-xl shadow-primary/40 ring-4 ring-primary/20",
+                    "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500",
+                    "border-2 bg-background shadow-sm",
+                    isCompleted && "bg-primary border-primary text-primary-foreground",
+                    isCurrent && "border-primary text-primary scale-110 shadow-md ring-2 ring-primary/20",
                     !isCompleted && !isCurrent && "border-muted text-muted-foreground"
                   )}
                 >
                   {isCompleted ? (
-                    <Check className="w-7 h-7 animate-scale-in" strokeWidth={3} />
+                    <Check className="w-5 h-5" strokeWidth={2.5} />
                   ) : (
-                    <span className="text-xl font-bold">{step.number}</span>
+                    <span className="text-sm font-bold">{step.number}</span>
                   )}
                 </div>
 
-                <div className="mt-4 text-center max-w-[120px]">
+                <div className="mt-2 text-center max-w-[100px]">
                   <p
                     className={cn(
-                      "text-sm font-semibold transition-all duration-300",
-                      isCurrent && "text-primary scale-105 font-bold",
+                      "text-xs font-medium transition-all duration-300",
+                      isCurrent && "text-primary font-semibold",
                       isCompleted && "text-foreground",
                       !isCompleted && !isCurrent && "text-muted-foreground"
                     )}

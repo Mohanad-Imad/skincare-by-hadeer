@@ -271,6 +271,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <CheckoutStepper currentStep={1} />
       <div className="container py-8">
         <Button
           variant="ghost"
