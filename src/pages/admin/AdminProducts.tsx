@@ -463,6 +463,26 @@ const AdminProducts = () => {
       return;
     }
 
+    // التحقق من حجم كل صورة (500 KB كحد أقصى)
+    const MAX_SIZE = 500 * 1024; // 500 KB
+    const oversizedFiles: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > MAX_SIZE) {
+        const sizeInKB = Math.round(file.size / 1024);
+        oversizedFiles.push(`${file.name} (${sizeInKB} KB)`);
+      }
+    }
+
+    if (oversizedFiles.length > 0) {
+      toast.error(
+        `الصور التالية تتجاوز الحد المسموح (500 KB):\n${oversizedFiles.join('\n')}`,
+        { duration: 5000 }
+      );
+      return;
+    }
+
     setUploadingImages(true);
 
     try {
@@ -655,7 +675,7 @@ const AdminProducts = () => {
                         disabled={uploadingImages}
                       />
                       <p className="mt-1 text-sm text-muted-foreground">
-                        تم رفع {productImages.length} من 5 صور
+                        تم رفع {productImages.length} من 5 صور • حجم كل صورة: 500 KB كحد أقصى
                       </p>
                     </div>
                   )}
