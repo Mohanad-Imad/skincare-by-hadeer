@@ -54,7 +54,6 @@ import AdminInventory from "./pages/admin/AdminInventory";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
-import { FloatingReviewButton } from "./components/FloatingReviewButton";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
@@ -74,7 +73,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <FloatingReviewButton />
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
