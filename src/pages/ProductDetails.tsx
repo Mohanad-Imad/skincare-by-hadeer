@@ -274,60 +274,157 @@ const ProductDetails = () => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
-            <div>
-              {/* Breadcrumbs */}
-              <div className="mb-4 flex items-center gap-2 text-sm flex-wrap">
-                <span className="rounded-lg bg-primary/10 px-3 py-1.5 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
-                  المنتجات
-                </span>
-                <svg 
-                  className="h-4 w-4 text-muted-foreground rotate-180" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span className="rounded-lg bg-primary/15 px-3 py-1.5 font-medium text-primary hover:bg-primary/25 transition-colors">
-                  {product.categories?.parent?.name_ar || "العناية بالبشرة"}
-                </span>
-                {(product.categories?.parent || (!product.categories?.parent_category_id && product.categories)) && (
-                  <>
-                    <svg 
-                      className="h-4 w-4 text-muted-foreground rotate-180" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span className="rounded-lg bg-primary/20 px-3 py-1.5 font-semibold text-primary hover:bg-primary/30 transition-colors">
-                      {product.categories?.name_ar || "تصنيف فرعي"}
-                    </span>
-                  </>
-                )}
-              </div>
-              
-              <h1 className="mb-3 text-3xl md:text-4xl font-bold leading-tight">{product.name_ar}</h1>
-              {product.company_name_ar && (
-                <p className="text-lg text-muted-foreground flex items-center gap-2">
-                  <span className="font-semibold">الشركة:</span>
-                  <span className="text-primary">{product.company_name_ar}</span>
-                </p>
+          <div className="space-y-4">
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-2 text-xs flex-wrap">
+              <span className="rounded-lg bg-primary/10 px-2.5 py-1 font-medium text-primary/90 hover:bg-primary/20 transition-colors">
+                المنتجات
+              </span>
+              <svg 
+                className="h-3 w-3 text-muted-foreground rotate-180" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              {product.categories?.parent && (
+                <>
+                  <span className="rounded-lg bg-primary/15 px-2.5 py-1 font-medium text-primary hover:bg-primary/25 transition-colors">
+                    {product.categories.parent.name_ar || "تصنيف رئيسي"}
+                  </span>
+                  <svg 
+                    className="h-3 w-3 text-muted-foreground rotate-180" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="rounded-lg bg-primary/20 px-2.5 py-1 font-semibold text-primary hover:bg-primary/30 transition-colors">
+                    {product.categories?.name_ar || "تصنيف فرعي"}
+                  </span>
+                </>
               )}
             </div>
+            
+            {/* 1. الاسم */}
+            <h1 className="text-2xl md:text-3xl font-bold leading-tight">{product.name_ar}</h1>
 
-            {product.description_ar && (
-              <p className="text-base md:text-lg leading-relaxed text-foreground/90 bg-muted/30 p-4 rounded-xl">
-                {product.description_ar}
-              </p>
+            {/* 2. السعر مع اختيار الحجم */}
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <Label className="mb-3 block text-base font-bold flex items-center gap-2">
+                <span className="w-1 h-1 bg-primary rounded-full"></span>
+                اختاري الحجم
+              </Label>
+              <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
+                <div className="space-y-2">
+                  {product.product_variants.map((variant: any) => {
+                    const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
+                    const isOutOfStock = variant.stock_quantity === 0;
+                    const isSelected = selectedVariant === variant.id;
+                    
+                    return (
+                      <div 
+                        key={variant.id} 
+                        className={`flex items-center justify-between rounded-lg border-2 p-3 transition-all cursor-pointer hover:shadow-md ${
+                          isOutOfStock 
+                            ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
+                            : isSelected 
+                              ? 'border-primary bg-primary/5 shadow-md scale-[1.01]' 
+                              : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <RadioGroupItem 
+                            value={variant.id} 
+                            id={variant.id} 
+                            disabled={isOutOfStock}
+                            className="border-2"
+                          />
+                          <Label 
+                            htmlFor={variant.id} 
+                            className={`text-base font-medium cursor-pointer ${isOutOfStock ? 'cursor-not-allowed' : ''}`}
+                          >
+                            {variant.size_ar}
+                          </Label>
+                          {isOutOfStock && (
+                            <Badge variant="secondary" className="text-xs">
+                              غير متوفر
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          {variantDiscount ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="destructive" className="flex items-center gap-1 text-xs animate-pulse">
+                                  <Tag className="h-3 w-3" />
+                                  خصم {Math.round(variantDiscount.percentage)}%
+                                </Badge>
+                              </div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-lg font-bold text-primary">
+                                  {Math.round(variantDiscount.discountedPrice)} د.ع
+                                </span>
+                                <span className="text-xs text-muted-foreground line-through">
+                                  {Math.round(variant.price)} د.ع
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <span className="text-lg font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* 3. زر إضافة إلى السلة - عائم */}
+            <div className="sticky bottom-4 z-20 pt-2">
+              <Button
+                size="lg"
+                disabled={!selectedVariant || addToCartMutation.isPending}
+                onClick={handleAddToCart}
+                className="w-full h-12 text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              >
+                <ShoppingCart className="ml-2 h-5 w-5" />
+                {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
+              </Button>
+            </div>
+
+            {/* 4. الشركة */}
+            {product.company_name_ar && (
+              <div className="bg-muted/30 p-3 rounded-lg">
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <span className="font-semibold">الشركة:</span>
+                  <span className="text-primary font-medium">{product.company_name_ar}</span>
+                </p>
+              </div>
             )}
 
+            {/* 5. الوصف */}
+            {product.description_ar && (
+              <div className="bg-muted/30 p-4 rounded-xl">
+                <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
+                  وصف المنتج
+                </h3>
+                <p className="text-sm leading-relaxed text-foreground/90">
+                  {product.description_ar}
+                </p>
+              </div>
+            )}
+
+            {/* 6. مناسب لنوع البشرة */}
             {product.skin_type && product.skin_type.length > 0 && (
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border border-primary/20">
-                <h3 className="mb-3 text-base font-semibold flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-4 rounded-xl border border-primary/20">
+                <h3 className="mb-2 text-sm font-semibold flex items-center gap-2">
+                  <span className="w-1 h-1 bg-primary rounded-full"></span>
                   مناسب لنوع البشرة
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -342,7 +439,7 @@ const ProductDetails = () => {
                     return (
                       <span 
                         key={type} 
-                        className="rounded-full bg-background border border-primary/30 px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors"
+                        className="rounded-full bg-background border border-primary/30 px-3 py-1 text-xs font-medium hover:bg-primary/20 transition-colors"
                       >
                         {skinTypeLabels[type] || type}
                       </span>
@@ -352,102 +449,12 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Size Selection */}
-            <div className="bg-card border rounded-xl p-5 shadow-sm">
-              <Label className="mb-4 block text-lg font-bold flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                اختاري الحجم والسعر
-              </Label>
-              <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
-                <div className="space-y-3">
-                  {product.product_variants.map((variant: any) => {
-                    const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
-                    const isOutOfStock = variant.stock_quantity === 0;
-                    const isSelected = selectedVariant === variant.id;
-                    
-                    return (
-                      <div 
-                        key={variant.id} 
-                        className={`flex items-center justify-between rounded-xl border-2 p-4 transition-all cursor-pointer hover:shadow-md ${
-                          isOutOfStock 
-                            ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
-                            : isSelected 
-                              ? 'border-primary bg-primary/5 shadow-md scale-[1.02]' 
-                              : 'border-border hover:border-primary/50'
-                        }`}
-                        onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <RadioGroupItem 
-                            value={variant.id} 
-                            id={variant.id} 
-                            disabled={isOutOfStock}
-                          />
-                          <Label 
-                            htmlFor={variant.id} 
-                            className={`text-base font-medium ${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                          >
-                            {variant.size_ar}
-                          </Label>
-                          {isOutOfStock && (
-                            <Badge variant="destructive" className="text-xs">
-                              نفذت الكمية
-                            </Badge>
-                          )}
-                          {!isOutOfStock && variant.stock_quantity <= 5 && (
-                            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
-                              متبقي {variant.stock_quantity}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {variantDiscount ? (
-                            <>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="destructive" className="flex items-center gap-1 text-xs animate-pulse">
-                                  <Tag className="h-3 w-3" />
-                                  خصم {Math.round(variantDiscount.percentage)}%
-                                </Badge>
-                              </div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-xl font-bold text-primary">
-                                  {Math.round(variantDiscount.discountedPrice)} د.ع
-                                </span>
-                                <span className="text-sm text-muted-foreground line-through">
-                                  {Math.round(variant.price)} د.ع
-                                </span>
-                              </div>
-                            </>
-                          ) : (
-                            <span className="text-xl font-bold text-primary">{Math.round(variant.price)} د.ع</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </RadioGroup>
-            </div>
-
-            {/* Add to Cart Button */}
-            <div className="sticky bottom-4 z-10">
-              <Button
-                size="lg"
-                disabled={!selectedVariant || addToCartMutation.isPending}
-                onClick={handleAddToCart}
-                className="w-full h-14 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
-              >
-                <ShoppingCart className="ml-2 h-5 w-5" />
-                {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
-              </Button>
+            {/* 7. التقييمات والمراجعات */}
+            <div className="pt-4">
+              <ProductReviews productId={id!} />
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Reviews Section */}
-      <div className="container mx-auto px-4 py-12">
-        <ProductReviews productId={id!} />
       </div>
       
       {addedProduct && (
