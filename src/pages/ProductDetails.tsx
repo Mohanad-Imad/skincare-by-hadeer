@@ -237,9 +237,9 @@ const ProductDetails = () => {
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Product Images Gallery */}
-          <div className="space-y-4">
+        <div className="md:grid md:gap-8 md:grid-cols-2">
+          {/* Product Images Gallery - Hidden on mobile, visible on desktop */}
+          <div className="hidden md:block space-y-4">
             {/* Main Image */}
             <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
               {productImages.length > 0 ? (
@@ -273,8 +273,37 @@ const ProductDetails = () => {
             )}
           </div>
 
+          {/* Mobile: Compact Product Card */}
+          <div className="md:hidden">
+            {/* Main Image with rounded corners */}
+            <div className="aspect-square overflow-hidden rounded-3xl bg-secondary mb-4">
+              {productImages.length > 0 ? (
+                <img
+                  src={productImages[selectedImageIndex]}
+                  alt={`${product.name_ar} - صورة ${selectedImageIndex + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-muted-foreground">بدون صورة</div>
+              )}
+            </div>
+
+            {/* Thumbnails dots */}
+            {productImages.length > 1 && (
+              <div className="flex justify-center gap-2 mb-4">
+                {productImages.map((_, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`h-2 rounded-full transition-all ${selectedImageIndex === index ? "w-6 bg-primary" : "w-2 bg-muted"}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Product Info */}
-          <div className="space-y-4 md:space-y-6">
+          <div className="space-y-3 md:space-y-6">
             <div>
               {/* Breadcrumbs */}
               <div className="mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
@@ -339,11 +368,40 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Size Selection */}
+            {/* Size Selection - Mobile: Horizontal Pills, Desktop: List */}
             <div>
-              <Label className="mb-2 md:mb-3 block text-base md:text-lg font-semibold">اختاري الحجم</Label>
+              <Label className="mb-2 md:mb-3 block text-sm md:text-base font-semibold">اختاري الحجم</Label>
               <RadioGroup value={selectedVariant} onValueChange={setSelectedVariant}>
-                <div className="space-y-2 md:space-y-3">
+                {/* Mobile: Horizontal Pills */}
+                <div className="flex md:hidden gap-2 overflow-x-auto pb-2">
+                  {product.product_variants.map((variant: any) => {
+                    const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
+                    const isOutOfStock = variant.stock_quantity === 0;
+                    const isSelected = selectedVariant === variant.id;
+                    
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
+                        disabled={isOutOfStock}
+                        className={`flex-shrink-0 px-6 py-3 rounded-full border-2 transition-all text-sm font-medium whitespace-nowrap ${
+                          isOutOfStock 
+                            ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
+                            : isSelected 
+                              ? 'border-primary bg-primary text-primary-foreground' 
+                              : 'border-border hover:border-primary'
+                        }`}
+                      >
+                        {variant.size_ar}
+                        {isOutOfStock && <span className="mr-1 text-xs">(نفذ)</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop: List View */}
+                <div className="hidden md:block space-y-3">
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
@@ -351,9 +409,9 @@ const ProductDetails = () => {
                     return (
                       <div 
                         key={variant.id} 
-                        className={`flex items-center justify-between rounded-lg border p-3 md:p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
+                        className={`flex items-center justify-between rounded-lg border p-4 ${isOutOfStock ? 'opacity-50 bg-muted cursor-not-allowed' : ''}`}
                       >
-                        <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex items-center gap-3">
                           <RadioGroupItem 
                             value={variant.id} 
                             id={variant.id} 
@@ -361,41 +419,41 @@ const ProductDetails = () => {
                           />
                           <Label 
                             htmlFor={variant.id} 
-                            className={`text-sm md:text-base ${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            className={`${isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {variant.size_ar}
                           </Label>
                           {isOutOfStock && (
-                            <Badge variant="destructive" className="text-xs md:text-sm">
+                            <Badge variant="destructive">
                               نفذت الكمية
                             </Badge>
                           )}
                           {!isOutOfStock && variant.stock_quantity <= 5 && (
-                            <Badge variant="secondary" className="text-xs md:text-sm">
+                            <Badge variant="secondary">
                               متبقي {variant.stock_quantity}
                             </Badge>
                           )}
                         </div>
-                        <div className="flex flex-col items-end gap-0.5 md:gap-1">
+                        <div className="flex flex-col items-end gap-1">
                           {variantDiscount ? (
                             <>
-                              <div className="flex items-center gap-1 md:gap-2">
-                                <Badge variant="destructive" className="flex items-center gap-1 text-xs md:text-sm">
-                                  <Tag className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                              <div className="flex items-center gap-2">
+                                <Badge variant="destructive" className="flex items-center gap-1">
+                                  <Tag className="h-3 w-3" />
                                   خصم {Math.round(variantDiscount.percentage)}%
                                 </Badge>
                               </div>
-                              <div className="flex items-baseline gap-1.5 md:gap-2">
-                                <span className="text-sm md:text-base font-bold text-primary">
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-bold text-primary">
                                   {Math.round(variantDiscount.discountedPrice)} د.ع
                                 </span>
-                                <span className="text-xs md:text-sm text-muted-foreground line-through">
+                                <span className="text-sm text-muted-foreground line-through">
                                   {Math.round(variant.price)} د.ع
                                 </span>
                               </div>
                             </>
                           ) : (
-                            <span className="text-sm md:text-base font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            <span className="font-bold text-primary">{Math.round(variant.price)} د.ع</span>
                           )}
                         </div>
                       </div>
@@ -405,14 +463,48 @@ const ProductDetails = () => {
               </RadioGroup>
             </div>
 
-            {/* Add to Cart */}
+            {/* Price and Add to Cart - Mobile Sticky */}
+            <div className="md:hidden">
+              {selectedVariant && (() => {
+                const variant = product.product_variants.find((v: any) => v.id === selectedVariant);
+                if (!variant) return null;
+                const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
+                const finalPrice = variantDiscount ? variantDiscount.discountedPrice : variant.price;
+                
+                return (
+                  <div className="flex items-center justify-between gap-4 bg-card/80 backdrop-blur-sm p-4 rounded-2xl border shadow-lg">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">السعر الإجمالي</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-primary">{Math.round(finalPrice)} د.ع</span>
+                        {variantDiscount && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            {Math.round(variant.price)} د.ع
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      size="lg"
+                      disabled={!selectedVariant || addToCartMutation.isPending || variant.stock_quantity === 0}
+                      onClick={handleAddToCart}
+                      className="flex-1 max-w-[160px] h-12 text-base rounded-full"
+                    >
+                      {addToCartMutation.isPending ? "جاري..." : "أضيفي للسلة"}
+                    </Button>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Desktop Add to Cart */}
             <Button
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
               onClick={handleAddToCart}
-              className="w-full mt-6 md:mt-12 text-base md:text-lg"
+              className="hidden md:flex w-full mt-12 text-lg"
             >
-              <ShoppingCart className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+              <ShoppingCart className="ml-2 h-5 w-5" />
               {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
             </Button>
           </div>
