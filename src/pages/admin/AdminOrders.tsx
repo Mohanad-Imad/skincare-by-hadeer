@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter, FileSpreadsheet } from "lucide-react";
 import { useState, useMemo } from "react";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
@@ -339,6 +339,107 @@ const AdminOrders = () => {
     toast.success("تم تصدير البيانات بنجاح");
   };
 
+  // Export single order details to Excel
+  const exportOrderToExcel = async (order: any) => {
+    try {
+      // Fetch store settings for currency
+      const { data: storeSettings } = await supabase
+        .from("store_settings")
+        .select("currency")
+        .limit(1)
+        .single();
+      
+      const currency = storeSettings?.currency || "د.ع";
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // Order header information
+      const orderInfo = [
+        ["معلومات الطلب"],
+        ["رقم الطلب", order.id.slice(0, 8)],
+        ["اسم العميل", order.customer_name],
+        ["الهاتف", order.customer_phone],
+        ["العنوان", order.customer_address],
+        ["الحالة", statusLabels[order.status as keyof typeof statusLabels]],
+        ["تاريخ الطلب", format(new Date(order.created_at), "yyyy-MM-dd HH:mm")],
+        [],
+        ["تفاصيل المنتجات"],
+      ];
+
+      // Products table headers
+      const productsHeaders = ["المنتج", "الحجم", "السعر", "الكمية", "المجموع الفرعي"];
+      
+      // Products data
+      const productsData = order.order_items?.map((item: any) => [
+        item.product_name_ar,
+        item.variant_size_ar,
+        `${Math.round(Number(item.price))} ${currency}`,
+        item.quantity,
+        `${Math.round(Number(item.subtotal))} ${currency}`,
+      ]) || [];
+
+      // Summary section
+      const subtotal = order.order_items?.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0) || 0;
+      const summary = [
+        [],
+        ["ملخص المبالغ"],
+        ["المجموع الفرعي", `${Math.round(subtotal)} ${currency}`],
+      ];
+
+      if (order.discount_amount && order.discount_amount > 0) {
+        summary.push(["الخصم", `-${Math.round(order.discount_amount)} ${currency}`]);
+      }
+
+      summary.push(
+        ["التوصيل", `${Math.round(order.shipping_amount || 0)} ${currency}`],
+        ["المجموع الكلي", `${Math.round(order.total_amount)} ${currency}`]
+      );
+
+      if (order.notes) {
+        summary.push(
+          [],
+          ["ملاحظات العميل"],
+          [order.notes]
+        );
+      }
+
+      // Combine all data
+      const allData = [
+        ...orderInfo,
+        productsHeaders,
+        ...productsData,
+        ...summary,
+      ];
+
+      // Create worksheet
+      const ws = XLSX.utils.aoa_to_sheet(allData);
+
+      // Set column widths
+      ws['!cols'] = [
+        { wch: 25 }, // Column A
+        { wch: 20 }, // Column B
+        { wch: 15 }, // Column C
+        { wch: 10 }, // Column D
+        { wch: 20 }, // Column E
+      ];
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, "تفاصيل الطلب");
+
+      // Generate filename
+      const filename = `order_${order.id.slice(0, 8)}_${format(new Date(), "yyyy-MM-dd")}.xlsx`;
+      
+      // Save file
+      XLSX.writeFile(wb, filename);
+      
+      toast.success("تم تصدير تفاصيل الطلب بنجاح");
+    } catch (error) {
+      console.error("Error exporting order:", error);
+      toast.error("حدث خطأ أثناء تصدير الطلب");
+    }
+  };
+
   // Print all filtered orders
   const printAllOrders = async () => {
     if (!currentOrders || currentOrders.length === 0) {
@@ -642,6 +743,14 @@ const AdminOrders = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => exportOrderToExcel(order)}
+                        title="تصدير تفاصيل الطلب إلى Excel"
+                      >
+                        <FileSpreadsheet className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
