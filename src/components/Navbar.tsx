@@ -459,7 +459,7 @@ export const Navbar = () => {
           </div>
 
           {/* Cart & Auth - Desktop Only (right side) */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
             
             <Button variant="ghost" size="sm" className="relative px-3" onClick={() => navigate("/cart")}>
