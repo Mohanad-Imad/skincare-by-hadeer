@@ -32,13 +32,12 @@ const MakeupBanner = () => {
       >
         {/* Background Image */}
         {banner.image_url && (
-          <div 
-            className="absolute inset-0 bg-cover bg-center will-change-transform"
-            style={{
-              backgroundImage: `url(${banner.image_url})`,
-            }}
-            role="img"
-            aria-label={banner.title_ar || 'Makeup banner'}
+          <img
+            src={banner.image_url}
+            alt={banner.title_ar || 'Makeup banner'}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
 
