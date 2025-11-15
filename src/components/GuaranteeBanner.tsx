@@ -1,9 +1,26 @@
 import { ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const GuaranteeBanner = () => {
   const navigate = useNavigate();
+
+  const { data: guaranteeSettings } = useQuery({
+    queryKey: ["guarantee-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("guarantee_settings")
+        .select("*")
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (!guaranteeSettings) return null;
 
   return (
     <Card 
@@ -20,10 +37,10 @@ export const GuaranteeBanner = () => {
           {/* Content - في المنتصف */}
           <div className="flex-shrink-0 text-center">
             <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
-              منتجات أصلية ومضمونة
+              {guaranteeSettings.banner_title_ar || "منتجات أصلية ومضمونة"}
             </h3>
             <p className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
-              تعرفي أكثر على ضمان هدير
+              {guaranteeSettings.banner_description_ar || "تعرفي أكثر على ضمان هدير"}
             </p>
           </div>
         </div>

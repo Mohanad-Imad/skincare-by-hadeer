@@ -1,4 +1,4 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore, Star, Users, Boxes } from "lucide-react";
+import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore, Star, Users, Boxes, ShieldCheck } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -40,6 +40,7 @@ const menuItems = [
   { title: "أقسام المكياج", url: "/admin/makeup-categories", icon: Grid3x3 },
   { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
   { title: "ماركاتنا", url: "/admin/brands-links", icon: Tag },
+  { title: "صفحة الضمان", url: "/admin/guarantee", icon: ShieldCheck },
 ];
 
 export function AdminSidebar() {
