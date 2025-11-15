@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
@@ -9,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 
 const Categories = () => {
@@ -109,14 +109,15 @@ const Categories = () => {
               ))}
             </div>
           ) : (
-            <div className="space-y-24">
-              {categories?.map((category) => {
+            <div className="space-y-16">
+              {categories?.map((category, index) => {
                 const categoryProducts = getProductsForCategory(category.id);
                 const totalCount = getCategoryProductCount(category.id);
                 const categorySubCategories = getSubCategoriesForParent(category.id);
 
                 return (
-                  <section key={category.id} className="space-y-6">
+                  <div key={category.id}>
+                    <section className="space-y-6">
                     <Link to={`/products?category=${category.id}`} className="flex items-center gap-6 group">
                       {category.image_url && (
                         <div className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-lg">
@@ -208,8 +209,19 @@ const Categories = () => {
                       </div>
                     )}
                   </section>
-                );
-              })}
+                  
+                  {/* فاصل بين الأقسام */}
+                  {index < categories.length - 1 && (
+                    <div className="relative py-8">
+                      <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-4">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             </div>
           )}
         </main>
