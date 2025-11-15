@@ -133,8 +133,8 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       {/* Rating Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+            <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
             التقييمات والمراجعات
           </CardTitle>
         </CardHeader>
