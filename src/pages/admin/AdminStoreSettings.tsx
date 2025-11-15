@@ -428,6 +428,14 @@ const AdminStoreSettings = () => {
                 {isUploadingLogo && <p className="text-sm text-muted-foreground">جاري رفع الصورة...</p>}
               </div>
             </div>
+            <div className="flex justify-end pt-4">
+              <Button
+                onClick={handleSaveBasicInfo}
+                disabled={updateSettingsMutation.isPending}
+              >
+                {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ المعلومات الأساسية"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -814,6 +822,14 @@ const AdminStoreSettings = () => {
                 placeholder="Enter description in English"
               />
             </div>
+            <div className="flex justify-end pt-4">
+              <Button
+                onClick={handleSaveBasicInfo}
+                disabled={updateSettingsMutation.isPending}
+              >
+                {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ المعلومات"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -863,6 +879,14 @@ const AdminStoreSettings = () => {
                   placeholder="Enter address in English"
                 />
               </div>
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button
+                onClick={handleSaveBasicInfo}
+                disabled={updateSettingsMutation.isPending}
+              >
+                {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ المعلومات"}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -932,6 +956,14 @@ const AdminStoreSettings = () => {
                   placeholder="Enter text in English"
                 />
               </div>
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button
+                onClick={handleSaveBasicInfo}
+                disabled={updateSettingsMutation.isPending}
+              >
+                {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ المعلومات"}
+              </Button>
             </div>
           </CardContent>
         </Card>
