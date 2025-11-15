@@ -57,8 +57,8 @@ export const calculateDiscount = (
 
   if (!activeDiscount) return null;
 
-  const discountAmount = (originalPrice * activeDiscount.discount_percentage) / 100;
-  const discountedPrice = Math.round(originalPrice - discountAmount);
+  const discountAmount = Math.round((originalPrice * activeDiscount.discount_percentage) / 100);
+  const discountedPrice = originalPrice - discountAmount;
 
   return {
     percentage: activeDiscount.discount_percentage,
