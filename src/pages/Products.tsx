@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Search } from "lucide-react";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,10 +25,10 @@ const Products = () => {
   const [companyFilter, setCompanyFilter] = useState<string>(searchParams.get("company") || "all");
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const { data: discounts } = useProductDiscounts();
 
@@ -77,41 +76,19 @@ const Products = () => {
     },
   });
 
-  const { data: productsData, isLoading } = useQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, currentPage],
-    queryFn: async () => {
-      // تحديد التصنيفات المطلوبة للفلترة
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter],
+    queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
       if (subCategoryFilter !== "all") {
-        // إذا تم اختيار تصنيف فرعي، نستخدمه فقط
         categoryIds = [subCategoryFilter];
       } else if (parentCategoryFilter !== "all") {
-        // إذا تم اختيار تصنيف رئيسي فقط، نجلب جميع التصنيفات الفرعية التابعة له
         const subCategories = categories?.filter(cat => cat.parent_category_id === parentCategoryFilter) || [];
         categoryIds = [parentCategoryFilter, ...subCategories.map(sub => sub.id)];
       }
 
-      let countQuery = supabase
-        .from("products")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true);
-
-      if (categoryIds.length > 0) {
-        countQuery = countQuery.in("category_id", categoryIds);
-      }
-
-      if (companyFilter !== "all") {
-        countQuery = countQuery.or(`company_name_ar.eq.${companyFilter},company_name_en.eq.${companyFilter}`);
-      }
-
-      if (searchTerm) {
-        countQuery = countQuery.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
-      }
-
-      const { count } = await countQuery;
-
-      const from = (currentPage - 1) * itemsPerPage;
+      const from = pageParam * itemsPerPage;
       const to = from + itemsPerPage - 1;
 
       let query = supabase
@@ -159,7 +136,6 @@ const Products = () => {
 
       let filtered = data || [];
 
-      // فلترة حسب المشكلة
       if (problemFilter !== "all") {
         filtered = filtered.filter((product) => {
           return product.product_sub_problems?.some((psp: any) => 
@@ -168,7 +144,6 @@ const Products = () => {
         });
       }
 
-      // فلترة حسب قسم المكياج
       if (makeupFilter !== "all") {
         filtered = filtered.filter((product) => {
           return product.product_makeup_categories?.some((pmc: any) => 
@@ -184,7 +159,6 @@ const Products = () => {
       }
 
       const productsWithImages = filtered.map(product => {
-        // ترتيب الصور حسب display_order واختيار الأولى
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
@@ -195,18 +169,38 @@ const Products = () => {
         };
       });
 
-      return { products: productsWithImages, totalCount: count || 0 };
+      return { products: productsWithImages };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.products.length === itemsPerPage ? allPages.length : undefined;
     },
   });
 
-  const totalPages = productsData ? Math.ceil(productsData.totalCount / itemsPerPage) : 0;
-  const products = productsData?.products || [];
+  const products = data?.pages.flatMap(page => page.products) || [];
+
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [target] = entries;
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    const option = { threshold: 0 };
+
+    const observer = new IntersectionObserver(handleObserver, option);
+    if (element) observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);
 
   const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
     setter(value);
-    setCurrentPage(1);
     
-    // تحديث URL parameters
     if (paramName) {
       const newParams = new URLSearchParams(searchParams);
       if (value === "all") {
@@ -273,7 +267,6 @@ const Products = () => {
             onValueChange={(value) => {
               setParentCategoryFilter(value);
               setSubCategoryFilter("all");
-              setCurrentPage(1);
               
               const newParams = new URLSearchParams(searchParams);
               if (value === "all") {
@@ -432,53 +425,20 @@ const Products = () => {
               })}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(pageNum)}
-                            isActive={currentPage === pageNum}
-                            className="cursor-pointer"
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            )}
+            {/* Load More Trigger */}
+            <div ref={loadMoreRef} className="mt-8 flex justify-center">
+              {isFetchingNextPage && (
+                <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 w-full">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <Skeleton className="aspect-square w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
