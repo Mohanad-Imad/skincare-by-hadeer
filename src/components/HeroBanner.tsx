@@ -72,7 +72,7 @@ export const HeroBanner = () => {
             return banner.link_url ? (
               <CarouselItem key={banner.id}>
                 <Link to={banner.link_url} className="cursor-pointer block">
-                  <div className="relative h-[175px] md:h-[300px] lg:h-[400px] xl:h-[500px] 2xl:h-[600px] overflow-hidden rounded-2xl group">
+                  <div className="relative h-[175px] md:h-[300px] lg:h-[400px] xl:h-[500px] 2xl:h-[600px] overflow-hidden rounded-2xl group transition-transform duration-500 hover:scale-95">
                     {/* صورة الخلفية - responsive */}
                     <div className="absolute inset-0">
                       {/* Mobile image */}
@@ -97,7 +97,7 @@ export const HeroBanner = () => {
                         }}
                       />
                       {/* طبقة شفافة للتباين */}
-                      <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10 group-hover:from-black/20 group-hover:via-black/10 group-hover:to-transparent transition-all duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10 transition-all duration-300" />
                     </div>
 
                     {/* المحتوى */}
