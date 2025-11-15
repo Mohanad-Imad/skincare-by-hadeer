@@ -63,17 +63,28 @@ export const PWAInstallPrompt = () => {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+    console.log('Install button clicked, deferredPrompt:', deferredPrompt);
+    
+    if (!deferredPrompt) {
+      console.error('No deferred prompt available');
+      return;
     }
 
-    setDeferredPrompt(null);
-    setShowPrompt(false);
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      console.log('User choice outcome:', outcome);
+
+      if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      }
+
+      setDeferredPrompt(null);
+      setShowPrompt(false);
+    } catch (error) {
+      console.error('Error during installation:', error);
+    }
   };
 
   const handleDismiss = () => {
