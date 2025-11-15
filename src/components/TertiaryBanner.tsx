@@ -73,28 +73,28 @@ export const TertiaryBanner = () => {
             return (
               <CarouselItem key={banner.id}>
                 <div 
-                  className="relative w-full h-[100px] md:h-[120px] lg:h-[150px] xl:h-[180px] 2xl:h-[220px] overflow-hidden group cursor-pointer"
+                  className="relative w-full h-[100px] md:h-[120px] lg:h-[150px] xl:h-[180px] 2xl:h-[220px] overflow-hidden group cursor-pointer transition-transform duration-500 hover:scale-95"
                   onClick={() => handleBannerClick(banner.link_url)}
                 >
                   {/* Mobile image */}
                   <img
                     src={mobileImage}
                     alt={banner.title_ar || ""}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 md:hidden"
+                    className="w-full h-full object-cover md:hidden"
                   />
                   {/* Tablet image */}
                   <img
                     src={tabletImage}
                     alt={banner.title_ar || ""}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 hidden md:block lg:hidden"
+                    className="w-full h-full object-cover hidden md:block lg:hidden"
                   />
                   {/* Desktop image */}
                   <img
                     src={desktopImage}
                     alt={banner.title_ar || ""}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 hidden lg:block"
+                    className="w-full h-full object-cover hidden lg:block"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/10 to-transparent group-hover:from-black/10 group-hover:via-transparent transition-all duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/10 to-transparent transition-all duration-300" />
                   
                   <div className="absolute inset-0 flex items-center">
                     <div className="container mx-auto px-4">
