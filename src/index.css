@@ -119,6 +119,21 @@ All colors MUST be HSL.
   img {
     content-visibility: auto;
   }
+  
+  /* Optimize performance and prevent forced reflows */
+  .container,
+  footer,
+  section {
+    contain: layout style;
+  }
+  
+  /* Optimize animations - use only transform and opacity */
+  * {
+    /* Ensure animations use GPU acceleration */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 }
 
 @layer utilities {
