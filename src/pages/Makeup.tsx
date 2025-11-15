@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -82,7 +81,6 @@ const Makeup = () => {
                 ))}
           </div>
         </main>
-        <Footer />
       </div>
     </>
   );

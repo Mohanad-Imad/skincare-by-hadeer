@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/ProductCard";
 import { useQuery } from "@tanstack/react-query";
@@ -227,8 +226,6 @@ const Categories = () => {
             </div>
           )}
         </main>
-
-        <Footer />
       </div>
     </>
   );

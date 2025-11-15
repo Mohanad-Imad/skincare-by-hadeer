@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { ShieldCheck, Award, CheckCircle, Package, Truck, HeadphonesIcon, ArrowRight, RefreshCw, Coins } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -60,7 +59,6 @@ const Guarantee = () => {
             <Skeleton className="h-6 w-2/3 mx-auto" />
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -72,7 +70,6 @@ const Guarantee = () => {
         <main className="container py-8 md:py-12">
           <p className="text-center text-muted-foreground">لا توجد بيانات ضمان متاحة</p>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -208,8 +205,6 @@ const Guarantee = () => {
           </section>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 };

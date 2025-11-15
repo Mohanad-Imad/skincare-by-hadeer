@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -536,8 +535,6 @@ const Checkout = () => {
             </div>
           </div>
         )}
-        
-        <Footer />
       </div>
     </div>
   );

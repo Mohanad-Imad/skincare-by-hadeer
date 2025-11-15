@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight } from "lucide-react";
@@ -58,7 +57,6 @@ export default function ProblemSubCategories() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     );
   }
@@ -78,7 +76,6 @@ export default function ProblemSubCategories() {
             </button>
           </div>
         </main>
-        <Footer />
       </>
     );
   }
@@ -136,8 +133,6 @@ export default function ProblemSubCategories() {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </>
   );
 }
