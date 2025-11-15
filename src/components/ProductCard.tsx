@@ -41,7 +41,7 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
       onClick={() => navigate(`/products/${id}`)}
     >
       <div className="aspect-square overflow-hidden bg-background p-1 relative flex-shrink-0">
-        <div className="absolute top-2 left-2 z-10">
+        <div className="absolute -top-2 -left-2 z-10">
           {guaranteeSettings?.logo_url ? (
             <img 
               src={guaranteeSettings.logo_url} 
