@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -42,25 +43,25 @@ const AdminStoreSettings = () => {
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [footerTextAr, setFooterTextAr] = useState("");
   const [footerTextEn, setFooterTextEn] = useState("");
-  // Light mode colors
-  const [lightBackground, setLightBackground] = useState("#f9e5ed");
-  const [lightForeground, setLightForeground] = useState("#4a2c3d");
-  const [lightCard, setLightCard] = useState("#fcfcfc");
-  const [lightPrimary, setLightPrimary] = useState("#e65c8f");
-  const [lightSecondary, setLightSecondary] = useState("#f5d5c3");
-  const [lightAccent, setLightAccent] = useState("#efd1e0");
-  const [lightMuted, setLightMuted] = useState("#f3dfe6");
-  const [lightBorder, setLightBorder] = useState("#ead5df");
+  // Light mode colors with better contrast
+  const [lightBackground, setLightBackground] = useState("#FCF7F8");
+  const [lightForeground, setLightForeground] = useState("#2D1B1F");
+  const [lightCard, setLightCard] = useState("#FFFFFF");
+  const [lightPrimary, setLightPrimary] = useState("#E91E63");
+  const [lightSecondary, setLightSecondary] = useState("#F8BBD0");
+  const [lightAccent, setLightAccent] = useState("#F48FB1");
+  const [lightMuted, setLightMuted] = useState("#F5E6E8");
+  const [lightBorder, setLightBorder] = useState("#F8BBD0");
   
-  // Dark mode colors
-  const [darkBackground, setDarkBackground] = useState("#271520");
-  const [darkForeground, setDarkForeground] = useState("#efe6eb");
-  const [darkCard, setDarkCard] = useState("#31202b");
-  const [darkPrimary, setDarkPrimary] = useState("#efa0bc");
-  const [darkSecondary, setDarkSecondary] = useState("#3d2b30");
-  const [darkAccent, setDarkAccent] = useState("#452f3e");
-  const [darkMuted, setDarkMuted] = useState("#382633");
-  const [darkBorder, setDarkBorder] = useState("#443238");
+  // Dark mode colors with better contrast
+  const [darkBackground, setDarkBackground] = useState("#1A1114");
+  const [darkForeground, setDarkForeground] = useState("#F5E6E8");
+  const [darkCard, setDarkCard] = useState("#2D1B1F");
+  const [darkPrimary, setDarkPrimary] = useState("#F06292");
+  const [darkSecondary, setDarkSecondary] = useState("#3D2329");
+  const [darkAccent, setDarkAccent] = useState("#4D2D34");
+  const [darkMuted, setDarkMuted] = useState("#2D1B1F");
+  const [darkBorder, setDarkBorder] = useState("#4D2D34");
   const [priceAdjustment, setPriceAdjustment] = useState("");
   const [adjustmentType, setAdjustmentType] = useState<"increase" | "decrease">("increase");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -268,22 +269,22 @@ const AdminStoreSettings = () => {
       const defaultSettings = {
         store_name: "اسم المتجر",
         currency: "ريال",
-        light_background: "350 60% 96%",
-        light_foreground: "340 25% 20%",
-        light_card: "0 0% 99%",
-        light_primary: "340 75% 60%",
-        light_secondary: "20 60% 88%",
-        light_accent: "320 35% 85%",
-        light_muted: "340 25% 90%",
-        light_border: "340 25% 85%",
-        dark_background: "340 25% 12%",
-        dark_foreground: "340 15% 95%",
-        dark_card: "340 20% 16%",
-        dark_primary: "340 70% 70%",
-        dark_secondary: "340 15% 22%",
-        dark_accent: "320 20% 25%",
-        dark_muted: "340 15% 20%",
-        dark_border: "340 15% 25%",
+        light_background: hexToHsl("#FCF7F8"),
+        light_foreground: hexToHsl("#2D1B1F"),
+        light_card: hexToHsl("#FFFFFF"),
+        light_primary: hexToHsl("#E91E63"),
+        light_secondary: hexToHsl("#F8BBD0"),
+        light_accent: hexToHsl("#F48FB1"),
+        light_muted: hexToHsl("#F5E6E8"),
+        light_border: hexToHsl("#F8BBD0"),
+        dark_background: hexToHsl("#1A1114"),
+        dark_foreground: hexToHsl("#F5E6E8"),
+        dark_card: hexToHsl("#2D1B1F"),
+        dark_primary: hexToHsl("#F06292"),
+        dark_secondary: hexToHsl("#3D2329"),
+        dark_accent: hexToHsl("#4D2D34"),
+        dark_muted: hexToHsl("#2D1B1F"),
+        dark_border: hexToHsl("#4D2D34"),
       };
       
       const { error } = await supabase
@@ -451,92 +452,164 @@ const AdminStoreSettings = () => {
               <h4 className="font-medium text-sm text-muted-foreground">الوضع النهاري</h4>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightBackground">الخلفية</Label>
-                  <Input
-                    id="lightBackground"
-                    type="color"
-                    value={lightBackground}
-                    onChange={(e) => setLightBackground(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightBackground"
+                      type="color"
+                      value={lightBackground}
+                      onChange={(e) => setLightBackground(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightBackground}
+                      onChange={(e) => setLightBackground(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#FCF7F8"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightForeground">النص</Label>
-                  <Input
-                    id="lightForeground"
-                    type="color"
-                    value={lightForeground}
-                    onChange={(e) => setLightForeground(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightForeground"
+                      type="color"
+                      value={lightForeground}
+                      onChange={(e) => setLightForeground(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightForeground}
+                      onChange={(e) => setLightForeground(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#2D1B1F"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightCard">الكروت</Label>
-                  <Input
-                    id="lightCard"
-                    type="color"
-                    value={lightCard}
-                    onChange={(e) => setLightCard(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightCard"
+                      type="color"
+                      value={lightCard}
+                      onChange={(e) => setLightCard(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightCard}
+                      onChange={(e) => setLightCard(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightPrimary">اللون الأساسي</Label>
-                  <Input
-                    id="lightPrimary"
-                    type="color"
-                    value={lightPrimary}
-                    onChange={(e) => setLightPrimary(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightPrimary"
+                      type="color"
+                      value={lightPrimary}
+                      onChange={(e) => setLightPrimary(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightPrimary}
+                      onChange={(e) => setLightPrimary(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#E91E63"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightSecondary">اللون الثانوي</Label>
-                  <Input
-                    id="lightSecondary"
-                    type="color"
-                    value={lightSecondary}
-                    onChange={(e) => setLightSecondary(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightSecondary"
+                      type="color"
+                      value={lightSecondary}
+                      onChange={(e) => setLightSecondary(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightSecondary}
+                      onChange={(e) => setLightSecondary(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#F8BBD0"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightAccent">لون التمييز</Label>
-                  <Input
-                    id="lightAccent"
-                    type="color"
-                    value={lightAccent}
-                    onChange={(e) => setLightAccent(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightAccent"
+                      type="color"
+                      value={lightAccent}
+                      onChange={(e) => setLightAccent(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightAccent}
+                      onChange={(e) => setLightAccent(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#F48FB1"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightMuted">اللون الباهت</Label>
-                  <Input
-                    id="lightMuted"
-                    type="color"
-                    value={lightMuted}
-                    onChange={(e) => setLightMuted(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightMuted"
+                      type="color"
+                      value={lightMuted}
+                      onChange={(e) => setLightMuted(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightMuted}
+                      onChange={(e) => setLightMuted(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#F5E6E8"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="lightBorder">الحدود</Label>
-                  <Input
-                    id="lightBorder"
-                    type="color"
-                    value={lightBorder}
-                    onChange={(e) => setLightBorder(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lightBorder"
+                      type="color"
+                      value={lightBorder}
+                      onChange={(e) => setLightBorder(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={lightBorder}
+                      onChange={(e) => setLightBorder(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#F8BBD0"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -545,92 +618,164 @@ const AdminStoreSettings = () => {
               <h4 className="font-medium text-sm text-muted-foreground">الوضع الليلي</h4>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkBackground">الخلفية</Label>
-                  <Input
-                    id="darkBackground"
-                    type="color"
-                    value={darkBackground}
-                    onChange={(e) => setDarkBackground(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkBackground"
+                      type="color"
+                      value={darkBackground}
+                      onChange={(e) => setDarkBackground(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkBackground}
+                      onChange={(e) => setDarkBackground(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#1A1114"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkForeground">النص</Label>
-                  <Input
-                    id="darkForeground"
-                    type="color"
-                    value={darkForeground}
-                    onChange={(e) => setDarkForeground(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkForeground"
+                      type="color"
+                      value={darkForeground}
+                      onChange={(e) => setDarkForeground(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkForeground}
+                      onChange={(e) => setDarkForeground(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#F5E6E8"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkCard">الكروت</Label>
-                  <Input
-                    id="darkCard"
-                    type="color"
-                    value={darkCard}
-                    onChange={(e) => setDarkCard(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkCard"
+                      type="color"
+                      value={darkCard}
+                      onChange={(e) => setDarkCard(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkCard}
+                      onChange={(e) => setDarkCard(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#2D1B1F"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkPrimary">اللون الأساسي</Label>
-                  <Input
-                    id="darkPrimary"
-                    type="color"
-                    value={darkPrimary}
-                    onChange={(e) => setDarkPrimary(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkPrimary"
+                      type="color"
+                      value={darkPrimary}
+                      onChange={(e) => setDarkPrimary(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkPrimary}
+                      onChange={(e) => setDarkPrimary(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#F06292"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkSecondary">اللون الثانوي</Label>
-                  <Input
-                    id="darkSecondary"
-                    type="color"
-                    value={darkSecondary}
-                    onChange={(e) => setDarkSecondary(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkSecondary"
+                      type="color"
+                      value={darkSecondary}
+                      onChange={(e) => setDarkSecondary(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkSecondary}
+                      onChange={(e) => setDarkSecondary(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#3D2329"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkAccent">لون التمييز</Label>
-                  <Input
-                    id="darkAccent"
-                    type="color"
-                    value={darkAccent}
-                    onChange={(e) => setDarkAccent(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkAccent"
+                      type="color"
+                      value={darkAccent}
+                      onChange={(e) => setDarkAccent(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkAccent}
+                      onChange={(e) => setDarkAccent(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#4D2D34"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkMuted">اللون الباهت</Label>
-                  <Input
-                    id="darkMuted"
-                    type="color"
-                    value={darkMuted}
-                    onChange={(e) => setDarkMuted(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkMuted"
+                      type="color"
+                      value={darkMuted}
+                      onChange={(e) => setDarkMuted(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkMuted}
+                      onChange={(e) => setDarkMuted(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#2D1B1F"
+                    />
+                  </div>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="darkBorder">الحدود</Label>
-                  <Input
-                    id="darkBorder"
-                    type="color"
-                    value={darkBorder}
-                    onChange={(e) => setDarkBorder(e.target.value)}
-                    className="h-12"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="darkBorder"
+                      type="color"
+                      value={darkBorder}
+                      onChange={(e) => setDarkBorder(e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={darkBorder}
+                      onChange={(e) => setDarkBorder(e.target.value)}
+                      className="flex-1 h-10 text-xs"
+                      placeholder="#4D2D34"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
