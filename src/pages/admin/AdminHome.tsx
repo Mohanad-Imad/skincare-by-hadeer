@@ -22,6 +22,7 @@ import {
   Bell,
   UserCircle,
   Boxes,
+  ShieldCheck,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -124,6 +125,12 @@ const AdminHome = () => {
       description: "تكوين خيارات التوصيل",
       icon: Truck,
       route: "/admin/shipping-settings",
+    },
+    {
+      title: "إعدادات الضمان",
+      description: "إدارة صفحة الضمان والاسترجاع",
+      icon: ShieldCheck,
+      route: "/admin/guarantee",
     },
     {
       title: "إعدادات المتجر",
