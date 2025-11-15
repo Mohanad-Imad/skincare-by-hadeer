@@ -1,8 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu, Grid3x3, ChevronDown, Star, Palette, MessageCircle, ShieldCheck } from "lucide-react";
-import * as icons from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown } from "lucide-react";
+import { DynamicIcon } from "./DynamicIcon";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -242,7 +242,6 @@ export const Navbar = () => {
                 </Collapsible>
 
                 {navigationLinks.map((link: any) => {
-                  const IconComponent = (icons as any)[link.icon];
                   return (
                     <Button
                       key={link.id}
@@ -250,7 +249,7 @@ export const Navbar = () => {
                       className="justify-start gap-2"
                       onClick={() => handleNavigate(link.url)}
                     >
-                      {IconComponent && <IconComponent className="h-4 w-4" />}
+                      <DynamicIcon name={link.icon as any} className="h-4 w-4" />
                       {link.title_ar}
                     </Button>
                   );
@@ -333,7 +332,6 @@ export const Navbar = () => {
         {/* Center: Desktop Navigation Links */}
         <div className="hidden lg:flex items-center justify-center gap-1 flex-1">
           {navigationLinks.map((link: any) => {
-            const IconComponent = (icons as any)[link.icon];
             return (
               <Button
                 key={link.id}
@@ -342,7 +340,7 @@ export const Navbar = () => {
                 onClick={() => navigate(link.url)}
                 className="gap-1.5"
               >
-                {IconComponent && <IconComponent className="h-4 w-4" />}
+                <DynamicIcon name={link.icon as any} className="h-4 w-4" />
                 {link.title_ar}
               </Button>
             );
