@@ -29,7 +29,7 @@ export const Footer = () => {
   const footerText = settings?.footer_text_ar || "تابعونا على مواقع التواصل الاجتماعي للحصول على آخر العروض والمنتجات الجديدة";
 
   return (
-    <footer className="bg-card border-t mt-auto">
+    <footer className="bg-card border-t mt-auto min-h-[400px]">
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}
