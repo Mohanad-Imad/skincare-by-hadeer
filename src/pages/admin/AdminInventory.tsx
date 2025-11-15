@@ -23,11 +23,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const AdminInventory = () => {
   const { isAdmin, isLoading: isCheckingAdmin } = useAdminCheck();
   const [searchTerm, setSearchTerm] = useState("");
-  const [companyFilter, setCompanyFilter] = useState<string>("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [minStock, setMinStock] = useState<string>("");
   const [maxStock, setMaxStock] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);
@@ -109,13 +109,13 @@ const AdminInventory = () => {
     const nameMatch = product.name_ar?.toLowerCase().includes(searchLower);
     
     // Company filter
-    const companyMatch = !companyFilter || product.company_name_ar === companyFilter;
+    const companyMatch = !companyFilter || companyFilter === "all" || product.company_name_ar === companyFilter;
     
     // Category filter
-    const categoryMatch = !categoryFilter || product.category_id === categoryFilter;
+    const categoryMatch = !categoryFilter || categoryFilter === "all" || product.category_id === categoryFilter;
     
     // Status filter
-    const statusMatch = !statusFilter || 
+    const statusMatch = !statusFilter || statusFilter === "all" ||
       (statusFilter === "active" && product.is_active) ||
       (statusFilter === "inactive" && !product.is_active);
     
@@ -138,18 +138,21 @@ const AdminInventory = () => {
 
   // Get unique companies and categories for filters
   const uniqueCompanies = Array.from(new Set(products?.map(p => p.company_name_ar).filter(Boolean))) as string[];
-  const uniqueCategories = Array.from(new Set(
-    products?.map((p: any) => ({ id: p.category_id, name: p.categories?.name_ar }))
-      .filter((c: any) => c.id && c.name)
-  ));
+  const categoryMap = new Map();
+  products?.forEach((p: any) => {
+    if (p.category_id && p.categories?.name_ar) {
+      categoryMap.set(p.category_id, { id: p.category_id, name: p.categories.name_ar });
+    }
+  });
+  const uniqueCategories = Array.from(categoryMap.values());
 
   const clearFilters = () => {
     setSearchTerm("");
-    setCompanyFilter("");
-    setCategoryFilter("");
+    setCompanyFilter("all");
+    setCategoryFilter("all");
     setMinPrice("");
     setMaxPrice("");
-    setStatusFilter("");
+    setStatusFilter("all");
     setMinStock("");
     setMaxStock("");
   };
@@ -232,7 +235,7 @@ const AdminInventory = () => {
             <Filter className="h-4 w-4" />
             الفلاتر
           </Button>
-          {(companyFilter || categoryFilter || minPrice || maxPrice || statusFilter || minStock || maxStock) && (
+          {(companyFilter !== "all" && companyFilter || categoryFilter !== "all" && categoryFilter || minPrice || maxPrice || statusFilter !== "all" && statusFilter || minStock || maxStock) && (
             <Button
               variant="ghost"
               onClick={clearFilters}
@@ -251,12 +254,12 @@ const AdminInventory = () => {
                 {/* Company Filter */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">الشركة</label>
-                  <Select value={companyFilter} onValueChange={setCompanyFilter}>
+                  <Select value={companyFilter || "all"} onValueChange={setCompanyFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="جميع الشركات" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">جميع الشركات</SelectItem>
+                      <SelectItem value="all">جميع الشركات</SelectItem>
                       {uniqueCompanies.map((company) => (
                         <SelectItem key={company} value={company}>
                           {company}
@@ -269,12 +272,12 @@ const AdminInventory = () => {
                 {/* Category Filter */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">التصنيف</label>
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <Select value={categoryFilter || "all"} onValueChange={setCategoryFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="جميع التصنيفات" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">جميع التصنيفات</SelectItem>
+                      <SelectItem value="all">جميع التصنيفات</SelectItem>
                       {uniqueCategories.map((category: any) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
@@ -287,12 +290,12 @@ const AdminInventory = () => {
                 {/* Status Filter */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">الحالة</label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <Select value={statusFilter || "all"} onValueChange={setStatusFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="جميع الحالات" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">جميع الحالات</SelectItem>
+                      <SelectItem value="all">جميع الحالات</SelectItem>
                       <SelectItem value="active">نشط</SelectItem>
                       <SelectItem value="inactive">غير نشط</SelectItem>
                     </SelectContent>
