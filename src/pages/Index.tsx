@@ -187,7 +187,7 @@ const Index = () => {
         {newArrivals && newArrivals.length > 0 && (
           <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
             <div className="mb-4 md:mb-8 xl:mb-10 text-center">
-              <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">وصل حديثاً</h3>
+              <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">وصل حديثاً</h2>
               <p className="text-sm md:text-base xl:text-lg text-muted-foreground">اكتشفي أحدث منتجاتنا</p>
             </div>
             <Carousel
@@ -232,7 +232,7 @@ const Index = () => {
         {featuredProducts && featuredProducts.length > 0 && (
           <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
             <div className="mb-4 md:mb-8 xl:mb-10 text-center">
-              <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">المنتجات المميزة</h3>
+              <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">المنتجات المميزة</h2>
               <p className="text-sm md:text-base xl:text-lg text-muted-foreground">تسوقي مجموعة مختارة من أفضل منتجاتنا</p>
             </div>
             <Carousel
@@ -277,7 +277,7 @@ const Index = () => {
         {expertChoices && expertChoices.length > 0 && (
           <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-8 md:py-16 xl:py-20 max-w-[1920px] mx-auto">
             <div className="mb-4 md:mb-8 xl:mb-10 text-center">
-              <h3 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">اختيار خبراءنا</h3>
+              <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold mb-1 md:mb-2">اختيار خبراءنا</h2>
               <p className="text-sm md:text-base xl:text-lg text-muted-foreground">منتجات موصى بها من فريق خبرائنا</p>
             </div>
             <Carousel

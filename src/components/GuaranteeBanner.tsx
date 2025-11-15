@@ -48,9 +48,9 @@ export const GuaranteeBanner = () => {
           
           {/* Content - في المنتصف */}
           <div className="flex-shrink-0 text-center">
-            <h3 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
+            <h2 className="text-sm md:text-lg font-bold mb-0.5 text-foreground whitespace-nowrap">
               {guaranteeSettings.banner_title_ar || "منتجات أصلية ومضمونة"}
-            </h3>
+            </h2>
             <p className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
               {guaranteeSettings.banner_description_ar || "تعرفي أكثر على ضمان هدير"}
             </p>
