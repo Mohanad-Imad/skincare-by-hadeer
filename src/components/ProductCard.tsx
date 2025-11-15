@@ -5,6 +5,8 @@ import { ShieldCheck, Tag } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductCardProps {
   id: string;
@@ -21,18 +23,36 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
   const navigate = useNavigate();
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  const { data: guaranteeSettings } = useQuery({
+    queryKey: ["guarantee-settings"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("guarantee_settings")
+        .select("logo_url")
+        .eq("is_active", true)
+        .maybeSingle();
+      return data;
+    },
+  });
+
   return (
     <Card
       className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg h-full flex flex-col"
       onClick={() => navigate(`/products/${id}`)}
     >
       <div className="aspect-square overflow-hidden bg-background p-1 relative flex-shrink-0">
-        <div className="absolute top-0 left-0 z-10 overflow-hidden w-20 h-20">
-          <div className="absolute transform -rotate-45 bg-emerald-500/90 text-white text-center font-bold py-0.5 left-[-28px] top-[15px] w-28 shadow-lg">
-            <div className="flex items-center justify-center gap-0.5">
-              <ShieldCheck className="h-2.5 w-2.5" />
-              <span className="text-[9px]">أصلي ومضمون</span>
-            </div>
+        <div className="absolute top-0 left-0 z-10 overflow-hidden w-24 h-24">
+          <div className="absolute transform -rotate-45 bg-emerald-500/95 text-white text-center font-bold py-1.5 left-[-32px] top-[18px] w-32 shadow-lg flex items-center justify-center gap-1">
+            {guaranteeSettings?.logo_url ? (
+              <img 
+                src={guaranteeSettings.logo_url} 
+                alt="guarantee" 
+                className="h-4 w-4 object-contain"
+              />
+            ) : (
+              <ShieldCheck className="h-3 w-3" />
+            )}
+            <span className="text-[10px] font-bold">أصلي ومضمون</span>
           </div>
         </div>
         {imageUrl ? (
