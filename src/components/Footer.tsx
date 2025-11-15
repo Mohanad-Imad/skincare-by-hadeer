@@ -73,8 +73,7 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/submit-review" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4" />
+                <Link to="/submit-review" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   شاركنا رأيك
                 </Link>
               </li>
