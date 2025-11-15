@@ -62,7 +62,7 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                 <div className="mt-1.5 md:mt-3 text-center px-1">
                   <p
                     className={cn(
-                      "text-[10px] md:text-sm font-semibold transition-all duration-300 leading-tight whitespace-nowrap",
+                      "text-xs md:text-sm font-semibold transition-all duration-300 leading-tight whitespace-nowrap",
                       (isCurrent || isCompleted || isLastStepCompleted) && "text-primary",
                       !isCompleted && !isCurrent && !isLastStepCompleted && "text-muted-foreground"
                     )}
