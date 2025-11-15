@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
-import * as icons from "lucide-react";
+import { DynamicIcon } from "@/components/DynamicIcon";
 
 export default function AdminNavigationLinks() {
   const { toast } = useToast();
@@ -77,8 +77,7 @@ export default function AdminNavigationLinks() {
   };
 
   const getIcon = (iconName: string) => {
-    const Icon = (icons as any)[iconName];
-    return Icon ? <Icon className="h-4 w-4" /> : null;
+    return <DynamicIcon name={iconName as any} className="h-4 w-4" />;
   };
 
   if (isLoading) {

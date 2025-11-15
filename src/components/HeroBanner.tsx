@@ -60,8 +60,12 @@ export const HeroBanner = () => {
           direction: "rtl",
         }}
         setApi={setApi}
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={() => plugin.current.play()}
+        onMouseEnter={() => plugin.current?.stop()}
+        onMouseLeave={() => {
+          if (plugin.current && api) {
+            plugin.current.play();
+          }
+        }}
       >
         <CarouselContent>
           {banners.map((banner: any) => {
