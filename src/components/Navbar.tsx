@@ -1,7 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu, Grid3x3, ChevronDown } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, BookOpen, MessageSquare, Sparkles, Menu, Grid3x3, ChevronDown, Star, Palette, MessageCircle, ShieldCheck } from "lucide-react";
+import * as icons from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -107,6 +108,20 @@ export const Navbar = () => {
         .select("*")
         .not("parent_category_id", "is", null)
         .eq("is_active", true)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return (data || []) as any[];
+    },
+  });
+
+  const { data: navigationLinks = [] } = useQuery<any[]>({
+    queryKey: ["navigation-links"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("navigation_links")
+        .select("*")
+        .eq("is_active", true)
+        .in("location", ["navbar", "both"])
         .order("display_order", { ascending: true });
       if (error) throw error;
       return (data || []) as any[];
@@ -226,41 +241,20 @@ export const Navbar = () => {
                   </CollapsibleContent>
                 </Collapsible>
 
-                <Button
-                  variant={isActive("/products") ? "default" : "ghost"}
-                  className="justify-start gap-2"
-                  onClick={() => handleNavigate("/products")}
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  المنتجات
-                </Button>
-
-                <Button
-                  variant={isActive("/blog") ? "default" : "ghost"}
-                  className="justify-start gap-2"
-                  onClick={() => handleNavigate("/blog")}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  المدونة
-                </Button>
-
-                <Button
-                  variant={isActive("/consultation") ? "default" : "ghost"}
-                  className="justify-start gap-2"
-                  onClick={() => handleNavigate("/consultation")}
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  استشارة
-                </Button>
-
-                <Button
-                  variant={isActive("/celebrity-routines") ? "default" : "ghost"}
-                  className="justify-start gap-2"
-                  onClick={() => handleNavigate("/celebrity-routines")}
-                >
-                  <Sparkles className="h-4 w-4" />
-                  روتين المشاهير
-                </Button>
+                {navigationLinks.map((link: any) => {
+                  const IconComponent = (icons as any)[link.icon];
+                  return (
+                    <Button
+                      key={link.id}
+                      variant={isActive(link.url) ? "default" : "ghost"}
+                      className="justify-start gap-2"
+                      onClick={() => handleNavigate(link.url)}
+                    >
+                      {IconComponent && <IconComponent className="h-4 w-4" />}
+                      {link.title_ar}
+                    </Button>
+                  );
+                })}
 
                 {session && (
                   <Button
@@ -338,65 +332,21 @@ export const Navbar = () => {
 
         {/* Center: Desktop Navigation Links */}
         <div className="hidden lg:flex items-center justify-center gap-1 flex-1">
-          <Button
-            variant={isActive("/") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/")}
-            className="gap-1.5"
-          >
-            <Home className="h-4 w-4" />
-            الرئيسية
-          </Button>
-
-          <Button
-            variant={isActive("/categories") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/categories")}
-            className="gap-1.5"
-          >
-            <Grid3x3 className="h-4 w-4" />
-            الأقسام
-          </Button>
-
-          <Button
-            variant={isActive("/products") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/products")}
-            className="gap-1.5"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            المنتجات
-          </Button>
-
-          <Button
-            variant={isActive("/blog") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/blog")}
-            className="gap-1.5"
-          >
-            <BookOpen className="h-4 w-4" />
-            المدونة
-          </Button>
-
-          <Button
-            variant={isActive("/consultation") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/consultation")}
-            className="gap-1.5"
-          >
-            <MessageSquare className="h-4 w-4" />
-            استشارة
-          </Button>
-
-          <Button
-            variant={isActive("/celebrity-routines") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/celebrity-routines")}
-            className="gap-1.5"
-          >
-            <Sparkles className="h-4 w-4" />
-            روتين المشاهير
-          </Button>
+          {navigationLinks.map((link: any) => {
+            const IconComponent = (icons as any)[link.icon];
+            return (
+              <Button
+                key={link.id}
+                variant={isActive(link.url) ? "default" : "ghost"}
+                size="sm"
+                onClick={() => navigate(link.url)}
+                className="gap-1.5"
+              >
+                {IconComponent && <IconComponent className="h-4 w-4" />}
+                {link.title_ar}
+              </Button>
+            );
+          })}
 
           {session && (
             <Button
