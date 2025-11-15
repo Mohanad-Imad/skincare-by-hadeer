@@ -227,7 +227,7 @@ const ProductDetails = () => {
         structuredData={structuredData}
       />
       <Navbar />
-      <div className="container pb-8 pt-2">
+      <div className="container pb-32 pt-2">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
