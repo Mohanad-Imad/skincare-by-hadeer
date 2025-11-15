@@ -31,7 +31,7 @@ export default function AdminNavigationLinks() {
     },
   });
 
-  const toggleLinkMutation = useMutation({
+  const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       const { error } = await supabase
         .from("navigation_links")
@@ -56,25 +56,55 @@ export default function AdminNavigationLinks() {
     },
   });
 
-  const getLocationBadge = (location: string) => {
-    const variants: Record<string, any> = {
-      navbar: "default",
-      sidebar: "secondary",
-      both: "outline",
-    };
-    
-    const labels: Record<string, string> = {
-      navbar: "شريط التنقل",
-      sidebar: "القائمة الجانبية",
-      both: "كلاهما",
-    };
+  const toggleNavbarMutation = useMutation({
+    mutationFn: async ({ id, show_in_navbar }: { id: string; show_in_navbar: boolean }) => {
+      const { error } = await supabase
+        .from("navigation_links")
+        .update({ show_in_navbar })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      toast({
+        title: "تم التحديث",
+        description: "تم تحديث ظهور الرابط في شريط التنقل",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تحديث الرابط",
+        variant: "destructive",
+      });
+    },
+  });
 
-    return (
-      <Badge variant={variants[location] || "default"}>
-        {labels[location] || location}
-      </Badge>
-    );
-  };
+  const toggleSidebarMutation = useMutation({
+    mutationFn: async ({ id, show_in_sidebar }: { id: string; show_in_sidebar: boolean }) => {
+      const { error } = await supabase
+        .from("navigation_links")
+        .update({ show_in_sidebar })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-navigation-links"] });
+      queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
+      toast({
+        title: "تم التحديث",
+        description: "تم تحديث ظهور الرابط في القائمة الجانبية",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تحديث الرابط",
+        variant: "destructive",
+      });
+    },
+  });
 
   const getIcon = (iconName: string) => {
     return <DynamicIcon name={iconName as any} className="h-4 w-4" />;
@@ -103,9 +133,10 @@ export default function AdminNavigationLinks() {
               <TableHead className="text-right">العنوان بالعربية</TableHead>
               <TableHead className="text-right">العنوان بالإنجليزية</TableHead>
               <TableHead className="text-right">الرابط</TableHead>
-              <TableHead className="text-right">الموقع</TableHead>
+              <TableHead className="text-right">شريط التنقل</TableHead>
+              <TableHead className="text-right">القائمة الجانبية</TableHead>
               <TableHead className="text-right">الترتيب</TableHead>
-              <TableHead className="text-right">الحالة</TableHead>
+              <TableHead className="text-right">مفعّل</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -117,13 +148,34 @@ export default function AdminNavigationLinks() {
                 <TableCell>
                   <code className="text-xs bg-muted px-2 py-1 rounded">{link.url}</code>
                 </TableCell>
-                <TableCell>{getLocationBadge(link.location)}</TableCell>
+                <TableCell>
+                  <Switch
+                    checked={link.show_in_navbar}
+                    onCheckedChange={(checked) =>
+                      toggleNavbarMutation.mutate({
+                        id: link.id,
+                        show_in_navbar: checked,
+                      })
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={link.show_in_sidebar}
+                    onCheckedChange={(checked) =>
+                      toggleSidebarMutation.mutate({
+                        id: link.id,
+                        show_in_sidebar: checked,
+                      })
+                    }
+                  />
+                </TableCell>
                 <TableCell>{link.display_order}</TableCell>
                 <TableCell>
                   <Switch
                     checked={link.is_active}
                     onCheckedChange={(checked) =>
-                      toggleLinkMutation.mutate({
+                      toggleActiveMutation.mutate({
                         id: link.id,
                         is_active: checked,
                       })

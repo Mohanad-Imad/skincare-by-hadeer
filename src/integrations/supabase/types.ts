@@ -778,7 +778,8 @@ export type Database = {
           icon: string
           id: string
           is_active: boolean
-          location: string
+          show_in_navbar: boolean
+          show_in_sidebar: boolean
           title_ar: string
           title_en: string | null
           updated_at: string
@@ -790,7 +791,8 @@ export type Database = {
           icon: string
           id?: string
           is_active?: boolean
-          location?: string
+          show_in_navbar?: boolean
+          show_in_sidebar?: boolean
           title_ar: string
           title_en?: string | null
           updated_at?: string
@@ -802,7 +804,8 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean
-          location?: string
+          show_in_navbar?: boolean
+          show_in_sidebar?: boolean
           title_ar?: string
           title_en?: string | null
           updated_at?: string
