@@ -20,15 +20,25 @@ export const DynamicTheme = () => {
     if (settings) {
       const root = document.documentElement;
       
-      if (settings.theme_primary_color) {
-        root.style.setProperty('--primary', settings.theme_primary_color);
-      }
-      if (settings.theme_secondary_color) {
-        root.style.setProperty('--secondary', settings.theme_secondary_color);
-      }
-      if (settings.theme_accent_color) {
-        root.style.setProperty('--accent', settings.theme_accent_color);
-      }
+      // Apply light mode colors
+      if (settings.light_background) root.style.setProperty('--light-background', settings.light_background);
+      if (settings.light_foreground) root.style.setProperty('--light-foreground', settings.light_foreground);
+      if (settings.light_card) root.style.setProperty('--light-card', settings.light_card);
+      if (settings.light_primary) root.style.setProperty('--light-primary', settings.light_primary);
+      if (settings.light_secondary) root.style.setProperty('--light-secondary', settings.light_secondary);
+      if (settings.light_accent) root.style.setProperty('--light-accent', settings.light_accent);
+      if (settings.light_muted) root.style.setProperty('--light-muted', settings.light_muted);
+      if (settings.light_border) root.style.setProperty('--light-border', settings.light_border);
+      
+      // Apply dark mode colors
+      if (settings.dark_background) root.style.setProperty('--dark-background', settings.dark_background);
+      if (settings.dark_foreground) root.style.setProperty('--dark-foreground', settings.dark_foreground);
+      if (settings.dark_card) root.style.setProperty('--dark-card', settings.dark_card);
+      if (settings.dark_primary) root.style.setProperty('--dark-primary', settings.dark_primary);
+      if (settings.dark_secondary) root.style.setProperty('--dark-secondary', settings.dark_secondary);
+      if (settings.dark_accent) root.style.setProperty('--dark-accent', settings.dark_accent);
+      if (settings.dark_muted) root.style.setProperty('--dark-muted', settings.dark_muted);
+      if (settings.dark_border) root.style.setProperty('--dark-border', settings.dark_border);
     }
   }, [settings]);
 

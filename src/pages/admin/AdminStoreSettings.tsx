@@ -42,9 +42,25 @@ const AdminStoreSettings = () => {
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [footerTextAr, setFooterTextAr] = useState("");
   const [footerTextEn, setFooterTextEn] = useState("");
-  const [primaryColor, setPrimaryColor] = useState("");
-  const [secondaryColor, setSecondaryColor] = useState("");
-  const [accentColor, setAccentColor] = useState("");
+  // Light mode colors
+  const [lightBackground, setLightBackground] = useState("#f9e5ed");
+  const [lightForeground, setLightForeground] = useState("#4a2c3d");
+  const [lightCard, setLightCard] = useState("#fcfcfc");
+  const [lightPrimary, setLightPrimary] = useState("#e65c8f");
+  const [lightSecondary, setLightSecondary] = useState("#f5d5c3");
+  const [lightAccent, setLightAccent] = useState("#efd1e0");
+  const [lightMuted, setLightMuted] = useState("#f3dfe6");
+  const [lightBorder, setLightBorder] = useState("#ead5df");
+  
+  // Dark mode colors
+  const [darkBackground, setDarkBackground] = useState("#271520");
+  const [darkForeground, setDarkForeground] = useState("#efe6eb");
+  const [darkCard, setDarkCard] = useState("#31202b");
+  const [darkPrimary, setDarkPrimary] = useState("#efa0bc");
+  const [darkSecondary, setDarkSecondary] = useState("#3d2b30");
+  const [darkAccent, setDarkAccent] = useState("#452f3e");
+  const [darkMuted, setDarkMuted] = useState("#382633");
+  const [darkBorder, setDarkBorder] = useState("#443238");
   const [priceAdjustment, setPriceAdjustment] = useState("");
   const [adjustmentType, setAdjustmentType] = useState<"increase" | "decrease">("increase");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -92,11 +108,92 @@ const AdminStoreSettings = () => {
       setWhatsappUrl(settings.whatsapp_url || "");
       setFooterTextAr(settings.footer_text_ar || "");
       setFooterTextEn(settings.footer_text_en || "");
-      setPrimaryColor(settings.theme_primary_color || "");
-      setSecondaryColor(settings.theme_secondary_color || "");
-      setAccentColor(settings.theme_accent_color || "");
+      
+      // Convert HSL to HEX for color pickers
+      if (settings.light_background) setLightBackground(hslToHex(settings.light_background));
+      if (settings.light_foreground) setLightForeground(hslToHex(settings.light_foreground));
+      if (settings.light_card) setLightCard(hslToHex(settings.light_card));
+      if (settings.light_primary) setLightPrimary(hslToHex(settings.light_primary));
+      if (settings.light_secondary) setLightSecondary(hslToHex(settings.light_secondary));
+      if (settings.light_accent) setLightAccent(hslToHex(settings.light_accent));
+      if (settings.light_muted) setLightMuted(hslToHex(settings.light_muted));
+      if (settings.light_border) setLightBorder(hslToHex(settings.light_border));
+      
+      if (settings.dark_background) setDarkBackground(hslToHex(settings.dark_background));
+      if (settings.dark_foreground) setDarkForeground(hslToHex(settings.dark_foreground));
+      if (settings.dark_card) setDarkCard(hslToHex(settings.dark_card));
+      if (settings.dark_primary) setDarkPrimary(hslToHex(settings.dark_primary));
+      if (settings.dark_secondary) setDarkSecondary(hslToHex(settings.dark_secondary));
+      if (settings.dark_accent) setDarkAccent(hslToHex(settings.dark_accent));
+      if (settings.dark_muted) setDarkMuted(hslToHex(settings.dark_muted));
+      if (settings.dark_border) setDarkBorder(hslToHex(settings.dark_border));
     }
   }, [settings]);
+
+  // Helper function to convert HSL to HEX
+  const hslToHex = (hsl: string): string => {
+    const [h, s, l] = hsl.split(' ').map(v => parseFloat(v));
+    const hDecimal = h / 360;
+    const sDecimal = s / 100;
+    const lDecimal = l / 100;
+    
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = lDecimal;
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      const q = lDecimal < 0.5 ? lDecimal * (1 + sDecimal) : lDecimal + sDecimal - lDecimal * sDecimal;
+      const p = 2 * lDecimal - q;
+      r = hue2rgb(p, q, hDecimal + 1/3);
+      g = hue2rgb(p, q, hDecimal);
+      b = hue2rgb(p, q, hDecimal - 1/3);
+    }
+    
+    const toHex = (x: number) => {
+      const hex = Math.round(x * 255).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
+
+  // Helper function to convert HEX to HSL
+  const hexToHsl = (hex: string): string => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return "";
+    
+    let r = parseInt(result[1], 16) / 255;
+    let g = parseInt(result[2], 16) / 255;
+    let b = parseInt(result[3], 16) / 255;
+    
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+    
+    h = Math.round(h * 360);
+    s = Math.round(s * 100);
+    l = Math.round(l * 100);
+    
+    return `${h} ${s}% ${l}%`;
+  };
 
   const handleLogoUpload = async (file: File) => {
     setIsUploadingLogo(true);
@@ -125,8 +222,8 @@ const AdminStoreSettings = () => {
   };
 
   const updateSettingsMutation = useMutation({
-    mutationFn: async () => {
-      const settingsData = {
+    mutationFn: async (updates: any) => {
+      const settingsData = updates || {
         store_name: storeName,
         currency: currency,
         logo_url: logoUrl || null,
@@ -142,9 +239,6 @@ const AdminStoreSettings = () => {
         whatsapp_url: whatsappUrl,
         footer_text_ar: footerTextAr,
         footer_text_en: footerTextEn,
-        theme_primary_color: primaryColor || '330 81% 65%',
-        theme_secondary_color: secondaryColor || '60 4.8% 95.9%',
-        theme_accent_color: accentColor || '60 4.8% 95.9%',
       };
 
       if (!settings?.id) {
@@ -168,6 +262,71 @@ const AdminStoreSettings = () => {
     },
     onError: () => toast.error("حدث خطأ أثناء حفظ الإعدادات"),
   });
+
+  const resetToDefaultMutation = useMutation({
+    mutationFn: async () => {
+      const defaultSettings = {
+        store_name: "اسم المتجر",
+        currency: "ريال",
+        light_background: "350 60% 96%",
+        light_foreground: "340 25% 20%",
+        light_card: "0 0% 99%",
+        light_primary: "340 75% 60%",
+        light_secondary: "20 60% 88%",
+        light_accent: "320 35% 85%",
+        light_muted: "340 25% 90%",
+        light_border: "340 25% 85%",
+        dark_background: "340 25% 12%",
+        dark_foreground: "340 15% 95%",
+        dark_card: "340 20% 16%",
+        dark_primary: "340 70% 70%",
+        dark_secondary: "340 15% 22%",
+        dark_accent: "320 20% 25%",
+        dark_muted: "340 15% 20%",
+        dark_border: "340 15% 25%",
+      };
+      
+      const { error } = await supabase
+        .from("store_settings" as any)
+        .update(defaultSettings)
+        .eq("id", settings?.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["store-settings"] });
+      toast.success("تم إرجاع الإعدادات الافتراضية بنجاح");
+    },
+    onError: (error) => {
+      toast.error("حدث خطأ في إرجاع الإعدادات");
+      console.error(error);
+    },
+  });
+
+  const handleSaveBasicInfo = () => {
+    updateSettingsMutation.mutate({});
+  };
+
+  const handleSaveColors = () => {
+    updateSettingsMutation.mutate({
+      light_background: hexToHsl(lightBackground),
+      light_foreground: hexToHsl(lightForeground),
+      light_card: hexToHsl(lightCard),
+      light_primary: hexToHsl(lightPrimary),
+      light_secondary: hexToHsl(lightSecondary),
+      light_accent: hexToHsl(lightAccent),
+      light_muted: hexToHsl(lightMuted),
+      light_border: hexToHsl(lightBorder),
+      dark_background: hexToHsl(darkBackground),
+      dark_foreground: hexToHsl(darkForeground),
+      dark_card: hexToHsl(darkCard),
+      dark_primary: hexToHsl(darkPrimary),
+      dark_secondary: hexToHsl(darkSecondary),
+      dark_accent: hexToHsl(darkAccent),
+      dark_muted: hexToHsl(darkMuted),
+      dark_border: hexToHsl(darkBorder),
+    });
+  };
 
   const updatePricesMutation = useMutation({
     mutationFn: async () => {
@@ -273,42 +432,216 @@ const AdminStoreSettings = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>ألوان المتجر</CardTitle>
-            <CardDescription>تخصيص ألوان المتجر (قيم HSL)</CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>ألوان الموقع</CardTitle>
+                <CardDescription>تخصيص ألوان الموقع بالكامل للوضع النهاري والليلي (HEX)</CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => resetToDefaultMutation.mutate()}
+                disabled={resetToDefaultMutation.isPending}
+              >
+                إرجاع للإعدادات الافتراضية
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="primaryColor">اللون الأساسي</Label>
-                <Input
-                  id="primaryColor"
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  placeholder="مثال: 330 81% 65%"
-                />
-                <p className="text-xs text-muted-foreground">صيغة HSL بدون hsl()</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="secondaryColor">اللون الثانوي</Label>
-                <Input
-                  id="secondaryColor"
-                  value={secondaryColor}
-                  onChange={(e) => setSecondaryColor(e.target.value)}
-                  placeholder="مثال: 60 4.8% 95.9%"
-                />
-                <p className="text-xs text-muted-foreground">صيغة HSL بدون hsl()</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="accentColor">لون التمييز</Label>
-                <Input
-                  id="accentColor"
-                  value={accentColor}
-                  onChange={(e) => setAccentColor(e.target.value)}
-                  placeholder="مثال: 60 4.8% 95.9%"
-                />
-                <p className="text-xs text-muted-foreground">صيغة HSL بدون hsl()</p>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm text-muted-foreground">الوضع النهاري</h4>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <Label htmlFor="lightBackground">الخلفية</Label>
+                  <Input
+                    id="lightBackground"
+                    type="color"
+                    value={lightBackground}
+                    onChange={(e) => setLightBackground(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightForeground">النص</Label>
+                  <Input
+                    id="lightForeground"
+                    type="color"
+                    value={lightForeground}
+                    onChange={(e) => setLightForeground(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightCard">الكروت</Label>
+                  <Input
+                    id="lightCard"
+                    type="color"
+                    value={lightCard}
+                    onChange={(e) => setLightCard(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightPrimary">اللون الأساسي</Label>
+                  <Input
+                    id="lightPrimary"
+                    type="color"
+                    value={lightPrimary}
+                    onChange={(e) => setLightPrimary(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightSecondary">اللون الثانوي</Label>
+                  <Input
+                    id="lightSecondary"
+                    type="color"
+                    value={lightSecondary}
+                    onChange={(e) => setLightSecondary(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightAccent">لون التمييز</Label>
+                  <Input
+                    id="lightAccent"
+                    type="color"
+                    value={lightAccent}
+                    onChange={(e) => setLightAccent(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightMuted">اللون الباهت</Label>
+                  <Input
+                    id="lightMuted"
+                    type="color"
+                    value={lightMuted}
+                    onChange={(e) => setLightMuted(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lightBorder">الحدود</Label>
+                  <Input
+                    id="lightBorder"
+                    type="color"
+                    value={lightBorder}
+                    onChange={(e) => setLightBorder(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
               </div>
             </div>
+
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm text-muted-foreground">الوضع الليلي</h4>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <Label htmlFor="darkBackground">الخلفية</Label>
+                  <Input
+                    id="darkBackground"
+                    type="color"
+                    value={darkBackground}
+                    onChange={(e) => setDarkBackground(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkForeground">النص</Label>
+                  <Input
+                    id="darkForeground"
+                    type="color"
+                    value={darkForeground}
+                    onChange={(e) => setDarkForeground(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkCard">الكروت</Label>
+                  <Input
+                    id="darkCard"
+                    type="color"
+                    value={darkCard}
+                    onChange={(e) => setDarkCard(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkPrimary">اللون الأساسي</Label>
+                  <Input
+                    id="darkPrimary"
+                    type="color"
+                    value={darkPrimary}
+                    onChange={(e) => setDarkPrimary(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkSecondary">اللون الثانوي</Label>
+                  <Input
+                    id="darkSecondary"
+                    type="color"
+                    value={darkSecondary}
+                    onChange={(e) => setDarkSecondary(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkAccent">لون التمييز</Label>
+                  <Input
+                    id="darkAccent"
+                    type="color"
+                    value={darkAccent}
+                    onChange={(e) => setDarkAccent(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkMuted">اللون الباهت</Label>
+                  <Input
+                    id="darkMuted"
+                    type="color"
+                    value={darkMuted}
+                    onChange={(e) => setDarkMuted(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="darkBorder">الحدود</Label>
+                  <Input
+                    id="darkBorder"
+                    type="color"
+                    value={darkBorder}
+                    onChange={(e) => setDarkBorder(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSaveColors}
+              disabled={updateSettingsMutation.isPending}
+              className="w-full"
+            >
+              حفظ الألوان
+            </Button>
           </CardContent>
         </Card>
 
@@ -460,11 +793,11 @@ const AdminStoreSettings = () => {
 
         <div className="flex justify-end">
           <Button
-            onClick={() => updateSettingsMutation.mutate()}
+            onClick={handleSaveBasicInfo}
             disabled={updateSettingsMutation.isPending}
             size="lg"
           >
-            {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ جميع الإعدادات"}
+            {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ المعلومات الأساسية"}
           </Button>
         </div>
       </div>
