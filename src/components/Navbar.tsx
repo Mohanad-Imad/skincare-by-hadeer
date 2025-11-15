@@ -130,7 +130,7 @@ export const Navbar = () => {
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="lg:hidden">
+              <Button variant="ghost" size="sm" className="lg:hidden" aria-label="فتح القائمة">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -430,6 +430,7 @@ export const Navbar = () => {
             <button
               onClick={() => navigate("/profile")}
               className="lg:hidden flex items-center gap-2"
+              aria-label="الملف الشخصي"
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={profile?.avatar_url} />
@@ -439,7 +440,7 @@ export const Navbar = () => {
               </Avatar>
             </button>
           ) : (
-            <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => navigate("/auth")}>
+            <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => navigate("/auth")} aria-label="تسجيل الدخول">
               <User className="h-4 w-4" />
             </Button>
           )}

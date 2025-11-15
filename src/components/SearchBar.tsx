@@ -104,6 +104,7 @@ export const SearchBar = () => {
             type="submit"
             size="icon"
             className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 md:h-10 md:w-10"
+            aria-label="بحث"
           >
             <Search className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
