@@ -8,21 +8,21 @@ interface CheckoutStepperProps {
 const steps = [
   { number: 1, label: "أضف إلى السلة", labelEn: "Add to Cart" },
   { number: 2, label: "إتمام الطلب", labelEn: "Complete Order" },
-  { number: 3, label: "معلومات التوصيل", labelEn: "Delivery Info" },
+  { number: 3, label: "تأكيد الطلب", labelEn: "Order Confirmation" },
 ];
 
 export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
   return (
-    <div className="w-full py-6 md:py-8 bg-gradient-to-b from-muted/30 to-background">
-      <div className="max-w-3xl mx-auto px-3 md:px-6">
+    <div className="w-full py-4 md:py-8 bg-gradient-to-b from-muted/20 to-background">
+      <div className="max-w-3xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between relative">
           {/* Progress Line */}
           <div 
-            className="absolute top-5 md:top-6 h-1 bg-muted rounded-full overflow-hidden" 
-            style={{ zIndex: 0, left: "8%", right: "8%" }}
+            className="absolute top-4 md:top-6 h-0.5 md:h-1 bg-muted rounded-full" 
+            style={{ zIndex: 0, left: "10%", right: "10%" }}
           >
             <div
-              className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary transition-all duration-1000 ease-out"
+              className="h-full bg-gradient-to-r from-primary to-primary transition-all duration-700 ease-out rounded-full"
               style={{
                 width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
               }}
@@ -44,25 +44,25 @@ export const CheckoutStepper = ({ currentStep }: CheckoutStepperProps) => {
                 {/* Circle */}
                 <div
                   className={cn(
-                    "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500",
-                    "border-[3px] bg-background shadow-lg",
-                    (isCompleted || isLastStepCompleted) && "bg-gradient-to-br from-primary to-primary/80 border-primary text-primary-foreground shadow-primary/30 animate-scale-in",
-                    isCurrent && !isLastStepCompleted && "border-primary text-primary scale-125 shadow-xl ring-4 ring-primary/30",
+                    "w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500",
+                    "border-2 md:border-[3px] bg-background shadow-md",
+                    (isCompleted || isLastStepCompleted) && "bg-gradient-to-br from-primary to-primary/80 border-primary text-primary-foreground shadow-lg",
+                    isCurrent && !isLastStepCompleted && "border-primary text-primary scale-110 md:scale-125 shadow-xl ring-2 md:ring-4 ring-primary/30",
                     !isCompleted && !isCurrent && "border-muted-foreground/30 text-muted-foreground"
                   )}
                 >
                   {isCompleted || isLastStepCompleted ? (
-                    <Check className="w-5 h-5 md:w-6 md:h-6" strokeWidth={3} />
+                    <Check className="w-4 h-4 md:w-6 md:h-6" strokeWidth={3} />
                   ) : (
-                    <span className="text-sm md:text-base font-bold">{step.number}</span>
+                    <span className="text-xs md:text-base font-bold">{step.number}</span>
                   )}
                 </div>
 
                 {/* Label */}
-                <div className="mt-2 md:mt-3 text-center max-w-[90px] md:max-w-[110px]">
+                <div className="mt-1.5 md:mt-3 text-center px-1">
                   <p
                     className={cn(
-                      "text-[11px] md:text-sm font-semibold transition-all duration-300 leading-tight",
+                      "text-[10px] md:text-sm font-semibold transition-all duration-300 leading-tight whitespace-nowrap",
                       (isCurrent || isCompleted || isLastStepCompleted) && "text-primary",
                       !isCompleted && !isCurrent && !isLastStepCompleted && "text-muted-foreground"
                     )}
