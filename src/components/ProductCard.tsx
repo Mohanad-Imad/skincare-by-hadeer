@@ -46,10 +46,10 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
             <img 
               src={guaranteeSettings.logo_url} 
               alt="guarantee" 
-              className="h-16 w-16 object-contain opacity-50 -rotate-12"
+              className="h-16 w-16 object-contain opacity-50 -rotate-[30deg]"
             />
           ) : (
-            <ShieldCheck className="h-16 w-16 opacity-50 -rotate-12 text-emerald-600" />
+            <ShieldCheck className="h-16 w-16 opacity-50 -rotate-[30deg] text-emerald-600" />
           )}
         </div>
         {imageUrl ? (
