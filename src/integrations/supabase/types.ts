@@ -1362,12 +1362,28 @@ export type Database = {
           address_en: string | null
           created_at: string
           currency: string
+          dark_accent: string | null
+          dark_background: string | null
+          dark_border: string | null
+          dark_card: string | null
+          dark_foreground: string | null
+          dark_muted: string | null
+          dark_primary: string | null
+          dark_secondary: string | null
           email: string | null
           facebook_url: string | null
           footer_text_ar: string | null
           footer_text_en: string | null
           id: string
           instagram_url: string | null
+          light_accent: string | null
+          light_background: string | null
+          light_border: string | null
+          light_card: string | null
+          light_foreground: string | null
+          light_muted: string | null
+          light_primary: string | null
+          light_secondary: string | null
           logo_url: string | null
           phone: string | null
           store_name: string
@@ -1385,12 +1401,28 @@ export type Database = {
           address_en?: string | null
           created_at?: string
           currency?: string
+          dark_accent?: string | null
+          dark_background?: string | null
+          dark_border?: string | null
+          dark_card?: string | null
+          dark_foreground?: string | null
+          dark_muted?: string | null
+          dark_primary?: string | null
+          dark_secondary?: string | null
           email?: string | null
           facebook_url?: string | null
           footer_text_ar?: string | null
           footer_text_en?: string | null
           id?: string
           instagram_url?: string | null
+          light_accent?: string | null
+          light_background?: string | null
+          light_border?: string | null
+          light_card?: string | null
+          light_foreground?: string | null
+          light_muted?: string | null
+          light_primary?: string | null
+          light_secondary?: string | null
           logo_url?: string | null
           phone?: string | null
           store_name?: string
@@ -1408,12 +1440,28 @@ export type Database = {
           address_en?: string | null
           created_at?: string
           currency?: string
+          dark_accent?: string | null
+          dark_background?: string | null
+          dark_border?: string | null
+          dark_card?: string | null
+          dark_foreground?: string | null
+          dark_muted?: string | null
+          dark_primary?: string | null
+          dark_secondary?: string | null
           email?: string | null
           facebook_url?: string | null
           footer_text_ar?: string | null
           footer_text_en?: string | null
           id?: string
           instagram_url?: string | null
+          light_accent?: string | null
+          light_background?: string | null
+          light_border?: string | null
+          light_card?: string | null
+          light_foreground?: string | null
+          light_muted?: string | null
+          light_primary?: string | null
+          light_secondary?: string | null
           logo_url?: string | null
           phone?: string | null
           store_name?: string

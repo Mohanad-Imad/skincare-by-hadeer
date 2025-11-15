@@ -8,49 +8,36 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Enhanced palette with better contrast - feminine theme */
-    --background: 350 60% 96%;
-    --foreground: 340 25% 20%;
+    /* Use dynamic colors from store settings, with fallbacks */
+    --background: var(--light-background, 350 60% 96%);
+    --foreground: var(--light-foreground, 340 25% 20%);
 
-    --card: 0 0% 99%;
-    --card-foreground: 340 25% 20%;
+    --card: var(--light-card, 0 0% 99%);
+    --card-foreground: var(--light-foreground, 340 25% 20%);
 
-    --popover: 0 0% 99%;
-    --popover-foreground: 340 25% 20%;
+    --popover: var(--light-card, 0 0% 99%);
+    --popover-foreground: var(--light-foreground, 340 25% 20%);
 
-    /* Rose pink - main brand color */
-    --primary: 340 75% 60%;
+    --primary: var(--light-primary, 340 75% 60%);
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 340 80% 70%;
 
-    /* Warm peach secondary */
-    --secondary: 20 60% 88%;
-    --secondary-foreground: 340 30% 25%;
+    --secondary: var(--light-secondary, 20 60% 88%);
+    --secondary-foreground: var(--light-foreground, 340 30% 25%);
 
-    /* Soft mauve accent */
-    --accent: 320 35% 85%;
-    --accent-foreground: 340 30% 25%;
+    --accent: var(--light-accent, 320 35% 85%);
+    --accent-foreground: var(--light-foreground, 340 30% 25%);
 
-    /* Dusty rose muted */
-    --muted: 340 25% 90%;
+    --muted: var(--light-muted, 340 25% 90%);
     --muted-foreground: 340 20% 40%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 340 25% 85%;
-    --input: 340 20% 92%;
-    --ring: 340 75% 60%;
+    --border: var(--light-border, 340 25% 85%);
+    --input: var(--light-border, 340 20% 92%);
+    --ring: var(--light-primary, 340 75% 60%);
 
     --radius: 0.75rem;
-
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(340, 75%, 60%), hsl(340, 80%, 70%));
-    --gradient-subtle: linear-gradient(180deg, hsl(350, 60%, 96%), hsl(20, 60%, 88%));
-    
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(340 75% 60% / 0.2);
-    --shadow-glow: 0 0 40px hsl(340 80% 70% / 0.3);
 
     --sidebar-background: 0 0% 98%;
 
@@ -70,40 +57,34 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Deep elegant background with soft rose undertones */
-    --background: 340 25% 12%;
-    --foreground: 340 15% 95%;
+    /* Use dynamic dark mode colors from store settings, with fallbacks */
+    --background: var(--dark-background, 340 25% 12%);
+    --foreground: var(--dark-foreground, 340 15% 95%);
 
-    /* Cards with subtle elevation */
-    --card: 340 20% 16%;
-    --card-foreground: 340 15% 95%;
+    --card: var(--dark-card, 340 20% 16%);
+    --card-foreground: var(--dark-foreground, 340 15% 95%);
 
-    --popover: 340 20% 16%;
-    --popover-foreground: 340 15% 95%;
+    --popover: var(--dark-card, 340 20% 16%);
+    --popover-foreground: var(--dark-foreground, 340 15% 95%);
 
-    /* Softer pink for dark mode - elegant and eye-friendly */
-    --primary: 340 70% 70%;
-    --primary-foreground: 340 25% 12%;
-    --primary-glow: 340 75% 75%;
+    --primary: var(--dark-primary, 340 70% 70%);
+    --primary-foreground: var(--dark-background, 340 25% 12%);
 
-    /* Warm muted tones */
-    --secondary: 340 15% 22%;
-    --secondary-foreground: 340 15% 90%;
+    --secondary: var(--dark-secondary, 340 15% 22%);
+    --secondary-foreground: var(--dark-foreground, 340 15% 90%);
 
-    /* Soft accent with mauve undertones */
-    --accent: 320 20% 25%;
-    --accent-foreground: 340 15% 90%;
+    --accent: var(--dark-accent, 320 20% 25%);
+    --accent-foreground: var(--dark-foreground, 340 15% 90%);
 
-    /* Muted backgrounds */
-    --muted: 340 15% 20%;
+    --muted: var(--dark-muted, 340 15% 20%);
     --muted-foreground: 340 10% 70%;
 
     --destructive: 0 70% 60%;
-    --destructive-foreground: 340 15% 95%;
+    --destructive-foreground: var(--dark-foreground, 340 15% 95%);
 
-    --border: 340 15% 25%;
-    --input: 340 15% 22%;
-    --ring: 340 70% 70%;
+    --border: var(--dark-border, 340 15% 25%);
+    --input: var(--dark-secondary, 340 15% 22%);
+    --ring: var(--dark-primary, 340 70% 70%);
     
     --sidebar-background: 340 20% 14%;
     --sidebar-foreground: 340 15% 90%;
