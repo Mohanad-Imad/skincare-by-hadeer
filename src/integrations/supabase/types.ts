@@ -582,6 +582,84 @@ export type Database = {
         }
         Relationships: []
       }
+      guarantee_settings: {
+        Row: {
+          banner_button_text_ar: string | null
+          banner_button_text_en: string | null
+          banner_description_ar: string | null
+          banner_description_en: string | null
+          banner_title_ar: string | null
+          banner_title_en: string | null
+          contact_description_ar: string | null
+          contact_description_en: string | null
+          contact_title_ar: string | null
+          contact_title_en: string | null
+          created_at: string
+          features: Json | null
+          id: string
+          is_active: boolean
+          page_description_ar: string
+          page_description_en: string
+          page_subtitle_ar: string | null
+          page_subtitle_en: string | null
+          page_title_ar: string
+          page_title_en: string
+          terms_ar: string | null
+          terms_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          banner_button_text_ar?: string | null
+          banner_button_text_en?: string | null
+          banner_description_ar?: string | null
+          banner_description_en?: string | null
+          banner_title_ar?: string | null
+          banner_title_en?: string | null
+          contact_description_ar?: string | null
+          contact_description_en?: string | null
+          contact_title_ar?: string | null
+          contact_title_en?: string | null
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          page_description_ar?: string
+          page_description_en?: string
+          page_subtitle_ar?: string | null
+          page_subtitle_en?: string | null
+          page_title_ar?: string
+          page_title_en?: string
+          terms_ar?: string | null
+          terms_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          banner_button_text_ar?: string | null
+          banner_button_text_en?: string | null
+          banner_description_ar?: string | null
+          banner_description_en?: string | null
+          banner_title_ar?: string | null
+          banner_title_en?: string | null
+          contact_description_ar?: string | null
+          contact_description_en?: string | null
+          contact_title_ar?: string | null
+          contact_title_en?: string | null
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          page_description_ar?: string
+          page_description_en?: string
+          page_subtitle_ar?: string | null
+          page_subtitle_en?: string | null
+          page_title_ar?: string
+          page_title_en?: string
+          terms_ar?: string | null
+          terms_en?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       makeup_banner: {
         Row: {
           background_color: string | null

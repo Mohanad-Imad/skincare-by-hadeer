@@ -48,6 +48,7 @@ import AdminStoreSettings from "./pages/admin/AdminStoreSettings";
 import AdminCustomerReviews from "./pages/admin/AdminCustomerReviews";
 import AdminProductReviews from "./pages/admin/AdminProductReviews";
 import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminGuarantee from "./pages/admin/AdminGuarantee";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminInventory from "./pages/admin/AdminInventory";
 import SubmitReview from "./pages/SubmitReview";
@@ -116,6 +117,7 @@ const App = () => (
             <Route path="makeup-banner" element={<AdminMakeupBanner />} />
             <Route path="makeup-categories" element={<AdminMakeupCategories />} />
             <Route path="store-settings" element={<AdminStoreSettings />} />
+            <Route path="guarantee" element={<AdminGuarantee />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
