@@ -304,7 +304,7 @@ export const Navbar = () => {
                     className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
                   >
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarImage src={profile?.avatar_url} className="object-cover" />
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
                       </AvatarFallback>
@@ -334,9 +334,6 @@ export const Navbar = () => {
             className="hidden lg:flex items-center gap-2 cursor-pointer" 
             onClick={() => navigate("/")}
           >
-            {settings?.logo_url && (
-              <img src={settings.logo_url} alt={storeName} className="h-8 w-8 object-contain" />
-            )}
             <h1 className="text-lg font-bold text-primary whitespace-nowrap">
               {storeName}
             </h1>
@@ -394,7 +391,7 @@ export const Navbar = () => {
               className="lg:hidden flex items-center gap-2"
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage src={profile?.avatar_url} />
+                <AvatarImage src={profile?.avatar_url} className="object-cover" />
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -411,9 +408,6 @@ export const Navbar = () => {
             className="lg:hidden cursor-pointer flex items-center gap-2 absolute left-1/2 -translate-x-1/2" 
             onClick={() => navigate("/")}
           >
-            {settings?.logo_url && (
-              <img src={settings.logo_url} alt={storeName} className="h-6 w-6 object-contain" />
-            )}
             <h1 className="text-base font-bold text-primary whitespace-nowrap sm:text-lg">
               <span className="hidden md:inline">{storeName}</span>
               <span className="md:hidden">{storeName.split(' ')[0]}</span>
@@ -439,7 +433,7 @@ export const Navbar = () => {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-accent transition-colors"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={profile?.avatar_url} />
+                  <AvatarImage src={profile?.avatar_url} className="object-cover" />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
                   </AvatarFallback>
