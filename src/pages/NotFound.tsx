@@ -18,21 +18,19 @@ const NotFound = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-12">
-        {" "}
-        {/* زيادة المسافة الرأسية */}
-        <div className="text-center mb-10">
-          <h1 className="mb-4 text-8xl font-black text-primary/80 drop-shadow-lg">404</h1>
-          <p className="mb-2 text-3xl font-extrabold text-foreground">عذراً! فقدنا الاتصال بالصفحة 🔌</p>
-          <p className="mb-6 text-xl text-muted-foreground">ساعدنا في جمع البتّات المفقودة حتى نجد الطريق للعودة!</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="mb-4 text-6xl font-bold text-primary">404</h1>
+          <p className="mb-2 text-2xl font-semibold text-foreground">عذراً! الصفحة غير موجودة</p>
+          <p className="mb-6 text-muted-foreground">
+            لكن لا تقلق، يمكنك تمضية الوقت في لعبة ممتعة!
+          </p>
         </div>
-        <NotFoundGame /> {/* تم وضع اللعبة في المنتصف */}
-        <div className="text-center mt-10">
-          <Button
-            onClick={() => navigate("/")}
-            size="lg"
-            className="shadow-lg hover:shadow-primary/30 transition-all duration-300"
-          >
+
+        <NotFoundGame />
+
+        <div className="text-center mt-8">
+          <Button onClick={() => navigate("/")} size="lg">
             العودة للرئيسية
           </Button>
         </div>
