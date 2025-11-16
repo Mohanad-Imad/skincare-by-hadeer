@@ -15,6 +15,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PackageOpen, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button"; // افتراض وجود مكون الزر
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,7 +31,7 @@ const Products = () => {
   const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  
+
   const { data: discounts } = useProductDiscounts();
 
   const { data: categories } = useQuery({
@@ -47,11 +49,9 @@ const Products = () => {
   const { data: companies } = useQuery({
     queryKey: ["companies"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("company_name_ar, company_name_en");
+      const { data, error } = await supabase.from("products").select("company_name_ar, company_name_en");
       if (error) throw error;
-      
+
       // استخراج الأسماء الفريدة
       const companiesMap = new Map();
       data.forEach((p) => {
@@ -64,7 +64,7 @@ const Products = () => {
           }
         }
       });
-      
+
       return Array.from(companiesMap.entries())
         .map(([key, value]) => ({
           key,
@@ -77,15 +77,24 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter],
+    queryKey: [
+      "products",
+      parentCategoryFilter,
+      subCategoryFilter,
+      skinTypeFilter,
+      companyFilter,
+      searchTerm,
+      problemFilter,
+      makeupFilter,
+    ],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
-      
+
       if (subCategoryFilter !== "all") {
         categoryIds = [subCategoryFilter];
       } else if (parentCategoryFilter !== "all") {
-        const subCategories = categories?.filter(cat => cat.parent_category_id === parentCategoryFilter) || [];
-        categoryIds = [parentCategoryFilter, ...subCategories.map(sub => sub.id)];
+        const subCategories = categories?.filter((cat) => cat.parent_category_id === parentCategoryFilter) || [];
+        categoryIds = [parentCategoryFilter, ...subCategories.map((sub) => sub.id)];
       }
 
       const from = pageParam * itemsPerPage;
@@ -93,7 +102,8 @@ const Products = () => {
 
       let query = supabase
         .from("products")
-        .select(`
+        .select(
+          `
           *,
           product_variants (
             price
@@ -114,7 +124,8 @@ const Products = () => {
               slug
             )
           )
-        `)
+        `,
+        )
         .eq("is_active", true)
         .range(from, to)
         .order("created_at", { ascending: false });
@@ -128,7 +139,9 @@ const Products = () => {
       }
 
       if (searchTerm) {
-        query = query.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
+        query = query.or(
+          `name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`,
+        );
       }
 
       const { data, error } = await query;
@@ -138,27 +151,21 @@ const Products = () => {
 
       if (problemFilter !== "all") {
         filtered = filtered.filter((product) => {
-          return product.product_sub_problems?.some((psp: any) => 
-            psp.sub_problems?.slug === problemFilter
-          );
+          return product.product_sub_problems?.some((psp: any) => psp.sub_problems?.slug === problemFilter);
         });
       }
 
       if (makeupFilter !== "all") {
         filtered = filtered.filter((product) => {
-          return product.product_makeup_categories?.some((pmc: any) => 
-            pmc.makeup_categories?.slug === makeupFilter
-          );
+          return product.product_makeup_categories?.some((pmc: any) => pmc.makeup_categories?.slug === makeupFilter);
         });
       }
 
       if (skinTypeFilter !== "all") {
-        filtered = filtered.filter(
-          (product) => product.skin_type?.includes(skinTypeFilter as any)
-        );
+        filtered = filtered.filter((product) => product.skin_type?.includes(skinTypeFilter as any));
       }
 
-      const productsWithImages = filtered.map(product => {
+      const productsWithImages = filtered.map((product) => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
@@ -177,14 +184,17 @@ const Products = () => {
     },
   });
 
-  const products = data?.pages.flatMap(page => page.products) || [];
+  const products = data?.pages.flatMap((page) => page.products) || [];
 
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [target] = entries;
-    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [target] = entries;
+      if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
 
   useEffect(() => {
     const element = loadMoreRef.current;
@@ -200,7 +210,7 @@ const Products = () => {
 
   const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
     setter(value);
-    
+
     if (paramName) {
       const newParams = new URLSearchParams(searchParams);
       if (value === "all") {
@@ -221,7 +231,7 @@ const Products = () => {
     const search = searchParams.get("search");
     const problem = searchParams.get("problem");
     const makeup = searchParams.get("makeup");
-    
+
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
     if (skinType) setSkinTypeFilter(skinType);
@@ -234,8 +244,8 @@ const Products = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
-    "description": "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية"
+    name: "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
+    description: "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية",
   };
 
   return (
@@ -262,12 +272,12 @@ const Products = () => {
             />
           </div>
 
-          <Select 
-            value={parentCategoryFilter} 
+          <Select
+            value={parentCategoryFilter}
             onValueChange={(value) => {
               setParentCategoryFilter(value);
               setSubCategoryFilter("all");
-              
+
               const newParams = new URLSearchParams(searchParams);
               if (value === "all") {
                 newParams.delete("category");
@@ -328,8 +338,8 @@ const Products = () => {
             </PopoverTrigger>
             <PopoverContent className="w-full p-0 bg-popover" align="start">
               <Command>
-                <CommandInput 
-                  placeholder="ابحث عن شركة..." 
+                <CommandInput
+                  placeholder="ابحث عن شركة..."
                   value={companySearch}
                   onValueChange={setCompanySearch}
                   className="text-right"
@@ -345,12 +355,7 @@ const Products = () => {
                         setCompanySearch("");
                       }}
                     >
-                      <Check
-                        className={cn(
-                          "ml-2 h-4 w-4",
-                          companyFilter === "all" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
+                      <Check className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")} />
                       جميع الشركات
                     </CommandItem>
                     {companies?.map((company) => (
@@ -364,10 +369,7 @@ const Products = () => {
                         }}
                       >
                         <Check
-                          className={cn(
-                            "ml-2 h-4 w-4",
-                            companyFilter === company.key ? "opacity-100" : "opacity-0"
-                          )}
+                          className={cn("ml-2 h-4 w-4", companyFilter === company.key ? "opacity-100" : "opacity-0")}
                         />
                         {company.displayName}
                       </CommandItem>
@@ -408,10 +410,8 @@ const Products = () => {
           <>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {products.map((product) => {
-                const discount = product.minPrice 
-                  ? calculateDiscount(product.id, product.minPrice, discounts)
-                  : null;
-                  
+                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
+
                 return (
                   <ProductCard
                     key={product.id}
@@ -441,7 +441,28 @@ const Products = () => {
             </div>
           </>
         ) : (
-          <div className="text-center text-muted-foreground">لا توجد منتجات</div>
+          <div className="flex flex-col items-center justify-center p-12 sm:p-20 bg-card border border-dashed border-border rounded-xl shadow-inner max-w-lg mx-auto transition-all duration-300 hover:shadow-lg">
+            {/* 1. الأيقونة الكبيرة الجذابة */}
+            <PackageOpen className="w-16 h-16 text-primary/70 mb-4 animate-bounce-slow" />
+
+            {/* 2. العنوان الرئيسي (المشكلة) */}
+            <h3 className="mb-2 text-2xl font-extrabold text-foreground">لا توجد منتجات حتى الآن</h3>
+
+            {/* 3. الوصف الإيضاحي (الحل) */}
+            <p className="text-center text-muted-foreground mb-6 max-w-xs">
+              تبدو سلة المنتجات فارغة. ابدأ بإضافة أول منتج لمتجرك الآن!
+            </p>
+
+            {/* 4. زر الإجراء (Call to Action) */}
+            <Button
+              onClick={onAddProduct}
+              className="bg-primary hover:bg-primary/90 text-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex items-center space-x-2"
+              size="lg"
+            >
+              <PlusCircle className="w-5 h-5 ml-2" />
+              <span>إضافة منتج جديد</span>
+            </Button>
+          </div>
         )}
       </div>
     </div>
