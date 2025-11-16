@@ -132,36 +132,50 @@ export default function Profile() {
   const uploadAvatar = async (userId: string) => {
     if (!avatarFile) return profile?.avatar_url;
 
-    // Delete old avatar if exists
-    if (profile?.avatar_url) {
-      const oldPath = profile.avatar_url.split('/avatars/')[1];
-      if (oldPath) {
-        await supabase.storage
-          .from("avatars")
-          .remove([oldPath]);
+    try {
+      // Delete old avatar if exists
+      if (profile?.avatar_url) {
+        try {
+          const urlParts = profile.avatar_url.split('/');
+          const bucketIndex = urlParts.findIndex(part => part === 'avatars');
+          if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+            const oldPath = urlParts.slice(bucketIndex + 1).join('/');
+            await supabase.storage
+              .from("avatars")
+              .remove([oldPath]);
+          }
+        } catch (deleteError) {
+          console.log("Could not delete old avatar:", deleteError);
+          // Continue with upload even if delete fails
+        }
       }
+
+      const fileExt = avatarFile.name.split(".").pop();
+      const timestamp = Date.now();
+      const fileName = `avatar-${timestamp}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, avatarFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw new Error("فشل رفع الصورة. يرجى المحاولة مرة أخرى.");
+      }
+
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      throw error;
     }
-
-    const fileExt = avatarFile.name.split(".").pop();
-    const fileName = `avatar.${fileExt}`;
-    const filePath = `${userId}/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, avatarFile, {
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
-      throw uploadError;
-    }
-
-    const { data } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
   };
 
   const updateProfileMutation = useMutation({
@@ -170,31 +184,39 @@ export default function Profile() {
 
       let avatarUrl = profile?.avatar_url;
       
-      if (avatarFile) {
-        avatarUrl = await uploadAvatar(session.user.id);
+      try {
+        if (avatarFile) {
+          avatarUrl = await uploadAvatar(session.user.id);
+        }
+
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            full_name: fullName,
+            phone,
+            address,
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", session.user.id);
+
+        if (error) throw error;
+      } catch (error) {
+        console.error("Profile update error:", error);
+        throw error;
       }
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          full_name: fullName,
-          phone,
-          address,
-          avatar_url: avatarUrl,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", session.user.id);
-
-      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", session?.user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["session"] });
       toast.success("تم تحديث البروفايل بنجاح");
       setIsEditing(false);
       setAvatarFile(null);
+      setAvatarPreview("");
     },
-    onError: (error) => {
-      toast.error("حدث خطأ أثناء تحديث البروفايل");
+    onError: (error: any) => {
+      const errorMessage = error?.message || "حدث خطأ أثناء تحديث البروفايل";
+      toast.error(errorMessage);
       console.error(error);
     },
   });
@@ -250,7 +272,10 @@ export default function Profile() {
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <div className="relative flex-shrink-0">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarPreview || profile?.avatar_url} />
+                    <AvatarImage 
+                      src={avatarPreview || profile?.avatar_url} 
+                      className="object-cover"
+                    />
                     <AvatarFallback className="text-2xl">
                       {(profile?.full_name || session.user.email)?.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -258,7 +283,7 @@ export default function Profile() {
                   {isEditing && (
                     <label
                       htmlFor="avatar-upload"
-                      className="absolute bottom-0 right-0 p-2 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
+                      className="absolute bottom-0 right-0 p-2 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors shadow-md"
                     >
                       <Camera className="h-4 w-4 text-primary-foreground" />
                       <input
