@@ -147,7 +147,11 @@ export const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const handleNavigate = (path: string) => {
-    navigate(path);
+    if (path.startsWith('/')) {
+      navigate(path);
+    } else {
+      window.open(path, '_blank');
+    }
     setIsOpen(false);
   };
 
@@ -346,9 +350,9 @@ export const Navbar = () => {
             return (
               <Button
                 key={link.id}
-                variant={isActive(link.url) ? "default" : "ghost"}
+              variant={isActive(link.url) ? "default" : "ghost"}
                 size="sm"
-                onClick={() => navigate(link.url)}
+                onClick={() => handleNavigate(link.url)}
                 className="gap-1.5"
               >
                 <DynamicIcon name={link.icon as any} className="h-4 w-4" />
