@@ -20,6 +20,7 @@ export const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
     // Check if already installed
@@ -70,7 +71,13 @@ export const PWAInstallPrompt = () => {
       return;
     }
 
+    if (isInstalling) {
+      console.log('Installation already in progress');
+      return;
+    }
+
     try {
+      setIsInstalling(true);
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       
@@ -84,6 +91,8 @@ export const PWAInstallPrompt = () => {
       setShowPrompt(false);
     } catch (error) {
       console.error('Error during installation:', error);
+    } finally {
+      setIsInstalling(false);
     }
   };
 
@@ -134,10 +143,11 @@ export const PWAInstallPrompt = () => {
         {!isIOSDevice && (
           <Button 
             onClick={handleInstallClick}
+            disabled={!deferredPrompt || isInstalling}
             className="w-full"
             size="sm"
           >
-            تثبيت التطبيق
+            {isInstalling ? 'جاري التثبيت...' : 'تثبيت التطبيق'}
           </Button>
         )}
       </div>
