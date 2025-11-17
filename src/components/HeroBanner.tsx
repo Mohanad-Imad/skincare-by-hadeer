@@ -1,11 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
@@ -19,11 +14,7 @@ export const HeroBanner = () => {
   const { data: banners, isLoading } = useQuery({
     queryKey: ["banners"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("banners")
-        .select("*")
-        .eq("is_active", true)
-        .order("display_order");
+      const { data, error } = await supabase.from("banners").select("*").eq("is_active", true).order("display_order");
       if (error) throw error;
       return data;
     },
@@ -71,8 +62,9 @@ export const HeroBanner = () => {
           {banners.map((banner: any) => {
             const desktopImage = banner.image_url_desktop || banner.image_url;
             const tabletImage = banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
-            const mobileImage = banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
-            
+            const mobileImage =
+              banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
+
             return banner.link_url ? (
               <CarouselItem key={banner.id}>
                 <Link to={banner.link_url} className="cursor-pointer block">
@@ -101,7 +93,7 @@ export const HeroBanner = () => {
                         }}
                       />
                       {/* طبقة شفافة للتباين */}
-                      <div className="absolute inset-0 bg-gradient-to-l from-black/30 via-black/20 to-black/10 transition-all duration-300" />
+                      <div className="" />
                     </div>
 
                     {/* المحتوى */}
@@ -184,9 +176,7 @@ export const HeroBanner = () => {
               key={index}
               onClick={() => api?.scrollTo(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                index === current
-                  ? "w-8 bg-primary"
-                  : "w-2 bg-primary/30 hover:bg-primary/50"
+                index === current ? "w-8 bg-primary" : "w-2 bg-primary/30 hover:bg-primary/50"
               }`}
               aria-label={`الانتقال إلى الصورة ${index + 1}`}
             />
