@@ -250,9 +250,7 @@ const AdminStoreSettings = () => {
 
   const resetToDefaultMutation = useMutation({
     mutationFn: async () => {
-      const defaultSettings = {
-        store_name: "اسم المتجر",
-        currency: "ريال",
+      const defaultColors = {
         light_background: hexToHsl("#FCF7F8"),
         light_foreground: hexToHsl("#2D1B1F"),
         light_card: hexToHsl("#FFFFFF"),
@@ -273,17 +271,17 @@ const AdminStoreSettings = () => {
       
       const { error } = await supabase
         .from("store_settings" as any)
-        .update(defaultSettings)
+        .update(defaultColors)
         .eq("id", settings?.id);
 
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["store-settings"] });
-      toast.success("تم إرجاع الإعدادات الافتراضية بنجاح");
+      toast.success("تم إرجاع ألوان الموقع الافتراضية بنجاح");
     },
     onError: (error) => {
-      toast.error("حدث خطأ في إرجاع الإعدادات");
+      toast.error("حدث خطأ في إرجاع الألوان");
       console.error(error);
     },
   });
