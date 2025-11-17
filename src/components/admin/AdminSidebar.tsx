@@ -40,6 +40,7 @@ const menuItems = [
   { title: "أقسام المكياج", url: "/admin/makeup-categories", icon: Grid3x3 },
   { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
   { title: "ماركاتنا", url: "/admin/brands-links", icon: Tag },
+  { title: "متاجر صديقة", url: "/admin/friendly-stores", icon: Link2 },
   { title: "صفحة الضمان", url: "/admin/guarantee", icon: ShieldCheck },
 ];
 

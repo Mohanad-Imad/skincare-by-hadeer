@@ -582,6 +582,42 @@ export type Database = {
         }
         Relationships: []
       }
+      friendly_stores: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string
+          title_ar: string
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url: string
+          title_ar: string
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string
+          title_ar?: string
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       guarantee_settings: {
         Row: {
           banner_button_text_ar: string | null
