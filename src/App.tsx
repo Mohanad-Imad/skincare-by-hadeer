@@ -37,6 +37,7 @@ import CelebrityRoutineDetails from "./pages/CelebrityRoutineDetails";
 import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
 import AdminQuickLinks from "./pages/admin/AdminQuickLinks";
 import AdminBrandsLinks from "./pages/admin/AdminBrandsLinks";
+import AdminFriendlyStores from "./pages/admin/AdminFriendlyStores";
 import AdminTertiaryBanners from "./pages/admin/AdminTertiaryBanners";
 import AdminProblemCategories from "./pages/admin/AdminProblemCategories";
 import ProblemSubCategories from "./pages/ProblemSubCategories";
@@ -116,6 +117,7 @@ const App = () => (
             <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
             <Route path="quick-links" element={<AdminQuickLinks />} />
             <Route path="brands-links" element={<AdminBrandsLinks />} />
+            <Route path="friendly-stores" element={<AdminFriendlyStores />} />
             <Route path="problem-categories" element={<AdminProblemCategories />} />
             <Route path="consultations" element={<AdminConsultations />} />
             <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />

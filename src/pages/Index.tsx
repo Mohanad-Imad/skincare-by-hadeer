@@ -13,6 +13,7 @@ import { QuickLinks } from "@/components/QuickLinks";
 import { SecondaryBanner } from "@/components/SecondaryBanner";
 import { TertiaryBanner } from "@/components/TertiaryBanner";
 import { BrandsLinks } from "@/components/BrandsLinks";
+import { FriendlyStores } from "@/components/FriendlyStores";
 import { ShopByProblem } from "@/components/ShopByProblem";
 import { GuaranteeBanner } from "@/components/GuaranteeBanner";
 import MakeupBanner from "@/components/MakeupBanner";
@@ -317,6 +318,12 @@ const Index = () => {
           </Carousel>
         </section>
       )}
+      
+      {/* Brands Links Section */}
+      <BrandsLinks />
+      
+      {/* Friendly Stores Section */}
+      <FriendlyStores />
       
       <Footer />
     </div>
