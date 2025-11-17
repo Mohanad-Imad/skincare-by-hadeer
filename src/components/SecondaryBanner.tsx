@@ -42,11 +42,11 @@ export const SecondaryBanner = () => {
 
   const handleBannerClick = (url?: string | null) => {
     if (!url) return;
-    
-    if (url.startsWith('/')) {
+
+    if (url.startsWith("/")) {
       navigate(url);
     } else {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      window.open(url, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -72,20 +72,14 @@ export const SecondaryBanner = () => {
           {banners.map((banner: any) => {
             const desktopImage = banner.image_url_desktop || banner.image_url;
             const tabletImage = banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
-            const mobileImage = banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
-            
+            const mobileImage =
+              banner.image_url_mobile || banner.image_url_tablet || banner.image_url_desktop || banner.image_url;
+
             return (
               <CarouselItem key={banner.id}>
-                <div 
-                  className="relative w-full h-[100px] md:h-[120px] lg:h-[150px] xl:h-[180px] 2xl:h-[220px] overflow-hidden group cursor-pointer transition-transform duration-500 hover:scale-95"
-                  onClick={() => handleBannerClick(banner.link_url)}
-                >
+                <div className="" onClick={() => handleBannerClick(banner.link_url)}>
                   {/* Mobile image */}
-                  <img
-                    src={mobileImage}
-                    alt={banner.title_ar || ""}
-                    className="w-full h-full object-cover md:hidden"
-                  />
+                  <img src={mobileImage} alt={banner.title_ar || ""} className="w-full h-full object-cover md:hidden" />
                   {/* Tablet image */}
                   <img
                     src={tabletImage}
@@ -99,7 +93,7 @@ export const SecondaryBanner = () => {
                     className="w-full h-full object-cover hidden lg:block"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/10 to-transparent transition-all duration-300" />
-                  
+
                   <div className="absolute inset-0 flex items-center">
                     <div className="container mx-auto px-4">
                       <div className="max-w-xl text-right">
@@ -122,7 +116,7 @@ export const SecondaryBanner = () => {
           })}
         </CarouselContent>
       </Carousel>
-      
+
       {banners.length > 1 && (
         <div className="flex justify-center gap-2 mt-4">
           {banners.map((_, index) => (
@@ -130,9 +124,7 @@ export const SecondaryBanner = () => {
               key={index}
               onClick={() => api?.scrollTo(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                index === current
-                  ? "w-8 bg-primary"
-                  : "w-2 bg-primary/30 hover:bg-primary/50"
+                index === current ? "w-8 bg-primary" : "w-2 bg-primary/30 hover:bg-primary/50"
               }`}
               aria-label={`الانتقال إلى البنر ${index + 1}`}
             />
