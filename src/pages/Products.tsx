@@ -84,18 +84,35 @@ const Products = () => {
       if (subCategoryFilter !== "all") {
         categoryIds = [subCategoryFilter];
       } else if (parentCategoryFilter !== "all") {
-        // التحقق من نوع التصنيف المحدد
-        const selectedCategory = categories?.find(cat => cat.id === parentCategoryFilter);
+        // جلب معلومات التصنيف المحدد من قاعدة البيانات
+        const { data: selectedCategoryData } = await supabase
+          .from("categories")
+          .select("id, parent_category_id")
+          .eq("id", parentCategoryFilter)
+          .single();
         
-        if (selectedCategory?.parent_category_id) {
+        if (selectedCategoryData?.parent_category_id) {
           // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
-          const parentId = selectedCategory.parent_category_id;
-          const allSubCategories = categories?.filter(cat => cat.parent_category_id === parentId) || [];
-          categoryIds = [parentId, ...allSubCategories.map(sub => sub.id)];
+          const { data: allSubCategoriesData } = await supabase
+            .from("categories")
+            .select("id")
+            .eq("parent_category_id", selectedCategoryData.parent_category_id);
+          
+          categoryIds = [
+            selectedCategoryData.parent_category_id,
+            ...(allSubCategoriesData?.map(sub => sub.id) || [])
+          ];
         } else {
-          // إذا كان التصنيف المحدد هو تصنيف أب
-          const subCategories = categories?.filter(cat => cat.parent_category_id === parentCategoryFilter) || [];
-          categoryIds = [parentCategoryFilter, ...subCategories.map(sub => sub.id)];
+          // إذا كان التصنيف المحدد هو تصنيف أب، نحصل على جميع التصنيفات الفرعية
+          const { data: subCategoriesData } = await supabase
+            .from("categories")
+            .select("id")
+            .eq("parent_category_id", parentCategoryFilter);
+          
+          categoryIds = [
+            parentCategoryFilter,
+            ...(subCategoriesData?.map(sub => sub.id) || [])
+          ];
         }
       }
 
