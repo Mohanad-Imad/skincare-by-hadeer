@@ -84,8 +84,19 @@ const Products = () => {
       if (subCategoryFilter !== "all") {
         categoryIds = [subCategoryFilter];
       } else if (parentCategoryFilter !== "all") {
-        const subCategories = categories?.filter(cat => cat.parent_category_id === parentCategoryFilter) || [];
-        categoryIds = [parentCategoryFilter, ...subCategories.map(sub => sub.id)];
+        // التحقق من نوع التصنيف المحدد
+        const selectedCategory = categories?.find(cat => cat.id === parentCategoryFilter);
+        
+        if (selectedCategory?.parent_category_id) {
+          // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
+          const parentId = selectedCategory.parent_category_id;
+          const allSubCategories = categories?.filter(cat => cat.parent_category_id === parentId) || [];
+          categoryIds = [parentId, ...allSubCategories.map(sub => sub.id)];
+        } else {
+          // إذا كان التصنيف المحدد هو تصنيف أب
+          const subCategories = categories?.filter(cat => cat.parent_category_id === parentCategoryFilter) || [];
+          categoryIds = [parentCategoryFilter, ...subCategories.map(sub => sub.id)];
+        }
       }
 
       const from = pageParam * itemsPerPage;
