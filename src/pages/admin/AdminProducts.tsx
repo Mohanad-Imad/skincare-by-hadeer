@@ -58,11 +58,34 @@ const AdminProducts = () => {
     description_ar: "",
     image_url: "",
     category_id: "",
+    product_type: "skincare",
     skin_type: [] as string[],
     is_featured: false,
     is_new_arrival: false,
     is_expert_choice: false,
     is_active: true,
+  });
+
+  // خصائص الساعات
+  const [watchAttributes, setWatchAttributes] = useState({
+    movement_type: "",
+    case_material: "",
+    case_diameter: "",
+    water_resistance: "",
+    strap_type: "",
+    strap_color: "",
+    dial_color: "",
+    warranty_years: "",
+  });
+
+  // خصائص الملابس
+  const [clothingAttributes, setClothingAttributes] = useState({
+    available_sizes: [] as string[],
+    available_colors: [] as string[],
+    material: "",
+    fit_type: "",
+    season: "",
+    care_instructions: "",
   });
 
   const [selectedSubProblems, setSelectedSubProblems] = useState<string[]>([]);
@@ -198,6 +221,29 @@ const AdminProducts = () => {
           .insert(problemsData);
         if (problemsError) throw problemsError;
       }
+
+      // إضافة خصائص الساعات إن وجدت
+      if (data.product_type === "watches" && Object.values(watchAttributes).some(v => v)) {
+        const { error: watchError } = await supabase
+          .from("product_watch_attributes")
+          .insert([{
+            product_id: product.id,
+            ...watchAttributes,
+            warranty_years: watchAttributes.warranty_years ? parseInt(watchAttributes.warranty_years) : null,
+          }]);
+        if (watchError) throw watchError;
+      }
+
+      // إضافة خصائص الملابس إن وجدت
+      if (data.product_type === "clothing" && Object.values(clothingAttributes).some(v => v && (Array.isArray(v) ? v.length > 0 : true))) {
+        const { error: clothingError } = await supabase
+          .from("product_clothing_attributes")
+          .insert([{
+            product_id: product.id,
+            ...clothingAttributes,
+          }]);
+        if (clothingError) throw clothingError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -294,6 +340,35 @@ const AdminProducts = () => {
           .insert(problemsData);
         if (problemsError) throw problemsError;
       }
+
+      // تحديث/إضافة خصائص الساعات
+      if (data.product_type === "watches") {
+        await supabase.from("product_watch_attributes").delete().eq("product_id", id);
+        if (Object.values(watchAttributes).some(v => v)) {
+          const { error: watchError } = await supabase
+            .from("product_watch_attributes")
+            .insert([{
+              product_id: id,
+              ...watchAttributes,
+              warranty_years: watchAttributes.warranty_years ? parseInt(watchAttributes.warranty_years) : null,
+            }]);
+          if (watchError) throw watchError;
+        }
+      }
+
+      // تحديث/إضافة خصائص الملابس
+      if (data.product_type === "clothing") {
+        await supabase.from("product_clothing_attributes").delete().eq("product_id", id);
+        if (Object.values(clothingAttributes).some(v => v && (Array.isArray(v) ? v.length > 0 : true))) {
+          const { error: clothingError } = await supabase
+            .from("product_clothing_attributes")
+            .insert([{
+              product_id: id,
+              ...clothingAttributes,
+            }]);
+          if (clothingError) throw clothingError;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
@@ -327,6 +402,7 @@ const AdminProducts = () => {
       description_ar: "",
       image_url: "",
       category_id: "",
+      product_type: "skincare",
       skin_type: [],
       is_featured: false,
       is_new_arrival: false,
@@ -337,6 +413,24 @@ const AdminProducts = () => {
     setVariants([]);
     setProductImages([]);
     setSelectedSubProblems([]);
+    setWatchAttributes({
+      movement_type: "",
+      case_material: "",
+      case_diameter: "",
+      water_resistance: "",
+      strap_type: "",
+      strap_color: "",
+      dial_color: "",
+      warranty_years: "",
+    });
+    setClothingAttributes({
+      available_sizes: [],
+      available_colors: [],
+      material: "",
+      fit_type: "",
+      season: "",
+      care_instructions: "",
+    });
     setNewVariant({
       size_ar: "",
       price: "",
@@ -377,6 +471,7 @@ const AdminProducts = () => {
       description_ar: product.description_ar || "",
       image_url: product.image_url || "",
       category_id: product.category_id || "",
+      product_type: product.product_type || "skincare",
       skin_type: product.skin_type || [],
       is_featured: product.is_featured,
       is_new_arrival: product.is_new_arrival || false,
@@ -417,6 +512,48 @@ const AdminProducts = () => {
 
     if (problemsData) {
       setSelectedSubProblems(problemsData.map((p) => p.sub_problem_id));
+    }
+
+    // جلب خصائص الساعات إن وجدت
+    if (product.product_type === "watches") {
+      const { data: watchData } = await supabase
+        .from("product_watch_attributes")
+        .select("*")
+        .eq("product_id", product.id)
+        .single();
+      
+      if (watchData) {
+        setWatchAttributes({
+          movement_type: watchData.movement_type || "",
+          case_material: watchData.case_material || "",
+          case_diameter: watchData.case_diameter || "",
+          water_resistance: watchData.water_resistance || "",
+          strap_type: watchData.strap_type || "",
+          strap_color: watchData.strap_color || "",
+          dial_color: watchData.dial_color || "",
+          warranty_years: watchData.warranty_years?.toString() || "",
+        });
+      }
+    }
+
+    // جلب خصائص الملابس إن وجدت
+    if (product.product_type === "clothing") {
+      const { data: clothingData } = await supabase
+        .from("product_clothing_attributes")
+        .select("*")
+        .eq("product_id", product.id)
+        .single();
+      
+      if (clothingData) {
+        setClothingAttributes({
+          available_sizes: clothingData.available_sizes || [],
+          available_colors: clothingData.available_colors || [],
+          material: clothingData.material || "",
+          fit_type: clothingData.fit_type || "",
+          season: clothingData.season || "",
+          care_instructions: clothingData.care_instructions || "",
+        });
+      }
     }
 
     setIsDialogOpen(true);
@@ -637,6 +774,26 @@ const AdminProducts = () => {
                   }
                 />
               </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="product_type">نوع المنتج</Label>
+                <Select
+                  value={formData.product_type}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, product_type: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر نوع المنتج" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="skincare">العناية بالبشرة</SelectItem>
+                    <SelectItem value="watches">ساعات</SelectItem>
+                    <SelectItem value="clothing">ملابس</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="space-y-2">
                 <Label>صور المنتج (حد أقصى 5 صور)</Label>
                 <div className="space-y-3">
@@ -731,26 +888,160 @@ const AdminProducts = () => {
                   </Select>
                 </div>
               )}
-              <div className="space-y-2">
-                <Label>مناسب لنوع البشرة</Label>
-                <div className="space-y-2">
-                  {skinTypes.map((type) => (
-                    <div key={type.value} className="flex items-center space-x-2 space-x-reverse">
-                      <Checkbox
-                        id={type.value}
-                        checked={formData.skin_type.includes(type.value)}
-                        onCheckedChange={() => toggleSkinType(type.value)}
-                      />
-                      <Label htmlFor={type.value} className="cursor-pointer">
-                        {type.label_ar}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
               
-              {/* المشاكل */}
-              {problemCategories && problemCategories.length > 0 && (
+              {formData.product_type === "skincare" && (
+                <div className="space-y-2">
+                  <Label>مناسب لنوع البشرة</Label>
+                  <div className="space-y-2">
+                    {skinTypes.map((type) => (
+                      <div key={type.value} className="flex items-center space-x-2 space-x-reverse">
+                        <Checkbox
+                          id={type.value}
+                          checked={formData.skin_type.includes(type.value)}
+                          onCheckedChange={() => toggleSkinType(type.value)}
+                        />
+                        <Label htmlFor={type.value} className="cursor-pointer">
+                          {type.label_ar}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {formData.product_type === "watches" && (
+                <div className="space-y-4 border-t pt-4">
+                  <Label className="text-lg font-semibold">مواصفات الساعة</Label>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>نوع الحركة</Label>
+                      <Input
+                        value={watchAttributes.movement_type}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, movement_type: e.target.value})}
+                        placeholder="مثال: أوتوماتيك، كوارتز"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>مادة العلبة</Label>
+                      <Input
+                        value={watchAttributes.case_material}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, case_material: e.target.value})}
+                        placeholder="مثال: ستانلس ستيل، ذهب"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>قطر العلبة</Label>
+                      <Input
+                        value={watchAttributes.case_diameter}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, case_diameter: e.target.value})}
+                        placeholder="مثال: 42mm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>مقاومة الماء</Label>
+                      <Input
+                        value={watchAttributes.water_resistance}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, water_resistance: e.target.value})}
+                        placeholder="مثال: 50 متر"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>نوع السوار</Label>
+                      <Input
+                        value={watchAttributes.strap_type}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, strap_type: e.target.value})}
+                        placeholder="مثال: جلد، معدني"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>لون السوار</Label>
+                      <Input
+                        value={watchAttributes.strap_color}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, strap_color: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>لون القرص</Label>
+                      <Input
+                        value={watchAttributes.dial_color}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, dial_color: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>فترة الضمان (بالسنوات)</Label>
+                      <Input
+                        type="number"
+                        value={watchAttributes.warranty_years}
+                        onChange={(e) => setWatchAttributes({...watchAttributes, warranty_years: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {formData.product_type === "clothing" && (
+                <div className="space-y-4 border-t pt-4">
+                  <Label className="text-lg font-semibold">مواصفات الملابس</Label>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>المقاسات المتوفرة</Label>
+                      <Input
+                        value={clothingAttributes.available_sizes.join(", ")}
+                        onChange={(e) => setClothingAttributes({
+                          ...clothingAttributes, 
+                          available_sizes: e.target.value.split(",").map(s => s.trim()).filter(s => s)
+                        })}
+                        placeholder="مثال: S, M, L, XL"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>الألوان المتوفرة</Label>
+                      <Input
+                        value={clothingAttributes.available_colors.join(", ")}
+                        onChange={(e) => setClothingAttributes({
+                          ...clothingAttributes, 
+                          available_colors: e.target.value.split(",").map(s => s.trim()).filter(s => s)
+                        })}
+                        placeholder="مثال: أسود, أبيض, أزرق"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>المادة</Label>
+                      <Input
+                        value={clothingAttributes.material}
+                        onChange={(e) => setClothingAttributes({...clothingAttributes, material: e.target.value})}
+                        placeholder="مثال: قطن، بوليستر"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>نوع القصة</Label>
+                      <Input
+                        value={clothingAttributes.fit_type}
+                        onChange={(e) => setClothingAttributes({...clothingAttributes, fit_type: e.target.value})}
+                        placeholder="مثال: slim fit, regular"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>الموسم</Label>
+                      <Input
+                        value={clothingAttributes.season}
+                        onChange={(e) => setClothingAttributes({...clothingAttributes, season: e.target.value})}
+                        placeholder="مثال: صيفي، شتوي"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>تعليمات العناية</Label>
+                      <Textarea
+                        value={clothingAttributes.care_instructions}
+                        onChange={(e) => setClothingAttributes({...clothingAttributes, care_instructions: e.target.value})}
+                        placeholder="مثال: غسيل يدوي، لا يوضع في المجفف"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {formData.product_type === "skincare" && problemCategories && problemCategories.length > 0 && (
                 <div className="space-y-4 border-t pt-4">
                   <Label className="text-lg font-semibold">مناسب لعلاج المشاكل التالية</Label>
                   {problemCategories.map((category) => (
@@ -760,17 +1051,17 @@ const AdminProducts = () => {
                         {category.sub_problems?.map((subProblem: any) => (
                           <div key={subProblem.id} className="flex items-center space-x-2 space-x-reverse">
                             <Checkbox
-                              id={`problem-${subProblem.id}`}
+                              id={subProblem.id}
                               checked={selectedSubProblems.includes(subProblem.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedSubProblems([...selectedSubProblems, subProblem.id]);
-                                } else {
-                                  setSelectedSubProblems(selectedSubProblems.filter((id) => id !== subProblem.id));
-                                }
+                              onCheckedChange={() => {
+                                setSelectedSubProblems(prev =>
+                                  prev.includes(subProblem.id)
+                                    ? prev.filter(id => id !== subProblem.id)
+                                    : [...prev, subProblem.id]
+                                );
                               }}
                             />
-                            <Label htmlFor={`problem-${subProblem.id}`} className="cursor-pointer text-sm">
+                            <Label htmlFor={subProblem.id} className="cursor-pointer">
                               {subProblem.name_ar}
                             </Label>
                           </div>
