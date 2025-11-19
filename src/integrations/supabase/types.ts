@@ -1033,6 +1033,53 @@ export type Database = {
         }
         Relationships: []
       }
+      product_clothing_attributes: {
+        Row: {
+          available_colors: string[] | null
+          available_sizes: string[] | null
+          care_instructions: string | null
+          created_at: string | null
+          fit_type: string | null
+          id: string
+          material: string | null
+          product_id: string
+          season: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_colors?: string[] | null
+          available_sizes?: string[] | null
+          care_instructions?: string | null
+          created_at?: string | null
+          fit_type?: string | null
+          id?: string
+          material?: string | null
+          product_id: string
+          season?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_colors?: string[] | null
+          available_sizes?: string[] | null
+          care_instructions?: string | null
+          created_at?: string | null
+          fit_type?: string | null
+          id?: string
+          material?: string | null
+          product_id?: string
+          season?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_clothing_attributes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_discounts: {
         Row: {
           created_at: string
@@ -1266,6 +1313,59 @@ export type Database = {
           },
         ]
       }
+      product_watch_attributes: {
+        Row: {
+          case_diameter: string | null
+          case_material: string | null
+          created_at: string | null
+          dial_color: string | null
+          id: string
+          movement_type: string | null
+          product_id: string
+          strap_color: string | null
+          strap_type: string | null
+          updated_at: string | null
+          warranty_years: number | null
+          water_resistance: string | null
+        }
+        Insert: {
+          case_diameter?: string | null
+          case_material?: string | null
+          created_at?: string | null
+          dial_color?: string | null
+          id?: string
+          movement_type?: string | null
+          product_id: string
+          strap_color?: string | null
+          strap_type?: string | null
+          updated_at?: string | null
+          warranty_years?: number | null
+          water_resistance?: string | null
+        }
+        Update: {
+          case_diameter?: string | null
+          case_material?: string | null
+          created_at?: string | null
+          dial_color?: string | null
+          id?: string
+          movement_type?: string | null
+          product_id?: string
+          strap_color?: string | null
+          strap_type?: string | null
+          updated_at?: string | null
+          warranty_years?: number | null
+          water_resistance?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_watch_attributes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -1282,6 +1382,7 @@ export type Database = {
           is_new_arrival: boolean | null
           name_ar: string
           name_en: string
+          product_type: string | null
           skin_type: Database["public"]["Enums"]["skin_type"][] | null
           updated_at: string | null
         }
@@ -1300,6 +1401,7 @@ export type Database = {
           is_new_arrival?: boolean | null
           name_ar: string
           name_en: string
+          product_type?: string | null
           skin_type?: Database["public"]["Enums"]["skin_type"][] | null
           updated_at?: string | null
         }
@@ -1318,6 +1420,7 @@ export type Database = {
           is_new_arrival?: boolean | null
           name_ar?: string
           name_en?: string
+          product_type?: string | null
           skin_type?: Database["public"]["Enums"]["skin_type"][] | null
           updated_at?: string | null
         }

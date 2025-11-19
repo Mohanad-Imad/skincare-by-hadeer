@@ -25,6 +25,7 @@ const Products = () => {
   const [companyFilter, setCompanyFilter] = useState<string>(searchParams.get("company") || "all");
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
+  const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
@@ -77,7 +78,7 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
@@ -157,6 +158,10 @@ const Products = () => {
 
       if (searchTerm) {
         query = query.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
+      }
+
+      if (productTypeFilter !== "all") {
+        query = query.eq("product_type", productTypeFilter);
       }
 
       const { data, error } = await query;
@@ -249,6 +254,7 @@ const Products = () => {
     const search = searchParams.get("search");
     const problem = searchParams.get("problem");
     const makeup = searchParams.get("makeup");
+    const productType = searchParams.get("productType");
     
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
@@ -257,6 +263,7 @@ const Products = () => {
     if (search) setSearchTerm(search);
     if (problem) setProblemFilter(problem);
     if (makeup) setMakeupFilter(makeup);
+    if (productType) setProductTypeFilter(productType);
   }, [searchParams]);
 
   const structuredData = {
@@ -279,7 +286,7 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -289,6 +296,18 @@ const Products = () => {
               className="pr-10"
             />
           </div>
+
+          <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
+            <SelectTrigger>
+              <SelectValue placeholder="نوع المنتج" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الأنواع</SelectItem>
+              <SelectItem value="skincare">العناية بالبشرة</SelectItem>
+              <SelectItem value="watches">ساعات</SelectItem>
+              <SelectItem value="clothing">ملابس</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Select 
             value={parentCategoryFilter} 
