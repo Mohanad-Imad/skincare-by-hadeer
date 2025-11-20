@@ -500,7 +500,8 @@ const ProductDetails = () => {
               className="h-11 px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02]"
               title="لمّح لأحد يهديك"
             >
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="ml-2 h-5 w-5" />
+              لمّح للحبايب
             </Button>
           </div>
         </div>
