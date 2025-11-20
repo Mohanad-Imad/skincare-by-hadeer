@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShoppingCart, ArrowRight, Tag } from "lucide-react";
+import { ShoppingCart, ArrowRight, Tag, MessageCircle } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { MiniCart } from "@/components/MiniCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
@@ -32,6 +32,9 @@ const ProductDetails = () => {
   const [addedProduct, setAddedProduct] = useState<any>(null);
   const { addToLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
+  
+  // كود الخصم (اتركه فارغاً إذا لم يكن هناك كود)
+  const discountCode = "";
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -91,6 +94,19 @@ const ProductDetails = () => {
       }
     }
   }, [product, selectedVariant]);
+  const handleDropHint = () => {
+    const currentUrl = window.location.href;
+    let message = `هلو.. شفت هذا الشي بمتجر هدير وكُلش عجبني ويخبل! 😍 كلت أدزه إلك بلكي تخليه ببالك وتفاجئني بي.. 😉 وهذا الرابط لسهولة الاختيار: ${currentUrl}`;
+    
+    // إضافة كود الخصم إذا كان موجوداً
+    if (discountCode) {
+      message += ` وهمين اكو كود خصم اذا نويت: ${discountCode}`;
+    }
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const handleAddToCart = () => {
     if (!selectedVariant) return;
 
@@ -444,18 +460,29 @@ const ProductDetails = () => {
         </div>
       </div>
       
-      {/* زر إضافة إلى السلة - عائم في أسفل الشاشة */}
+      {/* أزرار الإجراءات - عائمة في أسفل الشاشة */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t p-3 shadow-lg">
         <div className="container">
-          <Button
-            size="lg"
-            disabled={!selectedVariant || addToCartMutation.isPending}
-            onClick={handleAddToCart}
-            className="w-full h-11 text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
-          >
-            <ShoppingCart className="ml-2 h-5 w-5" />
-            {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="lg"
+              disabled={!selectedVariant || addToCartMutation.isPending}
+              onClick={handleAddToCart}
+              className="flex-1 h-11 text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+            >
+              <ShoppingCart className="ml-2 h-5 w-5" />
+              {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleDropHint}
+              className="h-11 px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02]"
+              title="لمّح لأحد يهديك"
+            >
+              <MessageCircle className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
       
