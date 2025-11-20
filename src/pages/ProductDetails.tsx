@@ -15,6 +15,12 @@ import { MiniCart } from "@/components/MiniCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { ProductReviews } from "@/components/ProductReviews";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -30,6 +36,7 @@ const ProductDetails = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [addedProduct, setAddedProduct] = useState<any>(null);
+  const [showMoodDialog, setShowMoodDialog] = useState(false);
   const { addToLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
   
@@ -95,8 +102,20 @@ const ProductDetails = () => {
     }
   }, [product, selectedVariant]);
   const handleDropHint = () => {
+    setShowMoodDialog(true);
+  };
+
+  const sendWhatsAppMessage = (mood: 'funny' | 'formal' | 'urgent') => {
     const currentUrl = window.location.href;
-    let message = `هلو.. شفت هذا الشي بمتجر هدير وكُلش عجبني ويخبل! 😍 كلت أدزه إلك بلكي تخليه ببالك وتفاجئني بي.. 😉 وهذا الرابط لسهولة الاختيار: ${currentUrl}`;
+    let message = '';
+    
+    if (mood === 'funny') {
+      message = `أهلين! شفت هذا الزين في متجر هدير وقلت ما يغلى عليّ.. إذا محتار وش تهديني بمناسبة (أو بدون مناسبة)، هذا الرابط يسهل عليك المهمة 😉 ${currentUrl}`;
+    } else if (mood === 'formal') {
+      message = `صباح الخير.. مر عليّ هذا المنتج في متجر هدير وحسيته ذوقي جداً.. حبيت أشاركك إياه لأخذ رأيك (أو تلميح بسيط لهدية قادمة 🎁) ${currentUrl}`;
+    } else if (mood === 'urgent') {
+      message = `لا يفوتك! لقيت هذا الشيء الرهيب وسعره لقطة، شكلي بطلبه بس قلت أوريك إياه قبل ما يخلص.. أو لو حاب تسبقني وتهديني إياه ما بقول لا 😉 ${currentUrl}`;
+    }
     
     // إضافة كود الخصم إذا كان موجوداً
     if (discountCode) {
@@ -105,6 +124,7 @@ const ProductDetails = () => {
     
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+    setShowMoodDialog(false);
   };
 
   const handleAddToCart = () => {
@@ -494,6 +514,58 @@ const ProductDetails = () => {
           session={session}
         />
       )}
+
+      {/* نافذة اختيار نبرة الرسالة */}
+      <Dialog open={showMoodDialog} onOpenChange={setShowMoodDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-lg">اختاري نبرة الرسالة 💌</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 py-4">
+            <Button
+              onClick={() => sendWhatsAppMessage('funny')}
+              variant="outline"
+              className="h-auto py-4 px-4 flex flex-col items-start gap-2 hover:bg-primary/5 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-2 w-full">
+                <span className="text-2xl">😂</span>
+                <span className="font-bold text-base">نبرة مزاح (للأصدقاء)</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-right">
+                تكسر حاجز الخجل بالضحك وتخلي الطلب أخف
+              </span>
+            </Button>
+
+            <Button
+              onClick={() => sendWhatsAppMessage('formal')}
+              variant="outline"
+              className="h-auto py-4 px-4 flex flex-col items-start gap-2 hover:bg-primary/5 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-2 w-full">
+                <span className="text-2xl">❤️</span>
+                <span className="font-bold text-base">نبرة رسمية/لطيفة</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-right">
+                للزوج/الخطيب/الأهل - تبدو كأخذ رأي لكنها طلب مبطن
+              </span>
+            </Button>
+
+            <Button
+              onClick={() => sendWhatsAppMessage('urgent')}
+              variant="outline"
+              className="h-auto py-4 px-4 flex flex-col items-start gap-2 hover:bg-primary/5 hover:border-primary transition-all"
+            >
+              <div className="flex items-center gap-2 w-full">
+                <span className="text-2xl">🔥</span>
+                <span className="font-bold text-base">الفرصة لا تعوض</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-right">
+                محفزة وتخلق إحساس بالاستعجال
+              </span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
