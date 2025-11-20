@@ -40,8 +40,20 @@ const ProductDetails = () => {
   const { addToLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
   
-  // كود الخصم (اتركه فارغاً إذا لم يكن هناك كود)
-  const discountCode = "";
+  // جلب إعدادات "لمّح للحبايب"
+  const { data: dropHintSettings } = useQuery({
+    queryKey: ["drop-hint-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("drop_hint_settings")
+        .select("*")
+        .eq("is_active", true)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -106,20 +118,26 @@ const ProductDetails = () => {
   };
 
   const sendWhatsAppMessage = (mood: 'funny' | 'formal' | 'urgent') => {
+    if (!dropHintSettings) return;
+    
     const currentUrl = window.location.href;
     let message = '';
     
     if (mood === 'funny') {
-      message = `أهلين! شفت هذا الزين في متجر هدير وقلت ما يغلى عليّ.. إذا محتار وش تهديني بمناسبة (أو بدون مناسبة)، هذا الرابط يسهل عليك المهمة 😉 ${currentUrl}`;
+      message = dropHintSettings.funny_message_ar;
     } else if (mood === 'formal') {
-      message = `صباح الخير.. مر عليّ هذا المنتج في متجر هدير وحسيته ذوقي جداً.. حبيت أشاركك إياه لأخذ رأيك (أو تلميح بسيط لهدية قادمة 🎁) ${currentUrl}`;
+      message = dropHintSettings.formal_message_ar;
     } else if (mood === 'urgent') {
-      message = `لا يفوتك! لقيت هذا الشيء الرهيب وسعره لقطة، شكلي بطلبه بس قلت أوريك إياه قبل ما يخلص.. أو لو حاب تسبقني وتهديني إياه ما بقول لا 😉 ${currentUrl}`;
+      message = dropHintSettings.urgent_message_ar;
     }
     
+    // استبدال {URL} برابط المنتج
+    message = message.replace('{URL}', currentUrl);
+    
     // إضافة كود الخصم إذا كان موجوداً
-    if (discountCode) {
-      message += ` وهمين اكو كود خصم اذا نويت: ${discountCode}`;
+    if (dropHintSettings.discount_code && dropHintSettings.discount_suffix_ar) {
+      const discountText = dropHintSettings.discount_suffix_ar.replace('{CODE}', dropHintSettings.discount_code);
+      message += ` ${discountText}`;
     }
     
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -493,16 +511,18 @@ const ProductDetails = () => {
               <ShoppingCart className="ml-2 h-5 w-5" />
               {addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={handleDropHint}
-              className="h-11 px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02]"
-              title="لمّح لأحد يهديك"
-            >
-              <MessageCircle className="ml-2 h-5 w-5" />
-              لمّح للحبايب
-            </Button>
+            {dropHintSettings?.is_active && (
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleDropHint}
+                className="h-11 px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02]"
+                title={dropHintSettings.button_text_ar}
+              >
+                <MessageCircle className="ml-2 h-5 w-5" />
+                {dropHintSettings.button_text_ar}
+              </Button>
+            )}
           </div>
         </div>
       </div>

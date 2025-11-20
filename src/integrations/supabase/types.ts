@@ -582,6 +582,45 @@ export type Database = {
         }
         Relationships: []
       }
+      drop_hint_settings: {
+        Row: {
+          button_text_ar: string
+          created_at: string
+          discount_code: string | null
+          discount_suffix_ar: string | null
+          formal_message_ar: string
+          funny_message_ar: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          urgent_message_ar: string
+        }
+        Insert: {
+          button_text_ar?: string
+          created_at?: string
+          discount_code?: string | null
+          discount_suffix_ar?: string | null
+          formal_message_ar?: string
+          funny_message_ar?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          urgent_message_ar?: string
+        }
+        Update: {
+          button_text_ar?: string
+          created_at?: string
+          discount_code?: string | null
+          discount_suffix_ar?: string | null
+          formal_message_ar?: string
+          funny_message_ar?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          urgent_message_ar?: string
+        }
+        Relationships: []
+      }
       friendly_stores: {
         Row: {
           created_at: string
