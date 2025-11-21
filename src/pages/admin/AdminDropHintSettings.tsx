@@ -71,7 +71,6 @@ const AdminDropHintSettings = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
         <div className="flex">
           <AdminSidebar />
           <div className="flex-1 p-8">جاري التحميل...</div>
