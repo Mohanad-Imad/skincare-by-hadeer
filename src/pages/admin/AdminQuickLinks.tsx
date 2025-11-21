@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Pencil, Trash2, Plus, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
-import { Navbar } from "@/components/Navbar";
+
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 
@@ -42,10 +42,7 @@ const AdminQuickLinks = () => {
   const { data: quickLinks, isLoading } = useQuery({
     queryKey: ["admin-quick-links"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("quick_links")
-        .select("*")
-        .order("display_order");
+      const { data, error } = await supabase.from("quick_links").select("*").order("display_order");
 
       if (error) throw error;
       return data as QuickLink[];
@@ -70,10 +67,7 @@ const AdminQuickLinks = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      const { error } = await supabase
-        .from("quick_links")
-        .update(data)
-        .eq("id", id);
+      const { error } = await supabase.from("quick_links").update(data).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -142,17 +136,15 @@ const AdminQuickLinks = () => {
     if (!file) return;
 
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const { error: uploadError, data } = await supabase.storage
-        .from('product-images')
-        .upload(fileName, file);
+      const { error: uploadError, data } = await supabase.storage.from("product-images").upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
       setFormData({ ...formData, image_url: publicUrl });
       toast.success("تم رفع الصورة بنجاح");
@@ -163,11 +155,8 @@ const AdminQuickLinks = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="إدارة الروابط السريعة - لوحة التحكم"
-        description="إدارة وتنظيم الروابط السريعة في الصفحة الرئيسية"
-      />
-      <Navbar />
+      <SEO title="إدارة الروابط السريعة - لوحة التحكم" description="إدارة وتنظيم الروابط السريعة في الصفحة الرئيسية" />
+
       <div className="container mx-auto py-8">
         <div className="flex gap-8">
           <AdminSidebar />
@@ -185,9 +174,7 @@ const AdminQuickLinks = () => {
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>
-                        {editingLink ? "تعديل رابط" : "إضافة رابط جديد"}
-                      </DialogTitle>
+                      <DialogTitle>{editingLink ? "تعديل رابط" : "إضافة رابط جديد"}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="space-y-2">
@@ -195,9 +182,7 @@ const AdminQuickLinks = () => {
                         <Input
                           id="title_ar"
                           value={formData.title_ar}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title_ar: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, title_ar: e.target.value })}
                           required
                         />
                       </div>
@@ -207,20 +192,13 @@ const AdminQuickLinks = () => {
                         <Input
                           id="title_en"
                           value={formData.title_en}
-                          onChange={(e) =>
-                            setFormData({ ...formData, title_en: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="image">صورة الرابط *</Label>
-                        <Input
-                          id="image"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                        />
+                        <Input id="image" type="file" accept="image/*" onChange={handleImageUpload} />
                         {formData.image_url && (
                           <img
                             src={formData.image_url}
@@ -235,9 +213,7 @@ const AdminQuickLinks = () => {
                         <Input
                           id="link_url"
                           value={formData.link_url}
-                          onChange={(e) =>
-                            setFormData({ ...formData, link_url: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
                           placeholder="/products?category=xxx أو https://..."
                           required
                         />
@@ -262,24 +238,16 @@ const AdminQuickLinks = () => {
                         <Switch
                           id="is_active"
                           checked={formData.is_active}
-                          onCheckedChange={(checked) =>
-                            setFormData({ ...formData, is_active: checked })
-                          }
+                          onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                         />
                         <Label htmlFor="is_active">نشط</Label>
                       </div>
 
                       <div className="flex justify-end gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={resetForm}
-                        >
+                        <Button type="button" variant="outline" onClick={resetForm}>
                           إلغاء
                         </Button>
-                        <Button type="submit">
-                          {editingLink ? "تحديث" : "إضافة"}
-                        </Button>
+                        <Button type="submit">{editingLink ? "تحديث" : "إضافة"}</Button>
                       </div>
                     </form>
                   </DialogContent>
@@ -314,9 +282,7 @@ const AdminQuickLinks = () => {
                               className="w-12 h-12 object-cover rounded-full"
                             />
                           </TableCell>
-                          <TableCell className="font-medium">
-                            {link.title_ar}
-                          </TableCell>
+                          <TableCell className="font-medium">{link.title_ar}</TableCell>
                           <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
                             {link.link_url}
                           </TableCell>
@@ -330,20 +296,14 @@ const AdminQuickLinks = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEdit(link)}
-                              >
+                              <Button variant="ghost" size="icon" onClick={() => handleEdit(link)}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => {
-                                  if (
-                                    confirm("هل أنت متأكد من حذف هذا الرابط؟")
-                                  ) {
+                                  if (confirm("هل أنت متأكد من حذف هذا الرابط؟")) {
                                     deleteMutation.mutate(link.id);
                                   }
                                 }}
