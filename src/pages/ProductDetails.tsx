@@ -506,17 +506,17 @@ const ProductDetails = () => {
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
               onClick={handleAddToCart}
-              className="h-11 px-3 sm:px-4 sm:flex-1 text-sm sm:text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              className="flex-1 h-11 px-3 text-sm sm:text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
             >
-              <ShoppingCart className="h-5 w-5 flex-shrink-0 sm:ml-2" />
-              <span className="hidden sm:inline">{addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}</span>
+              <ShoppingCart className="ml-2 h-5 w-5 flex-shrink-0" />
+              <span className="truncate">{addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}</span>
             </Button>
             {dropHintSettings?.is_active && (
               <Button
                 size="lg"
                 variant="outline"
                 onClick={handleDropHint}
-                className="flex-1 h-11 px-3 sm:px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02] text-sm sm:text-base font-bold"
+                className="flex-1 h-11 px-3 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02] text-sm sm:text-base font-bold"
               >
                 <MessageCircle className="ml-2 h-5 w-5 flex-shrink-0" />
                 <span className="truncate">{dropHintSettings.button_text_ar}</span>
