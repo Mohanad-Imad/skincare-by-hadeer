@@ -6,25 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Navbar } from "@/components/Navbar";
+
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { SEO } from "@/components/SEO";
@@ -57,10 +44,7 @@ const AdminSecondaryBanners = () => {
   const { data: banners, isLoading } = useQuery({
     queryKey: ["admin-secondary-banners"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("secondary_banners")
-        .select("*")
-        .order("display_order");
+      const { data, error } = await supabase.from("secondary_banners").select("*").order("display_order");
 
       if (error) throw error;
       return data as SecondaryBanner[];
@@ -69,9 +53,7 @@ const AdminSecondaryBanners = () => {
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase
-        .from("secondary_banners")
-        .insert([data]);
+      const { error } = await supabase.from("secondary_banners").insert([data]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -88,10 +70,7 @@ const AdminSecondaryBanners = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      const { error } = await supabase
-        .from("secondary_banners")
-        .update(data)
-        .eq("id", id);
+      const { error } = await supabase.from("secondary_banners").update(data).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -108,10 +87,7 @@ const AdminSecondaryBanners = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("secondary_banners")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("secondary_banners").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -162,7 +138,10 @@ const AdminSecondaryBanners = () => {
     setIsDialogOpen(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, imageType: 'desktop' | 'tablet' | 'mobile') => {
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    imageType: "desktop" | "tablet" | "mobile",
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -171,15 +150,13 @@ const AdminSecondaryBanners = () => {
     const filePath = `${fileName}`;
 
     try {
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage.from("product-images").upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("product-images").getPublicUrl(filePath);
 
       setFormData({ ...formData, [`image_url_${imageType}`]: publicUrl });
       toast.success("تم رفع الصورة بنجاح");
@@ -191,11 +168,8 @@ const AdminSecondaryBanners = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO
-        title="إدارة البانرات الثانوية"
-        description="إدارة البانرات الثانوية"
-      />
-      <Navbar />
+      <SEO title="إدارة البانرات الثانوية" description="إدارة البانرات الثانوية" />
+
       <div className="flex">
         <AdminSidebar />
         <main className="flex-1 p-8">
@@ -212,25 +186,47 @@ const AdminSecondaryBanners = () => {
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>
-                      {editingBanner ? "تعديل البانر" : "إضافة بانر جديد"}
-                    </DialogTitle>
+                    <DialogTitle>{editingBanner ? "تعديل البانر" : "إضافة بانر جديد"}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                       <Label>صورة Desktop (القياس المقترح: 1920x220)</Label>
-                      <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'desktop'); }} />
-                      {formData.image_url_desktop && <img src={formData.image_url_desktop} className="mt-2 h-20 rounded" />}
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          handleImageUpload(e, "desktop");
+                        }}
+                      />
+                      {formData.image_url_desktop && (
+                        <img src={formData.image_url_desktop} className="mt-2 h-20 rounded" />
+                      )}
                     </div>
                     <div>
                       <Label>صورة Tablet (القياس المقترح: 1024x150)</Label>
-                      <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'tablet'); }} />
-                      {formData.image_url_tablet && <img src={formData.image_url_tablet} className="mt-2 h-20 rounded" />}
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          handleImageUpload(e, "tablet");
+                        }}
+                      />
+                      {formData.image_url_tablet && (
+                        <img src={formData.image_url_tablet} className="mt-2 h-20 rounded" />
+                      )}
                     </div>
                     <div>
                       <Label>صورة Mobile (القياس المقترح: 768x120)</Label>
-                      <Input type="file" accept="image/*" onChange={(e) => { handleImageUpload(e, 'mobile'); }} />
-                      {formData.image_url_mobile && <img src={formData.image_url_mobile} className="mt-2 h-20 rounded" />}
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          handleImageUpload(e, "mobile");
+                        }}
+                      />
+                      {formData.image_url_mobile && (
+                        <img src={formData.image_url_mobile} className="mt-2 h-20 rounded" />
+                      )}
                     </div>
 
                     <div>
@@ -238,9 +234,7 @@ const AdminSecondaryBanners = () => {
                       <Input
                         id="link_url"
                         value={formData.link_url}
-                        onChange={(e) =>
-                          setFormData({ ...formData, link_url: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
                         placeholder="/products أو https://example.com"
                       />
                     </div>
@@ -264,17 +258,13 @@ const AdminSecondaryBanners = () => {
                       <Switch
                         id="is_active"
                         checked={formData.is_active}
-                        onCheckedChange={(checked) =>
-                          setFormData({ ...formData, is_active: checked })
-                        }
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                       />
                       <Label htmlFor="is_active">نشط</Label>
                     </div>
 
                     <div className="flex gap-2">
-                      <Button type="submit">
-                        {editingBanner ? "تحديث" : "إضافة"}
-                      </Button>
+                      <Button type="submit">{editingBanner ? "تحديث" : "إضافة"}</Button>
                       <Button type="button" variant="outline" onClick={resetForm}>
                         إلغاء
                       </Button>
@@ -307,27 +297,15 @@ const AdminSecondaryBanners = () => {
                             className="h-16 w-24 object-cover rounded"
                           />
                         </TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          {banner.link_url || "لا يوجد رابط"}
-                        </TableCell>
+                        <TableCell className="max-w-xs truncate">{banner.link_url || "لا يوجد رابط"}</TableCell>
                         <TableCell>{banner.display_order}</TableCell>
-                        <TableCell>
-                          {banner.is_active ? "نشط" : "غير نشط"}
-                        </TableCell>
+                        <TableCell>{banner.is_active ? "نشط" : "غير نشط"}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleEdit(banner)}
-                            >
+                            <Button variant="outline" size="icon" onClick={() => handleEdit(banner)}>
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => deleteMutation.mutate(banner.id)}
-                            >
+                            <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(banner.id)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -337,9 +315,7 @@ const AdminSecondaryBanners = () => {
                   </TableBody>
                 </Table>
               ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  لا توجد بانرات حالياً
-                </p>
+                <p className="text-center text-muted-foreground py-8">لا توجد بانرات حالياً</p>
               )}
             </CardContent>
           </Card>
