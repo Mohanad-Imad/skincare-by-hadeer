@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Navbar } from "@/components/Navbar";
+
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,10 +33,7 @@ const AdminMakeupBanner = () => {
   const { data: banners, isLoading } = useQuery({
     queryKey: ["admin-makeup-banners"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("makeup_banner")
-        .select("*")
-        .order("display_order");
+      const { data, error } = await supabase.from("makeup_banner").select("*").order("display_order");
       if (error) throw error;
       return data;
     },
@@ -50,15 +47,11 @@ const AdminMakeupBanner = () => {
     try {
       const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const { error: uploadError, data } = await supabase.storage
-        .from("product-images")
-        .upload(fileName, file);
+      const { error: uploadError, data } = await supabase.storage.from("product-images").upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(fileName);
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
       setFormData({ ...formData, image_url: urlData.publicUrl });
       toast.success("تم رفع الصورة بنجاح");
@@ -85,17 +78,8 @@ const AdminMakeupBanner = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: typeof formData;
-    }) => {
-      const { error } = await supabase
-        .from("makeup_banner")
-        .update(data)
-        .eq("id", id);
+    mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
+      const { error } = await supabase.from("makeup_banner").update(data).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -155,7 +139,6 @@ const AdminMakeupBanner = () => {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      <Navbar />
       <div className="container mx-auto py-8">
         <div className="flex gap-6">
           <AdminSidebar />
@@ -172,18 +155,14 @@ const AdminMakeupBanner = () => {
                       <Label>العنوان (عربي)</Label>
                       <Input
                         value={formData.title_ar}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title_ar: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, title_ar: e.target.value })}
                       />
                     </div>
                     <div>
                       <Label>العنوان (إنجليزي)</Label>
                       <Input
                         value={formData.title_en}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title_en: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
                       />
                     </div>
                   </div>
@@ -193,36 +172,23 @@ const AdminMakeupBanner = () => {
                       <Label>الوصف (عربي)</Label>
                       <Textarea
                         value={formData.description_ar}
-                        onChange={(e) =>
-                          setFormData({ ...formData, description_ar: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
                       />
                     </div>
                     <div>
                       <Label>الوصف (إنجليزي)</Label>
                       <Textarea
                         value={formData.description_en}
-                        onChange={(e) =>
-                          setFormData({ ...formData, description_en: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
                       />
                     </div>
                   </div>
 
                   <div>
                     <Label>الصورة</Label>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      disabled={uploading}
-                    />
+                    <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                     {formData.image_url && (
-                      <img
-                        src={formData.image_url}
-                        alt="Preview"
-                        className="mt-2 w-32 h-32 object-cover rounded"
-                      />
+                      <img src={formData.image_url} alt="Preview" className="mt-2 w-32 h-32 object-cover rounded" />
                     )}
                   </div>
 
@@ -232,9 +198,7 @@ const AdminMakeupBanner = () => {
                       <Input
                         type="color"
                         value={formData.background_color}
-                        onChange={(e) =>
-                          setFormData({ ...formData, background_color: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, background_color: e.target.value })}
                       />
                     </div>
                     <div>
@@ -242,9 +206,7 @@ const AdminMakeupBanner = () => {
                       <Input
                         type="color"
                         value={formData.text_color}
-                        onChange={(e) =>
-                          setFormData({ ...formData, text_color: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, text_color: e.target.value })}
                       />
                     </div>
                   </div>
@@ -254,18 +216,14 @@ const AdminMakeupBanner = () => {
                       <Label>نص الزر (عربي)</Label>
                       <Input
                         value={formData.button_text_ar}
-                        onChange={(e) =>
-                          setFormData({ ...formData, button_text_ar: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, button_text_ar: e.target.value })}
                       />
                     </div>
                     <div>
                       <Label>نص الزر (إنجليزي)</Label>
                       <Input
                         value={formData.button_text_en}
-                        onChange={(e) =>
-                          setFormData({ ...formData, button_text_en: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, button_text_en: e.target.value })}
                       />
                     </div>
                   </div>
@@ -287,18 +245,14 @@ const AdminMakeupBanner = () => {
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={formData.is_active}
-                        onCheckedChange={(checked) =>
-                          setFormData({ ...formData, is_active: checked })
-                        }
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                       />
                       <Label>نشط</Label>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button type="submit">
-                      {editingId ? "تحديث" : "إضافة"}
-                    </Button>
+                    <Button type="submit">{editingId ? "تحديث" : "إضافة"}</Button>
                     {editingId && (
                       <Button type="button" variant="outline" onClick={resetForm}>
                         إلغاء
@@ -317,9 +271,7 @@ const AdminMakeupBanner = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <h3 className="font-bold">{banner.title_ar}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {banner.description_ar}
-                              </p>
+                              <p className="text-sm text-muted-foreground">{banner.description_ar}</p>
                               {banner.image_url && (
                                 <img
                                   src={banner.image_url}
@@ -329,18 +281,10 @@ const AdminMakeupBanner = () => {
                               )}
                             </div>
                             <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEdit(banner)}
-                              >
+                              <Button size="sm" variant="outline" onClick={() => handleEdit(banner)}>
                                 تعديل
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => deleteMutation.mutate(banner.id)}
-                              >
+                              <Button size="sm" variant="destructive" onClick={() => deleteMutation.mutate(banner.id)}>
                                 حذف
                               </Button>
                             </div>
