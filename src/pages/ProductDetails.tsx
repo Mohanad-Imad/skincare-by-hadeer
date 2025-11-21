@@ -500,8 +500,8 @@ const ProductDetails = () => {
       
       {/* أزرار الإجراءات - عائمة في أسفل الشاشة */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t p-3 shadow-lg">
-        <div className="container">
-          <div className="flex gap-2">
+        <div className="container mx-auto">
+          <div className="flex gap-2 justify-center">
             <Button
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
