@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { MessageCircle, Save } from "lucide-react";
+
 const AdminDropHintSettings = () => {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
@@ -21,19 +22,19 @@ const AdminDropHintSettings = () => {
     urgent_message_ar: "",
     discount_code: "",
     discount_suffix_ar: "",
-    is_active: true
+    is_active: true,
   });
-  const {
-    data: settings,
-    isLoading
-  } = useQuery({
+
+  const { data: settings, isLoading } = useQuery({
     queryKey: ["drop-hint-settings"],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("drop_hint_settings").select("*").single();
+      const { data, error } = await supabase
+        .from("drop_hint_settings")
+        .select("*")
+        .single();
+
       if (error) throw error;
+      
       if (data) {
         setFormData({
           button_text_ar: data.button_text_ar || "",
@@ -42,44 +43,52 @@ const AdminDropHintSettings = () => {
           urgent_message_ar: data.urgent_message_ar || "",
           discount_code: data.discount_code || "",
           discount_suffix_ar: data.discount_suffix_ar || "",
-          is_active: data.is_active
+          is_active: data.is_active,
         });
       }
+      
       return data;
-    }
+    },
   });
+
   const updateMutation = useMutation({
     mutationFn: async () => {
-      const {
-        error
-      } = await supabase.from("drop_hint_settings").update(formData).eq("id", settings?.id);
+      const { error } = await supabase
+        .from("drop_hint_settings")
+        .update(formData)
+        .eq("id", settings?.id);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["drop-hint-settings"]
-      });
+      queryClient.invalidateQueries({ queryKey: ["drop-hint-settings"] });
       toast.success("تم حفظ الإعدادات بنجاح");
     },
     onError: () => {
       toast.error("حدث خطأ أثناء حفظ الإعدادات");
-    }
+    },
   });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate();
   };
+
   if (isLoading) {
-    return <div className="min-h-screen bg-background">
+    return (
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container py-8">
           <AdminSidebar />
           <div className="mr-64 p-8">جاري التحميل...</div>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="min-h-screen bg-background">
-      
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container py-8">
         <AdminSidebar />
         <div className="mr-64 space-y-6">
@@ -112,26 +121,36 @@ const AdminDropHintSettings = () => {
                       عرض زر "لمّح للحبايب" في صفحات المنتجات
                     </p>
                   </div>
-                  <Switch checked={formData.is_active} onCheckedChange={checked => setFormData({
-                  ...formData,
-                  is_active: checked
-                })} />
+                  <Switch
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="button_text_ar">نص الزر</Label>
-                  <Input id="button_text_ar" value={formData.button_text_ar} onChange={e => setFormData({
-                  ...formData,
-                  button_text_ar: e.target.value
-                })} placeholder="لمّح للحبايب" />
+                  <Input
+                    id="button_text_ar"
+                    value={formData.button_text_ar}
+                    onChange={(e) =>
+                      setFormData({ ...formData, button_text_ar: e.target.value })
+                    }
+                    placeholder="لمّح للحبايب"
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="discount_code">كود الخصم (اختياري)</Label>
-                  <Input id="discount_code" value={formData.discount_code} onChange={e => setFormData({
-                  ...formData,
-                  discount_code: e.target.value
-                })} placeholder="مثال: GIFT10" />
+                  <Input
+                    id="discount_code"
+                    value={formData.discount_code}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discount_code: e.target.value })
+                    }
+                    placeholder="مثال: GIFT10"
+                  />
                   <p className="text-xs text-muted-foreground">
                     إذا تم إدخال كود خصم، سيتم إضافته في نهاية الرسالة
                   </p>
@@ -139,10 +158,14 @@ const AdminDropHintSettings = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="discount_suffix_ar">نص كود الخصم</Label>
-                  <Input id="discount_suffix_ar" value={formData.discount_suffix_ar} onChange={e => setFormData({
-                  ...formData,
-                  discount_suffix_ar: e.target.value
-                })} placeholder="وهمين اكو كود خصم اذا نويت: {CODE}" />
+                  <Input
+                    id="discount_suffix_ar"
+                    value={formData.discount_suffix_ar}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discount_suffix_ar: e.target.value })
+                    }
+                    placeholder="وهمين اكو كود خصم اذا نويت: {CODE}"
+                  />
                   <p className="text-xs text-muted-foreground">
                     استخدم {'{CODE}'} ليتم استبداله بكود الخصم
                   </p>
@@ -161,10 +184,15 @@ const AdminDropHintSettings = () => {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Label htmlFor="funny_message_ar">نص الرسالة</Label>
-                <Textarea id="funny_message_ar" value={formData.funny_message_ar} onChange={e => setFormData({
-                ...formData,
-                funny_message_ar: e.target.value
-              })} rows={4} className="resize-none" />
+                <Textarea
+                  id="funny_message_ar"
+                  value={formData.funny_message_ar}
+                  onChange={(e) =>
+                    setFormData({ ...formData, funny_message_ar: e.target.value })
+                  }
+                  rows={4}
+                  className="resize-none"
+                />
                 <p className="text-xs text-muted-foreground">
                   استخدم {'{URL}'} ليتم استبداله برابط المنتج
                 </p>
@@ -182,10 +210,15 @@ const AdminDropHintSettings = () => {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Label htmlFor="formal_message_ar">نص الرسالة</Label>
-                <Textarea id="formal_message_ar" value={formData.formal_message_ar} onChange={e => setFormData({
-                ...formData,
-                formal_message_ar: e.target.value
-              })} rows={4} className="resize-none" />
+                <Textarea
+                  id="formal_message_ar"
+                  value={formData.formal_message_ar}
+                  onChange={(e) =>
+                    setFormData({ ...formData, formal_message_ar: e.target.value })
+                  }
+                  rows={4}
+                  className="resize-none"
+                />
                 <p className="text-xs text-muted-foreground">
                   استخدم {'{URL}'} ليتم استبداله برابط المنتج
                 </p>
@@ -203,23 +236,35 @@ const AdminDropHintSettings = () => {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Label htmlFor="urgent_message_ar">نص الرسالة</Label>
-                <Textarea id="urgent_message_ar" value={formData.urgent_message_ar} onChange={e => setFormData({
-                ...formData,
-                urgent_message_ar: e.target.value
-              })} rows={4} className="resize-none" />
+                <Textarea
+                  id="urgent_message_ar"
+                  value={formData.urgent_message_ar}
+                  onChange={(e) =>
+                    setFormData({ ...formData, urgent_message_ar: e.target.value })
+                  }
+                  rows={4}
+                  className="resize-none"
+                />
                 <p className="text-xs text-muted-foreground">
                   استخدم {'{URL}'} ليتم استبداله برابط المنتج
                 </p>
               </CardContent>
             </Card>
 
-            <Button type="submit" size="lg" disabled={updateMutation.isPending} className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={updateMutation.isPending}
+              className="w-full"
+            >
               <Save className="ml-2 h-5 w-5" />
               {updateMutation.isPending ? "جاري الحفظ..." : "حفظ الإعدادات"}
             </Button>
           </form>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default AdminDropHintSettings;
