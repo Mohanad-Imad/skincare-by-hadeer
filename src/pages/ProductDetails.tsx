@@ -501,26 +501,25 @@ const ProductDetails = () => {
       {/* أزرار الإجراءات - عائمة في أسفل الشاشة */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t p-3 shadow-lg">
         <div className="container">
-          <div className="flex gap-1.5 sm:gap-2">
+          <div className="flex gap-2">
             <Button
               size="lg"
               disabled={!selectedVariant || addToCartMutation.isPending}
               onClick={handleAddToCart}
-              className="flex-1 h-11 text-sm sm:text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              className="h-11 px-3 sm:px-4 sm:flex-1 text-sm sm:text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
             >
-              <ShoppingCart className="ml-1.5 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-              <span className="truncate">{addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}</span>
+              <ShoppingCart className="h-5 w-5 flex-shrink-0 sm:ml-2" />
+              <span className="hidden sm:inline">{addToCartMutation.isPending ? "جاري الإضافة..." : "أضيفي إلى السلة"}</span>
             </Button>
             {dropHintSettings?.is_active && (
               <Button
                 size="lg"
                 variant="outline"
                 onClick={handleDropHint}
-                className="h-11 px-2 sm:px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02] flex-shrink-0"
-                title={dropHintSettings.button_text_ar}
+                className="flex-1 h-11 px-3 sm:px-4 rounded-xl shadow-lg border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all hover:scale-[1.02] text-sm sm:text-base font-bold"
               >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 sm:ml-2" />
-                <span className="hidden sm:inline text-sm whitespace-nowrap">{dropHintSettings.button_text_ar}</span>
+                <MessageCircle className="ml-2 h-5 w-5 flex-shrink-0" />
+                <span className="truncate">{dropHintSettings.button_text_ar}</span>
               </Button>
             )}
           </div>
