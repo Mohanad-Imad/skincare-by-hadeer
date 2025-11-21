@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
+
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Button } from "@/components/ui/button";
@@ -28,13 +28,10 @@ const AdminDropHintSettings = () => {
   const { data: settings, isLoading } = useQuery({
     queryKey: ["drop-hint-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("drop_hint_settings")
-        .select("*")
-        .single();
+      const { data, error } = await supabase.from("drop_hint_settings").select("*").single();
 
       if (error) throw error;
-      
+
       if (data) {
         setFormData({
           button_text_ar: data.button_text_ar || "",
@@ -46,17 +43,14 @@ const AdminDropHintSettings = () => {
           is_active: data.is_active,
         });
       }
-      
+
       return data;
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from("drop_hint_settings")
-        .update(formData)
-        .eq("id", settings?.id);
+      const { error } = await supabase.from("drop_hint_settings").update(formData).eq("id", settings?.id);
 
       if (error) throw error;
     },
@@ -88,7 +82,6 @@ const AdminDropHintSettings = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <div className="flex">
         <AdminSidebar />
         <div className="flex-1 p-6 space-y-6">
@@ -98,9 +91,7 @@ const AdminDropHintSettings = () => {
                 <MessageCircle className="h-8 w-8" />
                 إعدادات "لمّح للحبايب"
               </h1>
-              <p className="text-muted-foreground mt-2">
-                تحكم في نص الزر والرسائل المرسلة عبر الواتساب
-              </p>
+              <p className="text-muted-foreground mt-2">تحكم في نص الزر والرسائل المرسلة عبر الواتساب</p>
             </div>
             <AdminBackButton />
           </div>
@@ -109,23 +100,17 @@ const AdminDropHintSettings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>إعدادات عامة</CardTitle>
-                <CardDescription>
-                  تحكم في نص الزر وكود الخصم
-                </CardDescription>
+                <CardDescription>تحكم في نص الزر وكود الخصم</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>تفعيل الميزة</Label>
-                    <p className="text-sm text-muted-foreground">
-                      عرض زر "لمّح للحبايب" في صفحات المنتجات
-                    </p>
+                    <p className="text-sm text-muted-foreground">عرض زر "لمّح للحبايب" في صفحات المنتجات</p>
                   </div>
                   <Switch
                     checked={formData.is_active}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, is_active: checked })
-                    }
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                   />
                 </div>
 
@@ -134,9 +119,7 @@ const AdminDropHintSettings = () => {
                   <Input
                     id="button_text_ar"
                     value={formData.button_text_ar}
-                    onChange={(e) =>
-                      setFormData({ ...formData, button_text_ar: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, button_text_ar: e.target.value })}
                     placeholder="لمّح للحبايب"
                   />
                 </div>
@@ -146,14 +129,10 @@ const AdminDropHintSettings = () => {
                   <Input
                     id="discount_code"
                     value={formData.discount_code}
-                    onChange={(e) =>
-                      setFormData({ ...formData, discount_code: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, discount_code: e.target.value })}
                     placeholder="مثال: GIFT10"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    إذا تم إدخال كود خصم، سيتم إضافته في نهاية الرسالة
-                  </p>
+                  <p className="text-xs text-muted-foreground">إذا تم إدخال كود خصم، سيتم إضافته في نهاية الرسالة</p>
                 </div>
 
                 <div className="space-y-2">
@@ -161,102 +140,69 @@ const AdminDropHintSettings = () => {
                   <Input
                     id="discount_suffix_ar"
                     value={formData.discount_suffix_ar}
-                    onChange={(e) =>
-                      setFormData({ ...formData, discount_suffix_ar: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, discount_suffix_ar: e.target.value })}
                     placeholder="وهمين اكو كود خصم اذا نويت: {CODE}"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    استخدم {'{CODE}'} ليتم استبداله بكود الخصم
-                  </p>
+                  <p className="text-xs text-muted-foreground">استخدم {"{CODE}"} ليتم استبداله بكود الخصم</p>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  😂 نبرة المزاح (للأصدقاء)
-                </CardTitle>
-                <CardDescription>
-                  رسالة خفيفة ومرحة للأصدقاء والإخوان
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2">😂 نبرة المزاح (للأصدقاء)</CardTitle>
+                <CardDescription>رسالة خفيفة ومرحة للأصدقاء والإخوان</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Label htmlFor="funny_message_ar">نص الرسالة</Label>
                 <Textarea
                   id="funny_message_ar"
                   value={formData.funny_message_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, funny_message_ar: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, funny_message_ar: e.target.value })}
                   rows={4}
                   className="resize-none"
                 />
-                <p className="text-xs text-muted-foreground">
-                  استخدم {'{URL}'} ليتم استبداله برابط المنتج
-                </p>
+                <p className="text-xs text-muted-foreground">استخدم {"{URL}"} ليتم استبداله برابط المنتج</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  ❤️ نبرة رسمية/لطيفة
-                </CardTitle>
-                <CardDescription>
-                  للزوج/الخطيب/الأهل - رسالة محترمة ولطيفة
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2">❤️ نبرة رسمية/لطيفة</CardTitle>
+                <CardDescription>للزوج/الخطيب/الأهل - رسالة محترمة ولطيفة</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Label htmlFor="formal_message_ar">نص الرسالة</Label>
                 <Textarea
                   id="formal_message_ar"
                   value={formData.formal_message_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, formal_message_ar: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, formal_message_ar: e.target.value })}
                   rows={4}
                   className="resize-none"
                 />
-                <p className="text-xs text-muted-foreground">
-                  استخدم {'{URL}'} ليتم استبداله برابط المنتج
-                </p>
+                <p className="text-xs text-muted-foreground">استخدم {"{URL}"} ليتم استبداله برابط المنتج</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  🔥 نبرة "الفرصة لا تعوض"
-                </CardTitle>
-                <CardDescription>
-                  رسالة محفزة تخلق شعور بالاستعجال
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2">🔥 نبرة "الفرصة لا تعوض"</CardTitle>
+                <CardDescription>رسالة محفزة تخلق شعور بالاستعجال</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Label htmlFor="urgent_message_ar">نص الرسالة</Label>
                 <Textarea
                   id="urgent_message_ar"
                   value={formData.urgent_message_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, urgent_message_ar: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, urgent_message_ar: e.target.value })}
                   rows={4}
                   className="resize-none"
                 />
-                <p className="text-xs text-muted-foreground">
-                  استخدم {'{URL}'} ليتم استبداله برابط المنتج
-                </p>
+                <p className="text-xs text-muted-foreground">استخدم {"{URL}"} ليتم استبداله برابط المنتج</p>
               </CardContent>
             </Card>
 
-            <Button
-              type="submit"
-              size="lg"
-              disabled={updateMutation.isPending}
-              className="w-full"
-            >
+            <Button type="submit" size="lg" disabled={updateMutation.isPending} className="w-full">
               <Save className="ml-2 h-5 w-5" />
               {updateMutation.isPending ? "جاري الحفظ..." : "حفظ الإعدادات"}
             </Button>
