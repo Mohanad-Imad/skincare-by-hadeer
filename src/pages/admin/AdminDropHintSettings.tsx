@@ -72,11 +72,7 @@ const AdminDropHintSettings = () => {
     return <div className="p-8">جاري التحميل...</div>;
   }
 
-  return (
-    <div className="p-6 space-y-6">
-...
-    </div>
-  );
+  return <div className="p-6 space-y-6"></div>;
 };
 
 export default AdminDropHintSettings;
