@@ -88,7 +88,22 @@ export function AdminSidebar() {
             <SidebarMenu className="mt-10">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild></SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      end={item.url === "/admin"}
+                      onClick={handleLinkClick}
+                      className={({ isActive }) => (isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "")}
+                    >
+                      <item.icon className="ml-2 h-4 w-4" />
+                      <span>{item.title}</span>
+                      {item.showBadge && unreadCount && unreadCount > 0 && (
+                        <Badge variant="destructive" className="mr-auto">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
