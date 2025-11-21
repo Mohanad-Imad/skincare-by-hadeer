@@ -11,6 +11,7 @@ import {
   Tag,
   Truck,
   Link2,
+  Link1,
   RectangleHorizontal,
   Home,
   Settings,
