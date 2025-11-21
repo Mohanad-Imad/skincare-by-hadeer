@@ -11,7 +11,6 @@ import {
   Tag,
   Truck,
   Link2,
-  Link1,
   RectangleHorizontal,
   Home,
   Settings,
@@ -66,7 +65,7 @@ const menuItems = [
   { title: "الروابط السريعة", url: "/admin/quick-links", icon: Link2 },
   { title: "ماركاتنا", url: "/admin/brands-links", icon: Tag },
   { title: "صفحة الضمان", url: "/admin/guarantee", icon: ShieldCheck },
-  { title: "روابط التنقل", url: "/admin/navigation-links", icon: Link1 },
+  { title: "روابط التنقل", url: "/admin/navigation-links", icon: Link2 },
 ];
 
 export function AdminSidebar() {
