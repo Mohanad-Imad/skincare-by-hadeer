@@ -195,7 +195,7 @@ const AdminHome = () => {
     {
       title: "لمح للحبايب",
       description: "إدارة قسم لمح للحبايب",
-      icon: Settings,
+      icon: MessageSquare,
       route: "/admin/drop-hint-settings",
     },
   ];
