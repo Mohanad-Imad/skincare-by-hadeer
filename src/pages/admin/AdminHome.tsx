@@ -192,6 +192,12 @@ const AdminHome = () => {
       icon: Star,
       route: "/admin/brands-links",
     },
+    {
+      title: "لمح للحبايب",
+      description: "إدارة قسم لمح للحبايب",
+      icon: Star,
+      route: "/admin/drop-hint-settings",
+    },
   ];
 
   return (
