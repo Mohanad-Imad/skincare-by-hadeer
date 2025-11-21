@@ -89,7 +89,7 @@ const AdminDropHintSettings = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container py-8">
+      <div className="container py-4">
         <AdminSidebar />
         <div className="mr-64 space-y-6">
           <div className="flex items-center justify-between">
