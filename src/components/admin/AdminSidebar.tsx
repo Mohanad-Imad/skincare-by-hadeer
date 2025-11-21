@@ -1,4 +1,27 @@
-import { Package, ShoppingBag, Grid3x3, FileText, Percent, BarChart3, ImageIcon, MessageSquare, Sparkles, Tag, Truck, Link2, RectangleHorizontal, Home, Settings, Bell, MessageCircleMore, Star, Users, Boxes, ShieldCheck, MessageCircle } from "lucide-react";
+import {
+  Package,
+  ShoppingBag,
+  Grid3x3,
+  FileText,
+  Percent,
+  BarChart3,
+  ImageIcon,
+  MessageSquare,
+  Sparkles,
+  Tag,
+  Truck,
+  Link2,
+  RectangleHorizontal,
+  Home,
+  Settings,
+  Bell,
+  MessageCircleMore,
+  Star,
+  Users,
+  Boxes,
+  ShieldCheck,
+  MessageCircle,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -65,22 +88,7 @@ export function AdminSidebar() {
             <SidebarMenu className="mt-10">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/admin"}
-                      onClick={handleLinkClick}
-                      className={({ isActive }) => (isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "")}
-                    >
-                      <item.icon className="ml-2 h-4 w-4" />
-                      <span>{item.title}</span>
-                      {item.showBadge && unreadCount && unreadCount > 0 && (
-                        <Badge variant="destructive" className="mr-auto">
-                          {unreadCount}
-                        </Badge>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild></SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
