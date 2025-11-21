@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Button } from "@/components/ui/button";
