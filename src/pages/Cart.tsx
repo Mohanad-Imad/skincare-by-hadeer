@@ -259,6 +259,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <FreeShippingBar />
       <CheckoutStepper currentStep={1} />
       <div className="container py-8 pb-32">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2">
