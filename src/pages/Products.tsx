@@ -26,12 +26,19 @@ const Products = () => {
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
+
+  // 🆕 فلتر الأسعار الجديد
+  const [minPriceFilter, setMinPriceFilter] = useState<string>(searchParams.get("minPrice") || "");
+  const [maxPriceFilter, setMaxPriceFilter] = useState<string>(searchParams.get("maxPrice") || "");
+
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  
+
   const { data: discounts } = useProductDiscounts();
+
+  // ... (useQuery للحصول على Categories و Companies تبقى كما هي)
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -48,11 +55,9 @@ const Products = () => {
   const { data: companies } = useQuery({
     queryKey: ["companies"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("company_name_ar, company_name_en");
+      const { data, error } = await supabase.from("products").select("company_name_ar, company_name_en");
       if (error) throw error;
-      
+
       // استخراج الأسماء الفريدة
       const companiesMap = new Map();
       data.forEach((p) => {
@@ -65,7 +70,7 @@ const Products = () => {
           }
         }
       });
-      
+
       return Array.from(companiesMap.entries())
         .map(([key, value]) => ({
           key,
@@ -78,10 +83,23 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
+    // 🆕 إضافة فلاتر الأسعار إلى queryKey
+    queryKey: [
+      "products",
+      parentCategoryFilter,
+      subCategoryFilter,
+      skinTypeFilter,
+      companyFilter,
+      searchTerm,
+      problemFilter,
+      makeupFilter,
+      productTypeFilter,
+      minPriceFilter, // 🆕
+      maxPriceFilter, // 🆕
+    ],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
-      
+
       if (subCategoryFilter !== "all") {
         categoryIds = [subCategoryFilter];
       } else if (parentCategoryFilter !== "all") {
@@ -91,17 +109,17 @@ const Products = () => {
           .select("id, parent_category_id")
           .eq("id", parentCategoryFilter)
           .single();
-        
+
         if (selectedCategoryData?.parent_category_id) {
           // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
           const { data: allSubCategoriesData } = await supabase
             .from("categories")
             .select("id")
             .eq("parent_category_id", selectedCategoryData.parent_category_id);
-          
+
           categoryIds = [
             selectedCategoryData.parent_category_id,
-            ...(allSubCategoriesData?.map(sub => sub.id) || [])
+            ...(allSubCategoriesData?.map((sub) => sub.id) || []),
           ];
         } else {
           // إذا كان التصنيف المحدد هو تصنيف أب، نحصل على جميع التصنيفات الفرعية
@@ -109,11 +127,8 @@ const Products = () => {
             .from("categories")
             .select("id")
             .eq("parent_category_id", parentCategoryFilter);
-          
-          categoryIds = [
-            parentCategoryFilter,
-            ...(subCategoriesData?.map(sub => sub.id) || [])
-          ];
+
+          categoryIds = [parentCategoryFilter, ...(subCategoriesData?.map((sub) => sub.id) || [])];
         }
       }
 
@@ -122,7 +137,8 @@ const Products = () => {
 
       let query = supabase
         .from("products")
-        .select(`
+        .select(
+          `
           *,
           product_variants (
             price
@@ -143,7 +159,8 @@ const Products = () => {
               slug
             )
           )
-        `)
+        `,
+        )
         .eq("is_active", true)
         .range(from, to)
         .order("created_at", { ascending: false });
@@ -157,7 +174,9 @@ const Products = () => {
       }
 
       if (searchTerm) {
-        query = query.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
+        query = query.or(
+          `name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`,
+        );
       }
 
       if (productTypeFilter !== "all") {
@@ -169,35 +188,58 @@ const Products = () => {
 
       let filtered = data || [];
 
+      // تجهيز minPrice لكل منتج قبل الفلترة المحلية
+      let productsWithMinPrice = filtered.map((product) => {
+        // ... (جزء تجهيز minPrice يبقى كما هو)
+        const minPrice = product.product_variants?.[0]?.price;
+        return {
+          ...product,
+          minPrice: minPrice,
+        };
+      });
+
+      // 🆕 فلترة المنتجات بناءً على الحد الأدنى والأقصى للسعر
+      const minPrice = parseFloat(minPriceFilter);
+      const maxPrice = parseFloat(maxPriceFilter);
+
+      if (!isNaN(minPrice) && minPrice >= 0) {
+        productsWithMinPrice = productsWithMinPrice.filter(
+          (product) => product.minPrice !== null && product.minPrice >= minPrice,
+        );
+      }
+
+      if (!isNaN(maxPrice) && maxPrice >= 0) {
+        productsWithMinPrice = productsWithMinPrice.filter(
+          (product) => product.minPrice !== null && product.minPrice <= maxPrice,
+        );
+      }
+
+      // تطبيق باقي الفلاتر المحلية على productsWithMinPrice
+
       if (problemFilter !== "all") {
-        filtered = filtered.filter((product) => {
-          return product.product_sub_problems?.some((psp: any) => 
-            psp.sub_problems?.slug === problemFilter
-          );
+        productsWithMinPrice = productsWithMinPrice.filter((product) => {
+          return product.product_sub_problems?.some((psp: any) => psp.sub_problems?.slug === problemFilter);
         });
       }
 
       if (makeupFilter !== "all") {
-        filtered = filtered.filter((product) => {
-          return product.product_makeup_categories?.some((pmc: any) => 
-            pmc.makeup_categories?.slug === makeupFilter
-          );
+        productsWithMinPrice = productsWithMinPrice.filter((product) => {
+          return product.product_makeup_categories?.some((pmc: any) => pmc.makeup_categories?.slug === makeupFilter);
         });
       }
 
       if (skinTypeFilter !== "all") {
-        filtered = filtered.filter(
-          (product) => product.skin_type?.includes(skinTypeFilter as any)
+        productsWithMinPrice = productsWithMinPrice.filter((product) =>
+          product.skin_type?.includes(skinTypeFilter as any),
         );
       }
 
-      const productsWithImages = filtered.map(product => {
+      const productsWithImages = productsWithMinPrice.map((product) => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
         return {
           ...product,
-          minPrice: product.product_variants?.[0]?.price,
           displayImage: firstImage,
         };
       });
@@ -206,18 +248,23 @@ const Products = () => {
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
+      // يجب أن نكون حذرين هنا: قد تكون الفلترة المحلية قللت عدد المنتجات
+      // إذا كان عدد المنتجات بعد الفلترة المحلية يساوي itemsPerPage، فسنحاول جلب المزيد
       return lastPage.products.length === itemsPerPage ? allPages.length : undefined;
     },
   });
 
-  const products = data?.pages.flatMap(page => page.products) || [];
+  const products = data?.pages.flatMap((page) => page.products) || [];
 
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [target] = entries;
-    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [target] = entries;
+      if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
 
   useEffect(() => {
     const element = loadMoreRef.current;
@@ -231,19 +278,32 @@ const Products = () => {
     };
   }, [handleObserver]);
 
-  const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
-    setter(value);
-    
-    if (paramName) {
-      const newParams = new URLSearchParams(searchParams);
-      if (value === "all") {
-        newParams.delete(paramName);
+  // 🆕 تعديل لتشمل التعامل مع مدخلات النصوص (الأسعار)
+  const handleFilterChange =
+    (setter: (value: string) => void, paramName?: string, isInput = false) =>
+    (valueOrEvent: string | React.ChangeEvent<HTMLInputElement>) => {
+      let value: string;
+
+      if (isInput && typeof valueOrEvent !== "string" && valueOrEvent.target) {
+        value = valueOrEvent.target.value;
+      } else if (typeof valueOrEvent === "string") {
+        value = valueOrEvent;
       } else {
-        newParams.set(paramName, value);
+        return; // تجاهل إذا لم يكن إدخال نصي أو قيمة سلسلة نصية
       }
-      setSearchParams(newParams);
-    }
-  };
+
+      setter(value);
+
+      if (paramName) {
+        const newParams = new URLSearchParams(searchParams);
+        if (value === "all" || value === "") {
+          newParams.delete(paramName);
+        } else {
+          newParams.set(paramName, value);
+        }
+        setSearchParams(newParams);
+      }
+    };
 
   // تحديث الفلاتر عند تغيير URL
   useEffect(() => {
@@ -255,7 +315,10 @@ const Products = () => {
     const problem = searchParams.get("problem");
     const makeup = searchParams.get("makeup");
     const productType = searchParams.get("productType");
-    
+    // 🆕
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
     if (skinType) setSkinTypeFilter(skinType);
@@ -264,13 +327,16 @@ const Products = () => {
     if (problem) setProblemFilter(problem);
     if (makeup) setMakeupFilter(makeup);
     if (productType) setProductTypeFilter(productType);
+    // 🆕
+    if (minPrice) setMinPriceFilter(minPrice);
+    if (maxPrice) setMaxPriceFilter(maxPrice);
   }, [searchParams]);
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
-    "description": "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية"
+    name: "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
+    description: "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية",
   };
 
   return (
@@ -286,13 +352,28 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-          <div className="relative">
+        {/* 🆕 تم تغيير تصميم الشبكة (grid) لاستيعاب فلاتر الأسعار (7 أعمدة في الشاشات الكبيرة) */}
+        <div className="mb-8 grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+          <div className="relative col-span-2 sm:col-span-1">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="ابحثي عن منتج..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onBlur={() => {
+                // لتطبيق البحث عند الانتهاء من الكتابة (مثل فلاتر الأسعار)
+                handleFilterChange(
+                  setSearchTerm,
+                  "search",
+                  true,
+                )({ target: { value: searchTerm } } as React.ChangeEvent<HTMLInputElement>);
+              }}
+              onKeyDown={(e) => {
+                // للسماح بالبحث عند الضغط على Enter
+                if (e.key === "Enter") {
+                  handleFilterChange(setSearchTerm, "search", true)(e as any);
+                }
+              }}
               className="pr-10"
             />
           </div>
@@ -309,12 +390,32 @@ const Products = () => {
             </SelectContent>
           </Select>
 
-          <Select 
-            value={parentCategoryFilter} 
+          {/* 🆕 فلتر الحد الأدنى للسعر */}
+          <Input
+            placeholder="الحد الأدنى للسعر"
+            type="number"
+            min="0"
+            value={minPriceFilter}
+            onChange={handleFilterChange(setMinPriceFilter, "minPrice", true)}
+            className="w-full"
+          />
+
+          {/* 🆕 فلتر الحد الأقصى للسعر */}
+          <Input
+            placeholder="الحد الأقصى للسعر"
+            type="number"
+            min="0"
+            value={maxPriceFilter}
+            onChange={handleFilterChange(setMaxPriceFilter, "maxPrice", true)}
+            className="w-full"
+          />
+
+          <Select
+            value={parentCategoryFilter}
             onValueChange={(value) => {
               setParentCategoryFilter(value);
               setSubCategoryFilter("all");
-              
+
               const newParams = new URLSearchParams(searchParams);
               if (value === "all") {
                 newParams.delete("category");
@@ -375,8 +476,8 @@ const Products = () => {
             </PopoverTrigger>
             <PopoverContent className="w-full p-0 bg-popover" align="start">
               <Command>
-                <CommandInput 
-                  placeholder="ابحث عن شركة..." 
+                <CommandInput
+                  placeholder="ابحث عن شركة..."
                   value={companySearch}
                   onValueChange={setCompanySearch}
                   className="text-right"
@@ -392,12 +493,7 @@ const Products = () => {
                         setCompanySearch("");
                       }}
                     >
-                      <Check
-                        className={cn(
-                          "ml-2 h-4 w-4",
-                          companyFilter === "all" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
+                      <Check className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")} />
                       جميع الشركات
                     </CommandItem>
                     {companies?.map((company) => (
@@ -411,10 +507,7 @@ const Products = () => {
                         }}
                       >
                         <Check
-                          className={cn(
-                            "ml-2 h-4 w-4",
-                            companyFilter === company.key ? "opacity-100" : "opacity-0"
-                          )}
+                          className={cn("ml-2 h-4 w-4", companyFilter === company.key ? "opacity-100" : "opacity-0")}
                         />
                         {company.displayName}
                       </CommandItem>
@@ -455,10 +548,8 @@ const Products = () => {
           <>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {products.map((product) => {
-                const discount = product.minPrice 
-                  ? calculateDiscount(product.id, product.minPrice, discounts)
-                  : null;
-                  
+                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
+
                 return (
                   <ProductCard
                     key={product.id}
@@ -488,7 +579,7 @@ const Products = () => {
             </div>
           </>
         ) : (
-          <div className="text-center text-muted-foreground">لا توجد منتجات</div>
+          <div className="text-center text-muted-foreground">لا توجد منتجات مطابقة لمرشحات البحث</div>
         )}
       </div>
     </div>
