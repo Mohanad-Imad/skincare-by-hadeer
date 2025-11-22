@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { FreeShippingBar } from "./FreeShippingBar";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -66,8 +67,10 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-16 items-center justify-between">
+    <>
+      <FreeShippingBar />
+      <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -127,5 +130,6 @@ export const Header = () => {
         </div>
       </div>
     </header>
+    </>
   );
 };
