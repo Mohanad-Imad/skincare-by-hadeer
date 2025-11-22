@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
+import { FreeShippingBar } from "@/components/FreeShippingBar";
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,10 +40,7 @@ const Checkout = () => {
   const { data: shippingSettings } = useQuery({
     queryKey: ["shipping-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("shipping_settings")
-        .select("*")
-        .single();
+      const { data, error } = await supabase.from("shipping_settings").select("*").single();
       if (error) throw error;
       return data;
     },
@@ -60,7 +58,7 @@ const Checkout = () => {
     queryKey: ["profile", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
-      
+
       const { data, error } = await (supabase as any)
         .from("profiles")
         .select("full_name, phone, address")
@@ -86,10 +84,11 @@ const Checkout = () => {
     queryKey: ["cart", session?.user?.id],
     queryFn: async () => {
       if (!session?.user) return [];
-      
+
       const { data, error } = await supabase
         .from("cart_items")
-        .select(`
+        .select(
+          `
           *,
           product_variants (
             *,
@@ -99,7 +98,8 @@ const Checkout = () => {
               name_en
             )
           )
-        `)
+        `,
+        )
         .eq("user_id", session.user.id);
 
       if (error) throw error;
@@ -110,7 +110,7 @@ const Checkout = () => {
 
   const applyDiscountCode = async () => {
     const code = discountCode.trim();
-    
+
     if (!code) {
       toast.error("الرجاء إدخال كود الخصم");
       return;
@@ -176,12 +176,9 @@ const Checkout = () => {
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { full_name: string; phone: string; address: string }) => {
       if (!session?.user?.id) throw new Error("غير مسجل");
-      
-      const { error } = await (supabase as any)
-        .from("profiles")
-        .update(data)
-        .eq("id", session.user.id);
-      
+
+      const { error } = await (supabase as any).from("profiles").update(data).eq("id", session.user.id);
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -194,7 +191,7 @@ const Checkout = () => {
       if (!session?.user || !cartItems || cartItems.length === 0) {
         throw new Error("السلة فارغة");
       }
-      
+
       // حفظ العنوان الجديد في البروفايل إذا اختار المستخدم ذلك
       if (saveNewAddress && useDifferentAddress) {
         await updateProfileMutation.mutateAsync({
@@ -209,18 +206,14 @@ const Checkout = () => {
         const itemDiscount = calculateDiscount(
           item.product_variants.products.id,
           item.product_variants.price,
-          discounts
+          discounts,
         );
-        const finalPrice = itemDiscount 
-          ? itemDiscount.discountedPrice 
-          : item.product_variants.price;
+        const finalPrice = itemDiscount ? itemDiscount.discountedPrice : item.product_variants.price;
         return sum + finalPrice * item.quantity;
       }, 0);
 
       // خصم كود الخصم الإضافي
-      const discountCodeAmount = appliedDiscount
-        ? (subtotal * appliedDiscount.discount_percentage) / 100
-        : 0;
+      const discountCodeAmount = appliedDiscount ? (subtotal * appliedDiscount.discount_percentage) / 100 : 0;
 
       // حساب رسوم التوصيل
       let shippingAmount = 0;
@@ -228,11 +221,11 @@ const Checkout = () => {
         // إذا التوصيل مجاني لجميع الطلبات
         if (shippingSettings.is_free_delivery) {
           shippingAmount = 0;
-        } 
+        }
         // أو إذا كان هناك حد أدنى ووصل المستخدم إليه
         else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
           shippingAmount = 0;
-        } 
+        }
         // خلاف ذلك، يدفع رسوم التوصيل العادية
         else {
           shippingAmount = Number(shippingSettings.delivery_fee) || 0;
@@ -266,17 +259,16 @@ const Checkout = () => {
         const itemDiscount = calculateDiscount(
           item.product_variants.products.id,
           item.product_variants.price,
-          discounts
+          discounts,
         );
-        const finalPrice = itemDiscount 
-          ? itemDiscount.discountedPrice 
-          : item.product_variants.price;
-          
+        const finalPrice = itemDiscount ? itemDiscount.discountedPrice : item.product_variants.price;
+
         return {
           order_id: order.id,
           product_variant_id: item.product_variant_id,
           product_name_ar: item.product_variants.products.name_ar || "منتج",
-          product_name_en: item.product_variants.products.name_en || item.product_variants.products.name_ar || "Product",
+          product_name_en:
+            item.product_variants.products.name_en || item.product_variants.products.name_ar || "Product",
           variant_size_ar: item.product_variants.size_ar || "قياس افتراضي",
           variant_size_en: item.product_variants.size_en || item.product_variants.size_ar || "Default Size",
           price: finalPrice,
@@ -285,17 +277,12 @@ const Checkout = () => {
         };
       });
 
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
+      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
 
       if (itemsError) throw itemsError;
 
       // Clear cart
-      const { error: clearError } = await supabase
-        .from("cart_items")
-        .delete()
-        .eq("user_id", session.user.id);
+      const { error: clearError } = await supabase.from("cart_items").delete().eq("user_id", session.user.id);
 
       if (clearError) throw clearError;
 
@@ -317,7 +304,7 @@ const Checkout = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate input data
     try {
       checkoutSchema.parse({
@@ -334,7 +321,7 @@ const Checkout = () => {
       toast.error("يرجى التحقق من البيانات المدخلة");
       return;
     }
-    
+
     createOrderMutation.mutate();
   };
 
@@ -343,21 +330,14 @@ const Checkout = () => {
     return null;
   }
 
-  const subtotal = cartItems?.reduce((sum, item) => {
-    const itemDiscount = calculateDiscount(
-      item.product_variants.products.id,
-      item.product_variants.price,
-      discounts
-    );
-    const finalPrice = itemDiscount 
-      ? itemDiscount.discountedPrice 
-      : item.product_variants.price;
-    return sum + finalPrice * item.quantity;
-  }, 0) || 0;
+  const subtotal =
+    cartItems?.reduce((sum, item) => {
+      const itemDiscount = calculateDiscount(item.product_variants.products.id, item.product_variants.price, discounts);
+      const finalPrice = itemDiscount ? itemDiscount.discountedPrice : item.product_variants.price;
+      return sum + finalPrice * item.quantity;
+    }, 0) || 0;
 
-  const discountAmount = appliedDiscount
-    ? (subtotal * appliedDiscount.discount_percentage) / 100
-    : 0;
+  const discountAmount = appliedDiscount ? (subtotal * appliedDiscount.discount_percentage) / 100 : 0;
 
   // حساب رسوم التوصيل
   let shippingAmount = 0;
@@ -365,11 +345,11 @@ const Checkout = () => {
     // إذا التوصيل مجاني لجميع الطلبات
     if (shippingSettings.is_free_delivery) {
       shippingAmount = 0;
-    } 
+    }
     // أو إذا كان هناك حد أدنى ووصل المستخدم إليه
     else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
       shippingAmount = 0;
-    } 
+    }
     // خلاف ذلك، يدفع رسوم التوصيل العادية
     else {
       shippingAmount = Number(shippingSettings.delivery_fee) || 0;
@@ -381,13 +361,10 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <FreeShippingBar />
       <CheckoutStepper currentStep={2} />
       <div className="container py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-4 gap-2"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2">
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
@@ -395,134 +372,120 @@ const Checkout = () => {
 
         <div className="space-y-6 pb-32">
           <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="rounded-lg border p-6">
-                <h2 className="mb-4 text-xl font-semibold">معلومات التوصيل</h2>
-                
-                {profile && (profile.full_name || profile.phone || profile.address) && (
-                  <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted/50 p-3">
+            <div className="rounded-lg border p-6">
+              <h2 className="mb-4 text-xl font-semibold">معلومات التوصيل</h2>
+
+              {profile && (profile.full_name || profile.phone || profile.address) && (
+                <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted/50 p-3">
+                  <Checkbox
+                    id="useDifferentAddress"
+                    checked={useDifferentAddress}
+                    onCheckedChange={(checked) => {
+                      setUseDifferentAddress(checked as boolean);
+                      if (!checked && profile) {
+                        // استرجاع البيانات من البروفايل
+                        if (profile.full_name) setCustomerName(profile.full_name);
+                        if (profile.phone) setCustomerPhone(profile.phone);
+                        if (profile.address) setCustomerAddress(profile.address);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="useDifferentAddress" className="cursor-pointer text-sm">
+                    استخدام عنوان مختلف عن عنوان البروفايل
+                  </Label>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">الاسم الكامل *</Label>
+                  <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
+                </div>
+
+                <div>
+                  <Label htmlFor="phone">رقم الهاتف *</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="address">العنوان *</Label>
+                  <Textarea
+                    id="address"
+                    value={customerAddress}
+                    onChange={(e) => setCustomerAddress(e.target.value)}
+                    required
+                    rows={3}
+                  />
+                </div>
+
+                {useDifferentAddress && (
+                  <div className="flex items-center gap-2 rounded-lg bg-primary/5 p-3">
                     <Checkbox
-                      id="useDifferentAddress"
-                      checked={useDifferentAddress}
-                      onCheckedChange={(checked) => {
-                        setUseDifferentAddress(checked as boolean);
-                        if (!checked && profile) {
-                          // استرجاع البيانات من البروفايل
-                          if (profile.full_name) setCustomerName(profile.full_name);
-                          if (profile.phone) setCustomerPhone(profile.phone);
-                          if (profile.address) setCustomerAddress(profile.address);
-                        }
-                      }}
+                      id="saveNewAddress"
+                      checked={saveNewAddress}
+                      onCheckedChange={(checked) => setSaveNewAddress(checked as boolean)}
                     />
-                    <Label htmlFor="useDifferentAddress" className="cursor-pointer text-sm">
-                      استخدام عنوان مختلف عن عنوان البروفايل
+                    <Label htmlFor="saveNewAddress" className="cursor-pointer text-sm">
+                      حفظ هذه المعلومات في البروفايل
                     </Label>
                   </div>
                 )}
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">الاسم الكامل *</Label>
-                    <Input
-                      id="name"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      required
-                    />
-                  </div>
 
-                  <div>
-                    <Label htmlFor="phone">رقم الهاتف *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="address">العنوان *</Label>
-                    <Textarea
-                      id="address"
-                      value={customerAddress}
-                      onChange={(e) => setCustomerAddress(e.target.value)}
-                      required
-                      rows={3}
-                    />
-                  </div>
-                  
-                  {useDifferentAddress && (
-                    <div className="flex items-center gap-2 rounded-lg bg-primary/5 p-3">
-                      <Checkbox
-                        id="saveNewAddress"
-                        checked={saveNewAddress}
-                        onCheckedChange={(checked) => setSaveNewAddress(checked as boolean)}
-                      />
-                      <Label htmlFor="saveNewAddress" className="cursor-pointer text-sm">
-                        حفظ هذه المعلومات في البروفايل
-                      </Label>
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="notes">ملاحظات (اختياري)</Label>
-                    <Textarea
-                      id="notes"
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      rows={3}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="notes">ملاحظات (اختياري)</Label>
+                  <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
                 </div>
               </div>
+            </div>
 
-              <div className="rounded-lg border p-6">
-                <h2 className="mb-4 text-xl font-semibold">كود الخصم</h2>
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="أدخل كود الخصم"
-                      value={discountCode}
-                      onChange={(e) => setDiscountCode(e.target.value)}
-                      disabled={!!appliedDiscount}
-                    />
-                    {appliedDiscount ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setAppliedDiscount(null);
-                          setDiscountCode("");
-                        }}
-                      >
-                        إلغاء
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={applyDiscountCode}
-                        disabled={isCheckingCode}
-                      >
-                        {isCheckingCode ? "جاري التحقق..." : "تطبيق"}
-                      </Button>
-                    )}
-                  </div>
-                  {appliedDiscount && (
-                    <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800">
-                      تم تطبيق خصم {appliedDiscount.discount_percentage}%
-                    </div>
+            <div className="rounded-lg border p-6">
+              <h2 className="mb-4 text-xl font-semibold">كود الخصم</h2>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="أدخل كود الخصم"
+                    value={discountCode}
+                    onChange={(e) => setDiscountCode(e.target.value)}
+                    disabled={!!appliedDiscount}
+                  />
+                  {appliedDiscount ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setAppliedDiscount(null);
+                        setDiscountCode("");
+                      }}
+                    >
+                      إلغاء
+                    </Button>
+                  ) : (
+                    <Button type="button" onClick={applyDiscountCode} disabled={isCheckingCode}>
+                      {isCheckingCode ? "جاري التحقق..." : "تطبيق"}
+                    </Button>
                   )}
                 </div>
+                {appliedDiscount && (
+                  <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800">
+                    تم تطبيق خصم {appliedDiscount.discount_percentage}%
+                  </div>
+                )}
               </div>
+            </div>
 
-              <div className="rounded-lg border p-6">
-                <h2 className="mb-4 text-xl font-semibold">طريقة الدفع</h2>
-                <div className="rounded-lg bg-secondary p-4 text-center">
-                  <p className="font-semibold">الدفع عند الاستلام</p>
-                </div>
+            <div className="rounded-lg border p-6">
+              <h2 className="mb-4 text-xl font-semibold">طريقة الدفع</h2>
+              <div className="rounded-lg bg-secondary p-4 text-center">
+                <p className="font-semibold">الدفع عند الاستلام</p>
               </div>
-            </form>
+            </div>
+          </form>
         </div>
 
         {/* زر تأكيد الطلب العائم */}
