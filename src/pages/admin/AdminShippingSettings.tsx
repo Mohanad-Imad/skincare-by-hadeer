@@ -15,12 +15,15 @@ interface ShippingSettings {
   delivery_fee: number;
   is_free_delivery: boolean;
   free_delivery_threshold: number | null;
+  show_countdown_bar: boolean;
 }
 
 const AdminShippingSettings = () => {
   const queryClient = useQueryClient();
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
+  const [isFreeDelivery, setIsFreeDelivery] = useState<boolean>(false);
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number | null>(null);
+  const [showCountdownBar, setShowCountdownBar] = useState<boolean>(false);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["shipping-settings"],
@@ -38,7 +41,9 @@ const AdminShippingSettings = () => {
   useEffect(() => {
     if (settings) {
       setDeliveryFee(Number(settings.delivery_fee));
+      setIsFreeDelivery(settings.is_free_delivery);
       setFreeDeliveryThreshold(settings.free_delivery_threshold ? Number(settings.free_delivery_threshold) : null);
+      setShowCountdownBar(settings.show_countdown_bar || false);
     }
   }, [settings]);
 
@@ -49,8 +54,9 @@ const AdminShippingSettings = () => {
         .upsert({
           id: settings?.id || crypto.randomUUID(),
           delivery_fee: deliveryFee,
-          is_free_delivery: !!freeDeliveryThreshold, // تلقائياً بناءً على وجود الحد الأدنى
+          is_free_delivery: isFreeDelivery,
           free_delivery_threshold: freeDeliveryThreshold,
+          show_countdown_bar: showCountdownBar,
         }, {
           onConflict: 'id'
         });
@@ -123,21 +129,59 @@ const AdminShippingSettings = () => {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="threshold">حد الشحن المجاني (اختياري - د.ع)</Label>
-              <Input
-                id="threshold"
-                type="number"
-                min="0"
-                step="0.01"
-                value={freeDeliveryThreshold || ""}
-                onChange={(e) => setFreeDeliveryThreshold(e.target.value ? Number(e.target.value) : null)}
-                placeholder="مثال: 50000"
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="is-free-delivery" className="text-base font-semibold">
+                  التوصيل المجاني لجميع الطلبات
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  عند التفعيل، جميع الطلبات ستكون بتوصيل مجاني
+                </p>
+              </div>
+              <Switch
+                id="is-free-delivery"
+                checked={isFreeDelivery}
+                onCheckedChange={setIsFreeDelivery}
               />
-              <p className="text-sm text-muted-foreground">
-                عند وصول قيمة الطلب إلى هذا المبلغ، يصبح الشحن مجانياً. سيظهر شريط العد التنازلي للعملاء
-              </p>
             </div>
+
+            {!isFreeDelivery && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="threshold">حد الشحن المجاني (اختياري - د.ع)</Label>
+                  <Input
+                    id="threshold"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={freeDeliveryThreshold || ""}
+                    onChange={(e) => setFreeDeliveryThreshold(e.target.value ? Number(e.target.value) : null)}
+                    placeholder="مثال: 50000"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    عند وصول قيمة الطلب إلى هذا المبلغ، يصبح الشحن مجانياً
+                  </p>
+                </div>
+
+                {freeDeliveryThreshold && (
+                  <div className="flex items-center justify-between rounded-lg border p-4 bg-primary/5">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="show-countdown" className="text-base font-semibold">
+                        عرض شريط العد التنازلي للشحن المجاني
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        يظهر شريط ملون في أعلى الموقع يشجع العملاء على إضافة المزيد للوصول للشحن المجاني
+                      </p>
+                    </div>
+                    <Switch
+                      id="show-countdown"
+                      checked={showCountdownBar}
+                      onCheckedChange={setShowCountdownBar}
+                    />
+                  </div>
+                )}
+              </>
+            )}
 
             <Button
               type="submit"

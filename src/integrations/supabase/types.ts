@@ -1635,6 +1635,7 @@ export type Database = {
           free_delivery_threshold: number | null
           id: string
           is_free_delivery: boolean
+          show_countdown_bar: boolean | null
           updated_at: string
         }
         Insert: {
@@ -1643,6 +1644,7 @@ export type Database = {
           free_delivery_threshold?: number | null
           id?: string
           is_free_delivery?: boolean
+          show_countdown_bar?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -1651,6 +1653,7 @@ export type Database = {
           free_delivery_threshold?: number | null
           id?: string
           is_free_delivery?: boolean
+          show_countdown_bar?: boolean | null
           updated_at?: string
         }
         Relationships: []
