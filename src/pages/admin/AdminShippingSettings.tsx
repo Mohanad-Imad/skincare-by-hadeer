@@ -20,7 +20,6 @@ interface ShippingSettings {
 const AdminShippingSettings = () => {
   const queryClient = useQueryClient();
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
-  const [isFreeDelivery, setIsFreeDelivery] = useState<boolean>(false);
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<number | null>(null);
 
   const { data: settings, isLoading } = useQuery({
@@ -39,7 +38,6 @@ const AdminShippingSettings = () => {
   useEffect(() => {
     if (settings) {
       setDeliveryFee(Number(settings.delivery_fee));
-      setIsFreeDelivery(settings.is_free_delivery);
       setFreeDeliveryThreshold(settings.free_delivery_threshold ? Number(settings.free_delivery_threshold) : null);
     }
   }, [settings]);
@@ -51,7 +49,7 @@ const AdminShippingSettings = () => {
         .upsert({
           id: settings?.id || crypto.randomUUID(),
           delivery_fee: deliveryFee,
-          is_free_delivery: isFreeDelivery,
+          is_free_delivery: !!freeDeliveryThreshold, // تلقائياً بناءً على وجود الحد الأدنى
           free_delivery_threshold: freeDeliveryThreshold,
         }, {
           onConflict: 'id'
@@ -72,7 +70,7 @@ const AdminShippingSettings = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isFreeDelivery && deliveryFee < 0) {
+    if (deliveryFee < 0) {
       toast.error("قيمة التوصيل يجب أن تكون موجبة");
       return;
     }
@@ -108,39 +106,25 @@ const AdminShippingSettings = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <Label htmlFor="free-delivery" className="text-base font-semibold">
-                  التوصيل المجاني
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  تفعيل التوصيل المجاني لجميع الطلبات
-                </p>
-              </div>
-              <Switch
-                id="free-delivery"
-                checked={isFreeDelivery}
-                onCheckedChange={setIsFreeDelivery}
+            <div className="space-y-2">
+              <Label htmlFor="delivery-fee">رسوم التوصيل الأساسية (د.ع)</Label>
+              <Input
+                id="delivery-fee"
+                type="number"
+                min="0"
+                step="0.01"
+                value={deliveryFee}
+                onChange={(e) => setDeliveryFee(Number(e.target.value))}
+                placeholder="مثال: 5000"
+                required
               />
+              <p className="text-sm text-muted-foreground">
+                رسوم التوصيل التي سيتم إضافتها للطلبات
+              </p>
             </div>
 
-            {!isFreeDelivery && (
-              <div className="space-y-2">
-                <Label htmlFor="delivery-fee">رسوم التوصيل (د.ع)</Label>
-                <Input
-                  id="delivery-fee"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={deliveryFee}
-                  onChange={(e) => setDeliveryFee(Number(e.target.value))}
-                  placeholder="أدخل رسوم التوصيل"
-                />
-              </div>
-            )}
-
             <div className="space-y-2">
-              <Label htmlFor="threshold">حد التوصيل المجاني (اختياري - د.ع)</Label>
+              <Label htmlFor="threshold">حد الشحن المجاني (اختياري - د.ع)</Label>
               <Input
                 id="threshold"
                 type="number"
@@ -148,10 +132,10 @@ const AdminShippingSettings = () => {
                 step="0.01"
                 value={freeDeliveryThreshold || ""}
                 onChange={(e) => setFreeDeliveryThreshold(e.target.value ? Number(e.target.value) : null)}
-                placeholder="مثال: 50000 - التوصيل مجاني عند تجاوز هذا المبلغ"
+                placeholder="مثال: 50000"
               />
               <p className="text-sm text-muted-foreground">
-                إذا كان مجموع الطلب أكبر من هذا المبلغ، سيكون التوصيل مجانياً
+                عند وصول قيمة الطلب إلى هذا المبلغ، يصبح الشحن مجانياً. سيظهر شريط العد التنازلي للعملاء
               </p>
             </div>
 
