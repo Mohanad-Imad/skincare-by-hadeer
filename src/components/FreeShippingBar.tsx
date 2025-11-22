@@ -105,7 +105,8 @@ export const FreeShippingBar = () => {
         return sum + finalPrice * item.quantity;
       }, 0) || 0;
 
-  if (!shippingSettings || !shippingSettings.is_free_delivery || !shippingSettings.free_delivery_threshold) {
+  // يظهر الشريط فقط عندما يكون هناك حد أدنى للشحن المجاني
+  if (!shippingSettings || !shippingSettings.free_delivery_threshold) {
     return null;
   }
 
