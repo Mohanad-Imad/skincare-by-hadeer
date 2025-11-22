@@ -130,8 +130,9 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <FreeShippingBar />
+
         <CheckoutStepper currentStep={1} />
+        <FreeShippingBar />
         <div className="container py-8 pb-32">
           <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
 
