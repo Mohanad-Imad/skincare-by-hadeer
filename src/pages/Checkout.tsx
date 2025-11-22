@@ -225,11 +225,16 @@ const Checkout = () => {
       // حساب رسوم التوصيل
       let shippingAmount = 0;
       if (shippingSettings) {
-        // إذا كان هناك حد أدنى ووصل المستخدم إليه، الشحن مجاني
-        if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+        // إذا التوصيل مجاني لجميع الطلبات
+        if (shippingSettings.is_free_delivery) {
           shippingAmount = 0;
-        } else {
-          // خلاف ذلك، يدفع رسوم التوصيل العادية
+        } 
+        // أو إذا كان هناك حد أدنى ووصل المستخدم إليه
+        else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+          shippingAmount = 0;
+        } 
+        // خلاف ذلك، يدفع رسوم التوصيل العادية
+        else {
           shippingAmount = Number(shippingSettings.delivery_fee) || 0;
         }
       }
@@ -357,11 +362,16 @@ const Checkout = () => {
   // حساب رسوم التوصيل
   let shippingAmount = 0;
   if (shippingSettings) {
-    // إذا كان هناك حد أدنى ووصل المستخدم إليه، الشحن مجاني
-    if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+    // إذا التوصيل مجاني لجميع الطلبات
+    if (shippingSettings.is_free_delivery) {
       shippingAmount = 0;
-    } else {
-      // خلاف ذلك، يدفع رسوم التوصيل العادية
+    } 
+    // أو إذا كان هناك حد أدنى ووصل المستخدم إليه
+    else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+      shippingAmount = 0;
+    } 
+    // خلاف ذلك، يدفع رسوم التوصيل العادية
+    else {
       shippingAmount = Number(shippingSettings.delivery_fee) || 0;
     }
   }
