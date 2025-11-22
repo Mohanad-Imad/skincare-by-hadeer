@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
+import { FreeShippingBar } from "@/components/FreeShippingBar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -28,22 +29,24 @@ const Cart = () => {
     queryKey: ["local-cart-items", localCart],
     queryFn: async () => {
       if (!localCart || localCart.length === 0) return [];
-      
+
       const variantIds = localCart.map((item) => item.variantId);
       const { data, error } = await supabase
         .from("product_variants")
-        .select(`
+        .select(
+          `
           *,
           products (
             id,
             name_ar,
             image_url
           )
-        `)
+        `,
+        )
         .in("id", variantIds);
 
       if (error) throw error;
-      
+
       return data.map((variant) => {
         const cartItem = localCart.find((item) => item.variantId === variant.id);
         return {
@@ -59,10 +62,11 @@ const Cart = () => {
     queryKey: ["cart", session?.user?.id],
     queryFn: async () => {
       if (!session?.user) return [];
-      
+
       const { data, error } = await supabase
         .from("cart_items")
-        .select(`
+        .select(
+          `
           *,
           product_variants (
             *,
@@ -72,7 +76,8 @@ const Cart = () => {
               image_url
             )
           )
-        `)
+        `,
+        )
         .eq("user_id", session.user.id);
 
       if (error) throw error;
@@ -83,10 +88,7 @@ const Cart = () => {
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
-      const { error } = await supabase
-        .from("cart_items")
-        .update({ quantity })
-        .eq("id", id);
+      const { error } = await supabase.from("cart_items").update({ quantity }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -112,23 +114,23 @@ const Cart = () => {
     return discount ? discount.discountedPrice : originalPrice;
   };
 
-  const total = cartItems?.reduce((sum, item) => {
-    const finalPrice = calculateItemPrice(
-      item.product_variants.products.id,
-      item.product_variants.price
-    );
-    return sum + finalPrice * item.quantity;
-  }, 0) || 0;
+  const total =
+    cartItems?.reduce((sum, item) => {
+      const finalPrice = calculateItemPrice(item.product_variants.products.id, item.product_variants.price);
+      return sum + finalPrice * item.quantity;
+    }, 0) || 0;
 
-  const localTotal = localCartItems?.reduce((sum, item) => {
-    const finalPrice = calculateItemPrice(item.products.id, item.price);
-    return sum + finalPrice * item.quantity;
-  }, 0) || 0;
+  const localTotal =
+    localCartItems?.reduce((sum, item) => {
+      const finalPrice = calculateItemPrice(item.products.id, item.price);
+      return sum + finalPrice * item.quantity;
+    }, 0) || 0;
 
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
+        <FreeShippingBar />
         <CheckoutStepper currentStep={1} />
         <div className="container py-8 pb-32">
           <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
@@ -159,12 +161,10 @@ const Cart = () => {
 
                     <div className="flex flex-1 flex-col gap-3">
                       <div className="space-y-1">
-                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
-                          {item.products.name_ar}
-                        </h3>
+                        <h3 className="font-semibold text-base leading-tight line-clamp-2">{item.products.name_ar}</h3>
                         <p className="text-sm text-muted-foreground">{item.size_ar}</p>
                       </div>
-                      
+
                       <div>
                         {(() => {
                           const discount = calculateDiscount(item.products.id, item.price, discounts);
@@ -184,9 +184,7 @@ const Cart = () => {
                               </div>
                             </div>
                           ) : (
-                            <p className="font-bold text-primary text-lg">
-                              {Math.round(item.price)} د.ع
-                            </p>
+                            <p className="font-bold text-primary text-lg">{Math.round(item.price)} د.ع</p>
                           );
                         })()}
                       </div>
@@ -291,13 +289,13 @@ const Cart = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">{item.product_variants.products.name_ar}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{item.product_variants.size_ar}</p>
-                    
+
                     <div className="flex items-center gap-2 flex-wrap">
                       {(() => {
                         const productId = item.product_variants.products.id;
                         const originalPrice = item.product_variants.price;
                         const discount = calculateDiscount(productId, originalPrice, discounts);
-                        
+
                         if (discount) {
                           return (
                             <>
@@ -313,7 +311,7 @@ const Cart = () => {
                             </>
                           );
                         }
-                        
+
                         return (
                           <p className="font-bold text-primary text-lg">
                             {Math.round(item.product_variants.price)} د.ع
