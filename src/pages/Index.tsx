@@ -17,6 +17,7 @@ import { ShopByProblem } from "@/components/ShopByProblem";
 import { GuaranteeBanner } from "@/components/GuaranteeBanner";
 import MakeupBanner from "@/components/MakeupBanner";
 import { CustomerReviews } from "@/components/CustomerReviews";
+import { LiveActivityFeed } from "@/components/LiveActivityFeed";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
@@ -131,6 +132,7 @@ const Index = () => {
         structuredData={structuredData}
       />
       <Navbar />
+      <LiveActivityFeed />
       
       {/* Search Bar */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-4 pb-1 md:pb-2 max-w-[1920px] mx-auto">
