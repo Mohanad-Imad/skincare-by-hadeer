@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShoppingCart, Flame, Star, Package } from "lucide-react";
+import { ShoppingCart, Star } from "lucide-react";
 
 interface ActivityItem {
-  type: 'purchase' | 'review' | 'cart';
+  type: 'purchase' | 'review';
   customerName: string;
   city?: string;
   productName: string;
@@ -13,19 +13,18 @@ interface ActivityItem {
   timestamp: string;
 }
 
-const getRandomNumber = (min: number, max: number): number => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
 const extractCityFromAddress = (address: string): string => {
-  // محاولة استخراج المدينة من العنوان
-  const iraqiCities = ["بغداد", "البصرة", "أربيل", "الموصل", "النجف", "كربلاء", "السليمانية"];
+  const iraqiCities = ["بغداد", "البصرة", "أربيل", "الموصل", "النجف", "كربلاء", "السليمانية", "الأنبار", "بابل", "ديالى"];
   for (const city of iraqiCities) {
     if (address.includes(city)) {
       return city;
     }
   }
   return "العراق";
+};
+
+const getRandomNumber = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 export const LiveActivityFeed = () => {
@@ -46,27 +45,12 @@ export const LiveActivityFeed = () => {
           )
         `)
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(20);
       
       if (error) throw error;
       return data || [];
     },
-  });
-
-  // جلب المراجعات الأخيرة
-  const { data: recentReviews } = useQuery({
-    queryKey: ["recent-reviews-feed"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("customer_reviews")
-        .select("customer_name, comment, rating, created_at")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      
-      if (error) throw error;
-      return data || [];
-    },
+    refetchInterval: 30000, // تحديث كل 30 ثانية
   });
 
   // جلب مراجعات المنتجات الأخيرة
@@ -85,36 +69,23 @@ export const LiveActivityFeed = () => {
         `)
         .eq("is_approved", true)
         .order("created_at", { ascending: false })
-        .limit(10);
-      
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // جلب المنتجات النشطة للاستخدام في إشعارات المشاهدات
-  const { data: products } = useQuery({
-    queryKey: ["active-products-feed"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name_ar")
-        .eq("is_active", true)
         .limit(20);
       
       if (error) throw error;
       return data || [];
     },
+    refetchInterval: 30000, // تحديث كل 30 ثانية
   });
 
-  // إنشاء قائمة النشاطات من البيانات الحقيقية
+  // إنشاء قائمة النشاطات من البيانات الحقيقية فقط
   useEffect(() => {
     const activities: ActivityItem[] = [];
 
-    // إضافة الطلبات
+    // إضافة الطلبات الحقيقية
     if (recentOrders && recentOrders.length > 0) {
       recentOrders.forEach(order => {
         if (order.order_items && order.order_items.length > 0) {
+          // إضافة أول منتج من الطلب
           const firstProduct = order.order_items[0].product_name_ar;
           activities.push({
             type: 'purchase',
@@ -127,7 +98,7 @@ export const LiveActivityFeed = () => {
       });
     }
 
-    // إضافة مراجعات المنتجات
+    // إضافة مراجعات المنتجات الحقيقية
     if (recentProductReviews && recentProductReviews.length > 0) {
       recentProductReviews.forEach(review => {
         if (review.products) {
@@ -149,75 +120,48 @@ export const LiveActivityFeed = () => {
   }, [recentOrders, recentProductReviews]);
 
   useEffect(() => {
-    if (activityQueue.length === 0 && (!products || products.length === 0)) return;
+    // إذا لم يكن هناك أي نشاطات حقيقية، لا نعرض شيء
+    if (activityQueue.length === 0) return;
 
     let currentIndex = 0;
 
     const showNotification = () => {
-      // إذا كان لدينا نشاطات حقيقية، نعرضها
-      if (activityQueue.length > 0) {
-        const activity = activityQueue[currentIndex % activityQueue.length];
-        currentIndex++;
+      const activity = activityQueue[currentIndex % activityQueue.length];
+      currentIndex++;
 
-        if (activity.type === 'purchase') {
-          toast(
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">
-                  مبروك! <span className="text-primary font-bold">{activity.customerName} من {activity.city}</span>
-                </p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  اشترى للتو {activity.productName}! 🎉
-                </p>
-              </div>
-            </div>,
-            {
-              duration: 6000,
-              position: "bottom-left",
-              className: "bg-card border-border",
-            }
-          );
-        } else if (activity.type === 'review') {
-          toast(
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">
-                  {activity.customerName} انطى تقييم {activity.rating} نجوم!
-                </p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  لـ {activity.productName} ⭐
-                </p>
-              </div>
-            </div>,
-            {
-              duration: 6000,
-              position: "bottom-left",
-              className: "bg-card border-border",
-            }
-          );
-        }
-      } else if (products && products.length > 0) {
-        // فقط إذا لم يكن لدينا نشاطات حقيقية، نعرض إشعارات المشاهدات
-        const randomProduct = products[Math.floor(Math.random() * products.length)];
-        const viewCount = getRandomNumber(3, 7);
-        
+      if (activity.type === 'purchase') {
         toast(
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
-              <Flame className="w-5 h-5 text-red-500" />
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">
-                {viewCount} أشخاص ديشوفون هذا المنتج هسه!
+                مبروك! <span className="text-primary font-bold">{activity.customerName} من {activity.city}</span>
               </p>
               <p className="text-sm text-muted-foreground mt-0.5">
-                {randomProduct.name_ar} 🔥
+                اشترى للتو {activity.productName}! 🎉
+              </p>
+            </div>
+          </div>,
+          {
+            duration: 6000,
+            position: "bottom-left",
+            className: "bg-card border-border",
+          }
+        );
+      } else if (activity.type === 'review') {
+        toast(
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
+              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                {activity.customerName} انطى تقييم {activity.rating} نجوم!
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                لـ {activity.productName} ⭐
               </p>
             </div>
           </div>,
@@ -230,19 +174,19 @@ export const LiveActivityFeed = () => {
       }
     };
 
-    // Show first notification after 3 seconds
+    // عرض أول إشعار بعد 3 ثواني
     const initialTimeout = setTimeout(showNotification, 3000);
 
-    // Then show notifications every 12-18 seconds
+    // ثم عرض الإشعارات كل 15-20 ثانية
     const interval = setInterval(() => {
       showNotification();
-    }, getRandomNumber(12000, 18000));
+    }, getRandomNumber(15000, 20000));
 
     return () => {
       clearTimeout(initialTimeout);
       clearInterval(interval);
     };
-  }, [activityQueue, products]);
+  }, [activityQueue]);
 
   return null;
 };
