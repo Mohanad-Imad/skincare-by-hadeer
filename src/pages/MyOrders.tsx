@@ -102,6 +102,7 @@ const MyOrders = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart-items"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
       toast.success("تم إضافة المنتجات إلى السلة بنجاح! 🛒");
     },
     onError: (error) => {
@@ -249,10 +250,10 @@ const MyOrders = () => {
                   <Button
                     onClick={() => reorderMutation.mutate(order.id)}
                     disabled={reorderMutation.isPending}
-                    className="w-full gap-2"
-                    variant="outline"
+                    className="w-full gap-2 font-semibold"
+                    size="lg"
                   >
-                    <RefreshCw className={`h-4 w-4 ${reorderMutation.isPending ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`h-5 w-5 ${reorderMutation.isPending ? 'animate-spin' : ''}`} />
                     {reorderMutation.isPending ? "جاري الإضافة..." : "إعادة الطلب"}
                   </Button>
                 </CardContent>
