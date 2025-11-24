@@ -60,8 +60,14 @@ import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { PWASplashScreen } from "./components/PWASplashScreen";
+import { useCartMigration } from "./hooks/useCartMigration";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  useCartMigration();
+  return null;
+};
 
 const App = () => (
   <HelmetProvider>
@@ -74,6 +80,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AppContent />
           <ScrollToTop />
           <Routes>
           <Route path="/" element={<Index />} />
