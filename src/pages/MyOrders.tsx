@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Package } from "lucide-react";
+import { ArrowRight, Package, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 
 const statusLabels = {
@@ -29,6 +30,7 @@ const statusColors = {
 const MyOrders = () => {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const getUser = async () => {
@@ -59,6 +61,53 @@ const MyOrders = () => {
       return data;
     },
     enabled: !!user?.id,
+  });
+
+  const reorderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      if (!user?.id) throw new Error("يجب تسجيل الدخول");
+      
+      const order = orders?.find(o => o.id === orderId);
+      if (!order || !order.order_items) throw new Error("الطلب غير موجود");
+
+      // إضافة كل منتج إلى السلة
+      for (const item of order.order_items) {
+        if (!item.product_variant_id) continue;
+
+        // التحقق من وجود المنتج في السلة
+        const { data: existingItem } = await supabase
+          .from("cart_items")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("product_variant_id", item.product_variant_id)
+          .single();
+
+        if (existingItem) {
+          // تحديث الكمية
+          await supabase
+            .from("cart_items")
+            .update({ quantity: existingItem.quantity + item.quantity })
+            .eq("id", existingItem.id);
+        } else {
+          // إضافة منتج جديد
+          await supabase
+            .from("cart_items")
+            .insert({
+              user_id: user.id,
+              product_variant_id: item.product_variant_id,
+              quantity: item.quantity,
+            });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart-items"] });
+      toast.success("تم إضافة المنتجات إلى السلة بنجاح! 🛒");
+    },
+    onError: (error) => {
+      toast.error("حدث خطأ أثناء إعادة الطلب");
+      console.error(error);
+    },
   });
 
   if (isLoading) {
@@ -194,6 +243,18 @@ const MyOrders = () => {
                       </div>
                     )}
                   </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <Button
+                    onClick={() => reorderMutation.mutate(order.id)}
+                    disabled={reorderMutation.isPending}
+                    className="w-full gap-2"
+                    variant="outline"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${reorderMutation.isPending ? 'animate-spin' : ''}`} />
+                    {reorderMutation.isPending ? "جاري الإضافة..." : "إعادة الطلب"}
+                  </Button>
                 </CardContent>
               </Card>
             ))}
