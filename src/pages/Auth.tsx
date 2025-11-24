@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useLocalCart } from "@/hooks/useLocalCart";
 import { ArrowRight, Chrome } from "lucide-react";
 
 const authSchema = z.object({
@@ -24,7 +23,6 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { localCart, clearLocalCart } = useLocalCart();
   
   // الحصول على صفحة التوجيه من state
   const redirectTo = (location.state as any)?.redirectTo || "/";
@@ -38,45 +36,6 @@ const Auth = () => {
     };
     checkSession();
   }, [navigate, redirectTo]);
-
-  // نقل السلة المؤقتة إلى قاعدة البيانات بعد تسجيل الدخول
-  const migrateLocalCartToDatabase = async (userId: string) => {
-    if (localCart.length === 0) return;
-
-    try {
-      for (const item of localCart) {
-        // التحقق من وجود العنصر في السلة
-        const { data: existing } = await supabase
-          .from("cart_items")
-          .select("*")
-          .eq("user_id", userId)
-          .eq("product_variant_id", item.variantId)
-          .maybeSingle();
-
-        if (existing) {
-          // تحديث الكمية
-          await supabase
-            .from("cart_items")
-            .update({ quantity: existing.quantity + item.quantity })
-            .eq("id", existing.id);
-        } else {
-          // إضافة عنصر جديد
-          await supabase.from("cart_items").insert({
-            user_id: userId,
-            product_variant_id: item.variantId,
-            quantity: item.quantity,
-          });
-        }
-      }
-
-      clearLocalCart();
-      toast.success("تم نقل منتجات السلة بنجاح");
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error("Error migrating cart:", error);
-      }
-    }
-  };
 
   const handleGoogleAuth = async () => {
     try {
@@ -123,11 +82,6 @@ const Auth = () => {
         });
         if (error) throw error;
         
-        // نقل السلة المؤقتة بعد تسجيل الدخول
-        if (data.user) {
-          await migrateLocalCartToDatabase(data.user.id);
-        }
-        
         toast.success("تم تسجيل الدخول بنجاح");
         navigate(redirectTo);
       } else {
@@ -142,11 +96,6 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        
-        // نقل السلة المؤقتة بعد التسجيل
-        if (data.user) {
-          await migrateLocalCartToDatabase(data.user.id);
-        }
         
         toast.success("تم إنشاء الحساب بنجاح");
         navigate(redirectTo);
