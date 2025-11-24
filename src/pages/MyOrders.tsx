@@ -34,7 +34,9 @@ const MyOrders = () => {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         navigate("/auth");
       }
@@ -49,12 +51,14 @@ const MyOrders = () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
         .from("orders")
-        .select(`
+        .select(
+          `
           *,
           order_items (
             *
           )
-        `)
+        `,
+        )
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -66,8 +70,8 @@ const MyOrders = () => {
   const reorderMutation = useMutation({
     mutationFn: async (orderId: string) => {
       if (!user?.id) throw new Error("يجب تسجيل الدخول");
-      
-      const order = orders?.find(o => o.id === orderId);
+
+      const order = orders?.find((o) => o.id === orderId);
       if (!order || !order.order_items) throw new Error("الطلب غير موجود");
 
       // إضافة كل منتج إلى السلة
@@ -90,13 +94,11 @@ const MyOrders = () => {
             .eq("id", existingItem.id);
         } else {
           // إضافة منتج جديد
-          await supabase
-            .from("cart_items")
-            .insert({
-              user_id: user.id,
-              product_variant_id: item.product_variant_id,
-              quantity: item.quantity,
-            });
+          await supabase.from("cart_items").insert({
+            user_id: user.id,
+            product_variant_id: item.product_variant_id,
+            quantity: item.quantity,
+          });
         }
       }
     },
@@ -126,11 +128,7 @@ const MyOrders = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-4 gap-2"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2">
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
@@ -157,9 +155,7 @@ const MyOrders = () => {
                 <CardHeader>
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                      <CardTitle className="text-lg">
-                        طلب رقم: {order.id.slice(0, 8)}
-                      </CardTitle>
+                      <CardTitle className="text-lg">طلب رقم: {order.id.slice(0, 8)}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         {new Date(order.created_at).toLocaleDateString("ar-IQ", {
                           year: "numeric",
@@ -181,10 +177,7 @@ const MyOrders = () => {
                   <h3 className="font-semibold mb-3">المنتجات:</h3>
                   <div className="space-y-3">
                     {order.order_items?.map((item: any) => (
-                      <div
-                        key={item.id}
-                        className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
-                      >
+                      <div key={item.id} className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
                         <div className="flex-1">
                           <p className="font-medium">{item.product_name_ar}</p>
                           <p className="text-sm text-muted-foreground">
@@ -195,9 +188,9 @@ const MyOrders = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <Separator className="my-4" />
-                  
+
                   <div className="space-y-3">
                     <div className="p-3 bg-muted/30 rounded-lg">
                       <p className="text-sm font-semibold mb-2">ملخص المبالغ:</p>
@@ -206,8 +199,10 @@ const MyOrders = () => {
                           <span className="text-muted-foreground">المجموع الفرعي:</span>
                           <span className="font-medium">
                             {Math.round(
-                              order.order_items?.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0) || 0
-                            )} د.ع
+                              order.order_items?.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0) ||
+                                0,
+                            )}{" "}
+                            د.ع
                           </span>
                         </div>
                         {order.discount_amount && order.discount_amount > 0 && (
@@ -219,20 +214,18 @@ const MyOrders = () => {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">التوصيل:</span>
                           <span className="font-medium">
-                            {order.shipping_amount && order.shipping_amount > 0 
-                              ? `${Math.round(order.shipping_amount)} د.ع` 
-                              : 'مجاني'}
+                            {order.shipping_amount && order.shipping_amount > 0
+                              ? `${Math.round(order.shipping_amount)} د.ع`
+                              : "مجاني"}
                           </span>
                         </div>
                         <div className="flex justify-between border-t pt-1 mt-1">
                           <span className="font-semibold">المجموع النهائي:</span>
-                          <span className="font-bold text-primary">
-                            {Math.round(order.total_amount)} د.ع
-                          </span>
+                          <span className="font-bold text-primary">{Math.round(order.total_amount)} د.ع</span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <p className="text-sm font-semibold text-muted-foreground">العنوان:</p>
                       <p className="text-sm">{order.customer_address}</p>
@@ -244,17 +237,17 @@ const MyOrders = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <Separator className="my-4" />
-                  
+
                   <Button
                     onClick={() => reorderMutation.mutate(order.id)}
                     disabled={reorderMutation.isPending}
                     className="w-full gap-2 font-semibold"
                     size="lg"
                   >
-                    <RefreshCw className={`h-5 w-5 ${reorderMutation.isPending ? 'animate-spin' : ''}`} />
-                    {reorderMutation.isPending ? "جاري الإضافة..." : "إعادة الطلب"}
+                    <RefreshCw className={`h-5 w-5 ${reorderMutation.isPending ? "animate-spin" : ""}`} />
+                    {reorderMutation.isPending ? "جاري الإضافة..." : "تكرار الطلب"}
                   </Button>
                 </CardContent>
               </Card>
