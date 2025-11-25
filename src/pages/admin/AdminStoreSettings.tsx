@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -43,6 +44,7 @@ const AdminStoreSettings = () => {
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [footerTextAr, setFooterTextAr] = useState("");
   const [footerTextEn, setFooterTextEn] = useState("");
+  const [showLiveActivityFeed, setShowLiveActivityFeed] = useState(true);
   // Light mode colors with better contrast
   const [lightBackground, setLightBackground] = useState("#FCF7F8");
   const [lightForeground, setLightForeground] = useState("#2D1B1F");
@@ -109,6 +111,7 @@ const AdminStoreSettings = () => {
       setWhatsappUrl(settings.whatsapp_url || "");
       setFooterTextAr(settings.footer_text_ar || "");
       setFooterTextEn(settings.footer_text_en || "");
+      setShowLiveActivityFeed(settings.show_live_activity_feed ?? true);
       
       // Convert HSL to HEX for color pickers
       if (settings.light_background) setLightBackground(hslToHex(settings.light_background));
@@ -303,6 +306,7 @@ const AdminStoreSettings = () => {
       whatsapp_url: whatsappUrl,
       footer_text_ar: footerTextAr,
       footer_text_en: footerTextEn,
+      show_live_activity_feed: showLiveActivityFeed,
     });
   };
 
@@ -424,6 +428,19 @@ const AdminStoreSettings = () => {
                   </div>
                 )}
                 {isUploadingLogo && <p className="text-sm text-muted-foreground">جاري رفع الصورة...</p>}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="showLiveActivityFeed">عرض إشعارات النشاط المباشر</Label>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="showLiveActivityFeed"
+                  checked={showLiveActivityFeed}
+                  onCheckedChange={setShowLiveActivityFeed}
+                />
+                <span className="text-sm text-muted-foreground">
+                  عرض إشعارات الطلبات والتقييمات الجديدة في أسفل الصفحة للزوار
+                </span>
               </div>
             </div>
             <div className="flex justify-end pt-4">

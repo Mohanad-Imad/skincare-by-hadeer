@@ -1690,6 +1690,7 @@ export type Database = {
           light_secondary: string | null
           logo_url: string | null
           phone: string | null
+          show_live_activity_feed: boolean | null
           store_name: string
           theme_accent_color: string | null
           theme_primary_color: string | null
@@ -1729,6 +1730,7 @@ export type Database = {
           light_secondary?: string | null
           logo_url?: string | null
           phone?: string | null
+          show_live_activity_feed?: boolean | null
           store_name?: string
           theme_accent_color?: string | null
           theme_primary_color?: string | null
@@ -1768,6 +1770,7 @@ export type Database = {
           light_secondary?: string | null
           logo_url?: string | null
           phone?: string | null
+          show_live_activity_feed?: boolean | null
           store_name?: string
           theme_accent_color?: string | null
           theme_primary_color?: string | null

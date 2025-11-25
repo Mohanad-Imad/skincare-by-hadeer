@@ -30,6 +30,20 @@ const getRandomNumber = (min: number, max: number): number => {
 export const LiveActivityFeed = () => {
   const [activityQueue, setActivityQueue] = useState<ActivityItem[]>([]);
 
+  // جلب إعدادات المتجر للتحقق من تفعيل الخاصية
+  const { data: storeSettings } = useQuery({
+    queryKey: ["store-settings-live-feed"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_settings")
+        .select("show_live_activity_feed")
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // جلب الطلبات الأخيرة
   const { data: recentOrders } = useQuery({
     queryKey: ["recent-orders-feed"],
@@ -120,6 +134,9 @@ export const LiveActivityFeed = () => {
   }, [recentOrders, recentProductReviews]);
 
   useEffect(() => {
+    // إذا كانت الخاصية معطلة، لا نعرض شيء
+    if (!storeSettings?.show_live_activity_feed) return;
+    
     // إذا لم يكن هناك أي نشاطات حقيقية، لا نعرض شيء
     if (activityQueue.length === 0) return;
 
@@ -186,7 +203,7 @@ export const LiveActivityFeed = () => {
       clearTimeout(initialTimeout);
       clearInterval(interval);
     };
-  }, [activityQueue]);
+  }, [activityQueue, storeSettings?.show_live_activity_feed]);
 
   return null;
 };
