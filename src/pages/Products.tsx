@@ -26,6 +26,8 @@ const Products = () => {
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
+  const [minPrice, setMinPrice] = useState<string>(searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState<string>(searchParams.get("maxPrice") || "");
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
@@ -78,7 +80,7 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, minPrice, maxPrice],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
@@ -164,6 +166,11 @@ const Products = () => {
         query = query.eq("product_type", productTypeFilter);
       }
 
+      // فلتر نوع البشرة على مستوى قاعدة البيانات
+      if (skinTypeFilter !== "all") {
+        query = query.contains("skin_type", [skinTypeFilter]);
+      }
+
       const { data, error } = await query;
       if (error) throw error;
 
@@ -185,10 +192,14 @@ const Products = () => {
         });
       }
 
-      if (skinTypeFilter !== "all") {
-        filtered = filtered.filter(
-          (product) => product.skin_type?.includes(skinTypeFilter as any)
-        );
+      // فلتر السعر
+      if (minPrice || maxPrice) {
+        filtered = filtered.filter((product) => {
+          const price = product.product_variants?.[0]?.price || 0;
+          const min = minPrice ? parseFloat(minPrice) : 0;
+          const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+          return price >= min && price <= max;
+        });
       }
 
       const productsWithImages = filtered.map(product => {
@@ -264,6 +275,11 @@ const Products = () => {
     if (problem) setProblemFilter(problem);
     if (makeup) setMakeupFilter(makeup);
     if (productType) setProductTypeFilter(productType);
+    
+    const min = searchParams.get("minPrice");
+    const max = searchParams.get("maxPrice");
+    if (min) setMinPrice(min);
+    if (max) setMaxPrice(max);
   }, [searchParams]);
 
   const structuredData = {
@@ -286,7 +302,8 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <div className="mb-8 space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -439,6 +456,51 @@ const Products = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Price Filter */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">السعر الأدنى (د.ع)</label>
+            <Input
+              type="number"
+              placeholder="0"
+              value={minPrice}
+              onChange={(e) => {
+                const value = e.target.value;
+                setMinPrice(value);
+                const newParams = new URLSearchParams(searchParams);
+                if (value) {
+                  newParams.set("minPrice", value);
+                } else {
+                  newParams.delete("minPrice");
+                }
+                setSearchParams(newParams);
+              }}
+              min="0"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">السعر الأعلى (د.ع)</label>
+            <Input
+              type="number"
+              placeholder="∞"
+              value={maxPrice}
+              onChange={(e) => {
+                const value = e.target.value;
+                setMaxPrice(value);
+                const newParams = new URLSearchParams(searchParams);
+                if (value) {
+                  newParams.set("maxPrice", value);
+                } else {
+                  newParams.delete("maxPrice");
+                }
+                setSearchParams(newParams);
+              }}
+              min="0"
+            />
+          </div>
+        </div>
+      </div>
 
         {/* Products Grid */}
         {isLoading ? (
