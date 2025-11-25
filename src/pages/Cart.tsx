@@ -10,12 +10,24 @@ import { toast } from "sonner";
 import { Trash2, Plus, Minus, ArrowRight, Tag } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 const Cart = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { localCart, updateLocalCartQuantity, removeFromLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; isLocal: boolean } | null>(null);
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -197,7 +209,13 @@ const Cart = () => {
                         size="icon"
                         variant="outline"
                         className="h-8 w-8"
-                        onClick={() => updateLocalCartQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        onClick={() => {
+                          if (item.quantity === 1) {
+                            setItemToDelete({ id: item.id, isLocal: true });
+                          } else {
+                            updateLocalCartQuantity(item.id, item.quantity - 1);
+                          }
+                        }}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -252,6 +270,31 @@ const Cart = () => {
             </div>
           </div>
         )}
+
+        <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>حذف المنتج من السلة</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل أنت متأكد من حذف هذا المنتج من السلة؟
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (itemToDelete) {
+                    removeFromLocalCart(itemToDelete.id);
+                    toast.success("تم حذف المنتج من السلة");
+                    setItemToDelete(null);
+                  }
+                }}
+              >
+                نعم، احذف
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
@@ -329,12 +372,16 @@ const Cart = () => {
                       size="icon"
                       variant="outline"
                       className="h-8 w-8"
-                      onClick={() =>
-                        updateQuantityMutation.mutate({
-                          id: item.id,
-                          quantity: Math.max(1, item.quantity - 1),
-                        })
-                      }
+                      onClick={() => {
+                        if (item.quantity === 1) {
+                          setItemToDelete({ id: item.id, isLocal: false });
+                        } else {
+                          updateQuantityMutation.mutate({
+                            id: item.id,
+                            quantity: item.quantity - 1,
+                          });
+                        }
+                      }}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
@@ -388,6 +435,30 @@ const Cart = () => {
           </div>
         </div>
       )}
+
+      <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف المنتج من السلة</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف هذا المنتج من السلة؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (itemToDelete && !itemToDelete.isLocal) {
+                  deleteItemMutation.mutate(itemToDelete.id);
+                  setItemToDelete(null);
+                }
+              }}
+            >
+              نعم، احذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
