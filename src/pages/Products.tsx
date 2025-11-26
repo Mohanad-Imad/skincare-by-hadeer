@@ -54,7 +54,6 @@ const Products = () => {
       const { data, error } = await supabase.from("products").select("company_name_ar, company_name_en");
       if (error) throw error;
 
-      // استخراج الأسماء الفريدة
       const companiesMap = new Map();
       data.forEach((p) => {
         const arName = p.company_name_ar;
@@ -124,7 +123,7 @@ const Products = () => {
         }
       }
 
-      // جلب معرفات المنتجات التي تقع ضمن نطاق السعر (إذا كان الفلتر مطبقاً)
+      // جلب معرفات المنتجات التي تقع ضمن نطاق السعر
       let priceFilteredIds: string[] | null = null;
       if (minPrice || maxPrice) {
         const { data: priceData, error: priceError } = await supabase.rpc("get_products_by_price_range", {
@@ -139,44 +138,37 @@ const Products = () => {
         }
       }
 
-      // **تنبيه:** إذا كان فلتر السعر مطبقاً ولم يعد بأي نتائج، نتوقف هنا
+      // توقف إذا لم يكن هناك أي منتج يطابق فلتر السعر
       if (priceFilteredIds !== null && priceFilteredIds.length === 0) {
-        return { products: [] };
+        return { products: [], totalCount: 0 };
       }
 
       const from = pageParam * itemsPerPage;
       const to = from + itemsPerPage - 1;
 
-      // 1. بناء الاستعلام الأساسي وتطبيق الفلاتر التي لا تتأثر بالترقيم
+      // 1. بناء الاستعلام
       let query = supabase
         .from("products")
         .select(
           `
           *,
-          product_variants (
-            price
-          ),
-          product_images (
-            image_url,
-            display_order
-          ),
+          product_variants ( price ),
+          product_images ( image_url, display_order ),
           product_sub_problems (
             sub_problem_id,
-            sub_problems (
-              slug
-            )
+            sub_problems ( slug )
           ),
           product_makeup_categories (
             makeup_category_id,
-            makeup_categories (
-              slug
-            )
+            makeup_categories ( slug )
           )
         `,
-        )
+          { count: "exact" },
+        ) // جلب العدد الكلي للمنتجات المفلترة
         .eq("is_active", true);
 
       // 2. تطبيق الفلاتر القائمة على الـ ID أو النص
+
       if (categoryIds.length > 0) {
         query = query.in("category_id", categoryIds);
       }
@@ -192,34 +184,39 @@ const Products = () => {
         query = query.eq("product_type", productTypeFilter);
       }
 
-      // 🌟 3. تطبيق فلتر السعر قبل الترقيم
+      // تطبيق فلتر السعر
       if (priceFilteredIds !== null) {
         query = query.in("id", priceFilteredIds);
       }
 
-      // 4. تطبيق الترتيب والترقيم في النهاية
+      // 🎯 تطبيق فلتر نوع البشرة (يجب أن يتم في DB باستخدام `contains` أو `eq`)
+      if (skinTypeFilter !== "all") {
+        // إذا كان skin_type مصفوفة:
+        query = query.contains("skin_type", [skinTypeFilter]);
+        // أو إذا كان skin_type سلسلة نصية عادية:
+        // query = query.eq("skin_type", skinTypeFilter);
+      }
+
+      // 🎯 تطبيق فلتر المشكلة (يجب أن يتم في DB عبر `filter` على العلاقة)
+      if (problemFilter !== "all") {
+        query = query.filter("product_sub_problems.sub_problems.slug", "eq", problemFilter);
+      }
+
+      // 🎯 تطبيق فلتر المكياج (يجب أن يتم في DB عبر `filter` على العلاقة)
+      if (makeupFilter !== "all") {
+        query = query.filter("product_makeup_categories.makeup_categories.slug", "eq", makeupFilter);
+      }
+
+      // 3. تطبيق الترتيب والترقيم في النهاية
       query = query.order("created_at", { ascending: false }).range(from, to);
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
 
       if (error) throw error;
 
-      let filtered = data || [];
+      const filtered = data || [];
 
-      // تطبيق الفلاتر التي تتطلب جلب جميع البيانات أولاً (مثل skinType, problem, makeup)
-      if (problemFilter !== "all") {
-        filtered = filtered.filter((product) => {
-          return product.product_sub_problems?.some((psp: any) => psp.sub_problems?.slug === problemFilter);
-        });
-      }
-      if (makeupFilter !== "all") {
-        filtered = filtered.filter((product) => {
-          return product.product_makeup_categories?.some((pmc: any) => pmc.makeup_categories?.slug === makeupFilter);
-        });
-      }
-      if (skinTypeFilter !== "all") {
-        filtered = filtered.filter((product) => product.skin_type?.includes(skinTypeFilter as any));
-      }
+      // **تم حذف الفلترة اللاحقة على جانب العميل (Client-Side Filtering)**
 
       const productsWithImages = filtered.map((product) => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
@@ -231,13 +228,18 @@ const Products = () => {
         };
       });
 
-      return { products: productsWithImages };
+      return {
+        products: productsWithImages,
+        totalCount: count || 0, // إرجاع العدد الكلي
+      };
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      // يجب أن يعتمد هذا على عدد المنتجات الفعلية المرتجعة من قاعدة البيانات قبل الفلترة اللاحقة
-      // لكن كحل سريع:
-      return lastPage.products.length === itemsPerPage ? allPages.length : undefined;
+      // الاعتماد على العدد الكلي (totalCount) لتحديد ما إذا كان هناك المزيد من الصفحات
+      const totalPages = Math.ceil(lastPage.totalCount / itemsPerPage);
+      const currentPage = allPages.length;
+
+      return currentPage < totalPages ? currentPage : undefined;
     },
   });
 
