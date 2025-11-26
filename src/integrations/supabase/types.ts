@@ -1911,12 +1911,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_products_by_price_range: {
-        Args: { max_price?: number; min_price?: number }
-        Returns: {
-          product_id: string
-        }[]
-      }
       is_admin: { Args: { user_id: string }; Returns: boolean }
       update_all_product_prices: {
         Args: {
