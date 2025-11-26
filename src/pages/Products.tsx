@@ -194,13 +194,20 @@ const Products = () => {
         });
       }
 
-      // فلتر السعر
+      // فلتر السعر - فحص جميع الأحجام
       if (minPrice || maxPrice) {
         filtered = filtered.filter((product) => {
-          const price = product.product_variants?.[0]?.price || 0;
+          const variants = product.product_variants || [];
+          if (variants.length === 0) return false;
+          
           const min = minPrice ? parseFloat(minPrice) : 0;
           const max = maxPrice ? parseFloat(maxPrice) : Infinity;
-          return price >= min && price <= max;
+          
+          // إذا كان أي حجم ضمن النطاق السعري، نعرض المنتج
+          return variants.some((variant: any) => {
+            const price = variant.price || 0;
+            return price >= min && price <= max;
+          });
         });
       }
 
