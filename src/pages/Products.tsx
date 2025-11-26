@@ -121,6 +121,26 @@ const Products = () => {
         }
       }
 
+      // جلب معرفات المنتجات ضمن النطاق السعري إذا كان الفلتر مفعل
+      let priceFilteredProductIds: string[] | null = null;
+      if (minPrice || maxPrice) {
+        const { data: priceData, error: priceError } = await supabase.rpc(
+          'get_products_by_price_range',
+          {
+            min_price: minPrice ? parseFloat(minPrice) : null,
+            max_price: maxPrice ? parseFloat(maxPrice) : null
+          }
+        );
+        
+        if (priceError) throw priceError;
+        priceFilteredProductIds = priceData?.map((item: any) => item.product_id) || [];
+        
+        // إذا لم تكن هناك منتجات ضمن النطاق السعري، نرجع قائمة فارغة
+        if (priceFilteredProductIds.length === 0) {
+          return { products: [] };
+        }
+      }
+
       const from = pageParam * itemsPerPage;
       const to = from + itemsPerPage - 1;
 
@@ -173,6 +193,11 @@ const Products = () => {
         query = query.contains("skin_type", [skinTypeFilter]);
       }
 
+      // تطبيق فلتر السعر على مستوى قاعدة البيانات
+      if (priceFilteredProductIds) {
+        query = query.in("id", priceFilteredProductIds);
+      }
+
       const { data, error } = await query;
       if (error) throw error;
 
@@ -191,23 +216,6 @@ const Products = () => {
           return product.product_makeup_categories?.some((pmc: any) => 
             pmc.makeup_categories?.slug === makeupFilter
           );
-        });
-      }
-
-      // فلتر السعر - فحص جميع الأحجام
-      if (minPrice || maxPrice) {
-        filtered = filtered.filter((product) => {
-          const variants = product.product_variants || [];
-          if (variants.length === 0) return false;
-          
-          const min = minPrice ? parseFloat(minPrice) : 0;
-          const max = maxPrice ? parseFloat(maxPrice) : Infinity;
-          
-          // إذا كان أي حجم ضمن النطاق السعري، نعرض المنتج
-          return variants.some((variant: any) => {
-            const price = variant.price || 0;
-            return price >= min && price <= max;
-          });
         });
       }
 
