@@ -30,9 +30,10 @@ const Products = () => {
   const [maxPrice, setMaxPrice] = useState<string>(searchParams.get("maxPrice") || "");
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
+
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  
+
   const { data: discounts } = useProductDiscounts();
 
   const { data: categories } = useQuery({
@@ -50,11 +51,9 @@ const Products = () => {
   const { data: companies } = useQuery({
     queryKey: ["companies"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("company_name_ar, company_name_en");
+      const { data, error } = await supabase.from("products").select("company_name_ar, company_name_en");
       if (error) throw error;
-      
+
       // استخراج الأسماء الفريدة
       const companiesMap = new Map();
       data.forEach((p) => {
@@ -67,7 +66,7 @@ const Products = () => {
           }
         }
       });
-      
+
       return Array.from(companiesMap.entries())
         .map(([key, value]) => ({
           key,
@@ -80,54 +79,59 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, minPrice, maxPrice],
+    queryKey: [
+      "products",
+      parentCategoryFilter,
+      subCategoryFilter,
+      skinTypeFilter,
+      companyFilter,
+      searchTerm,
+      problemFilter,
+      makeupFilter,
+      productTypeFilter,
+      minPrice,
+      maxPrice,
+    ],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
-      
+
       if (subCategoryFilter !== "all") {
         categoryIds = [subCategoryFilter];
       } else if (parentCategoryFilter !== "all") {
-        // جلب معلومات التصنيف المحدد من قاعدة البيانات
         const { data: selectedCategoryData } = await supabase
           .from("categories")
           .select("id, parent_category_id")
           .eq("id", parentCategoryFilter)
           .single();
-        
+
         if (selectedCategoryData?.parent_category_id) {
-          // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
           const { data: allSubCategoriesData } = await supabase
             .from("categories")
             .select("id")
             .eq("parent_category_id", selectedCategoryData.parent_category_id);
-          
+
           categoryIds = [
             selectedCategoryData.parent_category_id,
-            ...(allSubCategoriesData?.map(sub => sub.id) || [])
+            ...(allSubCategoriesData?.map((sub) => sub.id) || []),
           ];
         } else {
-          // إذا كان التصنيف المحدد هو تصنيف أب، نحصل على جميع التصنيفات الفرعية
           const { data: subCategoriesData } = await supabase
             .from("categories")
             .select("id")
             .eq("parent_category_id", parentCategoryFilter);
-          
-          categoryIds = [
-            parentCategoryFilter,
-            ...(subCategoriesData?.map(sub => sub.id) || [])
-          ];
+
+          categoryIds = [parentCategoryFilter, ...(subCategoriesData?.map((sub) => sub.id) || [])];
         }
       }
 
-      // فلترة المنتجات حسب السعر النهائي (بعد الخصم)
+      // جلب معرفات المنتجات التي تقع ضمن نطاق السعر (إذا كان الفلتر مطبقاً)
       let priceFilteredIds: string[] | null = null;
       if (minPrice || maxPrice) {
-        const { data: priceData, error: priceError } = await supabase
-          .rpc("get_products_by_price_range", {
-            min_price: minPrice ? parseFloat(minPrice) : null,
-            max_price: maxPrice ? parseFloat(maxPrice) : null,
-          });
-        
+        const { data: priceData, error: priceError } = await supabase.rpc("get_products_by_price_range", {
+          min_price: minPrice ? parseFloat(minPrice) : null,
+          max_price: maxPrice ? parseFloat(maxPrice) : null,
+        });
+
         if (priceError) {
           console.error("Error filtering by price:", priceError);
         } else if (priceData) {
@@ -135,12 +139,19 @@ const Products = () => {
         }
       }
 
+      // **تنبيه:** إذا كان فلتر السعر مطبقاً ولم يعد بأي نتائج، نتوقف هنا
+      if (priceFilteredIds !== null && priceFilteredIds.length === 0) {
+        return { products: [] };
+      }
+
       const from = pageParam * itemsPerPage;
       const to = from + itemsPerPage - 1;
 
+      // 1. بناء الاستعلام الأساسي وتطبيق الفلاتر التي لا تتأثر بالترقيم
       let query = supabase
         .from("products")
-        .select(`
+        .select(
+          `
           *,
           product_variants (
             price
@@ -161,67 +172,58 @@ const Products = () => {
               slug
             )
           )
-        `)
-        .eq("is_active", true)
-        .range(from, to)
-        .order("created_at", { ascending: false });
+        `,
+        )
+        .eq("is_active", true);
 
+      // 2. تطبيق الفلاتر القائمة على الـ ID أو النص
       if (categoryIds.length > 0) {
         query = query.in("category_id", categoryIds);
       }
-
       if (companyFilter !== "all") {
         query = query.or(`company_name_ar.eq.${companyFilter},company_name_en.eq.${companyFilter}`);
       }
-
       if (searchTerm) {
-        query = query.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
+        query = query.or(
+          `name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`,
+        );
       }
-
       if (productTypeFilter !== "all") {
         query = query.eq("product_type", productTypeFilter);
       }
 
-      // تطبيق فلتر السعر
+      // 🌟 3. تطبيق فلتر السعر قبل الترقيم
       if (priceFilteredIds !== null) {
-        if (priceFilteredIds.length === 0) {
-          // لا توجد منتجات تطابق نطاق السعر
-          return { products: [] };
-        }
         query = query.in("id", priceFilteredIds);
       }
 
+      // 4. تطبيق الترتيب والترقيم في النهاية
+      query = query.order("created_at", { ascending: false }).range(from, to);
+
       const { data, error } = await query;
+
       if (error) throw error;
 
       let filtered = data || [];
 
+      // تطبيق الفلاتر التي تتطلب جلب جميع البيانات أولاً (مثل skinType, problem, makeup)
       if (problemFilter !== "all") {
         filtered = filtered.filter((product) => {
-          return product.product_sub_problems?.some((psp: any) => 
-            psp.sub_problems?.slug === problemFilter
-          );
+          return product.product_sub_problems?.some((psp: any) => psp.sub_problems?.slug === problemFilter);
         });
       }
-
       if (makeupFilter !== "all") {
         filtered = filtered.filter((product) => {
-          return product.product_makeup_categories?.some((pmc: any) => 
-            pmc.makeup_categories?.slug === makeupFilter
-          );
+          return product.product_makeup_categories?.some((pmc: any) => pmc.makeup_categories?.slug === makeupFilter);
         });
       }
-
       if (skinTypeFilter !== "all") {
-        filtered = filtered.filter(
-          (product) => product.skin_type?.includes(skinTypeFilter as any)
-        );
+        filtered = filtered.filter((product) => product.skin_type?.includes(skinTypeFilter as any));
       }
 
-      const productsWithImages = filtered.map(product => {
+      const productsWithImages = filtered.map((product) => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
-
         return {
           ...product,
           minPrice: product.product_variants?.[0]?.price,
@@ -233,26 +235,29 @@ const Products = () => {
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
+      // يجب أن يعتمد هذا على عدد المنتجات الفعلية المرتجعة من قاعدة البيانات قبل الفلترة اللاحقة
+      // لكن كحل سريع:
       return lastPage.products.length === itemsPerPage ? allPages.length : undefined;
     },
   });
 
-  const products = data?.pages.flatMap(page => page.products) || [];
+  const products = data?.pages.flatMap((page) => page.products) || [];
 
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [target] = entries;
-    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [target] = entries;
+      if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
 
   useEffect(() => {
     const element = loadMoreRef.current;
     const option = { threshold: 0 };
-
     const observer = new IntersectionObserver(handleObserver, option);
     if (element) observer.observe(element);
-
     return () => {
       if (element) observer.unobserve(element);
     };
@@ -260,7 +265,7 @@ const Products = () => {
 
   const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
     setter(value);
-    
+
     if (paramName) {
       const newParams = new URLSearchParams(searchParams);
       if (value === "all") {
@@ -284,7 +289,7 @@ const Products = () => {
     const productType = searchParams.get("productType");
     const min = searchParams.get("minPrice");
     const max = searchParams.get("maxPrice");
-    
+
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
     if (skinType) setSkinTypeFilter(skinType);
@@ -300,8 +305,8 @@ const Products = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
-    "description": "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية"
+    name: "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
+    description: "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية",
   };
 
   return (
@@ -315,7 +320,6 @@ const Products = () => {
       <Navbar />
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
-
         {/* Filters */}
         <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <div className="relative">
@@ -327,7 +331,6 @@ const Products = () => {
               className="pr-10"
             />
           </div>
-
           <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
             <SelectTrigger>
               <SelectValue placeholder="نوع المنتج" />
@@ -339,13 +342,12 @@ const Products = () => {
               <SelectItem value="clothing">ملابس</SelectItem>
             </SelectContent>
           </Select>
-
-          <Select 
-            value={parentCategoryFilter} 
+          <Select
+            value={parentCategoryFilter}
             onValueChange={(value) => {
               setParentCategoryFilter(value);
               setSubCategoryFilter("all");
-              
+
               const newParams = new URLSearchParams(searchParams);
               if (value === "all") {
                 newParams.delete("category");
@@ -371,7 +373,6 @@ const Products = () => {
                 ))}
             </SelectContent>
           </Select>
-
           {parentCategoryFilter !== "all" && (
             <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}>
               <SelectTrigger>
@@ -389,7 +390,6 @@ const Products = () => {
               </SelectContent>
             </Select>
           )}
-
           <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -406,8 +406,8 @@ const Products = () => {
             </PopoverTrigger>
             <PopoverContent className="w-full p-0 bg-popover" align="start">
               <Command>
-                <CommandInput 
-                  placeholder="ابحث عن شركة..." 
+                <CommandInput
+                  placeholder="ابحث عن شركة..."
                   value={companySearch}
                   onValueChange={setCompanySearch}
                   className="text-right"
@@ -423,12 +423,7 @@ const Products = () => {
                         setCompanySearch("");
                       }}
                     >
-                      <Check
-                        className={cn(
-                          "ml-2 h-4 w-4",
-                          companyFilter === "all" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
+                      <Check className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")} />
                       جميع الشركات
                     </CommandItem>
                     {companies?.map((company) => (
@@ -442,10 +437,7 @@ const Products = () => {
                         }}
                       >
                         <Check
-                          className={cn(
-                            "ml-2 h-4 w-4",
-                            companyFilter === company.key ? "opacity-100" : "opacity-0"
-                          )}
+                          className={cn("ml-2 h-4 w-4", companyFilter === company.key ? "opacity-100" : "opacity-0")}
                         />
                         {company.displayName}
                       </CommandItem>
@@ -455,7 +447,6 @@ const Products = () => {
               </Command>
             </PopoverContent>
           </Popover>
-
           <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter, "skinType")}>
             <SelectTrigger>
               <SelectValue placeholder="نوع البشرة" />
@@ -469,7 +460,6 @@ const Products = () => {
               <SelectItem value="sensitive">حساسة</SelectItem>
             </SelectContent>
           </Select>
-
           <Input
             type="number"
             placeholder="السعر الأدنى"
@@ -486,7 +476,6 @@ const Products = () => {
             }}
             className="text-right"
           />
-
           <Input
             type="number"
             placeholder="السعر الأقصى"
@@ -504,7 +493,6 @@ const Products = () => {
             className="text-right"
           />
         </div>
-
         {/* Products Grid */}
         {isLoading ? (
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
@@ -520,10 +508,8 @@ const Products = () => {
           <>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {products.map((product) => {
-                const discount = product.minPrice 
-                  ? calculateDiscount(product.id, product.minPrice, discounts)
-                  : null;
-                  
+                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
+
                 return (
                   <ProductCard
                     key={product.id}
@@ -536,7 +522,6 @@ const Products = () => {
                 );
               })}
             </div>
-
             {/* Load More Trigger */}
             <div ref={loadMoreRef} className="mt-8 flex justify-center">
               {isFetchingNextPage && (
