@@ -26,6 +26,8 @@ const Products = () => {
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
+  const [minPrice, setMinPrice] = useState<string>(searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState<string>(searchParams.get("maxPrice") || "");
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const itemsPerPage = 20;
@@ -78,7 +80,7 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, minPrice, maxPrice],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
@@ -114,6 +116,22 @@ const Products = () => {
             parentCategoryFilter,
             ...(subCategoriesData?.map(sub => sub.id) || [])
           ];
+        }
+      }
+
+      // فلترة المنتجات حسب السعر النهائي (بعد الخصم)
+      let priceFilteredIds: string[] | null = null;
+      if (minPrice || maxPrice) {
+        const { data: priceData, error: priceError } = await supabase
+          .rpc("get_products_by_price_range", {
+            min_price: minPrice ? parseFloat(minPrice) : null,
+            max_price: maxPrice ? parseFloat(maxPrice) : null,
+          });
+        
+        if (priceError) {
+          console.error("Error filtering by price:", priceError);
+        } else if (priceData) {
+          priceFilteredIds = priceData.map((item: any) => item.product_id);
         }
       }
 
@@ -162,6 +180,15 @@ const Products = () => {
 
       if (productTypeFilter !== "all") {
         query = query.eq("product_type", productTypeFilter);
+      }
+
+      // تطبيق فلتر السعر
+      if (priceFilteredIds !== null) {
+        if (priceFilteredIds.length === 0) {
+          // لا توجد منتجات تطابق نطاق السعر
+          return { products: [] };
+        }
+        query = query.in("id", priceFilteredIds);
       }
 
       const { data, error } = await query;
@@ -255,6 +282,8 @@ const Products = () => {
     const problem = searchParams.get("problem");
     const makeup = searchParams.get("makeup");
     const productType = searchParams.get("productType");
+    const min = searchParams.get("minPrice");
+    const max = searchParams.get("maxPrice");
     
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
@@ -264,6 +293,8 @@ const Products = () => {
     if (problem) setProblemFilter(problem);
     if (makeup) setMakeupFilter(makeup);
     if (productType) setProductTypeFilter(productType);
+    if (min) setMinPrice(min);
+    if (max) setMaxPrice(max);
   }, [searchParams]);
 
   const structuredData = {
@@ -286,7 +317,7 @@ const Products = () => {
         <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -438,6 +469,40 @@ const Products = () => {
               <SelectItem value="sensitive">حساسة</SelectItem>
             </SelectContent>
           </Select>
+
+          <Input
+            type="number"
+            placeholder="السعر الأدنى"
+            value={minPrice}
+            onChange={(e) => {
+              setMinPrice(e.target.value);
+              const newParams = new URLSearchParams(searchParams);
+              if (e.target.value) {
+                newParams.set("minPrice", e.target.value);
+              } else {
+                newParams.delete("minPrice");
+              }
+              setSearchParams(newParams);
+            }}
+            className="text-right"
+          />
+
+          <Input
+            type="number"
+            placeholder="السعر الأقصى"
+            value={maxPrice}
+            onChange={(e) => {
+              setMaxPrice(e.target.value);
+              const newParams = new URLSearchParams(searchParams);
+              if (e.target.value) {
+                newParams.set("maxPrice", e.target.value);
+              } else {
+                newParams.delete("maxPrice");
+              }
+              setSearchParams(newParams);
+            }}
+            className="text-right"
+          />
         </div>
 
         {/* Products Grid */}
