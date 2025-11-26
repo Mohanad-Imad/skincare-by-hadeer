@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,7 +15,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,11 +26,8 @@ const Products = () => {
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
-  const [minPrice, setMinPrice] = useState<string>(searchParams.get("minPrice") || "");
-  const [maxPrice, setMaxPrice] = useState<string>(searchParams.get("maxPrice") || "");
   const [companyOpen, setCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
   
@@ -82,7 +78,7 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, minPrice, maxPrice],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
@@ -118,26 +114,6 @@ const Products = () => {
             parentCategoryFilter,
             ...(subCategoriesData?.map(sub => sub.id) || [])
           ];
-        }
-      }
-
-      // جلب معرفات المنتجات ضمن النطاق السعري إذا كان الفلتر مفعل
-      let priceFilteredProductIds: string[] | null = null;
-      if (minPrice || maxPrice) {
-        const { data: priceData, error: priceError } = await supabase.rpc(
-          'get_products_by_price_range',
-          {
-            min_price: minPrice ? parseFloat(minPrice) : null,
-            max_price: maxPrice ? parseFloat(maxPrice) : null
-          }
-        );
-        
-        if (priceError) throw priceError;
-        priceFilteredProductIds = priceData?.map((item: any) => item.product_id) || [];
-        
-        // إذا لم تكن هناك منتجات ضمن النطاق السعري، نرجع قائمة فارغة
-        if (priceFilteredProductIds.length === 0) {
-          return { products: [] };
         }
       }
 
@@ -188,16 +164,6 @@ const Products = () => {
         query = query.eq("product_type", productTypeFilter);
       }
 
-      // فلتر نوع البشرة على مستوى قاعدة البيانات
-      if (skinTypeFilter !== "all") {
-        query = query.contains("skin_type", [skinTypeFilter]);
-      }
-
-      // تطبيق فلتر السعر على مستوى قاعدة البيانات
-      if (priceFilteredProductIds) {
-        query = query.in("id", priceFilteredProductIds);
-      }
-
       const { data, error } = await query;
       if (error) throw error;
 
@@ -217,6 +183,12 @@ const Products = () => {
             pmc.makeup_categories?.slug === makeupFilter
           );
         });
+      }
+
+      if (skinTypeFilter !== "all") {
+        filtered = filtered.filter(
+          (product) => product.skin_type?.includes(skinTypeFilter as any)
+        );
       }
 
       const productsWithImages = filtered.map(product => {
@@ -292,11 +264,6 @@ const Products = () => {
     if (problem) setProblemFilter(problem);
     if (makeup) setMakeupFilter(makeup);
     if (productType) setProductTypeFilter(productType);
-    
-    const min = searchParams.get("minPrice");
-    const max = searchParams.get("maxPrice");
-    if (min) setMinPrice(min);
-    if (max) setMaxPrice(max);
   }, [searchParams]);
 
   const structuredData = {
@@ -316,230 +283,10 @@ const Products = () => {
       />
       <Navbar />
       <div className="container py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">جميع المنتجات</h1>
-          
-          {/* Mobile Filter Button */}
-          <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="md:hidden">
-                <Filter className="ml-2 h-4 w-4" />
-                فلترة
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>تصفية المنتجات</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 space-y-4">{/* Filters Content for Mobile */}
-          <div className="relative">
-            <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="ابحثي عن منتج..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
-          </div>
+        <h1 className="mb-8 text-3xl font-bold">جميع المنتجات</h1>
 
-          <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
-            <SelectTrigger>
-              <SelectValue placeholder="نوع المنتج" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع الأنواع</SelectItem>
-              <SelectItem value="skincare">العناية بالبشرة</SelectItem>
-              <SelectItem value="watches">ساعات</SelectItem>
-              <SelectItem value="clothing">ملابس</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select 
-            value={parentCategoryFilter} 
-            onValueChange={(value) => {
-              setParentCategoryFilter(value);
-              setSubCategoryFilter("all");
-              
-              const newParams = new URLSearchParams(searchParams);
-              if (value === "all") {
-                newParams.delete("category");
-                newParams.delete("subCategory");
-              } else {
-                newParams.set("category", value);
-                newParams.delete("subCategory");
-              }
-              setSearchParams(newParams);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="التصنيف الرئيسي" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع التصنيفات</SelectItem>
-              {categories
-                ?.filter((cat) => !cat.parent_category_id)
-                .map((mainCat) => (
-                  <SelectItem key={mainCat.id} value={mainCat.id}>
-                    {mainCat.name_ar}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-
-          {parentCategoryFilter !== "all" && (
-            <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}>
-              <SelectTrigger>
-                <SelectValue placeholder="التصنيف الفرعي" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع الفرعيات</SelectItem>
-                {categories
-                  ?.filter((cat) => cat.parent_category_id === parentCategoryFilter)
-                  .map((subCat) => (
-                    <SelectItem key={subCat.id} value={subCat.id}>
-                      {subCat.name_ar}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          )}
-
-          <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={companyOpen}
-                className="w-full justify-between text-right"
-              >
-                {companyFilter === "all"
-                  ? "الشركة المصنعة"
-                  : companies?.find((company) => company.key === companyFilter)?.displayName}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0 bg-popover" align="start">
-              <Command>
-                <CommandInput 
-                  placeholder="ابحث عن شركة..." 
-                  value={companySearch}
-                  onValueChange={setCompanySearch}
-                  className="text-right"
-                />
-                <CommandList>
-                  <CommandEmpty>لا توجد نتائج</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem
-                      value="all"
-                      onSelect={() => {
-                        handleFilterChange(setCompanyFilter, "company")("all");
-                        setCompanyOpen(false);
-                        setCompanySearch("");
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "ml-2 h-4 w-4",
-                          companyFilter === "all" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      جميع الشركات
-                    </CommandItem>
-                    {companies?.map((company) => (
-                      <CommandItem
-                        key={company.key}
-                        value={company.displayName}
-                        onSelect={() => {
-                          handleFilterChange(setCompanyFilter, "company")(company.key);
-                          setCompanyOpen(false);
-                          setCompanySearch("");
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "ml-2 h-4 w-4",
-                            companyFilter === company.key ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {company.displayName}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-
-          <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter, "skinType")}>
-            <SelectTrigger>
-              <SelectValue placeholder="نوع البشرة" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع أنواع البشرة</SelectItem>
-              <SelectItem value="normal">عادية</SelectItem>
-              <SelectItem value="dry">جافة</SelectItem>
-              <SelectItem value="oily">دهنية</SelectItem>
-              <SelectItem value="combination">مختلطة</SelectItem>
-              <SelectItem value="sensitive">حساسة</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">السعر الأدنى (د.ع)</label>
-            <Input
-              type="number"
-              placeholder="0"
-              value={minPrice}
-              onChange={(e) => {
-                const value = e.target.value;
-                setMinPrice(value);
-                const newParams = new URLSearchParams(searchParams);
-                if (value) {
-                  newParams.set("minPrice", value);
-                } else {
-                  newParams.delete("minPrice");
-                }
-                setSearchParams(newParams);
-              }}
-              min="0"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">السعر الأعلى (د.ع)</label>
-            <Input
-              type="number"
-              placeholder="∞"
-              value={maxPrice}
-              onChange={(e) => {
-                const value = e.target.value;
-                setMaxPrice(value);
-                const newParams = new URLSearchParams(searchParams);
-                if (value) {
-                  newParams.set("maxPrice", value);
-                } else {
-                  newParams.delete("maxPrice");
-                }
-                setSearchParams(newParams);
-              }}
-              min="0"
-            />
-          </div>
-
-          <Button 
-            onClick={() => setFilterSheetOpen(false)}
-            className="w-full"
-          >
-            تطبيق الفلاتر
-          </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-
-        {/* Desktop Filters */}
-        <div className="mb-8 space-y-4 hidden md:block">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        {/* Filters */}
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
           <div className="relative">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -692,51 +439,6 @@ const Products = () => {
             </SelectContent>
           </Select>
         </div>
-
-        {/* Price Filter */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">السعر الأدنى (د.ع)</label>
-            <Input
-              type="number"
-              placeholder="0"
-              value={minPrice}
-              onChange={(e) => {
-                const value = e.target.value;
-                setMinPrice(value);
-                const newParams = new URLSearchParams(searchParams);
-                if (value) {
-                  newParams.set("minPrice", value);
-                } else {
-                  newParams.delete("minPrice");
-                }
-                setSearchParams(newParams);
-              }}
-              min="0"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">السعر الأعلى (د.ع)</label>
-            <Input
-              type="number"
-              placeholder="∞"
-              value={maxPrice}
-              onChange={(e) => {
-                const value = e.target.value;
-                setMaxPrice(value);
-                const newParams = new URLSearchParams(searchParams);
-                if (value) {
-                  newParams.set("maxPrice", value);
-                } else {
-                  newParams.delete("maxPrice");
-                }
-                setSearchParams(newParams);
-              }}
-              min="0"
-            />
-          </div>
-        </div>
-      </div>
 
         {/* Products Grid */}
         {isLoading ? (
