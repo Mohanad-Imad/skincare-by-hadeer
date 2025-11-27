@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowRight, Chrome } from "lucide-react";
+import { ArrowRight, Chrome, Mail } from "lucide-react";
 
 const authSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").max(255, "البريد الإلكتروني طويل جداً"),
@@ -23,6 +23,8 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   
   // الحصول على صفحة التوجيه من state
   const redirectTo = (location.state as any)?.redirectTo || "/";
@@ -97,8 +99,16 @@ const Auth = () => {
         });
         if (error) throw error;
         
-        toast.success("تم إنشاء الحساب بنجاح");
-        navigate(redirectTo);
+        // التحقق مما إذا كان المستخدم يحتاج تأكيد البريد الإلكتروني
+        if (data.user && !data.session) {
+          // المستخدم بحاجة لتأكيد البريد الإلكتروني
+          setRegisteredEmail(email);
+          setShowEmailConfirmation(true);
+        } else {
+          // تم تفعيل auto-confirm، الانتقال مباشرة
+          toast.success("تم إنشاء الحساب بنجاح");
+          navigate(redirectTo);
+        }
       }
     } catch (error: any) {
       if (import.meta.env.DEV) {
@@ -109,6 +119,58 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // عرض شاشة تأكيد البريد الإلكتروني
+  if (showEmailConfirmation) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4">
+        <div className="w-full max-w-md">
+          <Card className="w-full text-center">
+            <CardHeader>
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">تحقق من بريدك الإلكتروني</CardTitle>
+              <CardDescription className="text-base">
+                تم إرسال رابط التأكيد إلى بريدك الإلكتروني
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-lg bg-muted p-4">
+                <p className="text-sm text-muted-foreground mb-2">تم إرسال رابط التأكيد إلى:</p>
+                <p className="font-medium text-foreground" dir="ltr">{registeredEmail}</p>
+              </div>
+              
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>يرجى فتح بريدك الإلكتروني والضغط على رابط التأكيد لإكمال عملية التسجيل.</p>
+                <p>إذا لم تجد الرسالة، يرجى التحقق من مجلد الرسائل غير المرغوب فيها (Spam).</p>
+              </div>
+
+              <div className="pt-4 space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setShowEmailConfirmation(false);
+                    setIsLogin(true);
+                  }}
+                >
+                  العودة لتسجيل الدخول
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => navigate("/")}
+                >
+                  العودة للرئيسية
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4">
