@@ -30,13 +30,25 @@ const Auth = () => {
   const redirectTo = (location.state as any)?.redirectTo || "/";
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+    // الاستماع لتغييرات حالة المصادقة
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          // عرض رسالة النجاح عند تأكيد البريد الإلكتروني أو تسجيل الدخول
+          toast.success("تم تسجيل الدخول بنجاح");
+          navigate(redirectTo);
+        }
+      }
+    );
+
+    // التحقق من الجلسة الحالية
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
         navigate(redirectTo);
       }
-    };
-    checkSession();
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate, redirectTo]);
 
   const handleGoogleAuth = async () => {
@@ -84,8 +96,7 @@ const Auth = () => {
         });
         if (error) throw error;
         
-        toast.success("تم تسجيل الدخول بنجاح");
-        navigate(redirectTo);
+        // سيتم التوجيه تلقائياً عبر onAuthStateChange
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -105,9 +116,7 @@ const Auth = () => {
           setRegisteredEmail(email);
           setShowEmailConfirmation(true);
         } else {
-          // تم تفعيل auto-confirm، الانتقال مباشرة
-          toast.success("تم إنشاء الحساب بنجاح");
-          navigate(redirectTo);
+          // تم تفعيل auto-confirm، سيتم التوجيه تلقائياً عبر onAuthStateChange
         }
       }
     } catch (error: any) {
