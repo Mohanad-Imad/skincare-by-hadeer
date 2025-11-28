@@ -173,12 +173,26 @@ const AdminMakeupCategories = () => {
     }
   };
 
+  const generateSlug = (name: string) => {
+    // توليد slug من الاسم مع إضافة timestamp للتأكد من التفرد
+    const baseSlug = name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\u0621-\u064A-]/g, "");
+    return `${baseSlug}-${Date.now()}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const dataToSubmit = {
+      ...formData,
+      slug: formData.slug || generateSlug(formData.name_en || formData.name_ar),
+    };
+    
     if (editingId) {
-      updateMutation.mutate({ id: editingId, data: formData });
+      updateMutation.mutate({ id: editingId, data: dataToSubmit });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(dataToSubmit);
     }
   };
 
