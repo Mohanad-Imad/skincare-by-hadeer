@@ -31,13 +31,16 @@ export const SimilarProducts = ({ categoryId, currentProductId }: SimilarProduct
         `)
         .eq("category_id", categoryId)
         .eq("is_active", true)
-        .neq("id", currentProductId)
-        .limit(10);
+        .neq("id", currentProductId);
 
       if (error) throw error;
-      return data;
+      
+      // ترتيب عشوائي واختيار 10 منتجات
+      const shuffled = data?.sort(() => Math.random() - 0.5).slice(0, 10);
+      return shuffled;
     },
     enabled: !!categoryId,
+    staleTime: 0, // لضمان التحديث في كل مرة
   });
 
   if (isLoading || !products || products.length === 0) {
