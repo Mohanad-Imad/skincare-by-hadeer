@@ -1041,7 +1041,7 @@ const AdminProducts = () => {
                 </div>
               )}
               
-              {formData.product_type === "skincare" && problemCategories && problemCategories.length > 0 && (
+              {problemCategories && problemCategories.length > 0 && (
                 <div className="space-y-4 border-t pt-4">
                   <Label className="text-lg font-semibold">مناسب لعلاج المشاكل التالية</Label>
                   {problemCategories.map((category) => (
