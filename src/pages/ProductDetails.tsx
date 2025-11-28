@@ -14,6 +14,7 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { MiniCart } from "@/components/MiniCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { ProductReviews } from "@/components/ProductReviews";
+import { SimilarProducts } from "@/components/SimilarProducts";
 import {
   Dialog,
   DialogContent,
@@ -496,6 +497,14 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
+        
+        {/* منتجات مشابهة */}
+        {product.category_id && (
+          <SimilarProducts 
+            categoryId={product.category_id} 
+            currentProductId={product.id} 
+          />
+        )}
       </div>
       
       {/* أزرار الإجراءات - عائمة في أسفل الشاشة */}
