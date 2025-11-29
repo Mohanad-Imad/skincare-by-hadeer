@@ -82,38 +82,60 @@ const Products = () => {
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
-      if (subCategoryFilter !== "all") {
-        categoryIds = [subCategoryFilter];
-      } else if (parentCategoryFilter !== "all") {
-        // جلب معلومات التصنيف المحدد من قاعدة البيانات
-        const { data: selectedCategoryData } = await supabase
-          .from("categories")
-          .select("id, parent_category_id")
-          .eq("id", parentCategoryFilter)
+      // لا نطبق فلتر التصنيف عند استخدام فلتر المشكلة لعرض جميع المنتجات
+      if (problemFilter === "all") {
+        if (subCategoryFilter !== "all") {
+          categoryIds = [subCategoryFilter];
+        } else if (parentCategoryFilter !== "all") {
+          // جلب معلومات التصنيف المحدد من قاعدة البيانات
+          const { data: selectedCategoryData } = await supabase
+            .from("categories")
+            .select("id, parent_category_id")
+            .eq("id", parentCategoryFilter)
+            .single();
+          
+          if (selectedCategoryData?.parent_category_id) {
+            // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
+            const { data: allSubCategoriesData } = await supabase
+              .from("categories")
+              .select("id")
+              .eq("parent_category_id", selectedCategoryData.parent_category_id);
+            
+            categoryIds = [
+              selectedCategoryData.parent_category_id,
+              ...(allSubCategoriesData?.map(sub => sub.id) || [])
+            ];
+          } else {
+            // إذا كان التصنيف المحدد هو تصنيف أب، نحصل على جميع التصنيفات الفرعية
+            const { data: subCategoriesData } = await supabase
+              .from("categories")
+              .select("id")
+              .eq("parent_category_id", parentCategoryFilter);
+            
+            categoryIds = [
+              parentCategoryFilter,
+              ...(subCategoriesData?.map(sub => sub.id) || [])
+            ];
+          }
+        }
+      }
+
+      // إذا كان هناك فلتر مشكلة، نجلب معرفات المنتجات المرتبطة بها أولاً
+      let productIdsFromProblem: string[] = [];
+      if (problemFilter !== "all") {
+        const { data: subProblemData } = await supabase
+          .from("sub_problems")
+          .select("id")
+          .eq("slug", problemFilter)
           .single();
         
-        if (selectedCategoryData?.parent_category_id) {
-          // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
-          const { data: allSubCategoriesData } = await supabase
-            .from("categories")
-            .select("id")
-            .eq("parent_category_id", selectedCategoryData.parent_category_id);
+        if (subProblemData) {
+          const { data: productSubProblems } = await supabase
+            .from("product_sub_problems")
+            .select("product_id")
+            .eq("sub_problem_id", subProblemData.id);
           
-          categoryIds = [
-            selectedCategoryData.parent_category_id,
-            ...(allSubCategoriesData?.map(sub => sub.id) || [])
-          ];
-        } else {
-          // إذا كان التصنيف المحدد هو تصنيف أب، نحصل على جميع التصنيفات الفرعية
-          const { data: subCategoriesData } = await supabase
-            .from("categories")
-            .select("id")
-            .eq("parent_category_id", parentCategoryFilter);
-          
-          categoryIds = [
-            parentCategoryFilter,
-            ...(subCategoriesData?.map(sub => sub.id) || [])
-          ];
+          productIdsFromProblem = productSubProblems?.map(psp => psp.product_id) || [];
         }
       }
 
@@ -148,8 +170,15 @@ const Products = () => {
         .range(from, to)
         .order("created_at", { ascending: false });
 
-      // لا نطبق فلتر التصنيف عند استخدام فلتر المشكلة لعرض جميع المنتجات
-      if (categoryIds.length > 0 && problemFilter === "all") {
+      // تطبيق فلتر المشكلة على مستوى قاعدة البيانات
+      if (problemFilter !== "all" && productIdsFromProblem.length > 0) {
+        query = query.in("id", productIdsFromProblem);
+      } else if (problemFilter !== "all" && productIdsFromProblem.length === 0) {
+        // لا توجد منتجات لهذه المشكلة
+        return { products: [] };
+      }
+
+      if (categoryIds.length > 0) {
         query = query.in("category_id", categoryIds);
       }
 
@@ -169,14 +198,6 @@ const Products = () => {
       if (error) throw error;
 
       let filtered = data || [];
-
-      if (problemFilter !== "all") {
-        filtered = filtered.filter((product) => {
-          return product.product_sub_problems?.some((psp: any) => 
-            psp.sub_problems?.slug === problemFilter
-          );
-        });
-      }
 
       if (makeupFilter !== "all") {
         filtered = filtered.filter((product) => {
