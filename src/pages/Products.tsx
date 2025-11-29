@@ -148,7 +148,8 @@ const Products = () => {
         .range(from, to)
         .order("created_at", { ascending: false });
 
-      if (categoryIds.length > 0) {
+      // لا نطبق فلتر التصنيف عند استخدام فلتر المشكلة لعرض جميع المنتجات
+      if (categoryIds.length > 0 && problemFilter === "all") {
         query = query.in("category_id", categoryIds);
       }
 
