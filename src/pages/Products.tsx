@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, RotateCcw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -269,6 +269,30 @@ const Products = () => {
     }
   };
 
+  // التحقق من وجود فلاتر نشطة
+  const hasActiveFilters = 
+    searchTerm !== "" ||
+    parentCategoryFilter !== "all" ||
+    subCategoryFilter !== "all" ||
+    skinTypeFilter !== "all" ||
+    companyFilter !== "all" ||
+    problemFilter !== "all" ||
+    makeupFilter !== "all" ||
+    productTypeFilter !== "all";
+
+  // إعادة ضبط جميع الفلاتر
+  const resetAllFilters = () => {
+    setSearchTerm("");
+    setParentCategoryFilter("all");
+    setSubCategoryFilter("all");
+    setSkinTypeFilter("all");
+    setCompanyFilter("all");
+    setProblemFilter("all");
+    setMakeupFilter("all");
+    setProductTypeFilter("all");
+    setSearchParams(new URLSearchParams());
+  };
+
   // تحديث الفلاتر عند تغيير URL
   useEffect(() => {
     const category = searchParams.get("category");
@@ -463,8 +487,32 @@ const Products = () => {
                 <SelectItem value="sensitive">حساسة</SelectItem>
               </SelectContent>
             </Select>
+
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                onClick={resetAllFilters}
+                className="w-full text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="h-4 w-4 ml-2" />
+                إعادة ضبط الفلاتر
+              </Button>
+            )}
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Reset Button for Mobile (outside collapsible) */}
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={resetAllFilters}
+            className="md:hidden mb-4 text-muted-foreground hover:text-foreground"
+          >
+            <RotateCcw className="h-4 w-4 ml-2" />
+            إعادة ضبط الفلاتر
+          </Button>
+        )}
 
         {/* Desktop Filters */}
         <div className="hidden md:grid mb-8 gap-4 md:grid-cols-2 lg:grid-cols-6">
@@ -620,6 +668,21 @@ const Products = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Reset Button for Desktop */}
+        {hasActiveFilters && (
+          <div className="hidden md:flex justify-end mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetAllFilters}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <RotateCcw className="h-4 w-4 ml-2" />
+              إعادة ضبط الفلاتر
+            </Button>
+          </div>
+        )}
 
         {/* Products Grid */}
         {isLoading ? (
