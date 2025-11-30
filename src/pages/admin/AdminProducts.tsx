@@ -897,8 +897,25 @@ const AdminProducts = () => {
               
               {formData.product_type === "skincare" && (
                 <div className="space-y-2">
-                  <Label>مناسب لنوع البشرة</Label>
-                  <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>مناسب لنوع البشرة</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const allSelected = skinTypes.every(t => formData.skin_type.includes(t.value));
+                        if (allSelected) {
+                          setFormData({ ...formData, skin_type: [] });
+                        } else {
+                          setFormData({ ...formData, skin_type: skinTypes.map(t => t.value) });
+                        }
+                      }}
+                    >
+                      {skinTypes.every(t => formData.skin_type.includes(t.value)) ? "إلغاء الكل" : "تحديد الكل"}
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     {skinTypes.map((type) => (
                       <div key={type.value} className="flex items-center space-x-2 space-x-reverse">
                         <Checkbox
