@@ -501,19 +501,6 @@ const Products = () => {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Reset Button for Mobile (outside collapsible) */}
-        {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={resetAllFilters}
-            className="md:hidden mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <RotateCcw className="h-4 w-4 ml-2" />
-            إعادة ضبط الفلاتر
-          </Button>
-        )}
-
         {/* Desktop Filters */}
         <div className="hidden md:grid mb-8 gap-4 md:grid-cols-2 lg:grid-cols-6">
           <div className="relative">
