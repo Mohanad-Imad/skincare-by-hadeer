@@ -2,6 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useState } from "react";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import {
@@ -1042,33 +1048,59 @@ const AdminProducts = () => {
               )}
               
               {problemCategories && problemCategories.length > 0 && (
-                <div className="space-y-4 border-t pt-4">
-                  <Label className="text-lg font-semibold">مناسب لعلاج المشاكل التالية</Label>
-                  {problemCategories.map((category) => (
-                    <div key={category.id} className="space-y-2">
-                      <Label className="font-medium text-base">{category.name_ar}</Label>
-                      <div className="space-y-2 pr-4">
-                        {category.sub_problems?.map((subProblem: any) => (
-                          <div key={subProblem.id} className="flex items-center space-x-2 space-x-reverse">
-                            <Checkbox
-                              id={subProblem.id}
-                              checked={selectedSubProblems.includes(subProblem.id)}
-                              onCheckedChange={() => {
-                                setSelectedSubProblems(prev =>
-                                  prev.includes(subProblem.id)
-                                    ? prev.filter(id => id !== subProblem.id)
-                                    : [...prev, subProblem.id]
-                                );
-                              }}
-                            />
-                            <Label htmlFor={subProblem.id} className="cursor-pointer">
-                              {subProblem.name_ar}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-3 border-t pt-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-lg font-semibold">مناسب لعلاج المشاكل التالية</Label>
+                    {selectedSubProblems.length > 0 && (
+                      <span className="text-sm text-muted-foreground bg-primary/10 px-2 py-1 rounded-full">
+                        {selectedSubProblems.length} مشكلة مختارة
+                      </span>
+                    )}
+                  </div>
+                  <Accordion type="multiple" className="w-full">
+                    {problemCategories.map((category) => {
+                      const selectedInCategory = category.sub_problems?.filter(
+                        (sp: any) => selectedSubProblems.includes(sp.id)
+                      ).length || 0;
+                      
+                      return (
+                        <AccordionItem key={category.id} value={category.id} className="border rounded-lg mb-2 px-3">
+                          <AccordionTrigger className="hover:no-underline py-3">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{category.name_ar}</span>
+                              {selectedInCategory > 0 && (
+                                <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                                  {selectedInCategory}
+                                </span>
+                              )}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="grid grid-cols-2 gap-2 py-2">
+                              {category.sub_problems?.map((subProblem: any) => (
+                                <div key={subProblem.id} className="flex items-center space-x-2 space-x-reverse">
+                                  <Checkbox
+                                    id={subProblem.id}
+                                    checked={selectedSubProblems.includes(subProblem.id)}
+                                    onCheckedChange={() => {
+                                      setSelectedSubProblems(prev =>
+                                        prev.includes(subProblem.id)
+                                          ? prev.filter(id => id !== subProblem.id)
+                                          : [...prev, subProblem.id]
+                                      );
+                                    }}
+                                  />
+                                  <Label htmlFor={subProblem.id} className="cursor-pointer text-sm">
+                                    {subProblem.name_ar}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
                 </div>
               )}
               
