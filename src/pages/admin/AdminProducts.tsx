@@ -448,6 +448,18 @@ const AdminProducts = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // التحقق من وجود صورة واحدة على الأقل
+    if (productImages.length === 0) {
+      toast.error("يرجى إضافة صورة واحدة على الأقل للمنتج");
+      return;
+    }
+    
+    // التحقق من وجود حجم واحد على الأقل
+    if (variants.length === 0) {
+      toast.error("يرجى إضافة حجم وسعر واحد على الأقل للمنتج");
+      return;
+    }
+    
     const dataToSubmit = {
       ...formData,
       name_en: formData.name_ar, // استخدام القيمة العربية كقيمة افتراضية
