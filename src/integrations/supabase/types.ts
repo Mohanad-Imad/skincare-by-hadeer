@@ -1072,48 +1072,6 @@ export type Database = {
         }
         Relationships: []
       }
-      product_attribute_values: {
-        Row: {
-          attribute_id: string
-          created_at: string | null
-          id: string
-          product_id: string
-          updated_at: string | null
-          value: string | null
-        }
-        Insert: {
-          attribute_id: string
-          created_at?: string | null
-          id?: string
-          product_id: string
-          updated_at?: string | null
-          value?: string | null
-        }
-        Update: {
-          attribute_id?: string
-          created_at?: string | null
-          id?: string
-          product_id?: string
-          updated_at?: string | null
-          value?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_attribute_values_attribute_id_fkey"
-            columns: ["attribute_id"]
-            isOneToOne: false
-            referencedRelation: "product_type_attributes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_attribute_values_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       product_clothing_attributes: {
         Row: {
           available_colors: string[] | null
@@ -1353,113 +1311,6 @@ export type Database = {
           },
         ]
       }
-      product_type_attributes: {
-        Row: {
-          attribute_key: string
-          attribute_name_ar: string
-          attribute_name_en: string
-          created_at: string | null
-          display_order: number | null
-          field_type: string
-          id: string
-          is_active: boolean | null
-          is_required: boolean | null
-          options: Json | null
-          placeholder_ar: string | null
-          placeholder_en: string | null
-          product_type_id: string
-          show_in_filters: boolean | null
-          show_in_product_card: boolean | null
-          updated_at: string | null
-        }
-        Insert: {
-          attribute_key: string
-          attribute_name_ar: string
-          attribute_name_en: string
-          created_at?: string | null
-          display_order?: number | null
-          field_type?: string
-          id?: string
-          is_active?: boolean | null
-          is_required?: boolean | null
-          options?: Json | null
-          placeholder_ar?: string | null
-          placeholder_en?: string | null
-          product_type_id: string
-          show_in_filters?: boolean | null
-          show_in_product_card?: boolean | null
-          updated_at?: string | null
-        }
-        Update: {
-          attribute_key?: string
-          attribute_name_ar?: string
-          attribute_name_en?: string
-          created_at?: string | null
-          display_order?: number | null
-          field_type?: string
-          id?: string
-          is_active?: boolean | null
-          is_required?: boolean | null
-          options?: Json | null
-          placeholder_ar?: string | null
-          placeholder_en?: string | null
-          product_type_id?: string
-          show_in_filters?: boolean | null
-          show_in_product_card?: boolean | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_type_attributes_product_type_id_fkey"
-            columns: ["product_type_id"]
-            isOneToOne: false
-            referencedRelation: "product_types"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_types: {
-        Row: {
-          created_at: string | null
-          description_ar: string | null
-          description_en: string | null
-          display_order: number | null
-          icon: string | null
-          id: string
-          is_active: boolean | null
-          name_ar: string
-          name_en: string
-          slug: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description_ar?: string | null
-          description_en?: string | null
-          display_order?: number | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          name_ar: string
-          name_en: string
-          slug: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description_ar?: string | null
-          description_en?: string | null
-          display_order?: number | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          name_ar?: string
-          name_en?: string
-          slug?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       product_variants: {
         Row: {
           created_at: string | null
@@ -1571,7 +1422,6 @@ export type Database = {
           name_ar: string
           name_en: string
           product_type: string | null
-          product_type_id: string | null
           skin_type: Database["public"]["Enums"]["skin_type"][] | null
           updated_at: string | null
         }
@@ -1591,7 +1441,6 @@ export type Database = {
           name_ar: string
           name_en: string
           product_type?: string | null
-          product_type_id?: string | null
           skin_type?: Database["public"]["Enums"]["skin_type"][] | null
           updated_at?: string | null
         }
@@ -1611,7 +1460,6 @@ export type Database = {
           name_ar?: string
           name_en?: string
           product_type?: string | null
-          product_type_id?: string | null
           skin_type?: Database["public"]["Enums"]["skin_type"][] | null
           updated_at?: string | null
         }
@@ -1621,13 +1469,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "products_product_type_id_fkey"
-            columns: ["product_type_id"]
-            isOneToOne: false
-            referencedRelation: "product_types"
             referencedColumns: ["id"]
           },
         ]

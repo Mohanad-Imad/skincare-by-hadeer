@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { LucideIcon, LucideProps, Package } from "lucide-react";
+import { LucideIcon, LucideProps } from "lucide-react";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 
 interface DynamicIconProps extends Omit<LucideProps, "ref"> {
-  name: string;
+  name: keyof typeof dynamicIconImports;
 }
 
 export const DynamicIcon = ({ name, ...props }: DynamicIconProps) => {
@@ -12,21 +12,10 @@ export const DynamicIcon = ({ name, ...props }: DynamicIconProps) => {
   useEffect(() => {
     const loadIcon = async () => {
       try {
-        // Convert name to kebab-case for lucide
-        const kebabName = name
-          .replace(/([a-z])([A-Z])/g, "$1-$2")
-          .toLowerCase() as keyof typeof dynamicIconImports;
-        
-        if (dynamicIconImports[kebabName]) {
-          const iconModule = await dynamicIconImports[kebabName]();
-          setIcon(() => iconModule as unknown as LucideIcon);
-        } else {
-          // Fallback to Package icon
-          setIcon(() => Package);
-        }
+        const iconModule = await dynamicIconImports[name]();
+        setIcon(() => iconModule as unknown as LucideIcon);
       } catch (error) {
         console.error(`Error loading icon: ${name}`, error);
-        setIcon(() => Package);
       }
     };
 
