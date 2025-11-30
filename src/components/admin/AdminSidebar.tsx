@@ -21,6 +21,7 @@ import {
   Boxes,
   ShieldCheck,
   MessageCircle,
+  Layers,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -45,6 +46,7 @@ const menuItems = [
   { title: "آراء العملاء", url: "/admin/customer-reviews", icon: MessageCircleMore },
   { title: "تقييمات المنتجات", url: "/admin/product-reviews", icon: Star },
   { title: "المنتجات", url: "/admin/products", icon: Package },
+  { title: "أنواع المنتجات", url: "/admin/product-types", icon: Layers },
   { title: "المخزون", url: "/admin/inventory", icon: Boxes },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingBag },
   { title: "الاستشارات", url: "/admin/consultations", icon: MessageSquare },
