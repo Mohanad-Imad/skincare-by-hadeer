@@ -110,7 +110,7 @@ export default function ProblemSubCategories() {
               <button
                 key={subProblem.id}
                 onClick={() => navigate(`/products?problem=${subProblem.slug}`)}
-                className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                className="group bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="aspect-square bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
                   {subProblem.image_url ? (
