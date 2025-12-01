@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Trash2, Plus, Minus, ArrowRight, Tag } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { ShareCartButton } from "@/components/ShareCartButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -145,7 +146,23 @@ const Cart = () => {
         <FreeShippingBar />
         <CheckoutStepper currentStep={1} />
         <div className="container py-8 pb-32">
-          <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
+          <h1 className="mb-4 text-3xl font-bold">سلة التسوق</h1>
+
+          {localCartItems && localCartItems.length > 0 && (
+            <div className="mb-6 flex justify-end">
+              <ShareCartButton
+                cartItems={localCartItems.map(item => ({
+                  productId: item.products.id,
+                  productName: item.products.name_ar,
+                  variantId: item.id,
+                  variantSize: item.size_ar,
+                  price: item.price,
+                  quantity: item.quantity,
+                  imageUrl: item.products.image_url || undefined,
+                }))}
+              />
+            </div>
+          )}
 
           {!localCartItems || localCartItems.length === 0 ? (
             <div className="text-center">
@@ -309,7 +326,23 @@ const Cart = () => {
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
-        <h1 className="mb-8 text-3xl font-bold">سلة التسوق</h1>
+        <h1 className="mb-4 text-3xl font-bold">سلة التسوق</h1>
+
+        {cartItems && cartItems.length > 0 && (
+          <div className="mb-6 flex justify-end">
+            <ShareCartButton
+              cartItems={cartItems.map(item => ({
+                productId: item.product_variants.products.id,
+                productName: item.product_variants.products.name_ar,
+                variantId: item.product_variant_id,
+                variantSize: item.product_variants.size_ar,
+                price: item.product_variants.price,
+                quantity: item.quantity,
+                imageUrl: item.product_variants.products.image_url || undefined,
+              }))}
+            />
+          </div>
+        )}
 
         {isLoading ? (
           <div className="text-center">جاري التحميل...</div>

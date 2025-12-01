@@ -55,6 +55,7 @@ import AdminNavigationLinks from "./pages/admin/AdminNavigationLinks";
 import AdminDropHintSettings from "./pages/admin/AdminDropHintSettings";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
+import SharedCart from "./pages/SharedCart";
 import ScrollToTop from "./components/ScrollToTop";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
@@ -104,6 +105,7 @@ const App = () => (
           <Route path="/makeup" element={<Makeup />} />
           <Route path="/submit-review" element={<SubmitReview />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/shared-cart/:shareCode" element={<SharedCart />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
