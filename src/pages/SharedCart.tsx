@@ -52,7 +52,7 @@ const SharedCart = () => {
       if (!session?.user) {
         // Add to local cart for non-authenticated users
         for (const item of items) {
-          addToLocalCart(item.variantId);
+          addToLocalCart(item.variantId, item.quantity);
         }
         return;
       }

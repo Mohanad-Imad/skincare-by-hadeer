@@ -42,18 +42,18 @@ export const useLocalCart = () => {
     return () => window.removeEventListener(CART_UPDATE_EVENT, handleCartUpdate);
   }, []);
 
-  const addToLocalCart = (variantId: string) => {
+  const addToLocalCart = (variantId: string, quantity: number = 1) => {
     const existing = localCart.find((item) => item.variantId === variantId);
     let newCart: LocalCartItem[];
     
     if (existing) {
       newCart = localCart.map((item) =>
         item.variantId === variantId
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: item.quantity + quantity }
           : item
       );
     } else {
-      newCart = [...localCart, { variantId, quantity: 1 }];
+      newCart = [...localCart, { variantId, quantity }];
     }
     
     setLocalCart(newCart);
