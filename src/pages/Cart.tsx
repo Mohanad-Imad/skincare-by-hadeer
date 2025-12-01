@@ -146,10 +146,9 @@ const Cart = () => {
         <FreeShippingBar />
         <CheckoutStepper currentStep={1} />
         <div className="container py-8 pb-32">
-          <h1 className="mb-4 text-3xl font-bold">سلة التسوق</h1>
-
-          {localCartItems && localCartItems.length > 0 && (
-            <div className="mb-6 flex justify-end">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">سلة التسوق</h1>
+            {localCartItems && localCartItems.length > 0 && (
               <ShareCartButton
                 cartItems={localCartItems.map(item => ({
                   productId: item.products.id,
@@ -161,8 +160,8 @@ const Cart = () => {
                   imageUrl: item.products.image_url || undefined,
                 }))}
               />
-            </div>
-          )}
+            )}
+          </div>
 
           {!localCartItems || localCartItems.length === 0 ? (
             <div className="text-center">
@@ -326,10 +325,9 @@ const Cart = () => {
           <ArrowRight className="h-4 w-4" />
           رجوع
         </Button>
-        <h1 className="mb-4 text-3xl font-bold">سلة التسوق</h1>
-
-        {cartItems && cartItems.length > 0 && (
-          <div className="mb-6 flex justify-end">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">سلة التسوق</h1>
+          {cartItems && cartItems.length > 0 && (
             <ShareCartButton
               cartItems={cartItems.map(item => ({
                 productId: item.product_variants.products.id,
@@ -341,8 +339,8 @@ const Cart = () => {
                 imageUrl: item.product_variants.products.image_url || undefined,
               }))}
             />
-          </div>
-        )}
+          )}
+        </div>
 
         {isLoading ? (
           <div className="text-center">جاري التحميل...</div>
