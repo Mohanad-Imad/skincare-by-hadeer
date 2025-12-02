@@ -432,15 +432,15 @@ const Products = () => {
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-popover" align="start">
-                <Command>
+              <PopoverContent className="w-[calc(100vw-2rem)] min-w-[280px] max-w-[400px] p-0 bg-popover z-50" align="start" sideOffset={4}>
+                <Command className="w-full">
                   <CommandInput 
                     placeholder="ابحث عن شركة..." 
                     value={companySearch}
                     onValueChange={setCompanySearch}
                     className="text-right"
                   />
-                  <CommandList>
+                  <CommandList className="max-h-[250px]">
                     <CommandEmpty>لا توجد نتائج</CommandEmpty>
                     <CommandGroup>
                       <CommandItem
