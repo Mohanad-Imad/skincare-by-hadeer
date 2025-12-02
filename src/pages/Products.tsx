@@ -29,12 +29,12 @@ const Products = () => {
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
   const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
-  const [companyOpen, setCompanyOpen] = useState(false);
+  const [mobileCompanyOpen, setMobileCompanyOpen] = useState(false);
+  const [desktopCompanyOpen, setDesktopCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
   
   const { data: discounts } = useProductDiscounts();
 
@@ -421,12 +421,12 @@ const Products = () => {
               </Select>
             )}
 
-            <Drawer open={companyOpen} onOpenChange={setCompanyOpen}>
+            <Drawer open={mobileCompanyOpen} onOpenChange={setMobileCompanyOpen}>
               <DrawerTrigger asChild>
                 <Button
                   variant="outline"
                   role="combobox"
-                  aria-expanded={companyOpen}
+                  aria-expanded={mobileCompanyOpen}
                   className="w-full justify-between text-right"
                 >
                   {companyFilter === "all"
@@ -440,7 +440,7 @@ const Products = () => {
                   <DrawerTitle>اختر الشركة المصنعة</DrawerTitle>
                 </DrawerHeader>
                 <div className="p-4">
-                  <Command className="w-full">
+                  <Command className="w-full" shouldFilter={false}>
                     <CommandInput 
                       placeholder="ابحث عن شركة..." 
                       value={companySearch}
@@ -454,7 +454,7 @@ const Products = () => {
                           value="all"
                           onSelect={() => {
                             handleFilterChange(setCompanyFilter, "company")("all");
-                            setCompanyOpen(false);
+                            setMobileCompanyOpen(false);
                             setCompanySearch("");
                           }}
                           className="py-3"
@@ -462,13 +462,18 @@ const Products = () => {
                           <Check className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")} />
                           جميع الشركات
                         </CommandItem>
-                        {companies?.map((company) => (
+                        {companies
+                          ?.filter((company) => 
+                            !companySearch || 
+                            company.displayName?.toLowerCase().includes(companySearch.toLowerCase())
+                          )
+                          .map((company) => (
                           <CommandItem
                             key={company.key}
                             value={company.displayName}
                             onSelect={() => {
                               handleFilterChange(setCompanyFilter, "company")(company.key);
-                              setCompanyOpen(false);
+                              setMobileCompanyOpen(false);
                               setCompanySearch("");
                             }}
                             className="py-3"
@@ -585,12 +590,12 @@ const Products = () => {
             </Select>
           )}
 
-          <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
+          <Popover open={desktopCompanyOpen} onOpenChange={setDesktopCompanyOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
-                aria-expanded={companyOpen}
+                aria-expanded={desktopCompanyOpen}
                 className="w-full justify-between text-right"
               >
                 {companyFilter === "all"
@@ -599,22 +604,22 @@ const Products = () => {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full p-0 bg-popover" align="start">
-              <Command>
+            <PopoverContent className="w-[300px] p-0 bg-popover" align="start">
+              <Command shouldFilter={false}>
                 <CommandInput 
                   placeholder="ابحث عن شركة..." 
                   value={companySearch}
                   onValueChange={setCompanySearch}
                   className="text-right"
                 />
-                <CommandList>
+                <CommandList className="max-h-[300px]">
                   <CommandEmpty>لا توجد نتائج</CommandEmpty>
                   <CommandGroup>
                     <CommandItem
                       value="all"
                       onSelect={() => {
                         handleFilterChange(setCompanyFilter, "company")("all");
-                        setCompanyOpen(false);
+                        setDesktopCompanyOpen(false);
                         setCompanySearch("");
                       }}
                     >
@@ -626,13 +631,18 @@ const Products = () => {
                       />
                       جميع الشركات
                     </CommandItem>
-                    {companies?.map((company) => (
+                    {companies
+                      ?.filter((company) => 
+                        !companySearch || 
+                        company.displayName?.toLowerCase().includes(companySearch.toLowerCase())
+                      )
+                      .map((company) => (
                       <CommandItem
                         key={company.key}
                         value={company.displayName}
                         onSelect={() => {
                           handleFilterChange(setCompanyFilter, "company")(company.key);
-                          setCompanyOpen(false);
+                          setDesktopCompanyOpen(false);
                           setCompanySearch("");
                         }}
                       >
