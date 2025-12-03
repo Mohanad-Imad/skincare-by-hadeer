@@ -77,6 +77,16 @@ export const Footer = () => {
                   شاركنا رأيك
                 </Link>
               </li>
+              <li>
+                <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  سياسة الخصوصية
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  شروط الخدمة
+                </Link>
+              </li>
             </ul>
           </div>
 
