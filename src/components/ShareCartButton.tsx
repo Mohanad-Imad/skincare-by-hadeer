@@ -55,9 +55,13 @@ export const ShareCartButton = ({ cartItems, disabled }: ShareCartButtonProps) =
       
       const { data: session } = await supabase.auth.getSession();
       
+      // Ensure we're sharing all items
+      const itemsToShare = [...cartItems];
+      console.log("Sharing cart items:", itemsToShare.length, "items", itemsToShare);
+      
       const { error } = await (supabase.from("shared_carts") as any).insert({
         share_code: shareCode,
-        cart_items: cartItems,
+        cart_items: itemsToShare,
         created_by: session.session?.user?.id || null,
       });
 
