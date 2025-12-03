@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Star, User } from "lucide-react";
+import { Star, User, ImagePlus, X, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ProductReviewsProps {
   productId: string;
@@ -23,6 +28,10 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const [comment, setComment] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -65,7 +74,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
   });
 
   const submitReviewMutation = useMutation({
-    mutationFn: async (reviewData: { rating: number; comment: string; customer_name: string }) => {
+    mutationFn: async (reviewData: { rating: number; comment: string; customer_name: string; image_url?: string }) => {
       if (!session?.user) {
         throw new Error("يجب تسجيل الدخول لإضافة تقييم");
       }
@@ -76,6 +85,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
         rating: reviewData.rating,
         comment: reviewData.comment,
         customer_name: reviewData.customer_name,
+        image_url: reviewData.image_url || null,
         is_approved: false,
       });
 
@@ -83,16 +93,25 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
     },
     onSuccess: () => {
       toast.success("تم إرسال تقييمك بنجاح! سيتم مراجعته قريباً");
-      setRating(5);
-      setComment("");
-      setCustomerName("");
-      setShowForm(false);
+      resetForm();
       queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "حدث خطأ أثناء إرسال التقييم");
     },
   });
+
+  const resetForm = () => {
+    setRating(5);
+    setComment("");
+    setCustomerName("");
+    setSelectedImage(null);
+    setImagePreview(null);
+    setShowForm(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   // Auto-fill customer name from profile
   useEffect(() => {
@@ -101,7 +120,61 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
     }
   }, [profile, customerName]);
 
-  const handleSubmitReview = () => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("يرجى اختيار ملف صورة صالح");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+      return;
+    }
+
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage || !session?.user) return null;
+
+    const fileExt = selectedImage.name.split(".").pop();
+    const fileName = `${session.user.id}/${productId}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("product-images")
+      .upload(`reviews/${fileName}`, selectedImage);
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw new Error("فشل رفع الصورة");
+    }
+
+    const { data } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(`reviews/${fileName}`);
+
+    return data.publicUrl;
+  };
+
+  const handleSubmitReview = async () => {
     if (!customerName.trim()) {
       toast.error("الرجاء إدخال اسمك");
       return;
@@ -112,11 +185,26 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       return;
     }
 
-    submitReviewMutation.mutate({
-      rating,
-      comment: comment.trim(),
-      customer_name: customerName.trim(),
-    });
+    setIsUploading(true);
+
+    try {
+      let imageUrl: string | null = null;
+      
+      if (selectedImage) {
+        imageUrl = await uploadImage();
+      }
+
+      await submitReviewMutation.mutateAsync({
+        rating,
+        comment: comment.trim(),
+        customer_name: customerName.trim(),
+        image_url: imageUrl || undefined,
+      });
+    } catch (error) {
+      console.error("Submit error:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const averageRating = reviews?.length
@@ -230,21 +318,59 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
                   />
                 </div>
 
+                {/* Image Upload Section */}
+                <div className="space-y-2">
+                  <Label>صورة (اختياري)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    شارك صورة لتجربتك مع المنتج - الحد الأقصى 5 ميجابايت
+                  </p>
+                  
+                  {imagePreview ? (
+                    <div className="relative w-32 h-32">
+                      <img
+                        src={imagePreview}
+                        alt="معاينة الصورة"
+                        className="w-full h-full object-cover rounded-lg border"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                    >
+                      <ImagePlus className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        اضغط لاختيار صورة
+                      </p>
+                    </div>
+                  )}
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </div>
+
                 <div className="flex gap-2">
                   <Button
                     onClick={handleSubmitReview}
-                    disabled={submitReviewMutation.isPending}
+                    disabled={submitReviewMutation.isPending || isUploading}
                     className="flex-1"
                   >
-                    إرسال التقييم
+                    {isUploading ? "جاري الرفع..." : "إرسال التقييم"}
                   </Button>
                   <Button
-                    onClick={() => {
-                      setShowForm(false);
-                      setRating(5);
-                      setComment("");
-                      setCustomerName("");
-                    }}
+                    onClick={resetForm}
                     variant="outline"
                   >
                     إلغاء
@@ -302,6 +428,32 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
                       </div>
                     </div>
                     <p className="text-foreground leading-relaxed">{review.comment}</p>
+                    
+                    {/* Review Image */}
+                    {review.image_url && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <div className="relative w-24 h-24 cursor-pointer group">
+                            <img
+                              src={review.image_url}
+                              alt="صورة التقييم"
+                              className="w-full h-full object-cover rounded-lg border"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                              <ZoomIn className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-3xl p-0">
+                          <img
+                            src={review.image_url}
+                            alt="صورة التقييم"
+                            className="w-full h-auto rounded-lg"
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                    
                     {review.is_verified_purchase && (
                       <Badge variant="outline" className="text-xs">
                         عملية شراء موثقة

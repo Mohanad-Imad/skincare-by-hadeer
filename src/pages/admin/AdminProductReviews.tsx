@@ -4,11 +4,16 @@ import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Check, X } from "lucide-react";
+import { Star, Check, X, Image, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function AdminProductReviews() {
   const { isAdmin, isLoading: isCheckingAdmin } = useAdminCheck();
@@ -83,8 +88,132 @@ export default function AdminProductReviews() {
     );
   }
 
-  const pendingReviews = reviews?.filter((r) => !r.is_approved) || [];
-  const approvedReviews = reviews?.filter((r) => r.is_approved) || [];
+  const pendingReviews = reviews?.filter((r: any) => !r.is_approved) || [];
+  const approvedReviews = reviews?.filter((r: any) => r.is_approved) || [];
+
+  const ReviewCard = ({ review, isPending }: { review: any; isPending: boolean }) => (
+    <Card className={isPending ? "border-yellow-500" : ""}>
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle className="text-lg">
+              {review.products?.name_ar || "منتج غير معروف"}
+            </CardTitle>
+            <div className="flex items-center gap-2 flex-wrap">
+              {isPending ? (
+                <Badge variant="secondary">بانتظار المراجعة</Badge>
+              ) : (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  معتمد
+                </Badge>
+              )}
+              {review.image_url && (
+                <Badge variant="outline" className="gap-1">
+                  <Image className="h-3 w-3" />
+                  يحتوي صورة
+                </Badge>
+              )}
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-4 w-4 ${
+                      star <= review.rating
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {isPending ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    updateReviewMutation.mutate({ id: review.id, is_approved: true })
+                  }
+                  disabled={updateReviewMutation.isPending}
+                >
+                  <Check className="h-4 w-4 ml-1" />
+                  موافقة
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => deleteReviewMutation.mutate(review.id)}
+                  disabled={deleteReviewMutation.isPending}
+                >
+                  <X className="h-4 w-4 ml-1" />
+                  رفض
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    updateReviewMutation.mutate({ id: review.id, is_approved: false })
+                  }
+                  disabled={updateReviewMutation.isPending}
+                >
+                  <X className="h-4 w-4 ml-1" />
+                  إلغاء الموافقة
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => deleteReviewMutation.mutate(review.id)}
+                  disabled={deleteReviewMutation.isPending}
+                >
+                  حذف
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="font-medium">{review.customer_name}</span>
+            <span>•</span>
+            <span>{format(new Date(review.created_at), "d MMMM yyyy", { locale: ar })}</span>
+          </div>
+          <p className="text-foreground leading-relaxed">{review.comment}</p>
+          
+          {/* Review Image */}
+          {review.image_url && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="relative w-32 h-32 cursor-pointer group">
+                  <img
+                    src={review.image_url}
+                    alt="صورة التقييم"
+                    className="w-full h-full object-cover rounded-lg border"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <ZoomIn className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl p-0">
+                <img
+                  src={review.image_url}
+                  alt="صورة التقييم"
+                  className="w-full h-auto rounded-lg"
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8" dir="rtl">
@@ -123,64 +252,7 @@ export default function AdminProductReviews() {
           ) : (
             <div className="space-y-4">
               {pendingReviews.map((review: any) => (
-                <Card key={review.id} className="border-yellow-500">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">
-                          {review.products?.name_ar || "منتج غير معروف"}
-                        </CardTitle>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">بانتظار المراجعة</Badge>
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`h-4 w-4 ${
-                                  star <= review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-muted"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            updateReviewMutation.mutate({ id: review.id, is_approved: true })
-                          }
-                          disabled={updateReviewMutation.isPending}
-                        >
-                          <Check className="h-4 w-4 ml-1" />
-                          موافقة
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteReviewMutation.mutate(review.id)}
-                          disabled={deleteReviewMutation.isPending}
-                        >
-                          <X className="h-4 w-4 ml-1" />
-                          رفض
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="font-medium">{review.customer_name}</span>
-                        <span>•</span>
-                        <span>{format(new Date(review.created_at), "d MMMM yyyy", { locale: ar })}</span>
-                      </div>
-                      <p className="text-foreground leading-relaxed">{review.comment}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ReviewCard key={review.id} review={review} isPending={true} />
               ))}
             </div>
           )}
@@ -200,65 +272,7 @@ export default function AdminProductReviews() {
           ) : (
             <div className="space-y-4">
               {approvedReviews.map((review: any) => (
-                <Card key={review.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">
-                          {review.products?.name_ar || "منتج غير معروف"}
-                        </CardTitle>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                            معتمد
-                          </Badge>
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`h-4 w-4 ${
-                                  star <= review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-muted"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            updateReviewMutation.mutate({ id: review.id, is_approved: false })
-                          }
-                          disabled={updateReviewMutation.isPending}
-                        >
-                          <X className="h-4 w-4 ml-1" />
-                          إلغاء الموافقة
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteReviewMutation.mutate(review.id)}
-                          disabled={deleteReviewMutation.isPending}
-                        >
-                          حذف
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="font-medium">{review.customer_name}</span>
-                        <span>•</span>
-                        <span>{format(new Date(review.created_at), "d MMMM yyyy", { locale: ar })}</span>
-                      </div>
-                      <p className="text-foreground leading-relaxed">{review.comment}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ReviewCard key={review.id} review={review} isPending={false} />
               ))}
             </div>
           )}

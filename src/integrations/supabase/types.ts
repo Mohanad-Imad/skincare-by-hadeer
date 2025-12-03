@@ -1276,6 +1276,7 @@ export type Database = {
           created_at: string | null
           customer_name: string
           id: string
+          image_url: string | null
           is_approved: boolean | null
           is_verified_purchase: boolean | null
           product_id: string
@@ -1288,6 +1289,7 @@ export type Database = {
           created_at?: string | null
           customer_name: string
           id?: string
+          image_url?: string | null
           is_approved?: boolean | null
           is_verified_purchase?: boolean | null
           product_id: string
@@ -1300,6 +1302,7 @@ export type Database = {
           created_at?: string | null
           customer_name?: string
           id?: string
+          image_url?: string | null
           is_approved?: boolean | null
           is_verified_purchase?: boolean | null
           product_id?: string
