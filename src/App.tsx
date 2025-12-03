@@ -56,6 +56,8 @@ import AdminDropHintSettings from "./pages/admin/AdminDropHintSettings";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import SharedCart from "./pages/SharedCart";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import ScrollToTop from "./components/ScrollToTop";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
@@ -106,6 +108,8 @@ const App = () => (
           <Route path="/submit-review" element={<SubmitReview />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/shared-cart/:shareCode" element={<SharedCart />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
