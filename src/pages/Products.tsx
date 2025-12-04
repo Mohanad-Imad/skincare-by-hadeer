@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, SlidersHorizontal, X, RotateCcw } from "lucide-react";
+import { Search, SlidersHorizontal, X, RotateCcw, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+type SortOption = "newest" | "price_low" | "price_high" | "most_reviewed";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,10 +35,31 @@ const Products = () => {
   const [desktopCompanyOpen, setDesktopCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const { data: discounts } = useProductDiscounts();
+
+  // Fetch review counts per product
+  const { data: reviewCounts } = useQuery({
+    queryKey: ["product-review-counts"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("product_reviews")
+        .select("product_id")
+        .eq("is_approved", true);
+      
+      if (error) throw error;
+      
+      // Count reviews per product
+      const counts: Record<string, number> = {};
+      data?.forEach((review: any) => {
+        counts[review.product_id] = (counts[review.product_id] || 0) + 1;
+      });
+      return counts;
+    },
+  });
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -237,7 +260,38 @@ const Products = () => {
     },
   });
 
-  const products = data?.pages.flatMap(page => page.products) || [];
+  const rawProducts = data?.pages.flatMap(page => page.products) || [];
+
+  // Sort products based on selected sort option
+  const products = useMemo(() => {
+    if (!rawProducts.length) return rawProducts;
+    
+    const sorted = [...rawProducts];
+    
+    switch (sortBy) {
+      case "price_low":
+        return sorted.sort((a, b) => {
+          const priceA = a.minPrice ? calculateDiscount(a.id, a.minPrice, discounts)?.discountedPrice || a.minPrice : Infinity;
+          const priceB = b.minPrice ? calculateDiscount(b.id, b.minPrice, discounts)?.discountedPrice || b.minPrice : Infinity;
+          return priceA - priceB;
+        });
+      case "price_high":
+        return sorted.sort((a, b) => {
+          const priceA = a.minPrice ? calculateDiscount(a.id, a.minPrice, discounts)?.discountedPrice || a.minPrice : 0;
+          const priceB = b.minPrice ? calculateDiscount(b.id, b.minPrice, discounts)?.discountedPrice || b.minPrice : 0;
+          return priceB - priceA;
+        });
+      case "most_reviewed":
+        return sorted.sort((a, b) => {
+          const countA = reviewCounts?.[a.id] || 0;
+          const countB = reviewCounts?.[b.id] || 0;
+          return countB - countA;
+        });
+      case "newest":
+      default:
+        return sorted;
+    }
+  }, [rawProducts, sortBy, discounts, reviewCounts]);
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const [target] = entries;
@@ -360,6 +414,19 @@ const Products = () => {
         {/* Mobile Collapsible Filters */}
         <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen} className="md:hidden mb-4">
           <CollapsibleContent className="space-y-3 pt-2">
+            {/* Sort Option */}
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger>
+                <SelectValue placeholder="ترتيب حسب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">الأحدث</SelectItem>
+                <SelectItem value="price_low">السعر: من الأقل</SelectItem>
+                <SelectItem value="price_high">السعر: من الأعلى</SelectItem>
+                <SelectItem value="most_reviewed">الأكثر تقييماً</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
               <SelectTrigger>
                 <SelectValue placeholder="نوع المنتج" />
@@ -676,9 +743,24 @@ const Products = () => {
           </Select>
         </div>
 
-        {/* Reset Button for Desktop */}
-        {hasActiveFilters && (
-          <div className="hidden md:flex justify-end mb-4">
+        {/* Sort and Reset Row */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="ترتيب حسب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">الأحدث</SelectItem>
+                <SelectItem value="price_low">السعر: من الأقل</SelectItem>
+                <SelectItem value="price_high">السعر: من الأعلى</SelectItem>
+                <SelectItem value="most_reviewed">الأكثر تقييماً</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {hasActiveFilters && (
             <Button
               variant="ghost"
               size="sm"
@@ -688,8 +770,8 @@ const Products = () => {
               <RotateCcw className="h-4 w-4 ml-2" />
               إعادة ضبط الفلاتر
             </Button>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Products Grid */}
         {isLoading ? (
