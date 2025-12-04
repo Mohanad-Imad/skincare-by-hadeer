@@ -58,6 +58,7 @@ import Profile from "./pages/Profile";
 import SharedCart from "./pages/SharedCart";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import ProductReviewsPage from "./pages/ProductReviews";
 import ScrollToTop from "./components/ScrollToTop";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
@@ -93,6 +94,7 @@ const App = () => (
           <Route path="/categories" element={<Categories />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/products/:productId/reviews" element={<ProductReviewsPage />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
