@@ -11,11 +11,7 @@ import { Star, ArrowRight, ImagePlus, X, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 // Function to mask customer name for privacy
 const maskName = (name: string): string => {
@@ -27,9 +23,9 @@ const maskName = (name: string): string => {
 
 const ProductReviewsPage = () => {
   const { productId } = useParams();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ✅ استخدام دالة التوجيه
   const queryClient = useQueryClient();
-  
+
   const [rating, setRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -39,6 +35,8 @@ const ProductReviewsPage = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- Data Fetching (Queries) ---
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -66,11 +64,7 @@ const ProductReviewsPage = () => {
   const { data: product } = useQuery({
     queryKey: ["product", productId],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("products")
-        .select("name_ar")
-        .eq("id", productId)
-        .single();
+      const { data, error } = await (supabase as any).from("products").select("name_ar").eq("id", productId).single();
       if (error) throw error;
       return data;
     },
@@ -89,6 +83,8 @@ const ProductReviewsPage = () => {
       return data;
     },
   });
+
+  // --- Effects and Mutations ---
 
   useEffect(() => {
     if (profile?.full_name && !customerName) {
@@ -121,6 +117,8 @@ const ProductReviewsPage = () => {
       toast.error(error.message || "حدث خطأ أثناء إرسال التقييم");
     },
   });
+
+  // --- Handlers ---
 
   const resetForm = () => {
     setRating(5);
@@ -193,6 +191,25 @@ const ProductReviewsPage = () => {
     }
   };
 
+  /**
+   * دالة محسّنة للعودة:
+   * تحاول العودة خطوة واحدة (-1).
+   * في حالة فشلها (إذا لم يكن هناك تاريخ سابق في المتصفح/التطبيق)، تعود إلى صفحة تفاصيل المنتج بدلاً من التوقف.
+   */
+  const handleGoBack = () => {
+    try {
+      // نستخدم navigate(-1) للعودة في تاريخ React Router
+      navigate(-1);
+    } catch (e) {
+      // في حالة فشل العودة (غالباً بسبب عدم وجود سجل سابق)
+      // نقوم بتوجيهه إلى صفحة المنتج الرئيسية (تفاديًا للتوقف)
+      console.warn("Failed to navigate back, redirecting to product details.");
+      navigate(`/product/${productId}`);
+    }
+  };
+
+  // --- Calculations ---
+
   const averageRating = reviews?.length
     ? (reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length).toFixed(1)
     : "0";
@@ -204,14 +221,17 @@ const ProductReviewsPage = () => {
     count: reviews?.filter((r: any) => r.rating === star).length || 0,
   }));
 
+  // --- Render ---
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="p-1">
+        {/* ⭐ التعديل هنا: استخدام دالة handleGoBack المحمية ⭐ */}
+        <button onClick={handleGoBack} className="p-1">
           <ArrowRight className="h-5 w-5" />
         </button>
-        <h1 className="font-semibold">تقييمات المنتج</h1>
+        <h1 className="font-semibold">{product?.name_ar ? `تقييمات: ${product.name_ar}` : "تقييمات المنتج"}</h1>
       </div>
 
       <div className="p-4 space-y-6">
@@ -223,16 +243,12 @@ const ProductReviewsPage = () => {
               <Star
                 key={star}
                 className={`h-5 w-5 ${
-                  star <= Math.round(Number(averageRating))
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-muted"
+                  star <= Math.round(Number(averageRating)) ? "fill-yellow-400 text-yellow-400" : "text-muted"
                 }`}
               />
             ))}
           </div>
-          <span className="text-sm text-muted-foreground">
-            {reviews?.length || 0} تقييم
-          </span>
+          <span className="text-sm text-muted-foreground">{reviews?.length || 0} تقييم</span>
         </div>
 
         {/* Rating Distribution */}
@@ -262,22 +278,14 @@ const ProductReviewsPage = () => {
                 <Dialog key={review.id}>
                   <DialogTrigger asChild>
                     <div className="relative w-20 h-20 flex-shrink-0 cursor-pointer group rounded-lg overflow-hidden border">
-                      <img
-                        src={review.image_url}
-                        alt="صورة التقييم"
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={review.image_url} alt="صورة التقييم" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <ZoomIn className="h-5 w-5 text-white" />
                       </div>
                     </div>
                   </DialogTrigger>
                   <DialogContent className="max-w-3xl p-0">
-                    <img
-                      src={review.image_url}
-                      alt="صورة التقييم"
-                      className="w-full h-auto rounded-lg"
-                    />
+                    <img src={review.image_url} alt="صورة التقييم" className="w-full h-auto rounded-lg" />
                   </DialogContent>
                 </Dialog>
               ))}
@@ -294,11 +302,7 @@ const ProductReviewsPage = () => {
           <div className="space-y-4 p-4 border rounded-lg bg-card">
             <div className="space-y-2">
               <Label>اسمك</Label>
-              <Input
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="أدخل اسمك"
-              />
+              <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="أدخل اسمك" />
             </div>
 
             <div className="space-y-2">
@@ -315,9 +319,7 @@ const ProductReviewsPage = () => {
                   >
                     <Star
                       className={`h-8 w-8 ${
-                        star <= (hoveredRating || rating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-muted"
+                        star <= (hoveredRating || rating) ? "fill-yellow-400 text-yellow-400" : "text-muted"
                       }`}
                     />
                   </button>
@@ -361,10 +363,16 @@ const ProductReviewsPage = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleSubmitReview} disabled={submitReviewMutation.isPending || isUploading} className="flex-1">
+              <Button
+                onClick={handleSubmitReview}
+                disabled={submitReviewMutation.isPending || isUploading}
+                className="flex-1"
+              >
                 {isUploading ? "جاري الرفع..." : "إرسال التقييم"}
               </Button>
-              <Button onClick={resetForm} variant="outline">إلغاء</Button>
+              <Button onClick={resetForm} variant="outline">
+                إلغاء
+              </Button>
             </div>
           </div>
         )}
@@ -374,9 +382,7 @@ const ProductReviewsPage = () => {
           {isLoading ? (
             <p className="text-center text-muted-foreground">جاري التحميل...</p>
           ) : !reviews || reviews.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
-              لا توجد تقييمات بعد. كن أول من يقيم هذا المنتج!
-            </p>
+            <p className="text-center text-muted-foreground py-8">لا توجد تقييمات بعد. كن أول من يقيم هذا المنتج!</p>
           ) : (
             reviews.map((review: any) => (
               <div key={review.id} className="py-4 border-b last:border-b-0">
@@ -384,11 +390,7 @@ const ProductReviewsPage = () => {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`h-4 w-4 ${
-                        star <= review.rating
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-muted"
-                      }`}
+                      className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted"}`}
                     />
                   ))}
                 </div>
@@ -414,7 +416,9 @@ const ProductReviewsPage = () => {
                   </Dialog>
                 )}
                 {review.is_verified_purchase && (
-                  <Badge variant="outline" className="mt-2 text-xs">عملية شراء موثقة</Badge>
+                  <Badge variant="outline" className="mt-2 text-xs">
+                    عملية شراء موثقة
+                  </Badge>
                 )}
               </div>
             ))
