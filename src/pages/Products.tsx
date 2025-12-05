@@ -106,7 +106,7 @@ const Products = () => {
   });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
+    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, sortBy],
     queryFn: async ({ pageParam = 0 }) => {
       let categoryIds: string[] = [];
       
@@ -170,6 +170,24 @@ const Products = () => {
       const from = pageParam * itemsPerPage;
       const to = from + itemsPerPage - 1;
 
+      // For most_reviewed sorting, get product IDs sorted by review count
+      let productIdsSortedByReviews: string[] = [];
+      if (sortBy === "most_reviewed") {
+        const { data: reviewData } = await supabase
+          .from("product_reviews")
+          .select("product_id")
+          .eq("is_approved", true);
+        
+        // Count and sort
+        const counts: Record<string, number> = {};
+        reviewData?.forEach((r: any) => {
+          counts[r.product_id] = (counts[r.product_id] || 0) + 1;
+        });
+        productIdsSortedByReviews = Object.entries(counts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([id]) => id);
+      }
+
       let query = supabase
         .from("products")
         .select(`
@@ -194,9 +212,20 @@ const Products = () => {
             )
           )
         `)
-        .eq("is_active", true)
-        .range(from, to)
-        .order("created_at", { ascending: false });
+        .eq("is_active", true);
+
+      // Apply sorting at database level (except most_reviewed which is handled later)
+      if (sortBy === "newest") {
+        query = query.order("created_at", { ascending: false });
+      } else if (sortBy === "price_low" || sortBy === "price_high") {
+        // We'll sort after fetching since we need variant prices with discounts
+        query = query.order("created_at", { ascending: false });
+      } else if (sortBy === "most_reviewed") {
+        // Sort after fetching based on review counts
+        query = query.order("created_at", { ascending: false });
+      }
+      
+      query = query.range(from, to);
 
       // تطبيق فلتر المشكلة على مستوى قاعدة البيانات
       if (problemFilter !== "all" && productIdsFromProblem.length > 0) {
@@ -241,7 +270,7 @@ const Products = () => {
         );
       }
 
-      const productsWithImages = filtered.map(product => {
+      let productsWithImages = filtered.map(product => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
@@ -252,6 +281,30 @@ const Products = () => {
         };
       });
 
+      // Apply sorting for price and most_reviewed
+      if (sortBy === "price_low") {
+        productsWithImages = productsWithImages.sort((a, b) => {
+          const priceA = a.minPrice || Infinity;
+          const priceB = b.minPrice || Infinity;
+          return priceA - priceB;
+        });
+      } else if (sortBy === "price_high") {
+        productsWithImages = productsWithImages.sort((a, b) => {
+          const priceA = a.minPrice || 0;
+          const priceB = b.minPrice || 0;
+          return priceB - priceA;
+        });
+      } else if (sortBy === "most_reviewed" && productIdsSortedByReviews.length > 0) {
+        productsWithImages = productsWithImages.sort((a, b) => {
+          const indexA = productIdsSortedByReviews.indexOf(a.id);
+          const indexB = productIdsSortedByReviews.indexOf(b.id);
+          // Products not in the list go to the end
+          const rankA = indexA === -1 ? Infinity : indexA;
+          const rankB = indexB === -1 ? Infinity : indexB;
+          return rankA - rankB;
+        });
+      }
+
       return { products: productsWithImages };
     },
     initialPageParam: 0,
@@ -260,38 +313,8 @@ const Products = () => {
     },
   });
 
-  const rawProducts = data?.pages.flatMap(page => page.products) || [];
-
-  // Sort products based on selected sort option
-  const products = useMemo(() => {
-    if (!rawProducts.length) return rawProducts;
-    
-    const sorted = [...rawProducts];
-    
-    switch (sortBy) {
-      case "price_low":
-        return sorted.sort((a, b) => {
-          const priceA = a.minPrice ? calculateDiscount(a.id, a.minPrice, discounts)?.discountedPrice || a.minPrice : Infinity;
-          const priceB = b.minPrice ? calculateDiscount(b.id, b.minPrice, discounts)?.discountedPrice || b.minPrice : Infinity;
-          return priceA - priceB;
-        });
-      case "price_high":
-        return sorted.sort((a, b) => {
-          const priceA = a.minPrice ? calculateDiscount(a.id, a.minPrice, discounts)?.discountedPrice || a.minPrice : 0;
-          const priceB = b.minPrice ? calculateDiscount(b.id, b.minPrice, discounts)?.discountedPrice || b.minPrice : 0;
-          return priceB - priceA;
-        });
-      case "most_reviewed":
-        return sorted.sort((a, b) => {
-          const countA = reviewCounts?.[a.id] || 0;
-          const countB = reviewCounts?.[b.id] || 0;
-          return countB - countA;
-        });
-      case "newest":
-      default:
-        return sorted;
-    }
-  }, [rawProducts, sortBy, discounts, reviewCounts]);
+  // Products are already sorted from the query
+  const products = data?.pages.flatMap(page => page.products) || [];
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const [target] = entries;
