@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
@@ -36,8 +36,9 @@ const Products = () => {
   const [companySearch, setCompanySearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [displayCount, setDisplayCount] = useState(20);
   const itemsPerPage = 20;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const { data: discounts } = useProductDiscounts();
 
@@ -287,17 +288,36 @@ const Products = () => {
     return sorted;
   }, [allProducts, sortBy, reviewCounts]);
 
-  // Paginate sorted products
-  const totalPages = Math.ceil((sortedProducts?.length || 0) / itemsPerPage);
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sortedProducts.slice(startIndex, endIndex);
-  }, [sortedProducts, currentPage, itemsPerPage]);
+  // Lazy load products - show up to displayCount items
+  const displayedProducts = useMemo(() => {
+    return sortedProducts.slice(0, displayCount);
+  }, [sortedProducts, displayCount]);
 
-  // Reset to page 1 when filters or sort change
+  const hasMore = displayCount < (sortedProducts?.length || 0);
+
+  // Load more products when scrolling
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [target] = entries;
+    if (target.isIntersecting && hasMore) {
+      setDisplayCount(prev => prev + itemsPerPage);
+    }
+  }, [hasMore, itemsPerPage]);
+
   useEffect(() => {
-    setCurrentPage(1);
+    const element = loadMoreRef.current;
+    const option = { threshold: 0 };
+
+    const observer = new IntersectionObserver(handleObserver, option);
+    if (element) observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);
+
+  // Reset display count when filters or sort change
+  useEffect(() => {
+    setDisplayCount(itemsPerPage);
   }, [parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, sortBy]);
 
 
@@ -773,10 +793,10 @@ const Products = () => {
               </div>
             ))}
           </div>
-        ) : paginatedProducts && paginatedProducts.length > 0 ? (
+        ) : displayedProducts && displayedProducts.length > 0 ? (
           <>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-              {paginatedProducts.map((product) => {
+              {displayedProducts.map((product) => {
                 const discount = product.minPrice 
                   ? calculateDiscount(product.id, product.minPrice, discounts)
                   : null;
@@ -794,30 +814,20 @@ const Products = () => {
               })}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex justify-center items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  السابق
-                </Button>
-                <span className="text-sm text-muted-foreground px-4">
-                  صفحة {currentPage} من {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  التالي
-                </Button>
-              </div>
-            )}
+            {/* Lazy Load Trigger */}
+            <div ref={loadMoreRef} className="mt-8 flex justify-center">
+              {hasMore && (
+                <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 w-full">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <Skeleton className="aspect-square w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
