@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, SlidersHorizontal, X, RotateCcw, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,8 +36,8 @@ const Products = () => {
   const [companySearch, setCompanySearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const { data: discounts } = useProductDiscounts();
 
@@ -105,9 +105,10 @@ const Products = () => {
     },
   });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ["products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, sortBy],
-    queryFn: async ({ pageParam = 0 }) => {
+  // Fetch ALL products (without pagination)
+  const { data: allProducts, isLoading } = useQuery({
+    queryKey: ["all-products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
+    queryFn: async () => {
       let categoryIds: string[] = [];
       
       // لا نطبق فلتر التصنيف عند استخدام فلتر المشكلة لعرض جميع المنتجات
@@ -167,27 +168,6 @@ const Products = () => {
         }
       }
 
-      const from = pageParam * itemsPerPage;
-      const to = from + itemsPerPage - 1;
-
-      // For most_reviewed sorting, get product IDs sorted by review count
-      let productIdsSortedByReviews: string[] = [];
-      if (sortBy === "most_reviewed") {
-        const { data: reviewData } = await supabase
-          .from("product_reviews")
-          .select("product_id")
-          .eq("is_approved", true);
-        
-        // Count and sort
-        const counts: Record<string, number> = {};
-        reviewData?.forEach((r: any) => {
-          counts[r.product_id] = (counts[r.product_id] || 0) + 1;
-        });
-        productIdsSortedByReviews = Object.entries(counts)
-          .sort((a, b) => b[1] - a[1])
-          .map(([id]) => id);
-      }
-
       let query = supabase
         .from("products")
         .select(`
@@ -214,25 +194,12 @@ const Products = () => {
         `)
         .eq("is_active", true);
 
-      // Apply sorting at database level (except most_reviewed which is handled later)
-      if (sortBy === "newest") {
-        query = query.order("created_at", { ascending: false });
-      } else if (sortBy === "price_low" || sortBy === "price_high") {
-        // We'll sort after fetching since we need variant prices with discounts
-        query = query.order("created_at", { ascending: false });
-      } else if (sortBy === "most_reviewed") {
-        // Sort after fetching based on review counts
-        query = query.order("created_at", { ascending: false });
-      }
-      
-      query = query.range(from, to);
-
       // تطبيق فلتر المشكلة على مستوى قاعدة البيانات
       if (problemFilter !== "all" && productIdsFromProblem.length > 0) {
         query = query.in("id", productIdsFromProblem);
       } else if (problemFilter !== "all" && productIdsFromProblem.length === 0) {
         // لا توجد منتجات لهذه المشكلة
-        return { products: [] };
+        return [];
       }
 
       if (categoryIds.length > 0) {
@@ -270,7 +237,8 @@ const Products = () => {
         );
       }
 
-      let productsWithImages = filtered.map(product => {
+      // Transform products with images and minPrice
+      return filtered.map(product => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
@@ -280,60 +248,58 @@ const Products = () => {
           displayImage: firstImage,
         };
       });
+    },
+  });
 
-      // Apply sorting for price and most_reviewed
-      if (sortBy === "price_low") {
-        productsWithImages = productsWithImages.sort((a, b) => {
+  // Sort products client-side
+  const sortedProducts = useMemo(() => {
+    if (!allProducts) return [];
+    
+    const sorted = [...allProducts];
+    
+    switch (sortBy) {
+      case "newest":
+        sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case "price_low":
+        sorted.sort((a, b) => {
           const priceA = a.minPrice || Infinity;
           const priceB = b.minPrice || Infinity;
           return priceA - priceB;
         });
-      } else if (sortBy === "price_high") {
-        productsWithImages = productsWithImages.sort((a, b) => {
+        break;
+      case "price_high":
+        sorted.sort((a, b) => {
           const priceA = a.minPrice || 0;
           const priceB = b.minPrice || 0;
           return priceB - priceA;
         });
-      } else if (sortBy === "most_reviewed" && productIdsSortedByReviews.length > 0) {
-        productsWithImages = productsWithImages.sort((a, b) => {
-          const indexA = productIdsSortedByReviews.indexOf(a.id);
-          const indexB = productIdsSortedByReviews.indexOf(b.id);
-          // Products not in the list go to the end
-          const rankA = indexA === -1 ? Infinity : indexA;
-          const rankB = indexB === -1 ? Infinity : indexB;
-          return rankA - rankB;
+        break;
+      case "most_reviewed":
+        sorted.sort((a, b) => {
+          const countA = reviewCounts?.[a.id] || 0;
+          const countB = reviewCounts?.[b.id] || 0;
+          return countB - countA;
         });
-      }
-
-      return { products: productsWithImages };
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.products.length === itemsPerPage ? allPages.length : undefined;
-    },
-  });
-
-  // Products are already sorted from the query
-  const products = data?.pages.flatMap(page => page.products) || [];
-
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [target] = entries;
-    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+        break;
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+    
+    return sorted;
+  }, [allProducts, sortBy, reviewCounts]);
 
+  // Paginate sorted products
+  const totalPages = Math.ceil((sortedProducts?.length || 0) / itemsPerPage);
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortedProducts.slice(startIndex, endIndex);
+  }, [sortedProducts, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters or sort change
   useEffect(() => {
-    const element = loadMoreRef.current;
-    const option = { threshold: 0 };
+    setCurrentPage(1);
+  }, [parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, sortBy]);
 
-    const observer = new IntersectionObserver(handleObserver, option);
-    if (element) observer.observe(element);
-
-    return () => {
-      if (element) observer.unobserve(element);
-    };
-  }, [handleObserver]);
 
   const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
     setter(value);
@@ -807,10 +773,10 @@ const Products = () => {
               </div>
             ))}
           </div>
-        ) : products && products.length > 0 ? (
+        ) : paginatedProducts && paginatedProducts.length > 0 ? (
           <>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-              {products.map((product) => {
+              {paginatedProducts.map((product) => {
                 const discount = product.minPrice 
                   ? calculateDiscount(product.id, product.minPrice, discounts)
                   : null;
@@ -828,20 +794,30 @@ const Products = () => {
               })}
             </div>
 
-            {/* Load More Trigger */}
-            <div ref={loadMoreRef} className="mt-8 flex justify-center">
-              {isFetchingNextPage && (
-                <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 w-full">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="space-y-3">
-                      <Skeleton className="aspect-square w-full" />
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  السابق
+                </Button>
+                <span className="text-sm text-muted-foreground px-4">
+                  صفحة {currentPage} من {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  التالي
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
