@@ -233,7 +233,7 @@ const ProductDetails = () => {
       </div>
     );
   }
-  if (!product) {
+  if (!product || !product.product_variants || product.product_variants.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -251,6 +251,11 @@ const ProductDetails = () => {
         ? [product.image_url]
         : [];
 
+  // Get variant prices safely
+  const variantPrices = product.product_variants.map((v: any) => v.price);
+  const minPrice = variantPrices.length > 0 ? Math.min(...variantPrices) : 0;
+  const maxPrice = variantPrices.length > 0 ? Math.max(...variantPrices) : 0;
+
   // Structured data for product
   const structuredData = {
     "@context": "https://schema.org",
@@ -265,8 +270,8 @@ const ProductDetails = () => {
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "IQD",
-      "lowPrice": Math.min(...product.product_variants.map((v: any) => v.price)),
-      "highPrice": Math.max(...product.product_variants.map((v: any) => v.price)),
+      "lowPrice": minPrice,
+      "highPrice": maxPrice,
       "availability": "https://schema.org/InStock"
     }
   };
