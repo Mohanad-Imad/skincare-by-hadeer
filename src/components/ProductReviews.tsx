@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, ChevronLeft, ZoomIn } from "lucide-react";
@@ -9,6 +10,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ReviewImageGallery } from "@/components/ReviewImageGallery";
 
 interface ProductReviewsProps {
   productId: string;
@@ -23,6 +25,9 @@ const maskName = (name: string): string => {
 };
 
 export const ProductReviews = ({ productId }: ProductReviewsProps) => {
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["product-reviews", productId],
     queryFn: async () => {
@@ -97,30 +102,32 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
             )}
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {reviewsWithImages.slice(0, 5).map((review: any) => (
-              <Dialog key={review.id}>
-                <DialogTrigger asChild>
-                  <div className="relative w-16 h-16 flex-shrink-0 cursor-pointer group rounded-lg overflow-hidden border">
-                    <img
-                      src={review.image_url}
-                      alt="صورة التقييم"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <ZoomIn className="h-4 w-4 text-white" />
-                    </div>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-3xl p-0">
-                  <img
-                    src={review.image_url}
-                    alt="صورة التقييم"
-                    className="w-full h-auto rounded-lg"
-                  />
-                </DialogContent>
-              </Dialog>
+            {reviewsWithImages.slice(0, 5).map((review: any, index: number) => (
+              <div
+                key={review.id}
+                className="relative w-16 h-16 flex-shrink-0 cursor-pointer group rounded-lg overflow-hidden border"
+                onClick={() => {
+                  setGalleryInitialIndex(index);
+                  setGalleryOpen(true);
+                }}
+              >
+                <img
+                  src={review.image_url}
+                  alt="صورة التقييم"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <ZoomIn className="h-4 w-4 text-white" />
+                </div>
+              </div>
             ))}
           </div>
+          <ReviewImageGallery
+            reviews={reviewsWithImages.slice(0, 5)}
+            initialIndex={galleryInitialIndex}
+            open={galleryOpen}
+            onOpenChange={setGalleryOpen}
+          />
         </div>
       )}
 
