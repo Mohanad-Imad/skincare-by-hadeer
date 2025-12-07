@@ -53,6 +53,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminInventory from "./pages/admin/AdminInventory";
 import AdminNavigationLinks from "./pages/admin/AdminNavigationLinks";
 import AdminDropHintSettings from "./pages/admin/AdminDropHintSettings";
+import AdminAnnouncementBar from "./pages/admin/AdminAnnouncementBar";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import SharedCart from "./pages/SharedCart";
@@ -141,6 +142,7 @@ const App = () => (
             <Route path="guarantee" element={<AdminGuarantee />} />
             <Route path="navigation-links" element={<AdminNavigationLinks />} />
             <Route path="drop-hint-settings" element={<AdminDropHintSettings />} />
+            <Route path="announcement-bar" element={<AdminAnnouncementBar />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
