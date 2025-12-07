@@ -47,73 +47,44 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
       {/* Compact Combined Reviews Box */}
       <Link 
         to={`/products/${productId}/reviews`}
-        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+        className="flex items-center justify-between p-2.5 border rounded-lg hover:bg-muted/50 transition-colors"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Rating Section */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-lg font-bold">{averageRating}</span>
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-3.5 w-3.5 ${
-                    star <= Math.round(Number(averageRating))
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-muted"
-                  }`}
-                />
-              ))}
-            </div>
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm font-bold">{averageRating}</span>
             <span className="text-xs text-muted-foreground">
               ({reviews?.length || 0})
             </span>
           </div>
 
           {/* Separator */}
-          <div className="h-4 w-px bg-border" />
+          <div className="h-3.5 w-px bg-border" />
 
-          {/* Photos Section */}
-          {reviewsWithImages.length > 0 ? (
-            <div 
-              className="flex items-center gap-1"
-              onClick={(e) => {
+          {/* Photos Section - Always show camera icon with count */}
+          <div 
+            className="flex items-center gap-1 text-muted-foreground"
+            onClick={(e) => {
+              if (reviewsWithImages.length > 0) {
                 e.preventDefault();
                 e.stopPropagation();
                 setGalleryInitialIndex(0);
                 setGalleryOpen(true);
-              }}
-            >
-              {reviewsWithImages.slice(0, 3).map((review: any) => (
-                <div
-                  key={review.id}
-                  className="w-8 h-8 rounded overflow-hidden border cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <img
-                    src={review.image_url}
-                    alt="صورة التقييم"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-              {reviewsWithImages.length > 3 && (
-                <span className="text-xs text-muted-foreground mr-1">
-                  +{reviewsWithImages.length - 3}
-                </span>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Camera className="h-4 w-4" />
-              <span className="text-xs">0</span>
-            </div>
-          )}
+              }
+            }}
+          >
+            <Camera className={`h-4 w-4 ${reviewsWithImages.length > 0 ? "text-primary cursor-pointer" : ""}`} />
+            <span className={`text-xs ${reviewsWithImages.length > 0 ? "text-primary" : ""}`}>
+              {reviewsWithImages.length}
+            </span>
+          </div>
         </div>
 
         {/* View All Link */}
-        <div className="flex items-center gap-1 text-sm text-primary">
+        <div className="flex items-center gap-0.5 text-xs text-primary">
           <span>عرض الكل</span>
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3.5 w-3.5" />
         </div>
       </Link>
 
