@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_bar: {
+        Row: {
+          background_color: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          link_url: string | null
+          message_ar: string
+          message_en: string | null
+          text_color: string | null
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          link_url?: string | null
+          message_ar: string
+          message_en?: string | null
+          text_color?: string | null
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          link_url?: string | null
+          message_ar?: string
+          message_en?: string | null
+          text_color?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       banners: {
         Row: {
           button_text_ar: string | null

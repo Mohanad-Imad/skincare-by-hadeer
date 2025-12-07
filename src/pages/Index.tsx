@@ -21,6 +21,7 @@ import { LiveActivityFeed } from "@/components/LiveActivityFeed";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ const Index = () => {
         keywords="مستحضرات تجميل العراق، منتجات العناية بالبشرة بغداد، مستحضرات تجميل اون لاين العراق، متجر مستحضرات تجميل، عناية بالبشرة، كريمات البشرة، منتجات تجميل اصلية"
         structuredData={structuredData}
       />
+      <AnnouncementBar />
       <Navbar />
       <LiveActivityFeed />
       
