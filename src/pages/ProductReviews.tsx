@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight, ImagePlus, X, ZoomIn, ShoppingCart, CheckCircle2 } from "lucide-react";
+import { Star, ArrowRight, ImagePlus, X, ZoomIn, ShoppingCart, Check, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { ReviewImageGallery } from "@/components/ReviewImageGallery";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 // Function to mask customer name for privacy
 const maskName = (name: string): string => {
@@ -21,6 +22,95 @@ const maskName = (name: string): string => {
   const firstChar = name.charAt(0);
   const masked = "*".repeat(Math.min(name.length - 1, 3));
   return `${firstChar}${masked}`;
+};
+
+// Add to Cart Button Component
+const AddToCartButton = ({ 
+  session, 
+  minVariant, 
+  addedToCart, 
+  setAddedToCart, 
+  addToLocalCart, 
+  queryClient 
+}: {
+  session: any;
+  minVariant: any;
+  addedToCart: boolean;
+  setAddedToCart: (v: boolean) => void;
+  addToLocalCart: (variantId: string, quantity?: number) => void;
+  queryClient: any;
+}) => {
+  const addToCartMutation = useMutation({
+    mutationFn: async (variantId: string) => {
+      if (!session?.user) return;
+      const { data: existingItem } = await (supabase as any)
+        .from("cart_items")
+        .select("id, quantity")
+        .eq("user_id", session.user.id)
+        .eq("product_variant_id", variantId)
+        .single();
+
+      if (existingItem) {
+        await (supabase as any)
+          .from("cart_items")
+          .update({ quantity: existingItem.quantity + 1 })
+          .eq("id", existingItem.id);
+      } else {
+        await (supabase as any).from("cart_items").insert({
+          user_id: session.user.id,
+          product_variant_id: variantId,
+          quantity: 1,
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-items"] });
+      toast.success("تمت الإضافة إلى السلة");
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء الإضافة");
+    },
+  });
+
+  const handleAddToCart = () => {
+    if (!minVariant) {
+      toast.error("المنتج غير متوفر حالياً");
+      return;
+    }
+    if (!session?.user) {
+      addToLocalCart(minVariant.id, 1);
+      toast.success("تمت الإضافة إلى السلة");
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    } else {
+      addToCartMutation.mutate(minVariant.id);
+    }
+  };
+
+  return (
+    <Button 
+      className="w-full gap-2" 
+      onClick={handleAddToCart}
+      disabled={addToCartMutation.isPending || addedToCart || !minVariant}
+    >
+      {addedToCart ? (
+        <>
+          <Check className="h-4 w-4" />
+          تمت الإضافة
+        </>
+      ) : addToCartMutation.isPending ? (
+        "جاري الإضافة..."
+      ) : (
+        <>
+          <ShoppingCart className="h-4 w-4" />
+          أضف إلى السلة
+        </>
+      )}
+    </Button>
+  );
 };
 
 const ProductReviewsPage = () => {
@@ -39,8 +129,10 @@ const ProductReviewsPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   const { data: discounts } = useProductDiscounts();
+  const { addToLocalCart } = useLocalCart();
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -263,12 +355,14 @@ const ProductReviewsPage = () => {
                 </div>
               </div>
               <div className="border-t p-3">
-                <Button asChild className="w-full gap-2">
-                  <Link to={`/products/${productId}`}>
-                    <ShoppingCart className="h-4 w-4" />
-                    اذهب للمنتج
-                  </Link>
-                </Button>
+                <AddToCartButton
+                  session={session}
+                  minVariant={minVariant}
+                  addedToCart={addedToCart}
+                  setAddedToCart={setAddedToCart}
+                  addToLocalCart={addToLocalCart}
+                  queryClient={queryClient}
+                />
               </div>
             </CardContent>
           </Card>
