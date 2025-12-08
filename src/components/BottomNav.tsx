@@ -13,6 +13,7 @@ const navItems = [
   { id: "home", icon: Home, label: "الرئيسية", path: "/" },
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
   { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
+  { id: "account", icon: User, label: "٢الحساب", path: "/profile" },
   { id: "account", icon: User, label: "الحساب", path: "/profile" },
 ];
 
@@ -53,18 +54,18 @@ export const BottomNavPro = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel('cart-items-changes')
+      .channel("cart-items-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'cart_items',
+          event: "*",
+          schema: "public",
+          table: "cart_items",
           filter: `user_id=eq.${user.id}`,
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["cart-items-count", user.id] });
-        }
+        },
       )
       .subscribe();
 
