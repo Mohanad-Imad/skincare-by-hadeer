@@ -1,28 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, ShoppingCart, Package, User } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
+// تحديد العنصر المركزي الذي سيصبح FAB
+const CENTER_ITEM_ID = "cart";
+
 const navItems = [
   { id: "home", icon: Home, label: "الرئيسية", path: "/" },
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
-  { id: "cart", icon: ShoppingCart, label: "السلة", path: "/cart" },
+  { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
   { id: "account", icon: User, label: "الحساب", path: "/profile" },
 ];
 
-export const BottomNav = () => {
+export const BottomNavPro = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { localCart } = useLocalCart();
   const [user, setUser] = useState<any>(null);
 
+  // --- منطق حالة المستخدم وحساب السلة (لم يتغير) ---
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
@@ -33,10 +40,7 @@ export const BottomNav = () => {
     queryKey: ["cart-items-count", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await supabase
-        .from("cart_items")
-        .select("quantity")
-        .eq("user_id", user.id);
+      const { data } = await supabase.from("cart_items").select("quantity").eq("user_id", user.id);
       return data || [];
     },
     enabled: !!user,
@@ -65,91 +69,118 @@ export const BottomNav = () => {
     }
   };
 
+  // --- التصميم الجديد لشريط التنقل ---
+
+  // حساب العناصر التي تسبق وتلي العنصر المركزي
+  const centerItemIndex = navItems.findIndex((item) => item.id === CENTER_ITEM_ID);
+  const leftItems = navItems.slice(0, centerItemIndex);
+  const rightItems = navItems.slice(centerItemIndex + 1);
+  const centerItem = navItems[centerItemIndex];
+  const totalNavItems = navItems.length;
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-safe">
-      <div className="mx-3 mb-3">
-        <div className="relative bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 border border-border/50 overflow-hidden">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent pointer-events-none" />
-          
-          <div className="relative flex items-center justify-around py-2">
-            {navItems.map((item, index) => {
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      <div className="relative h-[70px] bg-background shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+        {/* شريط التنقل الأساسي */}
+        <div className="flex justify-around items-center h-full w-full max-w-lg mx-auto bg-card/90 backdrop-blur-md">
+          {/* العناصر اليسرى */}
+          <div className="flex flex-1 justify-around h-full">
+            {leftItems.map((item, index) => {
               const isActive = activeIndex === index;
               const Icon = item.icon;
-
               return (
-                <motion.button
+                <button
                   key={item.id}
                   onClick={() => handleNavClick(item.path, item.id)}
-                  className="relative flex flex-col items-center justify-center py-2 px-4 min-w-[70px]"
-                  whileTap={{ scale: 0.9 }}
+                  className="flex flex-col items-center justify-center p-2 min-w-[70px] transition-colors"
                 >
-                  {/* Active background pill */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-1 bg-primary/15 rounded-xl"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
+                  <Icon
+                    className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    strokeWidth={isActive ? 2.5 : 1.5}
+                  />
+                  <span
+                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-                  <div className="relative z-10 flex flex-col items-center gap-1">
-                    <motion.div
-                      className="relative"
-                      animate={{
-                        scale: isActive ? 1.1 : 1,
-                      }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    >
-                      <Icon
-                        className={`w-5 h-5 transition-colors duration-300 ${
-                          isActive 
-                            ? "text-primary" 
-                            : "text-muted-foreground"
-                        }`}
-                        strokeWidth={isActive ? 2.5 : 2}
-                      />
-                      
-                      {/* Cart badge */}
-                      {item.id === "cart" && cartCount > 0 && (
-                        <motion.span
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
-                        >
-                          {cartCount > 99 ? "99+" : cartCount}
-                        </motion.span>
-                      )}
-                    </motion.div>
+          {/* مساحة العنصر المركزي (الثلمة) */}
+          <div className="w-[80px] h-full" />
 
-                    <motion.span
-                      className={`text-[10px] font-medium transition-colors duration-300 ${
-                        isActive 
-                          ? "text-primary" 
-                          : "text-muted-foreground"
-                      }`}
-                      animate={{
-                        fontWeight: isActive ? 600 : 500,
-                      }}
-                    >
-                      {item.label}
-                    </motion.span>
-
-                    {/* Active indicator dot */}
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeDot"
-                        className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      />
-                    )}
-                  </div>
-                </motion.button>
+          {/* العناصر اليمنى */}
+          <div className="flex flex-1 justify-around h-full">
+            {rightItems.map((item, index) => {
+              // فهرس العنصر في المصفوفة الأصلية بعد تخطي العنصر المركزي
+              const originalIndex = centerItemIndex + 1 + index;
+              const isActive = activeIndex === originalIndex;
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.path, item.id)}
+                  className="flex flex-col items-center justify-center p-2 min-w-[70px] transition-colors"
+                >
+                  <Icon
+                    className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    strokeWidth={isActive ? 2.5 : 1.5}
+                  />
+                  <span
+                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                  >
+                    {item.label}
+                  </span>
+                </button>
               );
             })}
           </div>
         </div>
       </div>
+
+      {/* العنصر العائم المركزي (FAB) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <motion.button
+          onClick={() => handleNavClick(centerItem.path, centerItem.id)}
+          className="w-16 h-16 rounded-full bg-primary shadow-2xl shadow-primary/40 flex items-center justify-center border-4 border-background/50"
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        >
+          <div className="relative">
+            <centerItem.icon className="w-7 h-7 text-primary-foreground" strokeWidth={2.5} />
+
+            {/* شارة السلة */}
+            <AnimatePresence>
+              {CENTER_ITEM_ID === "cart" && cartCount > 0 && (
+                <motion.span
+                  key="cart-badge"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 border-2 border-primary"
+                >
+                  {cartCount > 99 ? "99+" : cartCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.button>
+      </div>
+
+      {/* مؤشر الحالة النشط على العناصر الجانبية (اختياري: يمكنك إزالته إذا كان الـ FAB كافياً للإشارة) */}
+      {activeIndex !== centerItemIndex && (
+        <motion.div
+          className="absolute top-0 h-1 bg-primary rounded-full max-w-lg mx-auto"
+          style={{ width: `calc(100% / ${totalNavItems} - 20px)` }}
+          initial={false}
+          animate={{
+            x: `calc(${activeIndex * (100 / totalNavItems)}% + 10px)`, // تعديل الموقع ليتناسب مع العناصر الجانبية
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+      )}
     </nav>
   );
 };
