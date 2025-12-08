@@ -19,7 +19,8 @@ interface ProductCardProps {
   };
 }
 
-export const ProductCardEnhanced = ({ id, nameAr, imageUrl, minPrice, discount }: ProductCardProps) => {
+// **تم الحفاظ على الاسم الأصلي ProductCard**
+export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: ProductCardProps) => {
   const navigate = useNavigate();
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -31,7 +32,7 @@ export const ProductCardEnhanced = ({ id, nameAr, imageUrl, minPrice, discount }
     },
   });
 
-  // دالة تحويل الرقم إلى تنسيق العملة مع فاصل الآلاف (اختياري لتحسين المظهر)
+  // دالة تحويل الرقم إلى تنسيق العملة مع فاصل الآلاف
   const formatPrice = (price: number) => {
     return Math.round(price)
       .toLocaleString("ar-IQ", { style: "currency", currency: "IQD", minimumFractionDigits: 0 })
@@ -41,12 +42,13 @@ export const ProductCardEnhanced = ({ id, nameAr, imageUrl, minPrice, discount }
 
   return (
     <Card
-      className="group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col rounded-lg border-2 border-transparent hover:border-primary/50" // تحسين شكل الكارت
+      // تصميم محدث مع تأثيرات التفاعل
+      className="group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col rounded-lg border-2 border-transparent hover:border-primary/50"
       onClick={() => navigate(`/products/${id}`)}
     >
       {/* 1. منطقة الصورة */}
       <div className="aspect-square overflow-hidden relative flex-shrink-0 bg-gray-100 dark:bg-gray-800">
-        {/* شارة الخصم - موقع جديد وأكثر وضوحاً */}
+        {/* شارة الخصم - موقع علوي أيمن */}
         {discount && (
           <Badge
             variant="destructive"
@@ -63,7 +65,7 @@ export const ProductCardEnhanced = ({ id, nameAr, imageUrl, minPrice, discount }
             <img
               src={imageUrl}
               alt={nameAr}
-              // تأثير تكبير أنيق عند التفاعل (Hover)
+              // تأثير التكبير عند التفاعل (Hover)
               className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
