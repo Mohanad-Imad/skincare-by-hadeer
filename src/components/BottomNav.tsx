@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, ShoppingCart, Package, User } from "lucide-react";
+// تم استيراد أيقونة Palette الجديدة للمكياج
+import { Home, ShoppingCart, Package, User, Palette } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,9 +14,16 @@ const navItems = [
   { id: "home", icon: Home, label: "الرئيسية", path: "/" },
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
   { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
-  { id: "makeup", icon: User, label: "المكياج", path: "/makeup" },
+  // تم تغيير الأيقونة هنا إلى Palette
+  { id: "makeup", icon: Palette, label: "المكياج", path: "/makeup" },
   { id: "account", icon: User, label: "الحساب", path: "/profile" },
 ];
+
+// ***************************************************************
+// ملاحظة هامة: يجب تحديث مركزية الأزرار بناءً على العدد الجديد (5 عناصر)
+// لتجنب المشاكل في التنسيق، قمت بإبقاء السلة هي العنصر المركزي (الذي يقع في المنتصف
+// إذا كان العدد فردياً)
+// ***************************************************************
 
 export const BottomNavPro = () => {
   const navigate = useNavigate();
@@ -24,7 +32,7 @@ export const BottomNavPro = () => {
   const [user, setUser] = useState<any>(null);
   const queryClient = useQueryClient();
 
-  // --- منطق حالة المستخدم وحساب السلة ---
+  // --- منطق حالة المستخدم وحساب السلة (لم يتغير) ---
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -78,12 +86,14 @@ export const BottomNavPro = () => {
     ? cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0
     : localCart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // تم تحديث دالة getActiveIndex لتشمل المسار الجديد /makeup
   const getActiveIndex = () => {
     const path = location.pathname;
     if (path === "/") return 0;
     if (path.startsWith("/products")) return 1;
-    if (path === "/cart") return 2;
-    if (path === "/profile" || path === "/auth") return 3;
+    if (path === "/cart") return 2; // المركز الجديد
+    if (path === "/makeup") return 3; // المكياج
+    if (path === "/profile" || path === "/auth") return 4; // الحساب
     return -1;
   };
 
@@ -100,27 +110,31 @@ export const BottomNavPro = () => {
   // --- التصميم الجديد لشريط التنقل ---
 
   // حساب العناصر التي تسبق وتلي العنصر المركزي
-  const centerItemIndex = navItems.findIndex((item) => item.id === CENTER_ITEM_ID);
-  const leftItems = navItems.slice(0, centerItemIndex);
-  const rightItems = navItems.slice(centerItemIndex + 1);
+  const centerItemIndex = navItems.findIndex((item) => item.id === CENTER_ITEM_ID); // المركز هو 2 الآن
+  const leftItems = navItems.slice(0, centerItemIndex); // [home, products]
+  const rightItems = navItems.slice(centerItemIndex + 1); // [makeup, account]
   const centerItem = navItems[centerItemIndex];
-  const totalNavItems = navItems.length;
+  const totalNavItems = navItems.length; // 5 عناصر
+
+  // تعديل تنسيق العناصر الجانبية لتستوعب 5 عناصر (2 يمين و 2 يسار)
+  const navItemWidth = `calc(100% / ${totalNavItems} * 2)`;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       <div className="relative h-[70px] bg-background shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
         {/* شريط التنقل الأساسي */}
         <div className="flex justify-around items-center h-full w-full max-w-lg mx-auto bg-card/90 backdrop-blur-md">
-          {/* العناصر اليسرى */}
-          <div className="flex flex-1 justify-around h-full">
+          {/* العناصر اليسرى (2 عنصر) */}
+          <div className="flex justify-around h-full" style={{ width: navItemWidth }}>
             {leftItems.map((item, index) => {
               const isActive = activeIndex === index;
               const Icon = item.icon;
               return (
-                <button
+                <motion.button
                   key={item.id}
                   onClick={() => handleNavClick(item.path, item.id)}
-                  className="flex flex-col items-center justify-center p-2 min-w-[70px] transition-colors"
+                  className="flex flex-col items-center justify-center p-2 min-w-[70px] transition-colors flex-1"
+                  whileTap={{ scale: 0.95 }}
                 >
                   <Icon
                     className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`}
@@ -131,7 +145,7 @@ export const BottomNavPro = () => {
                   >
                     {item.label}
                   </span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -139,18 +153,19 @@ export const BottomNavPro = () => {
           {/* مساحة العنصر المركزي (الثلمة) */}
           <div className="w-[80px] h-full" />
 
-          {/* العناصر اليمنى */}
-          <div className="flex flex-1 justify-around h-full">
+          {/* العناصر اليمنى (2 عنصر) */}
+          <div className="flex justify-around h-full" style={{ width: navItemWidth }}>
             {rightItems.map((item, index) => {
-              // فهرس العنصر في المصفوفة الأصلية بعد تخطي العنصر المركزي
+              // فهرس العنصر في المصفوفة الأصلية بعد تخطي العنصر المركزي (3, 4)
               const originalIndex = centerItemIndex + 1 + index;
               const isActive = activeIndex === originalIndex;
               const Icon = item.icon;
               return (
-                <button
+                <motion.button
                   key={item.id}
                   onClick={() => handleNavClick(item.path, item.id)}
-                  className="flex flex-col items-center justify-center p-2 min-w-[70px] transition-colors"
+                  className="flex flex-col items-center justify-center p-2 min-w-[70px] transition-colors flex-1"
+                  whileTap={{ scale: 0.95 }}
                 >
                   <Icon
                     className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`}
@@ -161,14 +176,14 @@ export const BottomNavPro = () => {
                   >
                     {item.label}
                   </span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
         </div>
       </div>
 
-      {/* العنصر العائم المركزي (FAB) */}
+      {/* العنصر العائم المركزي (FAB) - السلة */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <motion.button
           onClick={() => handleNavClick(centerItem.path, centerItem.id)}
@@ -197,14 +212,15 @@ export const BottomNavPro = () => {
         </motion.button>
       </div>
 
-      {/* مؤشر الحالة النشط على العناصر الجانبية (اختياري: يمكنك إزالته إذا كان الـ FAB كافياً للإشارة) */}
-      {activeIndex !== centerItemIndex && (
+      {/* مؤشر الحالة النشط على العناصر الجانبية */}
+      {activeIndex !== -1 && activeIndex !== centerItemIndex && (
         <motion.div
           className="absolute top-0 h-1 bg-primary rounded-full max-w-lg mx-auto"
           style={{ width: `calc(100% / ${totalNavItems} - 20px)` }}
           initial={false}
           animate={{
-            x: `calc(${activeIndex * (100 / totalNavItems)}% + 10px)`, // تعديل الموقع ليتناسب مع العناصر الجانبية
+            // حساب موقع المؤشر الجديد بناءً على 5 عناصر
+            x: `calc(${activeIndex * (100 / totalNavItems)}% + 10px + ${activeIndex > centerItemIndex ? "40px" : "0px"})`,
           }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
