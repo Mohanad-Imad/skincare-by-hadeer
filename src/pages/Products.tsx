@@ -39,7 +39,7 @@ const Products = () => {
   const [displayCount, setDisplayCount] = useState(20);
   const itemsPerPage = 20;
   const loadMoreRef = useRef<HTMLDivElement>(null);
-
+  
   const { data: discounts } = useProductDiscounts();
 
   // Fetch review counts per product
@@ -50,9 +50,9 @@ const Products = () => {
         .from("product_reviews")
         .select("product_id")
         .eq("is_approved", true);
-
+      
       if (error) throw error;
-
+      
       // Count reviews per product
       const counts: Record<string, number> = {};
       data?.forEach((review: any) => {
@@ -77,9 +77,11 @@ const Products = () => {
   const { data: companies } = useQuery({
     queryKey: ["companies"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("company_name_ar, company_name_en");
+      const { data, error } = await supabase
+        .from("products")
+        .select("company_name_ar, company_name_en");
       if (error) throw error;
-
+      
       // استخراج الأسماء الفريدة
       const companiesMap = new Map();
       data.forEach((p) => {
@@ -92,7 +94,7 @@ const Products = () => {
           }
         }
       });
-
+      
       return Array.from(companiesMap.entries())
         .map(([key, value]) => ({
           key,
@@ -106,20 +108,10 @@ const Products = () => {
 
   // Fetch ALL products (without pagination)
   const { data: allProducts, isLoading } = useQuery({
-    queryKey: [
-      "all-products",
-      parentCategoryFilter,
-      subCategoryFilter,
-      skinTypeFilter,
-      companyFilter,
-      searchTerm,
-      problemFilter,
-      makeupFilter,
-      productTypeFilter,
-    ],
+    queryKey: ["all-products", parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter],
     queryFn: async () => {
       let categoryIds: string[] = [];
-
+      
       // لا نطبق فلتر التصنيف عند استخدام فلتر المشكلة لعرض جميع المنتجات
       if (problemFilter === "all") {
         if (subCategoryFilter !== "all") {
@@ -131,17 +123,17 @@ const Products = () => {
             .select("id, parent_category_id")
             .eq("id", parentCategoryFilter)
             .single();
-
+          
           if (selectedCategoryData?.parent_category_id) {
             // إذا كان التصنيف المحدد هو تصنيف فرعي، نحصل على التصنيف الأب وجميع التصنيفات الفرعية
             const { data: allSubCategoriesData } = await supabase
               .from("categories")
               .select("id")
               .eq("parent_category_id", selectedCategoryData.parent_category_id);
-
+            
             categoryIds = [
               selectedCategoryData.parent_category_id,
-              ...(allSubCategoriesData?.map((sub) => sub.id) || []),
+              ...(allSubCategoriesData?.map(sub => sub.id) || [])
             ];
           } else {
             // إذا كان التصنيف المحدد هو تصنيف أب، نحصل على جميع التصنيفات الفرعية
@@ -149,8 +141,11 @@ const Products = () => {
               .from("categories")
               .select("id")
               .eq("parent_category_id", parentCategoryFilter);
-
-            categoryIds = [parentCategoryFilter, ...(subCategoriesData?.map((sub) => sub.id) || [])];
+            
+            categoryIds = [
+              parentCategoryFilter,
+              ...(subCategoriesData?.map(sub => sub.id) || [])
+            ];
           }
         }
       }
@@ -163,21 +158,20 @@ const Products = () => {
           .select("id")
           .eq("slug", problemFilter)
           .single();
-
+        
         if (subProblemData) {
           const { data: productSubProblems } = await supabase
             .from("product_sub_problems")
             .select("product_id")
             .eq("sub_problem_id", subProblemData.id);
-
-          productIdsFromProblem = productSubProblems?.map((psp) => psp.product_id) || [];
+          
+          productIdsFromProblem = productSubProblems?.map(psp => psp.product_id) || [];
         }
       }
 
       let query = supabase
         .from("products")
-        .select(
-          `
+        .select(`
           *,
           product_variants (
             price
@@ -198,8 +192,7 @@ const Products = () => {
               slug
             )
           )
-        `,
-        )
+        `)
         .eq("is_active", true);
 
       // تطبيق فلتر المشكلة على مستوى قاعدة البيانات
@@ -219,9 +212,7 @@ const Products = () => {
       }
 
       if (searchTerm) {
-        query = query.or(
-          `name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`,
-        );
+        query = query.or(`name_ar.ilike.%${searchTerm}%,name_en.ilike.%${searchTerm}%,company_name_ar.ilike.%${searchTerm}%,company_name_en.ilike.%${searchTerm}%`);
       }
 
       if (productTypeFilter !== "all") {
@@ -235,16 +226,20 @@ const Products = () => {
 
       if (makeupFilter !== "all") {
         filtered = filtered.filter((product) => {
-          return product.product_makeup_categories?.some((pmc: any) => pmc.makeup_categories?.slug === makeupFilter);
+          return product.product_makeup_categories?.some((pmc: any) => 
+            pmc.makeup_categories?.slug === makeupFilter
+          );
         });
       }
 
       if (skinTypeFilter !== "all") {
-        filtered = filtered.filter((product) => product.skin_type?.includes(skinTypeFilter as any));
+        filtered = filtered.filter(
+          (product) => product.skin_type?.includes(skinTypeFilter as any)
+        );
       }
 
       // Transform products with images and minPrice
-      return filtered.map((product) => {
+      return filtered.map(product => {
         const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
         const firstImage = sortedImages.length > 0 ? sortedImages[0].image_url : product.image_url;
 
@@ -260,9 +255,9 @@ const Products = () => {
   // Sort products client-side
   const sortedProducts = useMemo(() => {
     if (!allProducts) return [];
-
+    
     const sorted = [...allProducts];
-
+    
     switch (sortBy) {
       case "newest":
         sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -289,7 +284,7 @@ const Products = () => {
         });
         break;
     }
-
+    
     return sorted;
   }, [allProducts, sortBy, reviewCounts]);
 
@@ -301,15 +296,12 @@ const Products = () => {
   const hasMore = displayCount < (sortedProducts?.length || 0);
 
   // Load more products when scrolling
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [target] = entries;
-      if (target.isIntersecting && hasMore) {
-        setDisplayCount((prev) => prev + itemsPerPage);
-      }
-    },
-    [hasMore, itemsPerPage],
-  );
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [target] = entries;
+    if (target.isIntersecting && hasMore) {
+      setDisplayCount(prev => prev + itemsPerPage);
+    }
+  }, [hasMore, itemsPerPage]);
 
   useEffect(() => {
     const element = loadMoreRef.current;
@@ -326,21 +318,12 @@ const Products = () => {
   // Reset display count when filters or sort change
   useEffect(() => {
     setDisplayCount(itemsPerPage);
-  }, [
-    parentCategoryFilter,
-    subCategoryFilter,
-    skinTypeFilter,
-    companyFilter,
-    searchTerm,
-    problemFilter,
-    makeupFilter,
-    productTypeFilter,
-    sortBy,
-  ]);
+  }, [parentCategoryFilter, subCategoryFilter, skinTypeFilter, companyFilter, searchTerm, problemFilter, makeupFilter, productTypeFilter, sortBy]);
+
 
   const handleFilterChange = (setter: (value: string) => void, paramName?: string) => (value: string) => {
     setter(value);
-
+    
     if (paramName) {
       const newParams = new URLSearchParams(searchParams);
       if (value === "all") {
@@ -353,7 +336,7 @@ const Products = () => {
   };
 
   // التحقق من وجود فلاتر نشطة
-  const hasActiveFilters =
+  const hasActiveFilters = 
     searchTerm !== "" ||
     parentCategoryFilter !== "all" ||
     subCategoryFilter !== "all" ||
@@ -386,7 +369,7 @@ const Products = () => {
     const problem = searchParams.get("problem");
     const makeup = searchParams.get("makeup");
     const productType = searchParams.get("productType");
-
+    
     if (category) setParentCategoryFilter(category);
     if (subCategory) setSubCategoryFilter(subCategory);
     if (skinType) setSkinTypeFilter(skinType);
@@ -400,8 +383,8 @@ const Products = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
-    description: "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية",
+    "name": "جميع المنتجات - مستحضرات التجميل والعناية بالبشرة",
+    "description": "تصفحي مجموعة واسعة من منتجات العناية بالبشرة ومستحضرات التجميل الأصلية"
   };
 
   return (
@@ -416,7 +399,7 @@ const Products = () => {
       <div className="container py-4 md:py-8">
         <h1 className="mb-4 md:mb-8 text-2xl md:text-3xl font-bold">جميع المنتجات</h1>
 
-        {/* --- Mobile: Search + Filter Button --- */}
+        {/* Mobile: Search + Filter Button */}
         <div className="flex gap-2 mb-4 md:hidden">
           <div className="relative flex-1">
             <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -427,29 +410,31 @@ const Products = () => {
               className="pr-10"
             />
           </div>
-          <Button variant="outline" size="icon" onClick={() => setFiltersOpen(!filtersOpen)} className="shrink-0">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            className="shrink-0"
+          >
             {filtersOpen ? <X className="h-4 w-4" /> : <SlidersHorizontal className="h-4 w-4" />}
           </Button>
         </div>
 
-        {/* --- Mobile Collapsible Filters --- */}
+        {/* Mobile Collapsible Filters */}
         <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen} className="md:hidden mb-4">
           <CollapsibleContent className="space-y-3 pt-2">
-            {/* الترتيب (Sort) */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
-              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="ترتيب حسب" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">الأحدث</SelectItem>
-                  <SelectItem value="price_low">السعر: من الأقل</SelectItem>
-                  <SelectItem value="price_high">السعر: من الأعلى</SelectItem>
-                  <SelectItem value="most_reviewed">الأكثر تقييماً</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Sort Option */}
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger>
+                <SelectValue placeholder="ترتيب حسب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">الأحدث</SelectItem>
+                <SelectItem value="price_low">السعر: من الأقل</SelectItem>
+                <SelectItem value="price_high">السعر: من الأعلى</SelectItem>
+                <SelectItem value="most_reviewed">الأكثر تقييماً</SelectItem>
+              </SelectContent>
+            </Select>
 
             <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
               <SelectTrigger>
@@ -463,60 +448,54 @@ const Products = () => {
               </SelectContent>
             </Select>
 
-            {/* فلتر التصنيف الرئيسي والفرعي في صف واحد */}
-            <div className="flex gap-2">
-              <Select
-                value={parentCategoryFilter}
-                onValueChange={(value) => {
-                  setParentCategoryFilter(value);
-                  setSubCategoryFilter("all");
-                  const newParams = new URLSearchParams(searchParams);
-                  if (value === "all") {
-                    newParams.delete("category");
-                    newParams.delete("subCategory");
-                  } else {
-                    newParams.set("category", value);
-                    newParams.delete("subCategory");
-                  }
-                  setSearchParams(newParams);
-                }}
-              >
+            <Select 
+              value={parentCategoryFilter} 
+              onValueChange={(value) => {
+                setParentCategoryFilter(value);
+                setSubCategoryFilter("all");
+                const newParams = new URLSearchParams(searchParams);
+                if (value === "all") {
+                  newParams.delete("category");
+                  newParams.delete("subCategory");
+                } else {
+                  newParams.set("category", value);
+                  newParams.delete("subCategory");
+                }
+                setSearchParams(newParams);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="التصنيف الرئيسي" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">جميع التصنيفات</SelectItem>
+                {categories
+                  ?.filter((cat) => !cat.parent_category_id)
+                  .map((mainCat) => (
+                    <SelectItem key={mainCat.id} value={mainCat.id}>
+                      {mainCat.name_ar}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+
+            {parentCategoryFilter !== "all" && (
+              <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="التصنيف الرئيسي" />
+                  <SelectValue placeholder="التصنيف الفرعي" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="all">جميع الفرعيات</SelectItem>
                   {categories
-                    ?.filter((cat) => !cat.parent_category_id)
-                    .map((mainCat) => (
-                      <SelectItem key={mainCat.id} value={mainCat.id}>
-                        {mainCat.name_ar}
+                    ?.filter((cat) => cat.parent_category_id === parentCategoryFilter)
+                    .map((subCat) => (
+                      <SelectItem key={subCat.id} value={subCat.id}>
+                        {subCat.name_ar}
                       </SelectItem>
                     ))}
                 </SelectContent>
               </Select>
-
-              {parentCategoryFilter !== "all" && (
-                <Select
-                  value={subCategoryFilter}
-                  onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="الفرعي" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">الكل</SelectItem>
-                    {categories
-                      ?.filter((cat) => cat.parent_category_id === parentCategoryFilter)
-                      .map((subCat) => (
-                        <SelectItem key={subCat.id} value={subCat.id}>
-                          {subCat.name_ar}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+            )}
 
             <Drawer open={mobileCompanyOpen} onOpenChange={setMobileCompanyOpen}>
               <DrawerTrigger asChild>
@@ -538,8 +517,8 @@ const Products = () => {
                 </DrawerHeader>
                 <div className="p-4">
                   <Command className="w-full" shouldFilter={false}>
-                    <CommandInput
-                      placeholder="ابحث عن شركة..."
+                    <CommandInput 
+                      placeholder="ابحث عن شركة..." 
                       value={companySearch}
                       onValueChange={setCompanySearch}
                       className="text-right"
@@ -556,37 +535,29 @@ const Products = () => {
                           }}
                           className="py-3"
                         >
-                          <Check
-                            className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")}
-                          />
+                          <Check className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")} />
                           جميع الشركات
                         </CommandItem>
                         {companies
-                          ?.filter(
-                            (company) =>
-                              !companySearch ||
-                              company.displayName?.toLowerCase().includes(companySearch.toLowerCase()),
+                          ?.filter((company) => 
+                            !companySearch || 
+                            company.displayName?.toLowerCase().includes(companySearch.toLowerCase())
                           )
                           .map((company) => (
-                            <CommandItem
-                              key={company.key}
-                              value={company.displayName}
-                              onSelect={() => {
-                                handleFilterChange(setCompanyFilter, "company")(company.key);
-                                setMobileCompanyOpen(false);
-                                setCompanySearch("");
-                              }}
-                              className="py-3"
-                            >
-                              <Check
-                                className={cn(
-                                  "ml-2 h-4 w-4",
-                                  companyFilter === company.key ? "opacity-100" : "opacity-0",
-                                )}
-                              />
-                              {company.displayName}
-                            </CommandItem>
-                          ))}
+                          <CommandItem
+                            key={company.key}
+                            value={company.displayName}
+                            onSelect={() => {
+                              handleFilterChange(setCompanyFilter, "company")(company.key);
+                              setMobileCompanyOpen(false);
+                              setCompanySearch("");
+                            }}
+                            className="py-3"
+                          >
+                            <Check className={cn("ml-2 h-4 w-4", companyFilter === company.key ? "opacity-100" : "opacity-0")} />
+                            {company.displayName}
+                          </CommandItem>
+                        ))}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -621,183 +592,168 @@ const Products = () => {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* --- Desktop Filters (Improved Layout) --- */}
-        <div className="hidden md:flex flex-col gap-4 mb-6">
-          {/* الصف الأول: البحث والفلاتر الرئيسية */}
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
-            <div className="relative lg:col-span-2">
-              {" "}
-              {/* جعل حقل البحث أوسع قليلاً */}
-              <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="ابحثي عن منتج بالاسم أو الشركة..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
-            </div>
+        {/* Desktop Filters */}
+        <div className="hidden md:grid mb-8 gap-4 md:grid-cols-2 lg:grid-cols-6">
+          <div className="relative">
+            <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="ابحثي عن منتج..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
+          </div>
 
-            <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
+          <Select value={productTypeFilter} onValueChange={handleFilterChange(setProductTypeFilter, "productType")}>
+            <SelectTrigger>
+              <SelectValue placeholder="نوع المنتج" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الأنواع</SelectItem>
+              <SelectItem value="skincare">العناية بالبشرة</SelectItem>
+              <SelectItem value="watches">ساعات</SelectItem>
+              <SelectItem value="clothing">ملابس</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select 
+            value={parentCategoryFilter} 
+            onValueChange={(value) => {
+              setParentCategoryFilter(value);
+              setSubCategoryFilter("all");
+              
+              const newParams = new URLSearchParams(searchParams);
+              if (value === "all") {
+                newParams.delete("category");
+                newParams.delete("subCategory");
+              } else {
+                newParams.set("category", value);
+                newParams.delete("subCategory");
+              }
+              setSearchParams(newParams);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="التصنيف الرئيسي" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع التصنيفات</SelectItem>
+              {categories
+                ?.filter((cat) => !cat.parent_category_id)
+                .map((mainCat) => (
+                  <SelectItem key={mainCat.id} value={mainCat.id}>
+                    {mainCat.name_ar}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+
+          {parentCategoryFilter !== "all" && (
+            <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}>
               <SelectTrigger>
-                <SelectValue placeholder="نوع المنتج" />
+                <SelectValue placeholder="التصنيف الفرعي" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">جميع الأنواع</SelectItem>
-                <SelectItem value="skincare">العناية بالبشرة</SelectItem>
-                <SelectItem value="watches">ساعات</SelectItem>
-                <SelectItem value="clothing">ملابس</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* فلتر التصنيف الرئيسي والفرعي في عمودين متجاورين */}
-            <Select
-              value={parentCategoryFilter}
-              onValueChange={(value) => {
-                setParentCategoryFilter(value);
-                setSubCategoryFilter("all");
-
-                const newParams = new URLSearchParams(searchParams);
-                if (value === "all") {
-                  newParams.delete("category");
-                  newParams.delete("subCategory");
-                } else {
-                  newParams.set("category", value);
-                  newParams.delete("subCategory");
-                }
-                setSearchParams(newParams);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="التصنيف الرئيسي" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع التصنيفات</SelectItem>
+                <SelectItem value="all">جميع الفرعيات</SelectItem>
                 {categories
-                  ?.filter((cat) => !cat.parent_category_id)
-                  .map((mainCat) => (
-                    <SelectItem key={mainCat.id} value={mainCat.id}>
-                      {mainCat.name_ar}
+                  ?.filter((cat) => cat.parent_category_id === parentCategoryFilter)
+                  .map((subCat) => (
+                    <SelectItem key={subCat.id} value={subCat.id}>
+                      {subCat.name_ar}
                     </SelectItem>
                   ))}
               </SelectContent>
             </Select>
+          )}
 
-            {parentCategoryFilter !== "all" ? (
-              <Select value={subCategoryFilter} onValueChange={handleFilterChange(setSubCategoryFilter, "subCategory")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="التصنيف الفرعي" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">جميع الفرعيات</SelectItem>
-                  {categories
-                    ?.filter((cat) => cat.parent_category_id === parentCategoryFilter)
-                    .map((subCat) => (
-                      <SelectItem key={subCat.id} value={subCat.id}>
-                        {subCat.name_ar}
-                      </SelectItem>
+          <Popover open={desktopCompanyOpen} onOpenChange={setDesktopCompanyOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={desktopCompanyOpen}
+                className="w-full justify-between text-right"
+              >
+                {companyFilter === "all"
+                  ? "الشركة المصنعة"
+                  : companies?.find((company) => company.key === companyFilter)?.displayName}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0 bg-popover" align="start">
+              <Command shouldFilter={false}>
+                <CommandInput 
+                  placeholder="ابحث عن شركة..." 
+                  value={companySearch}
+                  onValueChange={setCompanySearch}
+                  className="text-right"
+                />
+                <CommandList className="max-h-[300px]">
+                  <CommandEmpty>لا توجد نتائج</CommandEmpty>
+                  <CommandGroup>
+                    <CommandItem
+                      value="all"
+                      onSelect={() => {
+                        handleFilterChange(setCompanyFilter, "company")("all");
+                        setDesktopCompanyOpen(false);
+                        setCompanySearch("");
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "ml-2 h-4 w-4",
+                          companyFilter === "all" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      جميع الشركات
+                    </CommandItem>
+                    {companies
+                      ?.filter((company) => 
+                        !companySearch || 
+                        company.displayName?.toLowerCase().includes(companySearch.toLowerCase())
+                      )
+                      .map((company) => (
+                      <CommandItem
+                        key={company.key}
+                        value={company.displayName}
+                        onSelect={() => {
+                          handleFilterChange(setCompanyFilter, "company")(company.key);
+                          setDesktopCompanyOpen(false);
+                          setCompanySearch("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "ml-2 h-4 w-4",
+                            companyFilter === company.key ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {company.displayName}
+                      </CommandItem>
                     ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              // Placeholder للحفاظ على التناسق عندما لا يوجد تصنيف فرعي
-              <div className="w-full h-10 border rounded-md bg-muted/20 flex items-center justify-center text-muted-foreground text-sm">
-                تصنيف فرعي
-              </div>
-            )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
 
-            <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter, "skinType")}>
-              <SelectTrigger>
-                <SelectValue placeholder="نوع البشرة" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع أنواع البشرة</SelectItem>
-                <SelectItem value="normal">عادية</SelectItem>
-                <SelectItem value="dry">جافة</SelectItem>
-                <SelectItem value="oily">دهنية</SelectItem>
-                <SelectItem value="combination">مختلطة</SelectItem>
-                <SelectItem value="sensitive">حساسة</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* الصف الثاني: فلاتر أقل استخداماً وPopOver الشركة */}
-          <div className="flex justify-between items-center gap-3">
-            {/* الشركة المصنعة (Popover) */}
-            <div className="flex-1 max-w-[200px]">
-              <Popover open={desktopCompanyOpen} onOpenChange={setDesktopCompanyOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={desktopCompanyOpen}
-                    className="w-full justify-between text-right"
-                  >
-                    {companyFilter === "all"
-                      ? "الشركة المصنعة"
-                      : companies?.find((company) => company.key === companyFilter)?.displayName}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0 bg-popover" align="start">
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      placeholder="ابحث عن شركة..."
-                      value={companySearch}
-                      onValueChange={setCompanySearch}
-                      className="text-right"
-                    />
-                    <CommandList className="max-h-[300px]">
-                      <CommandEmpty>لا توجد نتائج</CommandEmpty>
-                      <CommandGroup>
-                        <CommandItem
-                          value="all"
-                          onSelect={() => {
-                            handleFilterChange(setCompanyFilter, "company")("all");
-                            setDesktopCompanyOpen(false);
-                            setCompanySearch("");
-                          }}
-                        >
-                          <Check
-                            className={cn("ml-2 h-4 w-4", companyFilter === "all" ? "opacity-100" : "opacity-0")}
-                          />
-                          جميع الشركات
-                        </CommandItem>
-                        {companies
-                          ?.filter(
-                            (company) =>
-                              !companySearch ||
-                              company.displayName?.toLowerCase().includes(companySearch.toLowerCase()),
-                          )
-                          .map((company) => (
-                            <CommandItem
-                              key={company.key}
-                              value={company.displayName}
-                              onSelect={() => {
-                                handleFilterChange(setCompanyFilter, "company")(company.key);
-                                setDesktopCompanyOpen(false);
-                                setCompanySearch("");
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "ml-2 h-4 w-4",
-                                  companyFilter === company.key ? "opacity-100" : "opacity-0",
-                                )}
-                              />
-                              {company.displayName}
-                            </CommandItem>
-                          ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+          <Select value={skinTypeFilter} onValueChange={handleFilterChange(setSkinTypeFilter, "skinType")}>
+            <SelectTrigger>
+              <SelectValue placeholder="نوع البشرة" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع أنواع البشرة</SelectItem>
+              <SelectItem value="normal">عادية</SelectItem>
+              <SelectItem value="dry">جافة</SelectItem>
+              <SelectItem value="oily">دهنية</SelectItem>
+              <SelectItem value="combination">مختلطة</SelectItem>
+              <SelectItem value="sensitive">حساسة</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* --- Sort and Reset Row (Unified and Clear) --- */}
-        <div className="flex items-center justify-between border-b pb-4 mb-4">
+        {/* Sort and Reset Row */}
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
@@ -812,7 +768,7 @@ const Products = () => {
               </SelectContent>
             </Select>
           </div>
-
+          
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -828,7 +784,6 @@ const Products = () => {
 
         {/* Products Grid */}
         {isLoading ? (
-          // ... (Loading state remains the same)
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {Array.from({ length: itemsPerPage }).map((_, i) => (
               <div key={i} className="space-y-3">
@@ -842,8 +797,10 @@ const Products = () => {
           <>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {displayedProducts.map((product) => {
-                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
-
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
                 return (
                   <ProductCard
                     key={product.id}
