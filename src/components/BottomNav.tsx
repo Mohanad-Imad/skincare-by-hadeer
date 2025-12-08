@@ -1,10 +1,10 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, ShoppingCart, Package, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 // تحديد العنصر المركزي الذي سيصبح FAB
 const CENTER_ITEM_ID = "cart";
@@ -21,8 +21,9 @@ export const BottomNavPro = () => {
   const location = useLocation();
   const { localCart } = useLocalCart();
   const [user, setUser] = useState<any>(null);
+  const queryClient = useQueryClient();
 
-  // --- منطق حالة المستخدم وحساب السلة (لم يتغير) ---
+  // --- منطق حالة المستخدم وحساب السلة ---
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -44,7 +45,33 @@ export const BottomNavPro = () => {
       return data || [];
     },
     enabled: !!user,
+    refetchOnWindowFocus: true,
   });
+
+  // الاستماع لتغييرات السلة في الوقت الحقيقي
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('cart-items-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cart_items',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["cart-items-count", user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   const cartCount = user
     ? cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0
