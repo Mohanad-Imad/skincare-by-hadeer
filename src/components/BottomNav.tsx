@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, ShoppingCart, Package, User, Handbag } from "lucide-react";
+import { Home, ShoppingCart, Package, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ const navItems = [
   { id: "home", icon: Home, label: "الرئيسية", path: "/" },
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
   { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
-  { id: "makeup", icon: Handbag, label: "المكياج", path: "/makeup" },
+  { id: "makeup", icon: User, label: "المكياج", path: "/makeup" },
   { id: "account", icon: User, label: "الحساب", path: "/profile" },
 ];
 
