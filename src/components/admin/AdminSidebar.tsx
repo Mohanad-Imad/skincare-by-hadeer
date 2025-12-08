@@ -55,6 +55,7 @@ const menuItems = [
   { title: "خصومات المنتجات", url: "/admin/product-discounts", icon: Tag },
   { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },
   { title: "إعدادات المتجر", url: "/admin/store-settings", icon: Settings },
+  { title: "شريط الإعلانات", url: "/admin/announcement-bar", icon: RectangleHorizontal },
   { title: "لمّح للحبايب", url: "/admin/drop-hint-settings", icon: MessageCircle },
   { title: "المدونة", url: "/admin/blog-posts", icon: FileText },
   { title: "البنرات الرئيسية", url: "/admin/banners", icon: ImageIcon },

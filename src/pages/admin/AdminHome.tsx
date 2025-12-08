@@ -23,6 +23,7 @@ import {
   UserCircle,
   Boxes,
   ShieldCheck,
+  Megaphone,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -137,6 +138,12 @@ const AdminHome = () => {
       description: "تخصيص المتجر ومعلومات الاتصال",
       icon: Settings,
       route: "/admin/store-settings",
+    },
+    {
+      title: "شريط الإعلانات",
+      description: "إدارة رسائل شريط الإعلانات",
+      icon: Megaphone,
+      route: "/admin/announcement-bar",
     },
     {
       title: "المدونة",
