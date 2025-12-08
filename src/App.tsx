@@ -66,6 +66,7 @@ import { DynamicMetadata } from "./components/DynamicMetadata";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { PWASplashScreen } from "./components/PWASplashScreen";
 import { useCartMigration } from "./hooks/useCartMigration";
+import { BottomNav } from "./components/BottomNav";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,7 @@ const App = () => (
         <BrowserRouter>
           <AppContent />
           <ScrollToTop />
+          <BottomNav />
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
