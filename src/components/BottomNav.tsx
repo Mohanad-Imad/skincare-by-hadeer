@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// تم استيراد أيقونة Palette الجديدة للمكياج
+// تم استيراد أيقونة Palette للمكياج
 import { Home, ShoppingCart, Package, User, Palette } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -14,16 +14,9 @@ const navItems = [
   { id: "home", icon: Home, label: "الرئيسية", path: "/" },
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
   { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
-  // تم تغيير الأيقونة هنا إلى Palette
   { id: "makeup", icon: Palette, label: "المكياج", path: "/makeup" },
   { id: "account", icon: User, label: "الحساب", path: "/profile" },
 ];
-
-// ***************************************************************
-// ملاحظة هامة: يجب تحديث مركزية الأزرار بناءً على العدد الجديد (5 عناصر)
-// لتجنب المشاكل في التنسيق، قمت بإبقاء السلة هي العنصر المركزي (الذي يقع في المنتصف
-// إذا كان العدد فردياً)
-// ***************************************************************
 
 export const BottomNavPro = () => {
   const navigate = useNavigate();
@@ -91,7 +84,7 @@ export const BottomNavPro = () => {
     const path = location.pathname;
     if (path === "/") return 0;
     if (path.startsWith("/products")) return 1;
-    if (path === "/cart") return 2; // المركز الجديد
+    if (path === "/cart") return 2; // المركز
     if (path === "/makeup") return 3; // المكياج
     if (path === "/profile" || path === "/auth") return 4; // الحساب
     return -1;
@@ -109,14 +102,11 @@ export const BottomNavPro = () => {
 
   // --- التصميم الجديد لشريط التنقل ---
 
-  // حساب العناصر التي تسبق وتلي العنصر المركزي
-  const centerItemIndex = navItems.findIndex((item) => item.id === CENTER_ITEM_ID); // المركز هو 2 الآن
-  const leftItems = navItems.slice(0, centerItemIndex); // [home, products]
-  const rightItems = navItems.slice(centerItemIndex + 1); // [makeup, account]
+  const centerItemIndex = navItems.findIndex((item) => item.id === CENTER_ITEM_ID);
+  const leftItems = navItems.slice(0, centerItemIndex);
+  const rightItems = navItems.slice(centerItemIndex + 1);
   const centerItem = navItems[centerItemIndex];
-  const totalNavItems = navItems.length; // 5 عناصر
-
-  // تعديل تنسيق العناصر الجانبية لتستوعب 5 عناصر (2 يمين و 2 يسار)
+  const totalNavItems = navItems.length;
   const navItemWidth = `calc(100% / ${totalNavItems} * 2)`;
 
   return (
@@ -156,7 +146,6 @@ export const BottomNavPro = () => {
           {/* العناصر اليمنى (2 عنصر) */}
           <div className="flex justify-around h-full" style={{ width: navItemWidth }}>
             {rightItems.map((item, index) => {
-              // فهرس العنصر في المصفوفة الأصلية بعد تخطي العنصر المركزي (3, 4)
               const originalIndex = centerItemIndex + 1 + index;
               const isActive = activeIndex === originalIndex;
               const Icon = item.icon;
@@ -194,20 +183,7 @@ export const BottomNavPro = () => {
           <div className="relative">
             <centerItem.icon className="w-7 h-7 text-primary-foreground" strokeWidth={2.5} />
 
-            {/* شارة السلة */}
-            <AnimatePresence>
-              {CENTER_ITEM_ID === "cart" && cartCount > 0 && (
-                <motion.span
-                  key="cart-badge"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 border-2 border-primary"
-                >
-                  {cartCount > 99 ? "99+" : cartCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
+            {/* تم حذف شارة السلة بالكامل من هذا القسم */}
           </div>
         </motion.button>
       </div>
@@ -219,7 +195,6 @@ export const BottomNavPro = () => {
           style={{ width: `calc(100% / ${totalNavItems} - 20px)` }}
           initial={false}
           animate={{
-            // حساب موقع المؤشر الجديد بناءً على 5 عناصر
             x: `calc(${activeIndex * (100 / totalNavItems)}% + 10px + ${activeIndex > centerItemIndex ? "40px" : "0px"})`,
           }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
