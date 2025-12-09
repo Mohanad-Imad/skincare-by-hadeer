@@ -330,8 +330,10 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.ComponentProps<"di
     <div
       ref={ref}
       data-sidebar="content"
+      // 💡 التعديل هنا: نضمن أن overflow-y-auto مفعل دائماً للسماح بالتمرير الرأسي
+      // رغم أن 'overflow-auto' كافية عادةً، لكن التأكيد على y-axis قد يكون مفيداً
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden group-data-[collapsible=icon]:overflow-hidden",
         className,
       )}
       {...props}
@@ -574,9 +576,12 @@ const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.ComponentProps<"
 );
 SidebarMenuSub.displayName = "SidebarMenuSub";
 
-const SidebarMenuSubItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li">>(({ ...props }, ref) => (
-  <li ref={ref} {...props} />
-));
+const SidebarMenuSubItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li">>(
+  ({ className, ...props }, ref) => (
+    // 💡 التعديل هنا: إضافة تباعد رأسي (mt-0.5) لجعل العناصر أكثر فصلاً ووضوحاً
+    <li ref={ref} className={cn("mt-0.5", className)} {...props} />
+  ),
+);
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem";
 
 const SidebarMenuSubButton = React.forwardRef<
