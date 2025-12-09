@@ -86,7 +86,7 @@ const Guarantee = () => {
       />
       <Navbar />
       
-      <main className="container py-8 md:py-12">
+      <main className="container py-8 md:py-12 pb-24 md:pb-12">
         <Button
           variant="ghost"
           className="mb-6"
