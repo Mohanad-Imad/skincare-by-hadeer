@@ -117,7 +117,7 @@ export const BottomNavPro = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      <div className="relative h-[70px] bg-pink-500 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+      <div className="relative h-[70px] bg-pink-100 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
         {/* شريط التنقل الأساسي */}
         <div className="flex justify-around items-center h-full w-full max-w-lg mx-auto">
           {/* العناصر اليسرى (2 عنصر) */}
@@ -136,9 +136,7 @@ export const BottomNavPro = () => {
                     className={`w-6 h-6 ${isActive ? "text-white" : "text-white/70"}`}
                     strokeWidth={isActive ? 2.5 : 1.5}
                   />
-                  <span
-                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-white" : "text-white/70"}`}
-                  >
+                  <span className={`text-[11px] mt-1 font-medium ${isActive ? "text-white" : "text-white/70"}`}>
                     {item.label}
                   </span>
                 </motion.button>
@@ -166,9 +164,7 @@ export const BottomNavPro = () => {
                     className={`w-6 h-6 ${isActive ? "text-white" : "text-white/70"}`}
                     strokeWidth={isActive ? 2.5 : 1.5}
                   />
-                  <span
-                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-white" : "text-white/70"}`}
-                  >
+                  <span className={`text-[11px] mt-1 font-medium ${isActive ? "text-white" : "text-white/70"}`}>
                     {item.label}
                   </span>
                 </motion.button>
