@@ -178,7 +178,7 @@ export const BottomNavPro = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <motion.button
           onClick={() => handleNavClick(centerItem.path, centerItem.id)}
-          className="w-16 h-16 rounded-full bg-white shadow-2xl shadow-pink-500/40 flex items-center justify-center border-4 border-pink-500"
+          className="w-16 h-16 rounded-full bg-white shadow-2xl shadow-[#F06190]/40 flex items-center justify-center border-4 border-[#F06190]"
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
