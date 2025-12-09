@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { User, MapPin, Phone, Mail, Package, ShoppingCart, Star, LogOut, Camera } from "lucide-react";
+import { User, MapPin, Phone, Mail, Package, ShoppingCart, Star, LogOut, Camera, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -67,7 +67,8 @@ export default function Profile() {
             variant_size_ar,
             quantity,
             price,
-            subtotal
+            subtotal,
+            product_variant_id
           )
         `)
         .eq("user_id", session.user.id)
@@ -218,6 +219,47 @@ export default function Profile() {
       const errorMessage = error?.message || "حدث خطأ أثناء تحديث البروفايل";
       toast.error(errorMessage);
       console.error(error);
+    },
+  });
+
+  const reorderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      if (!session?.user?.id) throw new Error("يجب تسجيل الدخول");
+
+      const order = orders?.find((o: any) => o.id === orderId);
+      if (!order || !order.order_items) throw new Error("الطلب غير موجود");
+
+      for (const item of order.order_items) {
+        if (!item.product_variant_id) continue;
+
+        const { data: existingItem } = await supabase
+          .from("cart_items")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .eq("product_variant_id", item.product_variant_id)
+          .single();
+
+        if (existingItem) {
+          await supabase
+            .from("cart_items")
+            .update({ quantity: existingItem.quantity + item.quantity })
+            .eq("id", existingItem.id);
+        } else {
+          await supabase.from("cart_items").insert({
+            user_id: session.user.id,
+            product_variant_id: item.product_variant_id,
+            quantity: item.quantity,
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart-items"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      toast.success("تم إضافة المنتجات إلى السلة بنجاح! 🛒");
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء إعادة الطلب");
     },
   });
 
@@ -467,6 +509,15 @@ export default function Profile() {
                             {Math.round(order.total_amount)} د.ع
                           </span>
                         </div>
+                        <Button
+                          onClick={() => reorderMutation.mutate(order.id)}
+                          disabled={reorderMutation.isPending}
+                          className="w-full gap-2 mt-4"
+                          size="sm"
+                        >
+                          <RefreshCw className={`h-4 w-4 ${reorderMutation.isPending ? "animate-spin" : ""}`} />
+                          {reorderMutation.isPending ? "جاري الإضافة..." : "تكرار الطلب"}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
