@@ -117,9 +117,9 @@ export const BottomNavPro = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      <div className="relative h-[70px] bg-background shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+      <div className="relative h-[70px] bg-pink-500 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
         {/* شريط التنقل الأساسي */}
-        <div className="flex justify-around items-center h-full w-full max-w-lg mx-auto bg-card/90 backdrop-blur-md">
+        <div className="flex justify-around items-center h-full w-full max-w-lg mx-auto">
           {/* العناصر اليسرى (2 عنصر) */}
           <div className="flex justify-around h-full" style={{ width: navItemWidth }}>
             {leftItems.map((item, index) => {
@@ -133,11 +133,11 @@ export const BottomNavPro = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Icon
-                    className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    className={`w-6 h-6 ${isActive ? "text-white" : "text-white/70"}`}
                     strokeWidth={isActive ? 2.5 : 1.5}
                   />
                   <span
-                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-white" : "text-white/70"}`}
                   >
                     {item.label}
                   </span>
@@ -163,11 +163,11 @@ export const BottomNavPro = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Icon
-                    className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    className={`w-6 h-6 ${isActive ? "text-white" : "text-white/70"}`}
                     strokeWidth={isActive ? 2.5 : 1.5}
                   />
                   <span
-                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    className={`text-[11px] mt-1 font-medium ${isActive ? "text-white" : "text-white/70"}`}
                   >
                     {item.label}
                   </span>
@@ -182,30 +182,15 @@ export const BottomNavPro = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <motion.button
           onClick={() => handleNavClick(centerItem.path, centerItem.id)}
-          className="w-16 h-16 rounded-full bg-primary shadow-2xl shadow-primary/40 flex items-center justify-center border-4 border-background/50"
+          className="w-16 h-16 rounded-full bg-white shadow-2xl shadow-pink-500/40 flex items-center justify-center border-4 border-pink-500"
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
           <div className="relative">
-            <centerItem.icon className="w-7 h-7 text-primary-foreground" strokeWidth={2.5} />
-
-            {/* تم حذف شارة السلة بالكامل من هذا القسم */}
+            <centerItem.icon className="w-7 h-7 text-pink-500" strokeWidth={2.5} />
           </div>
         </motion.button>
       </div>
-
-      {/* مؤشر الحالة النشط على العناصر الجانبية */}
-      {activeIndex !== -1 && activeIndex !== centerItemIndex && (
-        <motion.div
-          className="absolute top-0 h-1 bg-primary rounded-full max-w-lg mx-auto"
-          style={{ width: `calc(100% / ${totalNavItems} - 20px)` }}
-          initial={false}
-          animate={{
-            x: `calc(${activeIndex * (100 / totalNavItems)}% + 10px + ${activeIndex > centerItemIndex ? "40px" : "0px"})`,
-          }}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        />
-      )}
     </nav>
   );
 };
