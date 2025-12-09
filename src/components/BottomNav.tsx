@@ -117,7 +117,7 @@ export const BottomNavPro = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      <div className="relative h-[70px] bg-rose-500 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+      <div className="relative h-[70px] bg-pink-400 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
         {/* شريط التنقل الأساسي */}
         <div className="flex justify-around items-center h-full w-full max-w-lg mx-auto">
           {/* العناصر اليسرى (2 عنصر) */}
