@@ -264,7 +264,7 @@ export default function Profile() {
       />
       <Navbar />
 
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 pb-32 md:pb-8">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Profile Header */}
           <Card>

@@ -41,7 +41,7 @@ const Makeup = () => {
       />
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className="flex-grow container mx-auto px-4 py-8 pb-32 md:pb-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">عالم المكياج</h1>
             <p className="text-xl text-muted-foreground">
