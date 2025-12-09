@@ -110,8 +110,15 @@ export const BottomNavPro = () => {
   const navItemWidth = `calc(100% / ${totalNavItems} * 2)`;
 
   // إخفاء شريط التنقل في صفحات السلة وإتمام الطلب
-  const hiddenPaths = ["/cart", "/checkout"];
-  if (hiddenPaths.includes(location.pathname)) {
+  // 1. المسارات الثابتة التي يجب إخفاء الشريط فيها
+  const fixedHiddenPaths = ["/cart", "/checkout"];
+
+  // 2. التحقق مما إذا كان المسار الحالي يجب إخفاؤه
+  const isFixedPath = fixedHiddenPaths.includes(location.pathname);
+  const isProductDetailPage = location.pathname.startsWith("/products/");
+
+  // 3. إرجاع null إذا تحقق أي من الشرطين
+  if (isFixedPath || isProductDetailPage) {
     return null;
   }
 
