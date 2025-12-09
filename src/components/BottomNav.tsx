@@ -111,7 +111,7 @@ export const BottomNavPro = () => {
 
   // إخفاء شريط التنقل في صفحات السلة وإتمام الطلب
   // 1. المسارات الثابتة التي يجب إخفاء الشريط فيها
-  const fixedHiddenPaths = ["/cart", "/checkout"];
+  const fixedHiddenPaths = ["/cart", "/checkout", "/admin"];
 
   // 2. التحقق مما إذا كان المسار الحالي يجب إخفاؤه
   const isFixedPath = fixedHiddenPaths.includes(location.pathname);
