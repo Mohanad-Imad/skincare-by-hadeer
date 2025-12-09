@@ -194,7 +194,7 @@ export default function Consultation() {
         description="احصل على استشارة مخصصة مع خبراء العناية بالبشرة. املأ الاستبيان وسنساعدك في إيجاد الحل الأمثل لبشرتك"
       />
       
-      <div className="container mx-auto px-4 py-8 pb-24 md:pb-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 pb-32 md:pb-8 max-w-4xl">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}

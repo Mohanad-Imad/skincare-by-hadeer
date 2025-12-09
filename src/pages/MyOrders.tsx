@@ -127,7 +127,7 @@ const MyOrders = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+      <div className="container mx-auto px-4 py-8 pb-32 md:pb-8">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2">
           <ArrowRight className="h-4 w-4" />
           رجوع
