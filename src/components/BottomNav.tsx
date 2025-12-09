@@ -109,6 +109,12 @@ export const BottomNavPro = () => {
   const totalNavItems = navItems.length;
   const navItemWidth = `calc(100% / ${totalNavItems} * 2)`;
 
+  // إخفاء شريط التنقل في صفحات السلة وإتمام الطلب
+  const hiddenPaths = ["/cart", "/checkout"];
+  if (hiddenPaths.includes(location.pathname)) {
+    return null;
+  }
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       <div className="relative h-[70px] bg-background shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
