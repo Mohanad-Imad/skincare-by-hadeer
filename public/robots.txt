@@ -11,7 +11,8 @@ Disallow: /reset-password
 Disallow: /forgot-password
 
 # Sitemap - Dynamic
-Sitemap: https://rqimhsumeriuegpbxddp.supabase.co/functions/v1/sitemap
+# تم تحديث الرابط لافتراض أن الخريطة الديناميكية ستعمل على النطاق الجديد
+Sitemap: https://hadeer.store/sitemap.xml # يرجى تعديل هذا إذا كان رابط Supabase هو الرابط الصحيح!
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
