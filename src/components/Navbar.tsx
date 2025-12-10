@@ -167,11 +167,11 @@ export const Navbar = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-64">
+            <SheetContent side="right" className="w-72 flex flex-col h-full max-h-screen overflow-hidden">
               <SheetHeader>
                 <SheetTitle className="text-right">القائمة</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-2 mt-6">
+              <div className="flex flex-col gap-2 mt-6 flex-1 overflow-y-auto pb-8">
                 <Button
                   variant={isActive("/") ? "default" : "ghost"}
                   className="justify-start gap-2"
@@ -222,24 +222,29 @@ export const Navbar = () => {
                                 <ChevronDown className="h-3 w-3 mr-auto transition-transform data-[state=open]:rotate-180" />
                               </Button>
                             </CollapsibleTrigger>
-                            <CollapsibleContent className="pr-4 space-y-1">
-                              <Button
-                                variant="ghost"
-                                className="w-full justify-start gap-2 text-xs"
-                                onClick={() => handleNavigate(`/products?category=${category.id}`)}
-                              >
-                                الكل
-                              </Button>
-                              {categorySubCategories.map((subCategory: any) => (
+                            <CollapsibleContent className="pr-4 mt-1">
+                              <div className="border-r-2 border-border pr-2 space-y-1">
                                 <Button
-                                  key={subCategory.id}
                                   variant="ghost"
-                                  className="w-full justify-start gap-2 text-xs text-muted-foreground hover:text-foreground"
-                                  onClick={() => handleNavigate(`/products?category=${category.id}&subCategory=${subCategory.id}`)}
+                                  className="w-full justify-start gap-2 text-sm font-medium"
+                                  onClick={() => handleNavigate(`/products?category=${category.id}`)}
                                 >
-                                  {subCategory.name_ar}
+                                  الكل
                                 </Button>
-                              ))}
+                                <Separator className="my-1" />
+                                {categorySubCategories.map((subCategory: any, index: number) => (
+                                  <div key={subCategory.id}>
+                                    <Button
+                                      variant="ghost"
+                                      className="w-full justify-start gap-2 text-sm text-muted-foreground hover:text-foreground"
+                                      onClick={() => handleNavigate(`/products?category=${category.id}&subCategory=${subCategory.id}`)}
+                                    >
+                                      {subCategory.name_ar}
+                                    </Button>
+                                    {index < categorySubCategories.length - 1 && <Separator className="my-1" />}
+                                  </div>
+                                ))}
+                              </div>
                             </CollapsibleContent>
                           </Collapsible>
                         );
