@@ -223,7 +223,7 @@ export const Navbar = () => {
                               </Button>
                             </CollapsibleTrigger>
                             <CollapsibleContent className="pr-4 mt-1">
-                              <div className="border-r-2 border-border pr-2 space-y-1">
+                              <div className="border-l-2 border-border pl-2 space-y-1">
                                 <Button
                                   variant="ghost"
                                   className="w-full justify-start gap-2 text-sm font-medium"
