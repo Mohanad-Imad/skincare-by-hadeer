@@ -1,53 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Static Sitemap - For dynamic sitemap visit: https://rqimhsumeriuegpbxddp.supabase.co/functions/v1/sitemap -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/</loc>
+    <loc>https://hadeer.store/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/products</loc>
+    <loc>https://hadeer.store/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/categories</loc>
+    <loc>https://hadeer.store/categories</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/makeup</loc>
+    <loc>https://hadeer.store/makeup</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/blog</loc>
+    <loc>https://hadeer.store/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/consultation</loc>
+    <loc>https://hadeer.store/consultation</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/celebrity-routines</loc>
+    <loc>https://hadeer.store/celebrity-routines</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/guarantee</loc>
+    <loc>https://hadeer.store/guarantee</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/privacy-policy</loc>
+    <loc>https://hadeer.store/privacy-policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://preview--hadeer-skincare-glow.lovable.app/terms-of-service</loc>
+    <loc>https://hadeer.store/terms-of-service</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
