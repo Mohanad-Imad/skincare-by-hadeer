@@ -20,7 +20,7 @@ export const SEO = ({
   description,
   keywords = "مستحضرات تجميل، العناية بالبشرة، منتجات تجميل العراق، متجر مستحضرات تجميل بغداد، العناية بالبشرة العراق، skincare iraq، cosmetics baghdad، منتجات العناية بالبشرة",
   image = "https://storage.googleapis.com/gpt-engineer-file-uploads/NWHdYWUQfRdkJi5qtRtvLoeu8wu1/social-images/social-1760729892254-شعار صيدلية مفرغ هدير-01 (2).png",
-  url = typeof window !== 'undefined' ? window.location.href : '',
+  url = typeof window !== "undefined" ? window.location.href : "",
   type = "website",
   structuredData,
   noindex = false,
@@ -32,60 +32,62 @@ export const SEO = ({
   const siteName = "متجر هدير للعناية بالبشرة";
   const fullTitle = `${title} | ${siteName}`;
   const canonical = canonicalUrl || url;
+  // **تم التحديث إلى الدومين الجديد: https://hadeer.store/**
+  const siteUrl = "https://hadeer.store/";
 
   // Default organization structured data
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": siteName,
-    "url": "https://preview--hadeer-skincare-glow.lovable.app",
-    "logo": image,
-    "description": "متجر هدير للعناية بالبشرة يقدم منتجات أصلية وفعالة للعناية اليومية والتجميل",
-    "address": {
+    name: siteName,
+    url: siteUrl, // **تم التحديث هنا**
+    logo: image,
+    description: "متجر هدير للعناية بالبشرة يقدم منتجات أصلية وفعالة للعناية اليومية والتجميل",
+    address: {
       "@type": "PostalAddress",
-      "addressLocality": "بابل",
-      "addressCountry": "IQ"
+      addressLocality: "بابل",
+      addressCountry: "IQ",
     },
-    "contactPoint": {
+    contactPoint: {
       "@type": "ContactPoint",
-      "telephone": "+9647748209420",
-      "contactType": "customer service"
+      telephone: "+9647748209420",
+      contactType: "customer service",
     },
-    "sameAs": [
+    sameAs: [
       "https://www.facebook.com/share/172mEBGsey/",
       "https://www.instagram.com/skincare.by.hadeer",
-      "https://www.tiktok.com/@skincare.hadeer"
-    ]
+      "https://www.tiktok.com/@skincare.hadeer",
+    ],
   };
 
   // Website search action schema
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": siteName,
-    "url": "https://preview--hadeer-skincare-glow.lovable.app",
-    "potentialAction": {
+    name: siteName,
+    url: siteUrl, // **تم التحديث هنا**
+    potentialAction: {
       "@type": "SearchAction",
-      "target": {
+      target: {
         "@type": "EntryPoint",
-        "urlTemplate": "https://preview--hadeer-skincare-glow.lovable.app/products?search={search_term_string}"
+        urlTemplate: `${siteUrl}products?search={search_term_string}`, // **تم التحديث هنا**
       },
-      "query-input": "required name=search_term_string"
-    }
+      "query-input": "required name=search_term_string",
+    },
   };
 
   // Breadcrumb schema for better navigation in search results
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
+    itemListElement: [
       {
         "@type": "ListItem",
-        "position": 1,
-        "name": "الرئيسية",
-        "item": "https://preview--hadeer-skincare-glow.lovable.app"
-      }
-    ]
+        position: 1,
+        name: "الرئيسية",
+        item: siteUrl, // **تم التحديث هنا**
+      },
+    ],
   };
 
   return (
@@ -99,9 +101,14 @@ export const SEO = ({
       <meta name="language" content="ar" />
       <meta name="geo.region" content="IQ" />
       <meta name="geo.placename" content="Baghdad, Babylon" />
-      <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+      <meta
+        name="robots"
+        content={
+          noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        }
+      />
       <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"} />
-      
+
       {/* Canonical URL */}
       <link rel="canonical" href={canonical} />
 
@@ -130,28 +137,18 @@ export const SEO = ({
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-title" content={siteName} />
-      
+
       {/* Structured Data - Organization */}
-      <script type="application/ld+json">
-        {JSON.stringify(organizationSchema)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(organizationSchema)}</script>
 
       {/* Structured Data - Website */}
-      <script type="application/ld+json">
-        {JSON.stringify(websiteSchema)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
 
       {/* Structured Data - Breadcrumb */}
-      <script type="application/ld+json">
-        {JSON.stringify(breadcrumbSchema)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
 
       {/* Custom Structured Data */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
+      {structuredData && <script type="application/ld+json">{JSON.stringify(structuredData)}</script>}
     </Helmet>
   );
 };
