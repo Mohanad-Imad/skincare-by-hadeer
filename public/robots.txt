@@ -1,4 +1,4 @@
-# Robots.txt - متجر مستحضرات التجميل العراق
+# Robots.txt - متجر هدير للعناية بالبشرة
 User-agent: *
 Allow: /
 Disallow: /admin/
@@ -6,9 +6,12 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /my-orders
 Disallow: /auth
+Disallow: /profile
+Disallow: /reset-password
+Disallow: /forgot-password
 
-# Sitemap
-Sitemap: https://yourdomain.com/sitemap.xml
+# Sitemap - Dynamic
+Sitemap: https://rqimhsumeriuegpbxddp.supabase.co/functions/v1/sitemap
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
@@ -17,11 +20,28 @@ Crawl-delay: 1
 User-agent: Googlebot
 Allow: /
 Disallow: /admin/
+Disallow: /checkout
+Disallow: /cart
 
 User-agent: Bingbot
 Allow: /
 Disallow: /admin/
+Disallow: /checkout
+Disallow: /cart
 
 User-agent: Slurp
 Allow: /
 Disallow: /admin/
+
+# Block AI training bots
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
