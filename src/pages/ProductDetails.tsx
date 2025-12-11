@@ -413,18 +413,26 @@ const ProductDetails = () => {
                             </Label>
                             {/* تاك حالة المخزون */}
                             {isOutOfStock ? (
-                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-muted text-muted-foreground">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
                                 نفذت الكمية
-                              </Badge>
+                              </span>
                             ) : isLowStock ? (
-                              <Badge className="text-[10px] px-1.5 py-0 animate-pulse bg-gradient-to-r from-orange-500 to-red-500 text-white border-0">
-                                متبقي {variant.stock_quantity} فقط
-                              </Badge>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+                                متبقي {variant.stock_quantity} فقط!
+                              </span>
                             ) : isMediumStock ? (
-                              <Badge className="text-[10px] px-1.5 py-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                 مخزون منخفض
-                              </Badge>
-                            ) : null}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                متوفر
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
