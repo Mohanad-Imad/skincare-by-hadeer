@@ -382,83 +382,60 @@ const ProductDetails = () => {
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
-                    const isLowStock = variant.stock_quantity > 0 && variant.stock_quantity <= 5;
-                    const isMediumStock = variant.stock_quantity > 5 && variant.stock_quantity <= 10;
                     const isSelected = selectedVariant === variant.id;
                     
                     return (
                       <div 
                         key={variant.id} 
-                        className={`rounded-xl border-2 p-3 transition-all cursor-pointer ${
+                        className={`flex items-center justify-between rounded-lg border p-2.5 transition-all cursor-pointer ${
                           isOutOfStock 
-                            ? 'opacity-60 bg-muted/50 cursor-not-allowed border-muted' 
+                            ? 'opacity-50 bg-muted cursor-not-allowed border-muted' 
                             : isSelected 
-                              ? 'border-primary bg-primary/5 shadow-md ring-1 ring-primary/20' 
-                              : 'border-border hover:border-primary/50 hover:shadow-sm'
+                              ? 'border-primary bg-primary/5 shadow-sm' 
+                              : 'border-border hover:border-primary/50'
                         }`}
                         onClick={() => !isOutOfStock && setSelectedVariant(variant.id)}
                       >
-                        {/* الصف الأول: الحجم + حالة المخزون */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <RadioGroupItem 
-                              value={variant.id} 
-                              id={variant.id} 
-                              disabled={isOutOfStock}
-                              className="shrink-0"
-                            />
+                        <div className="flex items-center gap-2">
+                          <RadioGroupItem 
+                            value={variant.id} 
+                            id={variant.id} 
+                            disabled={isOutOfStock}
+                          />
+                          <div className="flex items-center gap-1.5">
                             <Label 
                               htmlFor={variant.id} 
-                              className={`text-sm font-bold cursor-pointer ${isOutOfStock ? 'cursor-not-allowed text-muted-foreground' : ''}`}
+                              className={`text-sm font-medium cursor-pointer ${isOutOfStock ? 'cursor-not-allowed' : ''}`}
                             >
                               {variant.size_ar}
                             </Label>
-                          </div>
-                          {/* تاك حالة المخزون */}
-                          {isOutOfStock ? (
-                            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                              <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                              نفذت الكمية
-                            </span>
-                          ) : isLowStock ? (
-                            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 animate-pulse">
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                              متبقي {variant.stock_quantity} فقط!
-                            </span>
-                          ) : isMediumStock ? (
-                            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                              مخزون منخفض
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                              متوفر
-                            </span>
-                          )}
-                        </div>
-                        
-                        {/* الصف الثاني: السعر + الخصم */}
-                        <div className="flex items-center justify-between pr-6">
-                          <div className="flex items-center gap-2">
-                            {variantDiscount ? (
-                              <>
-                                <span className="text-base font-bold text-primary">
-                                  {Math.round(variantDiscount.discountedPrice)} د.ع
-                                </span>
-                                <span className="text-xs text-muted-foreground line-through">
-                                  {Math.round(variant.price)}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-base font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            {isOutOfStock && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                غير متوفر
+                              </Badge>
                             )}
                           </div>
+                        </div>
+                        <div className="flex items-center gap-2">
                           {variantDiscount && (
-                            <Badge variant="destructive" className="text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 border-0">
-                              خصم {Math.round(variantDiscount.percentage)}%
+                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                              -{Math.round(variantDiscount.percentage)}%
                             </Badge>
                           )}
+                          <div className="text-right">
+                            {variantDiscount ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-bold text-primary">
+                                  {Math.round(variantDiscount.discountedPrice)}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground line-through">
+                                  {Math.round(variant.price)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-sm font-bold text-primary">{Math.round(variant.price)} د.ع</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
