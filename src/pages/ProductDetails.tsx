@@ -368,31 +368,8 @@ const ProductDetails = () => {
 
           {/* Product Info */}
           <div className="space-y-4">
-            {/* 1. الاسم مع حالة المخزون */}
-            <div className="flex items-start justify-between gap-2">
-              <h1 className="text-lg md:text-xl font-bold leading-tight">{product.name_ar}</h1>
-              {selectedVariantData && (
-                <div className="shrink-0">
-                  {selectedVariantData.stock_quantity === 0 ? (
-                    <Badge variant="secondary" className="bg-muted text-muted-foreground">
-                      نفذت الكمية
-                    </Badge>
-                  ) : selectedVariantData.stock_quantity <= 5 ? (
-                    <Badge variant="destructive" className="animate-pulse bg-gradient-to-r from-orange-500 to-red-500 border-0">
-                      متبقي {selectedVariantData.stock_quantity} فقط
-                    </Badge>
-                  ) : selectedVariantData.stock_quantity <= 10 ? (
-                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                      مخزون منخفض
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0">
-                      متوفر
-                    </Badge>
-                  )}
-                </div>
-              )}
-            </div>
+            {/* 1. الاسم */}
+            <h1 className="text-lg md:text-xl font-bold leading-tight">{product.name_ar}</h1>
 
             {/* 2. السعر مع اختيار الحجم */}
             <div className="bg-card border rounded-xl p-3 shadow-sm">
@@ -405,6 +382,8 @@ const ProductDetails = () => {
                   {product.product_variants.map((variant: any) => {
                     const variantDiscount = calculateDiscount(product.id, variant.price, discounts);
                     const isOutOfStock = variant.stock_quantity === 0;
+                    const isLowStock = variant.stock_quantity > 0 && variant.stock_quantity <= 5;
+                    const isMediumStock = variant.stock_quantity > 5 && variant.stock_quantity <= 10;
                     const isSelected = selectedVariant === variant.id;
                     
                     return (
@@ -425,18 +404,27 @@ const ProductDetails = () => {
                             id={variant.id} 
                             disabled={isOutOfStock}
                           />
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <Label 
                               htmlFor={variant.id} 
                               className={`text-sm font-medium cursor-pointer ${isOutOfStock ? 'cursor-not-allowed' : ''}`}
                             >
                               {variant.size_ar}
                             </Label>
-                            {isOutOfStock && (
-                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                                غير متوفر
+                            {/* تاك حالة المخزون */}
+                            {isOutOfStock ? (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-muted text-muted-foreground">
+                                نفذت الكمية
                               </Badge>
-                            )}
+                            ) : isLowStock ? (
+                              <Badge className="text-[10px] px-1.5 py-0 animate-pulse bg-gradient-to-r from-orange-500 to-red-500 text-white border-0">
+                                متبقي {variant.stock_quantity} فقط
+                              </Badge>
+                            ) : isMediumStock ? (
+                              <Badge className="text-[10px] px-1.5 py-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                                مخزون منخفض
+                              </Badge>
+                            ) : null}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
