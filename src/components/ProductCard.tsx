@@ -52,6 +52,14 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
             <ShieldCheck className="h-14 w-14 md:h-20 md:w-20 opacity-50 -rotate-[30deg] text-emerald-600" />
           )}
         </div>
+        {discount && (
+          <div className="absolute top-1 right-1 z-20">
+            <Badge variant="destructive" className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-2 h-5 shadow-lg animate-pulse bg-gradient-to-r from-red-600 to-red-500 border-0">
+              <Tag className="h-3 w-3" />
+              خصم {Math.round(discount.percentage)}%
+            </Badge>
+          </div>
+        )}
         {imageUrl ? (
           <div className="h-full w-full bg-background rounded-md overflow-hidden flex items-center justify-center relative">
             {!imageLoaded && (
@@ -78,12 +86,6 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
           <div className="mb-1 space-y-0.5">
             {discount ? (
               <>
-                <div className="flex items-center gap-1">
-                  <Badge variant="destructive" className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-2 h-5 shadow-md animate-pulse bg-gradient-to-r from-red-600 to-red-500 border-0">
-                    <Tag className="h-3 w-3" />
-                    خصم {Math.round(discount.percentage)}%
-                  </Badge>
-                </div>
                 <div className="flex items-baseline gap-1">
                   <p className="text-xs font-bold text-primary">
                     {Math.round(discount.discountedPrice)} د.ع
