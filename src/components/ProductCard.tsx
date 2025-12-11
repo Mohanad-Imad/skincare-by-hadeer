@@ -78,10 +78,10 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
           <div className="mb-1 space-y-0.5">
             {discount ? (
               <>
-                <div className="flex items-center gap-0.5">
-                  <Badge variant="destructive" className="flex items-center gap-0.5 text-[8px] py-0 px-1 h-3.5">
-                    <Tag className="h-2 w-2" />
-                    {Math.round(discount.percentage)}%
+                <div className="flex items-center gap-1">
+                  <Badge variant="destructive" className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-2 h-5 shadow-md animate-pulse bg-gradient-to-r from-red-600 to-red-500 border-0">
+                    <Tag className="h-3 w-3" />
+                    خصم {Math.round(discount.percentage)}%
                   </Badge>
                 </div>
                 <div className="flex items-baseline gap-1">
