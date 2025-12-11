@@ -368,8 +368,31 @@ const ProductDetails = () => {
 
           {/* Product Info */}
           <div className="space-y-4">
-            {/* 1. الاسم */}
-            <h1 className="text-lg md:text-xl font-bold leading-tight">{product.name_ar}</h1>
+            {/* 1. الاسم مع حالة المخزون */}
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-lg md:text-xl font-bold leading-tight">{product.name_ar}</h1>
+              {selectedVariantData && (
+                <div className="shrink-0">
+                  {selectedVariantData.stock_quantity === 0 ? (
+                    <Badge variant="secondary" className="bg-muted text-muted-foreground">
+                      نفذت الكمية
+                    </Badge>
+                  ) : selectedVariantData.stock_quantity <= 5 ? (
+                    <Badge variant="destructive" className="animate-pulse bg-gradient-to-r from-orange-500 to-red-500 border-0">
+                      متبقي {selectedVariantData.stock_quantity} فقط
+                    </Badge>
+                  ) : selectedVariantData.stock_quantity <= 10 ? (
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                      مخزون منخفض
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0">
+                      متوفر
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* 2. السعر مع اختيار الحجم */}
             <div className="bg-card border rounded-xl p-3 shadow-sm">
