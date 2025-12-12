@@ -313,12 +313,12 @@ export default function CelebrityRoutineDetails() {
                             <CardContent className="p-0">
                               <div className="flex flex-col">
                                 {/* Product Image */}
-                                <div className="relative w-full h-48 bg-muted flex items-center justify-center overflow-hidden">
+                                <div className="relative w-full aspect-square bg-muted flex items-center justify-center p-4">
                                   {productImage ? (
                                     <img 
                                       src={productImage} 
                                       alt={product.name_ar}
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-full object-contain"
                                       onError={(e) => {
                                         e.currentTarget.style.display = 'none';
                                         e.currentTarget.parentElement?.classList.add('no-image');
