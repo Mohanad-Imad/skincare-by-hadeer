@@ -71,7 +71,7 @@ const BlogPost = () => {
       />
       <Navbar />
       
-      <article className="container py-8">
+      <article className="container py-8 pb-24">
         <Button
           variant="ghost"
           onClick={() => navigate("/blog")}
