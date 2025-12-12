@@ -92,7 +92,7 @@ const BlogPost = () => {
             </div>
           )}
 
-          <h1 className="mb-4 text-4xl font-bold">{post.title}</h1>
+          <h1 className="mb-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-relaxed">{post.title}</h1>
 
           <div className="mb-8 flex items-center gap-6 text-muted-foreground">
             <div className="flex items-center gap-2">
