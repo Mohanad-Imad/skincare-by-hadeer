@@ -39,7 +39,7 @@ const Blog = () => {
       />
       <Navbar />
       
-      <div className="container py-8 pb-24">
+      <div className="container py-8 pb-32">
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-4xl font-bold">مدونة العناية بالبشرة</h1>
           <p className="text-lg text-muted-foreground">
