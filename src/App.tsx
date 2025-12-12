@@ -54,6 +54,8 @@ import AdminInventory from "./pages/admin/AdminInventory";
 import AdminNavigationLinks from "./pages/admin/AdminNavigationLinks";
 import AdminDropHintSettings from "./pages/admin/AdminDropHintSettings";
 import AdminAnnouncementBar from "./pages/admin/AdminAnnouncementBar";
+import AdminUserNotifications from "./pages/admin/AdminUserNotifications";
+import Inbox from "./pages/Inbox";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
 import SharedCart from "./pages/SharedCart";
@@ -113,6 +115,7 @@ const App = () => (
           <Route path="/submit-review" element={<SubmitReview />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/shared-cart/:shareCode" element={<SharedCart />} />
+          <Route path="/inbox" element={<Inbox />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/admin" element={<AdminDashboard />}>
@@ -145,6 +148,7 @@ const App = () => (
             <Route path="navigation-links" element={<AdminNavigationLinks />} />
             <Route path="drop-hint-settings" element={<AdminDropHintSettings />} />
             <Route path="announcement-bar" element={<AdminAnnouncementBar />} />
+            <Route path="user-notifications" element={<AdminUserNotifications />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

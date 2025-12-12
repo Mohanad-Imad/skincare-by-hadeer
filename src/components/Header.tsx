@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { FreeShippingBar } from "./FreeShippingBar";
+import NotificationBell from "./NotificationBell";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -88,6 +89,7 @@ export const Header = () => {
 
           {session ? (
             <div className="flex items-center gap-2">
+              <NotificationBell />
               <Button
                 variant="ghost"
                 size="icon"

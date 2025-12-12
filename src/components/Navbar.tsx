@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import NotificationBell from "./NotificationBell";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -426,6 +427,8 @@ export const Navbar = () => {
           {/* Cart & Auth - Desktop Only (right side) */}
           <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
+            
+            {session && <NotificationBell />}
             
             <Button variant="ghost" size="sm" className="relative px-3" onClick={() => navigate("/cart")}>
               <ShoppingCart className="h-4 w-4" />
