@@ -41,6 +41,7 @@ const menuItems = [
   { title: "الصفحة الرئيسية", url: "/admin", icon: Home },
   { title: "الإحصائيات", url: "/admin/analytics", icon: BarChart3 },
   { title: "الإشعارات", url: "/admin/notifications", icon: Bell, showBadge: true },
+  { title: "رسائل المستخدمين", url: "/admin/user-notifications", icon: MessageCircle },
   { title: "المستخدمين", url: "/admin/users", icon: Users },
   { title: "آراء العملاء", url: "/admin/customer-reviews", icon: MessageCircleMore },
   { title: "تقييمات المنتجات", url: "/admin/product-reviews", icon: Star },
