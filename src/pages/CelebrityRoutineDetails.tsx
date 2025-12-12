@@ -309,16 +309,16 @@ export default function CelebrityRoutineDetails() {
                         const productImage = product.product_id ? productImages[product.product_id] : null;
                         
                         return (
-                          <Card key={index} className="hover:shadow-lg transition-shadow overflow-hidden">
+                          <Card key={index} className="hover:shadow-lg transition-shadow overflow-hidden rounded-xl">
                             <CardContent className="p-0">
                               <div className="flex flex-col">
                                 {/* Product Image */}
-                                <div className="relative w-full aspect-square bg-muted flex items-center justify-center p-4 rounded-t-lg">
+                                <div className="relative w-full aspect-square bg-muted flex items-center justify-center p-4">
                                   {productImage ? (
                                     <img 
                                       src={productImage} 
                                       alt={product.name_ar}
-                                      className="w-full h-full object-contain"
+                                      className="w-full h-full object-contain rounded-lg"
                                       onError={(e) => {
                                         e.currentTarget.style.display = 'none';
                                         e.currentTarget.parentElement?.classList.add('no-image');
