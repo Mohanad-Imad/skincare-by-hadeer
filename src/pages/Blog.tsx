@@ -41,7 +41,7 @@ const Blog = () => {
       
       <div className="container py-8 pb-32">
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-4xl font-bold">مدونة العناية بالبشرة</h1>
+          <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl font-bold leading-relaxed">مدونة العناية بالبشرة</h1>
           <p className="text-lg text-muted-foreground">
             نصائح ومقالات من خبراء التجميل لمساعدتك في الحصول على بشرة صحية ومشرقة
           </p>
@@ -69,7 +69,7 @@ const Blog = () => {
                   </div>
                 )}
                 <CardHeader>
-                  <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                  <CardTitle className="text-base sm:text-lg md:text-xl leading-relaxed">{post.title}</CardTitle>
                   <CardDescription className="line-clamp-2">{post.excerpt}</CardDescription>
                 </CardHeader>
                 <CardContent>
