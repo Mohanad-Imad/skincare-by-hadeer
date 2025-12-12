@@ -313,7 +313,7 @@ export default function CelebrityRoutineDetails() {
                             <CardContent className="p-0">
                               <div className="flex flex-col">
                                 {/* Product Image */}
-                                <div className="relative w-full aspect-square bg-muted flex items-center justify-center p-4">
+                                <div className="relative w-full aspect-square bg-muted flex items-center justify-center p-4 rounded-t-lg">
                                   {productImage ? (
                                     <img 
                                       src={productImage} 
