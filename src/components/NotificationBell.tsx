@@ -10,17 +10,9 @@ import { cn } from "@/lib/utils";
 interface NotificationBellProps {
   className?: string;
 }
-const NotificationBell = ({
-  className
-}: NotificationBellProps) => {
+const NotificationBell = ({ className }: NotificationBellProps) => {
   const navigate = useNavigate();
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    isLoading
-  } = useUserNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useUserNotifications();
   const handleNotificationClick = (notification: (typeof notifications)[0]) => {
     if (!notification.is_read) {
       markAsRead(notification.id);
@@ -40,58 +32,83 @@ const NotificationBell = ({
     }
   };
   const recentNotifications = notifications.slice(0, 5);
-  return <Popover>
+  return (
+    <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className={cn("relative", className)}>
           <Bell className="h-5 w-5" />
-          {unreadCount > 0 && <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
               {unreadCount > 9 ? "9+" : unreadCount}
-            </span>}
+            </span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between p-4 border-b">
           <h4 className="font-semibold text-foreground">الإشعارات</h4>
-          {unreadCount > 0 && <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => markAllAsRead()}>
+          {unreadCount > 0 && (
+            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => markAllAsRead()}>
               <Check className="h-3 w-3 ml-1" />
               تحديد الكل كمقروء
-            </Button>}
+            </Button>
+          )}
         </div>
 
         <ScrollArea className="h-[300px]">
-          {isLoading ? <div className="p-4 text-center text-muted-foreground">جاري التحميل...</div> : recentNotifications.length === 0 ? <div className="p-8 text-center text-muted-foreground">
+          {isLoading ? (
+            <div className="p-4 text-center text-muted-foreground">جاري التحميل...</div>
+          ) : recentNotifications.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
               <Mail className="h-10 w-10 mx-auto mb-2 opacity-50" />
               <p>لا توجد إشعارات</p>
-            </div> : <div className="divide-y">
-              {recentNotifications.map(notification => <div key={notification.id} onClick={() => handleNotificationClick(notification)} className={cn("p-4 cursor-pointer transition-colors hover:bg-muted/50", !notification.is_read && "bg-primary/5")}>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {recentNotifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={cn(
+                    "p-4 cursor-pointer transition-colors hover:bg-muted/50",
+                    !notification.is_read && "bg-primary/5",
+                  )}
+                >
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0 mt">
-                      <p className={cn("text-sm truncate", !notification.is_read && "font-semibold")}>
+                      <p className={cn("text-sm truncate text-right", !notification.is_read && "font-semibold")}>
                         {notification.title}
                       </p>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1 text-right">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1 text-right">
+                        {notification.message}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1 text-right">
                         {formatDistanceToNow(new Date(notification.created_at), {
-                    addSuffix: true,
-                    locale: ar
-                  })}
+                          addSuffix: true,
+                          locale: ar,
+                        })}
                       </p>
                     </div>
                     <div className={cn("mt-0.5", notification.is_read ? "text-muted-foreground" : "text-primary")}>
                       {notification.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                     </div>
                   </div>
-                </div>)}
-            </div>}
+                </div>
+              ))}
+            </div>
+          )}
         </ScrollArea>
 
-        {notifications.length > 0 && <div className="p-2 border-t">
+        {notifications.length > 0 && (
+          <div className="p-2 border-t">
             <Button variant="ghost" className="w-full text-sm" onClick={() => navigate("/inbox")}>
               <ExternalLink className="h-4 w-4 ml-2" />
               عرض كل الإشعارات
             </Button>
-          </div>}
+          </div>
+        )}
       </PopoverContent>
-    </Popover>;
+    </Popover>
+  );
 };
 export default NotificationBell;
