@@ -11,6 +11,7 @@ interface UserNotification {
   is_read: boolean;
   related_table: string | null;
   related_id: string | null;
+  link_url: string | null;
   created_by: string | null;
   created_at: string;
 }

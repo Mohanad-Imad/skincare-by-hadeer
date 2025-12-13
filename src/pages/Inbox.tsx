@@ -51,7 +51,14 @@ const Inbox = () => {
       markAsRead(notification.id);
     }
     
-    if (notification.related_table === "consultations" && notification.related_id) {
+    // Priority: custom link_url > related_table navigation
+    if (notification.link_url) {
+      if (notification.link_url.startsWith("http")) {
+        window.open(notification.link_url, "_blank");
+      } else {
+        navigate(notification.link_url);
+      }
+    } else if (notification.related_table === "consultations" && notification.related_id) {
       navigate(`/consultation`);
     } else if (notification.related_table === "orders" && notification.related_id) {
       navigate(`/my-orders`);

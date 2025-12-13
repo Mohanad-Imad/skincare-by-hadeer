@@ -34,7 +34,8 @@ import {
   MessageSquare, 
   Mail,
   Loader2,
-  Search
+  Search,
+  Link
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -67,6 +68,7 @@ const AdminUserNotifications = () => {
   const [selectedConsultationId, setSelectedConsultationId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
 
   // Fetch users
   const { data: users = [] } = useQuery({
@@ -124,6 +126,7 @@ const AdminUserNotifications = () => {
         user_id: notificationType === "personal" ? selectedUserId : null,
         related_table: selectedConsultationId ? "consultations" : null,
         related_id: selectedConsultationId || null,
+        link_url: linkUrl.trim() || null,
         created_by: user.id,
       };
 
@@ -142,6 +145,7 @@ const AdminUserNotifications = () => {
       // Reset form
       setTitle("");
       setMessage("");
+      setLinkUrl("");
       setSelectedUserId("");
       setSelectedConsultationId("");
     },
@@ -311,6 +315,23 @@ const AdminUserNotifications = () => {
                         placeholder="اكتب رسالتك هنا..."
                         rows={5}
                       />
+                    </div>
+
+                    {/* Link URL */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Link className="h-4 w-4" />
+                        رابط التوجيه (اختياري)
+                      </Label>
+                      <Input
+                        value={linkUrl}
+                        onChange={(e) => setLinkUrl(e.target.value)}
+                        placeholder="مثال: /products/abc123 أو https://example.com"
+                        dir="ltr"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        عند الضغط على الإشعار سيتم توجيه المستخدم لهذا الرابط
+                      </p>
                     </div>
 
                     <Button 

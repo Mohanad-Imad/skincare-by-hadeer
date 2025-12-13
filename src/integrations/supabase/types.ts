@@ -2119,6 +2119,7 @@ export type Database = {
           created_by: string | null
           id: string
           is_read: boolean
+          link_url: string | null
           message: string
           related_id: string | null
           related_table: string | null
@@ -2131,6 +2132,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_read?: boolean
+          link_url?: string | null
           message: string
           related_id?: string | null
           related_table?: string | null
@@ -2143,6 +2145,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_read?: boolean
+          link_url?: string | null
           message?: string
           related_id?: string | null
           related_table?: string | null
