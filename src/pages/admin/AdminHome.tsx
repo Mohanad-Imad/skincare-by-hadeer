@@ -24,6 +24,7 @@ import {
   Boxes,
   ShieldCheck,
   Megaphone,
+  Mail,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -48,6 +49,12 @@ const AdminHome = () => {
       description: "عرض جميع الإشعارات والتنبيهات",
       icon: Bell,
       route: "/admin/notifications",
+    },
+    {
+      title: "رسائل المستخدمين",
+      description: "إرسال إشعارات ورسائل للمستخدمين",
+      icon: Mail,
+      route: "/admin/user-notifications",
     },
     {
       title: "المستخدمين",
