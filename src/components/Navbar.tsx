@@ -394,7 +394,9 @@ export const Navbar = () => {
 
         {/* Right Side: Avatar (mobile) & Logo (mobile center) / Cart & Auth (desktop right) */}
         <div className="flex items-center gap-2">
-          {/* Avatar - Mobile Only */}
+          {/* Notification Bell & Avatar - Mobile Only */}
+          {session && <NotificationBell className="lg:hidden" />}
+          
           {session ? (
             <button
               onClick={() => navigate("/profile")}
