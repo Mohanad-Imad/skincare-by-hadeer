@@ -13,52 +13,45 @@ import { Star, MessageCircle, Upload, X } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 const reviewSchema = z.object({
-  customer_name: z.string()
-    .trim()
-    .min(2, { message: "الاسم يجب أن يكون حرفين على الأقل" })
-    .max(100, { message: "الاسم يجب أن يكون أقل من 100 حرف" }),
-  rating: z.number()
-    .min(1, { message: "يرجى اختيار التقييم" })
-    .max(5),
-  comment: z.string()
-    .trim()
-    .min(10, { message: "الرأي يجب أن يكون 10 أحرف على الأقل" })
-    .max(1000, { message: "الرأي يجب أن يكون أقل من 1000 حرف" }),
-  customer_image: z.instanceof(File).optional().nullable(),
+  customer_name: z.string().trim().min(2, {
+    message: "الاسم يجب أن يكون حرفين على الأقل"
+  }).max(100, {
+    message: "الاسم يجب أن يكون أقل من 100 حرف"
+  }),
+  rating: z.number().min(1, {
+    message: "يرجى اختيار التقييم"
+  }).max(5),
+  comment: z.string().trim().min(10, {
+    message: "الرأي يجب أن يكون 10 أحرف على الأقل"
+  }).max(1000, {
+    message: "الرأي يجب أن يكون أقل من 1000 حرف"
+  }),
+  customer_image: z.instanceof(File).optional().nullable()
 });
-
 type ReviewFormValues = z.infer<typeof reviewSchema>;
-
 export default function SubmitReview() {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       customer_name: "",
       rating: 0,
       comment: "",
-      customer_image: null,
-    },
+      customer_image: null
+    }
   });
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       if (!session) {
         toast.error("يجب تسجيل الدخول لإضافة رأيك");
         navigate("/auth");
@@ -68,30 +61,28 @@ export default function SubmitReview() {
 
       // Pre-fill name from profile if available
       setTimeout(() => {
-        supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", session.user.id)
-          .maybeSingle()
-          .then(({ data }) => {
-            if (data?.full_name) {
-              form.setValue("customer_name", data.full_name);
-            }
-          });
+        supabase.from("profiles").select("full_name").eq("id", session.user.id).maybeSingle().then(({
+          data
+        }) => {
+          if (data?.full_name) {
+            form.setValue("customer_name", data.full_name);
+          }
+        });
       }, 0);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         toast.error("يجب تسجيل الدخول لإضافة رأيك");
         navigate("/auth");
       }
       setUser(session?.user ?? null);
     });
-
     return () => subscription.unsubscribe();
   }, [navigate, form]);
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -106,9 +97,8 @@ export default function SubmitReview() {
         toast.error("يجب أن يكون الملف صورة");
         return;
       }
-
       form.setValue("customer_image", file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -117,26 +107,21 @@ export default function SubmitReview() {
       reader.readAsDataURL(file);
     }
   };
-
   const removeImage = () => {
     form.setValue("customer_image", null);
     setImagePreview(null);
   };
-
   const onSubmit = async (values: ReviewFormValues) => {
     if (!user) {
       toast.error("يجب تسجيل الدخول لإضافة رأيك");
       navigate("/auth");
       return;
     }
-
     if (values.rating === 0) {
       toast.error("يرجى اختيار التقييم");
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       let imageUrl = null;
 
@@ -144,33 +129,28 @@ export default function SubmitReview() {
       if (values.customer_image) {
         const fileExt = values.customer_image.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("customer-reviews")
-          .upload(fileName, values.customer_image);
-
+        const {
+          error: uploadError
+        } = await supabase.storage.from("customer-reviews").upload(fileName, values.customer_image);
         if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("customer-reviews")
-          .getPublicUrl(fileName);
-
+        const {
+          data: {
+            publicUrl
+          }
+        } = supabase.storage.from("customer-reviews").getPublicUrl(fileName);
         imageUrl = publicUrl;
       }
-
-      const { error } = await (supabase as any)
-        .from("customer_reviews")
-        .insert({
-          user_id: user.id,
-          customer_name: values.customer_name.trim(),
-          rating: values.rating,
-          comment: values.comment.trim(),
-          customer_image: imageUrl,
-          status: "pending",
-        });
-
+      const {
+        error
+      } = await (supabase as any).from("customer_reviews").insert({
+        user_id: user.id,
+        customer_name: values.customer_name.trim(),
+        rating: values.rating,
+        comment: values.comment.trim(),
+        customer_image: imageUrl,
+        status: "pending"
+      });
       if (error) throw error;
-
       toast.success("تم إرسال رأيك بنجاح! سيتم مراجعته قبل النشر");
       form.reset();
       setTimeout(() => navigate("/"), 2000);
@@ -181,36 +161,19 @@ export default function SubmitReview() {
       setIsSubmitting(false);
     }
   };
-
   const renderStars = (rating: number, isInteractive = false) => {
-    return Array.from({ length: 5 }).map((_, index) => (
-      <Star
-        key={index}
-        className={`h-8 w-8 transition-all ${
-          index < (isInteractive ? hoveredRating || rating : rating)
-            ? "fill-yellow-400 text-yellow-400"
-            : "text-gray-300"
-        } ${isInteractive ? "cursor-pointer hover:scale-110" : ""}`}
-        onClick={isInteractive ? () => form.setValue("rating", index + 1) : undefined}
-        onMouseEnter={isInteractive ? () => setHoveredRating(index + 1) : undefined}
-        onMouseLeave={isInteractive ? () => setHoveredRating(0) : undefined}
-      />
-    ));
+    return Array.from({
+      length: 5
+    }).map((_, index) => <Star key={index} className={`h-8 w-8 transition-all ${index < (isInteractive ? hoveredRating || rating : rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} ${isInteractive ? "cursor-pointer hover:scale-110" : ""}`} onClick={isInteractive ? () => form.setValue("rating", index + 1) : undefined} onMouseEnter={isInteractive ? () => setHoveredRating(index + 1) : undefined} onMouseLeave={isInteractive ? () => setHoveredRating(0) : undefined} />);
   };
-
   if (!user) {
     return null;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
-      <SEO
-        title="شاركنا رأيك - تقييمات العملاء"
-        description="شارك تجربتك مع منتجاتنا وخدماتنا. رأيك مهم لنا ولعملائنا الآخرين"
-      />
+  return <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
+      <SEO title="شاركنا رأيك - تقييمات العملاء" description="شارك تجربتك مع منتجاتنا وخدماتنا. رأيك مهم لنا ولعملائنا الآخرين" />
       <Navbar />
 
-      <div className="container mx-auto px-4 py-12" dir="rtl">
+      <div dir="rtl" className="container mx-auto px-4 py-12 mb-[70px]">
         <div className="max-w-2xl mx-auto">
           <Card className="border-2">
             <CardHeader className="text-center space-y-2">
@@ -228,29 +191,19 @@ export default function SubmitReview() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="customer_name"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="customer_name" render={({
+                  field
+                }) => <FormItem>
                         <FormLabel className="text-base">الاسم *</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="أدخل اسمك"
-                            {...field}
-                            className="text-base"
-                          />
+                          <Input placeholder="أدخل اسمك" {...field} className="text-base" />
                         </FormControl>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>} />
 
-                  <FormField
-                    control={form.control}
-                    name="rating"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="rating" render={({
+                  field
+                }) => <FormItem>
                         <FormLabel className="text-base">التقييم *</FormLabel>
                         <FormControl>
                           <div className="flex gap-2 py-2">
@@ -261,41 +214,32 @@ export default function SubmitReview() {
                           اختر عدد النجوم من 1 إلى 5
                         </FormDescription>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>} />
 
-                  <FormField
-                    control={form.control}
-                    name="comment"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="comment" render={({
+                  field
+                }) => <FormItem>
                         <FormLabel className="text-base">رأيك *</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="شاركنا تجربتك مع منتجاتنا وخدماتنا..."
-                            className="min-h-[120px] text-base resize-none"
-                            {...field}
-                          />
+                          <Textarea placeholder="شاركنا تجربتك مع منتجاتنا وخدماتنا..." className="min-h-[120px] text-base resize-none" {...field} />
                         </FormControl>
                         <FormDescription>
                           {field.value.length}/1000 حرف
                         </FormDescription>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>} />
 
-                  <FormField
-                    control={form.control}
-                    name="customer_image"
-                    render={({ field: { value, onChange, ...field } }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="customer_image" render={({
+                  field: {
+                    value,
+                    onChange,
+                    ...field
+                  }
+                }) => <FormItem>
                         <FormLabel className="text-base">صورتك (اختياري)</FormLabel>
                         <FormControl>
                           <div className="space-y-4">
-                            {!imagePreview ? (
-                              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors">
+                            {!imagePreview ? <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors">
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                   <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
                                   <p className="mb-2 text-sm text-muted-foreground">
@@ -305,41 +249,20 @@ export default function SubmitReview() {
                                     PNG, JPG أو WEBP (بحد أقصى 5MB)
                                   </p>
                                 </div>
-                                <Input
-                                  type="file"
-                                  className="hidden"
-                                  accept="image/*"
-                                  onChange={handleImageChange}
-                                  {...field}
-                                />
-                              </label>
-                            ) : (
-                              <div className="relative">
-                                <img
-                                  src={imagePreview}
-                                  alt="معاينة"
-                                  className="w-full h-48 object-cover rounded-lg"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-2 left-2"
-                                  onClick={removeImage}
-                                >
+                                <Input type="file" className="hidden" accept="image/*" onChange={handleImageChange} {...field} />
+                              </label> : <div className="relative">
+                                <img src={imagePreview} alt="معاينة" className="w-full h-48 object-cover rounded-lg" />
+                                <Button type="button" variant="destructive" size="icon" className="absolute top-2 left-2" onClick={removeImage}>
                                   <X className="h-4 w-4" />
                                 </Button>
-                              </div>
-                            )}
+                              </div>}
                           </div>
                         </FormControl>
                         <FormDescription>
                           يمكنك إضافة صورتك الشخصية
                         </FormDescription>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>} />
 
                   <div className="bg-muted/50 p-4 rounded-lg border border-border">
                     <p className="text-sm text-muted-foreground">
@@ -349,20 +272,10 @@ export default function SubmitReview() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1"
-                      size="lg"
-                    >
+                    <Button type="submit" disabled={isSubmitting} className="flex-1" size="lg">
                       {isSubmitting ? "جاري الإرسال..." : "إرسال الرأي"}
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate("/")}
-                      size="lg"
-                    >
+                    <Button type="button" variant="outline" onClick={() => navigate("/")} size="lg">
                       إلغاء
                     </Button>
                   </div>
@@ -372,6 +285,5 @@ export default function SubmitReview() {
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
