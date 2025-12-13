@@ -80,9 +80,6 @@ const NotificationBell = ({ className }: NotificationBellProps) => {
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={cn("mt-0.5", notification.is_read ? "text-muted-foreground" : "text-primary")}>
-                      {notification.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
-                    </div>
                     <div className="flex-1 min-w-0">
                       <p className={cn("text-sm truncate", !notification.is_read && "font-semibold")}>
                         {notification.title}
@@ -94,6 +91,9 @@ const NotificationBell = ({ className }: NotificationBellProps) => {
                           locale: ar,
                         })}
                       </p>
+                    </div>
+                    <div className={cn("mt-0.5", notification.is_read ? "text-muted-foreground" : "text-primary")}>
+                      {notification.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                     </div>
                   </div>
                 </div>
