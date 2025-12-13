@@ -12,13 +12,15 @@ import {
   ArrowRight, 
   Inbox as InboxIcon,
   MessageSquare,
-  ShoppingBag
+  ShoppingBag,
+  Trash2
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/Navbar";
 import { Helmet } from "react-helmet-async";
+import { toast } from "sonner";
 
 const Inbox = () => {
   const navigate = useNavigate();
@@ -27,8 +29,12 @@ const Inbox = () => {
     unreadCount, 
     markAsRead, 
     markAllAsRead,
+    deleteNotification,
+    deleteAllRead,
     isLoading 
   } = useUserNotifications();
+
+  const readNotificationsCount = notifications.filter(n => n.is_read).length;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -89,16 +95,32 @@ const Inbox = () => {
                 </p>
               </div>
             </div>
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => markAllAsRead()}
-              >
-                <Check className="h-4 w-4 ml-2" />
-                تحديد الكل كمقروء
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {readNotificationsCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    deleteAllRead();
+                    toast.success("تم حذف الإشعارات المقروءة");
+                  }}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 ml-2" />
+                  حذف المقروءة ({readNotificationsCount})
+                </Button>
+              )}
+              {unreadCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => markAllAsRead()}
+                >
+                  <Check className="h-4 w-4 ml-2" />
+                  تحديد الكل كمقروء
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Notifications List */}
@@ -160,6 +182,20 @@ const Inbox = () => {
                             {notification.title}
                           </h3>
                           <div className="flex items-center gap-2 shrink-0">
+                            {notification.is_read && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotification(notification.id);
+                                  toast.success("تم حذف الإشعار");
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                             {!notification.is_read && (
                               <Badge variant="default" className="text-xs">
                                 جديد
