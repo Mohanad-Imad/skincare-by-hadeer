@@ -101,6 +101,39 @@ export const useUserNotifications = () => {
     },
   });
 
+  const deleteNotificationMutation = useMutation({
+    mutationFn: async (notificationId: string) => {
+      const { error } = await supabase
+        .from("user_notifications")
+        .delete()
+        .eq("id", notificationId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["user-notifications-unread-count"] });
+    },
+  });
+
+  const deleteAllReadMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId) return;
+      
+      const { error } = await supabase
+        .from("user_notifications")
+        .delete()
+        .or(`user_id.eq.${userId},type.eq.broadcast`)
+        .eq("is_read", true);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["user-notifications-unread-count"] });
+    },
+  });
+
   // Real-time subscription
   useEffect(() => {
     if (!userId) return;
@@ -132,6 +165,9 @@ export const useUserNotifications = () => {
     isLoading: notificationsQuery.isLoading,
     markAsRead: markAsReadMutation.mutate,
     markAllAsRead: markAllAsReadMutation.mutate,
+    deleteNotification: deleteNotificationMutation.mutate,
+    deleteAllRead: deleteAllReadMutation.mutate,
     isMarkingAsRead: markAsReadMutation.isPending,
+    isDeleting: deleteNotificationMutation.isPending || deleteAllReadMutation.isPending,
   };
 };
