@@ -75,7 +75,7 @@ const NotificationBell = ({ className }: NotificationBellProps) => {
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
                   className={cn(
-                    "p-4 cursor-pointer transition-colors hover:bg-muted/50 rtl",
+                    "p-4 cursor-pointer transition-colors hover:bg-muted/50",
                     !notification.is_read && "bg-primary/5",
                   )}
                 >
