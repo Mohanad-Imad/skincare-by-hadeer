@@ -11,7 +11,7 @@ import { Sparkles } from "lucide-react";
 const Makeup = () => {
   const navigate = useNavigate();
 
-  const { data: bannerSettings } = useQuery({
+  const { data: bannerSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ["makeup-banner-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -20,14 +20,16 @@ const Makeup = () => {
         .eq("is_active", true)
         .order("display_order")
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error) return { show_coming_soon: true };
+      if (error || !data) return { show_coming_soon: true };
       return data;
     },
   });
 
-  const { data: categories, isLoading } = useQuery({
+  const showComingSoon = bannerSettings?.show_coming_soon ?? true;
+
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["makeup-categories"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -39,8 +41,9 @@ const Makeup = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !bannerSettings?.show_coming_soon,
   });
+
+  const isLoading = isLoadingSettings || isLoadingCategories;
 
   const handleCategoryClick = (category: any) => {
     if (category.category_id && category.subcategory_id) {
@@ -50,8 +53,20 @@ const Makeup = () => {
     }
   };
 
+  // Show loading state
+  if (isLoadingSettings) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        </main>
+      </div>
+    );
+  }
+
   // Show coming soon page
-  if (bannerSettings?.show_coming_soon) {
+  if (showComingSoon) {
     return (
       <>
         <SEO
