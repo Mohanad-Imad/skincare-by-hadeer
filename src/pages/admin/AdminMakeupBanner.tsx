@@ -40,6 +40,36 @@ const AdminMakeupBanner = () => {
     },
   });
 
+  // Get the first active banner for the coming soon toggle
+  const activeBanner = banners?.find(b => b.is_active) || banners?.[0];
+
+  const toggleComingSoonMutation = useMutation({
+    mutationFn: async (showComingSoon: boolean) => {
+      if (!activeBanner) {
+        // Create a new banner with the setting
+        const { error } = await supabase.from("makeup_banner").insert([{
+          show_coming_soon: showComingSoon,
+          is_active: true,
+        }]);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("makeup_banner")
+          .update({ show_coming_soon: showComingSoon })
+          .eq("id", activeBanner.id);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-makeup-banners"] });
+      queryClient.invalidateQueries({ queryKey: ["makeup-banner-settings"] });
+      toast.success("تم تحديث الإعداد بنجاح");
+    },
+    onError: (error: any) => {
+      toast.error("خطأ في تحديث الإعداد: " + error.message);
+    },
+  });
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -151,7 +181,25 @@ const AdminMakeupBanner = () => {
                 <CardTitle>إدارة بنر المكياج</CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Quick toggle for Coming Soon */}
+                <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 mb-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base font-semibold">إظهار رسالة "قريباً" للزوار</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        عند التفعيل، سيظهر للزوار رسالة "قسم المكياج قادم قريباً" بدلاً من أقسام المكياج
+                      </p>
+                    </div>
+                    <Switch
+                      checked={activeBanner?.show_coming_soon ?? true}
+                      onCheckedChange={(checked) => toggleComingSoonMutation.mutate(checked)}
+                      disabled={toggleComingSoonMutation.isPending}
+                    />
+                  </div>
+                </div>
+
                 <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+                  <h3 className="text-lg font-semibold border-b pb-2">إعدادات البنر</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>العنوان (عربي)</Label>
@@ -252,22 +300,6 @@ const AdminMakeupBanner = () => {
                       <Label>نشط</Label>
                     </div>
                   </div>
-
-                  <div className="p-4 bg-muted/50 rounded-lg border">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-semibold">إظهار رسالة "قريباً"</Label>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          عند التفعيل، سيظهر للزوار رسالة "قسم المكياج قادم قريباً" بدلاً من الأقسام
-                        </p>
-                      </div>
-                      <Switch
-                        checked={formData.show_coming_soon}
-                        onCheckedChange={(checked) => setFormData({ ...formData, show_coming_soon: checked })}
-                      />
-                    </div>
-                  </div>
-
                   <div className="flex gap-2">
                     <Button type="submit">{editingId ? "تحديث" : "إضافة"}</Button>
                     {editingId && (
