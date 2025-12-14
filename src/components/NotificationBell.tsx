@@ -81,13 +81,16 @@ const NotificationBell = ({ className }: NotificationBellProps) => {
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0 mt">
-                      <p className={cn("text-sm truncate text-right", !notification.is_read && "font-semibold")}>
+                      <p className={cn(
+                        "text-sm font-semibold text-foreground truncate text-right",
+                        !notification.is_read && "text-primary"
+                      )}>
                         {notification.title}
                       </p>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1 text-right">
+                      <p className="text-xs text-muted-foreground/90 line-clamp-2 mt-1.5 text-right leading-relaxed">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1 text-right">
+                      <p className="text-[10px] text-muted-foreground/60 mt-2 text-right font-light">
                         {formatDistanceToNow(new Date(notification.created_at), {
                           addSuffix: true,
                           locale: ar,
