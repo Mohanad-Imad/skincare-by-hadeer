@@ -789,6 +789,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          show_coming_soon: boolean
           text_color: string | null
           title_ar: string | null
           title_en: string | null
@@ -805,6 +806,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          show_coming_soon?: boolean
           text_color?: string | null
           title_ar?: string | null
           title_en?: string | null
@@ -821,6 +823,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          show_coming_soon?: boolean
           text_color?: string | null
           title_ar?: string | null
           title_en?: string | null
