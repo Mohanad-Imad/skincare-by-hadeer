@@ -26,6 +26,7 @@ const AdminMakeupBanner = () => {
     button_text_en: "Shop Now",
     is_active: true,
     display_order: 0,
+    show_coming_soon: true,
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -119,6 +120,7 @@ const AdminMakeupBanner = () => {
       button_text_en: "Shop Now",
       is_active: true,
       display_order: 0,
+      show_coming_soon: true,
     });
     setEditingId(null);
   };
@@ -248,6 +250,21 @@ const AdminMakeupBanner = () => {
                         onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
                       />
                       <Label>نشط</Label>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-base font-semibold">إظهار رسالة "قريباً"</Label>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          عند التفعيل، سيظهر للزوار رسالة "قسم المكياج قادم قريباً" بدلاً من الأقسام
+                        </p>
+                      </div>
+                      <Switch
+                        checked={formData.show_coming_soon}
+                        onCheckedChange={(checked) => setFormData({ ...formData, show_coming_soon: checked })}
+                      />
                     </div>
                   </div>
 

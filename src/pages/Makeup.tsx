@@ -6,9 +6,26 @@ import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sparkles } from "lucide-react";
 
 const Makeup = () => {
   const navigate = useNavigate();
+
+  const { data: bannerSettings } = useQuery({
+    queryKey: ["makeup-banner-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("makeup_banner")
+        .select("show_coming_soon")
+        .eq("is_active", true)
+        .order("display_order")
+        .limit(1)
+        .single();
+
+      if (error) return { show_coming_soon: true };
+      return data;
+    },
+  });
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ["makeup-categories"],
@@ -22,6 +39,7 @@ const Makeup = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !bannerSettings?.show_coming_soon,
   });
 
   const handleCategoryClick = (category: any) => {
@@ -31,6 +49,42 @@ const Makeup = () => {
       toast.error("هذا القسم غير مرتبط بالأقسام الرئيسية");
     }
   };
+
+  // Show coming soon page
+  if (bannerSettings?.show_coming_soon) {
+    return (
+      <>
+        <SEO
+          title="عالم المكياج - قريباً"
+          description="قسم المكياج قادم قريباً بلمسة ساحرة تُكمل روتين جمالك"
+          keywords="مكياج, كريم أساس, باودر, ماسكارا, ظلال عيون, حمرة شفاه"
+        />
+        <div className="min-h-screen flex flex-col bg-background">
+          <Navbar />
+          <main className="flex-grow flex items-center justify-center px-4 py-8 pb-32 md:pb-8">
+            <div className="text-center max-w-2xl mx-auto">
+              <div className="mb-8 animate-bounce">
+                <Sparkles className="w-20 h-20 mx-auto text-primary" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+                ترقبوا الإطلالة الجديدة! 🤩
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                قسم المكياج قادم قريبًا بلمسة ساحرة تُكمل روتين جمالك.
+                <br />
+                <span className="text-primary font-semibold">سنخبركم فور وصوله!</span>
+              </p>
+              <div className="mt-10 flex justify-center gap-2">
+                <span className="w-3 h-3 bg-primary rounded-full animate-pulse" />
+                <span className="w-3 h-3 bg-primary/70 rounded-full animate-pulse delay-100" />
+                <span className="w-3 h-3 bg-primary/40 rounded-full animate-pulse delay-200" />
+              </div>
+            </div>
+          </main>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
