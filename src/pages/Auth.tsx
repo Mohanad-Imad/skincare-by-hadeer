@@ -292,6 +292,23 @@ const Auth = () => {
                 {isLogin ? "إنشاء حساب جديد" : "تسجيل الدخول"}
               </Button>
             </div>
+
+            {/* خيار التسوق كضيف - يظهر فقط إذا كان التوجيه من الـ Checkout */}
+            {redirectTo === "/checkout" && (
+              <div className="mt-6 pt-4 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate("/checkout?guest=true")}
+                >
+                  تسوق كضيف
+                </Button>
+                <p className="mt-2 text-xs text-center text-muted-foreground">
+                  يمكنك إتمام الطلب دون إنشاء حساب
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

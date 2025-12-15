@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { z } from "zod";
 import { ArrowRight } from "lucide-react";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
@@ -24,7 +25,11 @@ const checkoutSchema = z.object({
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const { localCart, clearLocalCart } = useLocalCart();
+  const isGuestMode = searchParams.get("guest") === "true";
+  
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
@@ -73,14 +78,15 @@ const Checkout = () => {
 
   // تلقائياً ملء الحقول من البروفايل
   useEffect(() => {
-    if (profile && !useDifferentAddress) {
+    if (profile && !useDifferentAddress && !isGuestMode) {
       if (profile.full_name) setCustomerName(profile.full_name);
       if (profile.phone) setCustomerPhone(profile.phone);
       if (profile.address) setCustomerAddress(profile.address);
     }
-  }, [profile, useDifferentAddress]);
+  }, [profile, useDifferentAddress, isGuestMode]);
 
-  const { data: cartItems } = useQuery({
+  // جلب سلة المستخدم المسجل
+  const { data: authCartItems } = useQuery({
     queryKey: ["cart", session?.user?.id],
     queryFn: async () => {
       if (!session?.user) return [];
@@ -105,8 +111,48 @@ const Checkout = () => {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!session?.user,
+    enabled: !!session?.user && !isGuestMode,
   });
+
+  // جلب تفاصيل منتجات السلة المحلية للضيوف
+  const { data: guestCartItems } = useQuery({
+    queryKey: ["guest-cart-details", localCart],
+    queryFn: async () => {
+      if (localCart.length === 0) return [];
+
+      const variantIds = localCart.map((item) => item.variantId);
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select(
+          `
+          *,
+          products (
+            id,
+            name_ar,
+            name_en
+          )
+        `,
+        )
+        .in("id", variantIds);
+
+      if (error) throw error;
+
+      // دمج الكميات من السلة المحلية
+      return localCart.map((cartItem) => {
+        const variant = data?.find((v) => v.id === cartItem.variantId);
+        return {
+          id: cartItem.variantId,
+          product_variant_id: cartItem.variantId,
+          quantity: cartItem.quantity,
+          product_variants: variant,
+        };
+      }).filter((item) => item.product_variants);
+    },
+    enabled: isGuestMode && localCart.length > 0,
+  });
+
+  // استخدام السلة المناسبة حسب الوضع
+  const cartItems = isGuestMode ? guestCartItems : authCartItems;
 
   const applyDiscountCode = async () => {
     const code = discountCode.trim();
@@ -188,12 +234,12 @@ const Checkout = () => {
 
   const createOrderMutation = useMutation({
     mutationFn: async () => {
-      if (!session?.user || !cartItems || cartItems.length === 0) {
+      if (!cartItems || cartItems.length === 0) {
         throw new Error("السلة فارغة");
       }
 
-      // حفظ العنوان الجديد في البروفايل إذا اختار المستخدم ذلك
-      if (saveNewAddress && useDifferentAddress) {
+      // حفظ العنوان الجديد في البروفايل إذا اختار المستخدم ذلك (للمستخدمين المسجلين فقط)
+      if (!isGuestMode && saveNewAddress && useDifferentAddress && session?.user?.id) {
         await updateProfileMutation.mutateAsync({
           full_name: customerName,
           phone: customerPhone,
@@ -218,27 +264,22 @@ const Checkout = () => {
       // حساب رسوم التوصيل
       let shippingAmount = 0;
       if (shippingSettings) {
-        // إذا التوصيل مجاني لجميع الطلبات
         if (shippingSettings.is_free_delivery) {
           shippingAmount = 0;
-        }
-        // أو إذا كان هناك حد أدنى ووصل المستخدم إليه
-        else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
+        } else if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) {
           shippingAmount = 0;
-        }
-        // خلاف ذلك، يدفع رسوم التوصيل العادية
-        else {
+        } else {
           shippingAmount = Number(shippingSettings.delivery_fee) || 0;
         }
       }
 
       const totalAmount = subtotal - discountCodeAmount + shippingAmount;
 
-      // Create order
+      // Create order (user_id null للضيوف)
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
-          user_id: session.user.id,
+          user_id: isGuestMode ? null : session?.user?.id,
           customer_name: customerName,
           customer_phone: customerPhone,
           customer_address: customerAddress,
@@ -282,9 +323,12 @@ const Checkout = () => {
       if (itemsError) throw itemsError;
 
       // Clear cart
-      const { error: clearError } = await supabase.from("cart_items").delete().eq("user_id", session.user.id);
-
-      if (clearError) throw clearError;
+      if (isGuestMode) {
+        clearLocalCart();
+      } else if (session?.user?.id) {
+        const { error: clearError } = await supabase.from("cart_items").delete().eq("user_id", session.user.id);
+        if (clearError) throw clearError;
+      }
 
       return order;
     },
@@ -325,8 +369,15 @@ const Checkout = () => {
     createOrderMutation.mutate();
   };
 
-  if (!session) {
-    navigate("/auth");
+  // التوجيه لصفحة التسجيل فقط إذا لم يكن ضيفاً ولا مسجلاً
+  if (!session && !isGuestMode) {
+    navigate("/auth", { state: { redirectTo: "/checkout" } });
+    return null;
+  }
+
+  // التحقق من وجود منتجات في السلة
+  if (isGuestMode && localCart.length === 0) {
+    navigate("/cart");
     return null;
   }
 
@@ -375,7 +426,7 @@ const Checkout = () => {
             <div className="rounded-lg border p-6">
               <h2 className="mb-4 text-xl font-semibold">معلومات التوصيل</h2>
 
-              {profile && (profile.full_name || profile.phone || profile.address) && (
+              {!isGuestMode && profile && (profile.full_name || profile.phone || profile.address) && (
                 <div className="mb-4 flex items-center gap-2 rounded-lg bg-muted/50 p-3">
                   <Checkbox
                     id="useDifferentAddress"
@@ -393,6 +444,20 @@ const Checkout = () => {
                   <Label htmlFor="useDifferentAddress" className="cursor-pointer text-sm">
                     استخدام عنوان مختلف عن عنوان البروفايل
                   </Label>
+                </div>
+              )}
+
+              {isGuestMode && (
+                <div className="mb-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                  أنت تتسوق كضيف. يمكنك{" "}
+                  <Button
+                    variant="link"
+                    className="h-auto p-0 text-sm"
+                    onClick={() => navigate("/auth", { state: { redirectTo: "/checkout" } })}
+                  >
+                    إنشاء حساب
+                  </Button>{" "}
+                  لحفظ معلوماتك ومتابعة طلباتك.
                 </div>
               )}
 
@@ -424,7 +489,7 @@ const Checkout = () => {
                   />
                 </div>
 
-                {useDifferentAddress && (
+                {!isGuestMode && useDifferentAddress && (
                   <div className="flex items-center gap-2 rounded-lg bg-primary/5 p-3">
                     <Checkbox
                       id="saveNewAddress"
