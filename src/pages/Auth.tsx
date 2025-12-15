@@ -10,6 +10,7 @@ import { z } from "zod";
 import { ArrowRight, Chrome, Mail, Phone, Smartphone } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const emailAuthSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").max(255, "البريد الإلكتروني طويل جداً"),
@@ -19,10 +20,28 @@ const emailAuthSchema = z.object({
 
 const phoneSchema = z.object({
   phone: z.string()
-    .min(10, "رقم الهاتف يجب أن يكون 10 أرقام على الأقل")
-    .max(15, "رقم الهاتف طويل جداً")
-    .regex(/^\+?[0-9]+$/, "رقم الهاتف غير صحيح"),
+    .min(7, "رقم الهاتف يجب أن يكون 7 أرقام على الأقل")
+    .max(12, "رقم الهاتف طويل جداً")
+    .regex(/^[0-9]+$/, "رقم الهاتف يجب أن يحتوي على أرقام فقط"),
 });
+
+const countryCodes = [
+  { code: "+964", name: "العراق", flag: "🇮🇶" },
+  { code: "+966", name: "السعودية", flag: "🇸🇦" },
+  { code: "+971", name: "الإمارات", flag: "🇦🇪" },
+  { code: "+965", name: "الكويت", flag: "🇰🇼" },
+  { code: "+973", name: "البحرين", flag: "🇧🇭" },
+  { code: "+974", name: "قطر", flag: "🇶🇦" },
+  { code: "+968", name: "عُمان", flag: "🇴🇲" },
+  { code: "+962", name: "الأردن", flag: "🇯🇴" },
+  { code: "+961", name: "لبنان", flag: "🇱🇧" },
+  { code: "+963", name: "سوريا", flag: "🇸🇾" },
+  { code: "+20", name: "مصر", flag: "🇪🇬" },
+  { code: "+212", name: "المغرب", flag: "🇲🇦" },
+  { code: "+216", name: "تونس", flag: "🇹🇳" },
+  { code: "+213", name: "الجزائر", flag: "🇩🇿" },
+  { code: "+90", name: "تركيا", flag: "🇹🇷" },
+];
 
 type AuthMethod = "email" | "phone";
 
@@ -34,6 +53,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [countryCode, setCountryCode] = useState("+964");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
@@ -93,10 +113,8 @@ const Auth = () => {
 
     try {
       // التحقق من صحة رقم الهاتف
-      const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
-      
       try {
-        phoneSchema.parse({ phone: formattedPhone });
+        phoneSchema.parse({ phone });
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           toast.error(validationError.errors[0].message);
@@ -105,8 +123,10 @@ const Auth = () => {
         }
       }
 
+      const fullPhoneNumber = `${countryCode}${phone}`;
+
       const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
+        phone: fullPhoneNumber,
       });
 
       if (error) throw error;
@@ -129,10 +149,10 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
+      const fullPhoneNumber = `${countryCode}${phone}`;
       
       const { error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
+        phone: fullPhoneNumber,
         token: otp,
         type: 'sms',
       });
@@ -278,7 +298,7 @@ const Auth = () => {
             <CardContent className="space-y-4">
               <div className="rounded-lg bg-muted p-4">
                 <p className="text-sm text-muted-foreground mb-2">تم إرسال الرمز إلى:</p>
-                <p className="font-medium text-foreground" dir="ltr">{phone.startsWith('+') ? phone : `+${phone}`}</p>
+                <p className="font-medium text-foreground" dir="ltr">{countryCode}{phone}</p>
               </div>
               
               <form onSubmit={handleVerifyOtp} className="space-y-4">
@@ -448,20 +468,37 @@ const Auth = () => {
                 <form onSubmit={handleSendOtp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="phone">رقم الهاتف</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+9647xxxxxxxxx"
-                      required
-                      dir="ltr"
-                    />
+                    <div className="flex gap-2" dir="ltr">
+                      <Select value={countryCode} onValueChange={setCountryCode}>
+                        <SelectTrigger className="w-[140px] bg-background">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          {countryCodes.map((country) => (
+                            <SelectItem key={country.code} value={country.code}>
+                              <span className="flex items-center gap-2">
+                                <span>{country.flag}</span>
+                                <span>{country.code}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                        placeholder="7xxxxxxxxx"
+                        required
+                        className="flex-1"
+                      />
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      أدخل رقم الهاتف مع رمز الدولة (مثال: +9647xxxxxxxxx)
+                      اختر رمز الدولة ثم أدخل رقم الهاتف بدون الصفر الأول
                     </p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading || !phone}>
                     {loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}
                   </Button>
                 </form>
