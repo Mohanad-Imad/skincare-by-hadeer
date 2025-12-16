@@ -659,12 +659,18 @@ const RoutineBuilder = () => {
                   <DrawerTitle>ملخص الروتين</DrawerTitle>
                 </DrawerHeader>
                 <div className="flex flex-col gap-4">
-                  {/* Total */}
-                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                    <span className="text-lg font-medium">المجموع الكلي:</span>
-                    <span className="text-2xl font-bold text-primary">
-                      {Math.round(totalPrice).toLocaleString()} د.ع
-                    </span>
+                  {/* Summary */}
+                  <div className="p-4 bg-muted rounded-lg space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">عدد المنتجات:</span>
+                      <span className="font-medium">{getSelectedProducts().length} منتج</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t pt-2">
+                      <span className="font-medium">المجموع الكلي:</span>
+                      <span className="text-xl font-bold text-primary">
+                        {Math.round(totalPrice).toLocaleString()} د.ع
+                      </span>
+                    </div>
                   </div>
 
                   {/* Main CTA */}
