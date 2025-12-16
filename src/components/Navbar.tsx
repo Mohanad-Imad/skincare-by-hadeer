@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart, Sparkles } from "lucide-react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -375,6 +375,16 @@ export const Navbar = () => {
               </Button>
             );
           })}
+
+          <Button
+            variant={isActive("/routine-builder") ? "default" : "ghost"}
+            size="sm"
+            onClick={() => navigate("/routine-builder")}
+            className="gap-1.5"
+          >
+            <Sparkles className="h-4 w-4" />
+            بناء الروتين
+          </Button>
 
           <Button
             variant={isActive("/favorites") ? "default" : "ghost"}
