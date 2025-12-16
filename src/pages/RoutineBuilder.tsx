@@ -529,11 +529,12 @@ const RoutineBuilder = () => {
 
                   <CollapsibleContent>
                     <div className="border-t p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {section.slots.map((slot) => (
+                      {section.slots.map((slot, index) => (
                         <SlotCard
                           key={slot.id}
                           slot={slot}
                           sectionId={section.id}
+                          stepNumber={index + 1}
                           onBrowse={() => openProductDialog(section.id, slot.id, slot.categoryKeywords)}
                           onSkip={() => skipSlot(section.id, slot.id)}
                           onClear={() => clearSlot(section.id, slot.id)}
@@ -740,6 +741,7 @@ const RoutineBuilder = () => {
 interface SlotCardProps {
   slot: RoutineSlot;
   sectionId: string;
+  stepNumber: number;
   onBrowse: () => void;
   onSkip: () => void;
   onClear: () => void;
@@ -750,6 +752,7 @@ interface SlotCardProps {
 
 const SlotCard = ({
   slot,
+  stepNumber,
   onBrowse,
   onSkip,
   onClear,
@@ -760,7 +763,7 @@ const SlotCard = ({
   if (slot.skipped) {
     return (
       <div className="border-2 border-dashed border-muted rounded-xl p-4 flex flex-col items-center justify-center min-h-[180px] bg-muted/20">
-        <span className="text-sm font-medium text-muted-foreground mb-1">{slot.name}</span>
+        <span className="text-sm font-medium text-muted-foreground mb-1">{stepNumber}-{slot.name}</span>
         <span className="text-xs text-muted-foreground mb-3">لا يوجد منتج</span>
         <Button variant="ghost" size="sm" onClick={onClear}>
           إعادة الاختيار
@@ -783,7 +786,7 @@ const SlotCard = ({
           <X className="h-4 w-4" />
         </button>
 
-        <div className="text-xs font-medium text-muted-foreground mb-2">{slot.name}</div>
+        <div className="text-xs font-medium text-muted-foreground mb-2">{stepNumber}-{slot.name}</div>
 
         <div className="flex gap-3">
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
@@ -846,7 +849,7 @@ const SlotCard = ({
 
   return (
     <div className="border-2 border-dashed border-muted rounded-xl p-4 flex flex-col items-center justify-center min-h-[180px] hover:border-primary/50 transition-colors">
-      <span className="text-sm font-medium mb-3">{slot.name}</span>
+      <span className="text-sm font-medium mb-3">{stepNumber}-{slot.name}</span>
       <div className="flex flex-col gap-2 w-full">
         <Button variant="default" size="sm" className="w-full" onClick={onBrowse}>
           تصفح واختيار
