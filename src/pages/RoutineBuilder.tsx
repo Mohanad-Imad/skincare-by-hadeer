@@ -638,12 +638,12 @@ const RoutineBuilder = () => {
           </Card>
 
           {/* Mobile Floating Button */}
-          <div className="md:hidden fixed bottom-20 left-4 z-40">
+          <div className="md:hidden fixed bottom-20 right-4 z-40">
             <Drawer open={mobileCartDrawerOpen} onOpenChange={setMobileCartDrawerOpen}>
               <DrawerTrigger asChild>
                 <Button
                   size="icon"
-                  className="h-14 w-14 rounded-xl shadow-lg animate-fade-in bg-orange-500 hover:bg-orange-600"
+                  className="h-14 w-14 rounded-full shadow-lg animate-fade-in bg-orange-500 hover:bg-orange-600"
                   disabled={totalPrice === 0}
                 >
                   <Plus className="h-6 w-6" />
