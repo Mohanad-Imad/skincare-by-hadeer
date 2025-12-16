@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +42,7 @@ import {
   Package,
   Sparkles,
   Search,
+  Trash2,
 } from "lucide-react";
 
 interface RoutineSlot {
@@ -95,6 +96,17 @@ const WEEKLY_SLOTS: Omit<RoutineSlot, "product" | "skipped">[] = [
   { id: "weekly-other", name: "أخرى", categoryKeywords: [] },
 ];
 
+const STORAGE_KEY = "routine-builder-saved";
+
+interface SavedRoutineData {
+  slots: {
+    [slotId: string]: {
+      product: SelectedProduct | null;
+      skipped: boolean;
+    };
+  };
+}
+
 const RoutineBuilder = () => {
   const navigate = useNavigate();
   const { addToLocalCart } = useLocalCart();
@@ -110,29 +122,108 @@ const RoutineBuilder = () => {
     return result?.percentage || 0;
   };
 
-  const [sections, setSections] = useState<RoutineSection[]>([
-    {
-      id: "morning",
-      title: "الروتين الصباحي",
-      icon: <Sun className="h-5 w-5 text-amber-500" />,
-      slots: MORNING_SLOTS.map((slot) => ({ ...slot, product: null, skipped: false })),
-      isOpen: true,
-    },
-    {
-      id: "evening",
-      title: "الروتين المسائي",
-      icon: <Moon className="h-5 w-5 text-indigo-500" />,
-      slots: EVENING_SLOTS.map((slot) => ({ ...slot, product: null, skipped: false })),
-      isOpen: false,
-    },
-    {
-      id: "weekly",
-      title: "الروتين الأسبوعي",
-      icon: <Calendar className="h-5 w-5 text-emerald-500" />,
-      slots: WEEKLY_SLOTS.map((slot) => ({ ...slot, product: null, skipped: false })),
-      isOpen: false,
-    },
-  ]);
+  // Load saved routine from localStorage
+  const loadSavedRoutine = (): SavedRoutineData | null => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Error loading saved routine:", e);
+    }
+    return null;
+  };
+
+  const createInitialSections = (): RoutineSection[] => {
+    const saved = loadSavedRoutine();
+    
+    const applySavedData = (slots: Omit<RoutineSlot, "product" | "skipped">[]): RoutineSlot[] => {
+      return slots.map((slot) => {
+        const savedSlot = saved?.slots?.[slot.id];
+        return {
+          ...slot,
+          product: savedSlot?.product || null,
+          skipped: savedSlot?.skipped || false,
+        };
+      });
+    };
+
+    return [
+      {
+        id: "morning",
+        title: "الروتين الصباحي",
+        icon: <Sun className="h-5 w-5 text-amber-500" />,
+        slots: applySavedData(MORNING_SLOTS),
+        isOpen: true,
+      },
+      {
+        id: "evening",
+        title: "الروتين المسائي",
+        icon: <Moon className="h-5 w-5 text-indigo-500" />,
+        slots: applySavedData(EVENING_SLOTS),
+        isOpen: false,
+      },
+      {
+        id: "weekly",
+        title: "الروتين الأسبوعي",
+        icon: <Calendar className="h-5 w-5 text-emerald-500" />,
+        slots: applySavedData(WEEKLY_SLOTS),
+        isOpen: false,
+      },
+    ];
+  };
+
+  const [sections, setSections] = useState<RoutineSection[]>(createInitialSections);
+
+  // Save routine to localStorage when sections change
+  useEffect(() => {
+    const dataToSave: SavedRoutineData = {
+      slots: {},
+    };
+
+    sections.forEach((section) => {
+      section.slots.forEach((slot) => {
+        if (slot.product || slot.skipped) {
+          dataToSave.slots[slot.id] = {
+            product: slot.product,
+            skipped: slot.skipped,
+          };
+        }
+      });
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  }, [sections]);
+
+  // Clear saved routine
+  const clearRoutine = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setSections([
+      {
+        id: "morning",
+        title: "الروتين الصباحي",
+        icon: <Sun className="h-5 w-5 text-amber-500" />,
+        slots: MORNING_SLOTS.map((slot) => ({ ...slot, product: null, skipped: false })),
+        isOpen: true,
+      },
+      {
+        id: "evening",
+        title: "الروتين المسائي",
+        icon: <Moon className="h-5 w-5 text-indigo-500" />,
+        slots: EVENING_SLOTS.map((slot) => ({ ...slot, product: null, skipped: false })),
+        isOpen: false,
+      },
+      {
+        id: "weekly",
+        title: "الروتين الأسبوعي",
+        icon: <Calendar className="h-5 w-5 text-emerald-500" />,
+        slots: WEEKLY_SLOTS.map((slot) => ({ ...slot, product: null, skipped: false })),
+        isOpen: false,
+      },
+    ]);
+    toast.success("تم مسح الروتين");
+  };
 
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ sectionId: string; slotId: string } | null>(null);
@@ -387,7 +478,18 @@ const RoutineBuilder = () => {
               <span className="text-primary font-medium">ابني روتينك الخاص</span>
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">بناء الروتين المخصص</h1>
-            <p className="text-muted-foreground">اختر منتجاتك المفضلة لكل خطوة من روتينك اليومي</p>
+            <p className="text-muted-foreground mb-4">اختر منتجاتك المفضلة لكل خطوة من روتينك اليومي</p>
+            {totalPrice > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearRoutine}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4 ml-1" />
+                مسح الروتين والبدء من جديد
+              </Button>
+            )}
           </div>
 
           {/* Routine Sections */}
