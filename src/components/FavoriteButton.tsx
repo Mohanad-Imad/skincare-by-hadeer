@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,7 @@ interface FavoriteButtonProps {
 }
 
 export const FavoriteButton = ({ productId, className, size = "md" }: FavoriteButtonProps) => {
-  const { isFavorite, addToFavorites, removeFromFavorites, userId } = useFavorites();
+  const { isFavorite, addToFavorites, removeFromFavorites, userId, isAuthLoading } = useFavorites();
   const navigate = useNavigate();
   const isFav = isFavorite(productId);
 
@@ -30,6 +30,9 @@ export const FavoriteButton = ({ productId, className, size = "md" }: FavoriteBu
     e.stopPropagation();
     e.preventDefault();
 
+    // Wait for auth to load
+    if (isAuthLoading) return;
+
     if (!userId) {
       navigate("/auth");
       return;
@@ -45,20 +48,26 @@ export const FavoriteButton = ({ productId, className, size = "md" }: FavoriteBu
   return (
     <button
       onClick={handleClick}
+      disabled={isAuthLoading}
       className={cn(
         "rounded-full bg-background/80 backdrop-blur-sm shadow-md transition-all duration-300 hover:scale-110 flex items-center justify-center",
         sizeClasses[size],
+        isAuthLoading && "opacity-50",
         className
       )}
       aria-label={isFav ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
     >
-      <Heart
-        size={iconSizes[size]}
-        className={cn(
-          "transition-colors duration-300",
-          isFav ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-400"
-        )}
-      />
+      {isAuthLoading ? (
+        <Loader2 size={iconSizes[size]} className="animate-spin text-muted-foreground" />
+      ) : (
+        <Heart
+          size={iconSizes[size]}
+          className={cn(
+            "transition-colors duration-300",
+            isFav ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-400"
+          )}
+        />
+      )}
     </button>
   );
 };
