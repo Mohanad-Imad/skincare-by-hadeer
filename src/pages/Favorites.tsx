@@ -6,7 +6,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -389,7 +389,7 @@ const Favorites = () => {
         )}
       </main>
 
-      <Footer />
+      
     </div>
   );
 };
