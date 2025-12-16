@@ -43,17 +43,28 @@ export const useLocalCart = () => {
   }, []);
 
   const addToLocalCart = (variantId: string, quantity: number = 1) => {
-    const existing = localCart.find((item) => item.variantId === variantId);
+    // قراءة السلة من localStorage مباشرة لضمان الحصول على أحدث البيانات
+    const stored = localStorage.getItem(LOCAL_CART_KEY);
+    let currentCart: LocalCartItem[] = [];
+    if (stored) {
+      try {
+        currentCart = JSON.parse(stored);
+      } catch (e) {
+        currentCart = [];
+      }
+    }
+
+    const existing = currentCart.find((item) => item.variantId === variantId);
     let newCart: LocalCartItem[];
     
     if (existing) {
-      newCart = localCart.map((item) =>
+      newCart = currentCart.map((item) =>
         item.variantId === variantId
           ? { ...item, quantity: item.quantity + quantity }
           : item
       );
     } else {
-      newCart = [...localCart, { variantId, quantity }];
+      newCart = [...currentCart, { variantId, quantity }];
     }
     
     setLocalCart(newCart);
