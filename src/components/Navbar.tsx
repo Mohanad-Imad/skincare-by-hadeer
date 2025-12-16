@@ -330,7 +330,9 @@ export const Navbar = () => {
                   </CollapsibleContent>
                 </Collapsible>
 
-                {sidebarLinks.map((link: any) => {
+                {sidebarLinks
+                  .filter((link: any) => !["/consultation", "/blog", "/routine-builder", "/celebrity-routines"].includes(link.url))
+                  .map((link: any) => {
                   return (
                     <Button
                       key={link.id}
@@ -417,7 +419,9 @@ export const Navbar = () => {
 
         {/* Center: Desktop Navigation Links */}
         <div className="hidden lg:flex items-center justify-center gap-1 flex-1">
-          {navigationLinks.map((link: any) => {
+          {navigationLinks
+            .filter((link: any) => !["/consultation", "/blog", "/routine-builder", "/celebrity-routines"].includes(link.url))
+            .map((link: any) => {
             return (
               <Button
                 key={link.id}
