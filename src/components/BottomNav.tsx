@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, ShoppingCart, Package, User, Heart } from "lucide-react";
+import { Home, ShoppingCart, Package, Heart, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ const navItems = [
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
   { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
   { id: "favorites", icon: Heart, label: "المفضلة", path: "/favorites" },
-  { id: "account", icon: User, label: "الحساب", path: "/profile" },
+  { id: "makeup", icon: Sparkles, label: "المكياج", path: "/makeup" },
 ];
 
 export const BottomNavPro = () => {
@@ -84,14 +84,14 @@ export const BottomNavPro = () => {
     if (path.startsWith("/products")) return 1;
     if (path === "/cart") return 2; // المركز
     if (path === "/favorites") return 3; // المفضلة
-    if (path === "/profile" || path === "/auth") return 4; // الحساب
+    if (path === "/makeup") return 4; // المكياج
     return -1;
   };
 
   const activeIndex = getActiveIndex();
 
   const handleNavClick = (path: string, id: string) => {
-    if ((id === "account" || id === "favorites") && !user) {
+    if (id === "favorites" && !user) {
       navigate("/auth");
     } else {
       navigate(path);
