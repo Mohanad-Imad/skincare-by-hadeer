@@ -24,8 +24,8 @@ export const MiniCart = ({ open, onOpenChange, product, session }: MiniCartProps
   const handleCheckout = () => {
     onOpenChange(false);
     if (!session) {
-      // توجيه المستخدم غير المسجل إلى صفحة تسجيل الدخول
-      navigate("/auth", { state: { redirectTo: "/checkout" } });
+      // توجيه الزائر إلى صفحة الدفع كزائر
+      navigate("/checkout?guest=true");
     } else {
       navigate("/checkout");
     }
@@ -33,12 +33,8 @@ export const MiniCart = ({ open, onOpenChange, product, session }: MiniCartProps
 
   const handleGoToCart = () => {
     onOpenChange(false);
-    if (!session) {
-      // توجيه المستخدم غير المسجل إلى صفحة تسجيل الدخول
-      navigate("/auth", { state: { redirectTo: "/cart" } });
-    } else {
-      navigate("/cart");
-    }
+    // الذهاب مباشرة إلى السلة - ستظهر خيارات تسجيل الدخول أو التسوق كزائر هناك
+    navigate("/cart");
   };
 
   const handleContinueShopping = () => {
