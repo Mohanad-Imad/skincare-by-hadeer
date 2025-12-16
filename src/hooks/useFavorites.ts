@@ -16,16 +16,19 @@ interface Favorite {
 export const useFavorites = () => {
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id || null);
-    };
-    getUser();
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id || null);
+      setIsAuthLoading(false);
+    });
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUserId(session?.user?.id || null);
+      setIsAuthLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -136,8 +139,9 @@ export const useFavorites = () => {
 
   return {
     favorites,
-    isLoading,
+    isLoading: isLoading || isAuthLoading,
     userId,
+    isAuthLoading,
     addToFavorites,
     removeFromFavorites,
     updateFavoriteQuantity,
