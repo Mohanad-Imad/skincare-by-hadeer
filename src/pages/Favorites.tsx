@@ -34,27 +34,34 @@ const Favorites = () => {
     checkAuth();
   }, [navigate]);
 
-  // Fetch products data for favorites
+  // Stable product IDs for query key
+  const productIds = favorites.map(f => f.product_id).sort().join(',');
+
+  // Fetch products data for favorites with optimized caching
   const { data: productsData, isLoading: productsLoading } = useQuery({
-    queryKey: ["favorites-products", favorites.map(f => f.product_id)],
+    queryKey: ["favorites-products", productIds],
     queryFn: async () => {
       if (favorites.length === 0) return [];
       
-      const productIds = favorites.map(f => f.product_id);
+      const ids = favorites.map(f => f.product_id);
       const { data, error } = await supabase
         .from("products")
         .select(`
-          *,
-          product_variants(*),
-          product_images(*)
+          id,
+          name_ar,
+          company_name_ar,
+          image_url,
+          product_variants(id, size_ar, price),
+          product_images(image_url)
         `)
-        .in("id", productIds)
+        .in("id", ids)
         .eq("is_active", true);
       
       if (error) throw error;
       return data;
     },
-    enabled: favorites.length > 0,
+    enabled: favorites.length > 0 && !favoritesLoading,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const addToCartMutation = useMutation({
