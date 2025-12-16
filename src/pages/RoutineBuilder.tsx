@@ -643,7 +643,7 @@ const RoutineBuilder = () => {
               <DrawerTrigger asChild>
                 <Button
                   size="icon"
-                  className="h-14 w-14 rounded-full shadow-lg animate-fade-in"
+                  className="h-14 w-14 rounded-xl shadow-lg animate-fade-in bg-orange-500 hover:bg-orange-600"
                   disabled={totalPrice === 0}
                 >
                   <Plus className="h-6 w-6" />
