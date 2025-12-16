@@ -267,22 +267,31 @@ const Cart = () => {
 
         {localCartItems && localCartItems.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
-            <div className="container flex items-center justify-between gap-3">
-              <div className="flex flex-col">
-                <span className="text-xs opacity-90">المجموع الكلي</span>
-                <span className="text-xl font-bold">{Math.round(localTotal)} د.ع</span>
+            <div className="container">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex flex-col">
+                  <span className="text-xs opacity-90">المجموع الكلي</span>
+                  <span className="text-xl font-bold">{Math.round(localTotal)} د.ع</span>
+                </div>
               </div>
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => {
-                  toast.info("يجب تسجيل الدخول لإتمام الطلب");
-                  navigate("/auth");
-                }}
-                className="flex-1 max-w-[200px] font-bold"
-              >
-                تسجيل الدخول
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  onClick={() => navigate("/auth")}
+                  className="flex-1 font-bold"
+                >
+                  تسجيل الدخول
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate("/checkout?guest=true")}
+                  className="flex-1 font-bold bg-background/10 border-primary-foreground/30 hover:bg-background/20"
+                >
+                  التسوق كزائر
+                </Button>
+              </div>
             </div>
           </div>
         )}
