@@ -511,8 +511,8 @@ const RoutineBuilder = () => {
                   className="w-full py-6 shadow-lg animate-fade-in"
                   disabled={totalPrice === 0}
                 >
-                  <ShoppingCart className="h-5 w-5 ml-2" />
-                  <span>عرض السلة</span>
+                  <ChevronUp className="h-5 w-5 ml-2" />
+                  <span>تفاصيل</span>
                   <Badge variant="secondary" className="mr-2">
                     {Math.round(totalPrice).toLocaleString()} د.ع
                   </Badge>
