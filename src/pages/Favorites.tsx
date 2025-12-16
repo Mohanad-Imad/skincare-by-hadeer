@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLocalCart } from "@/hooks/useLocalCart";
-import { useProductDiscounts } from "@/hooks/useProductDiscounts";
+import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -181,9 +181,6 @@ const Favorites = () => {
     }
   };
 
-  const getProductDiscount = (productId: string) => {
-    return discounts?.find(d => d.product_id === productId);
-  };
 
   const isLoading = favoritesLoading || productsLoading;
 
@@ -269,11 +266,9 @@ const Favorites = () => {
                 
                 const variants = product.product_variants || [];
                 const selectedVariant = variants.find(v => v.id === favorite.variant_id) || variants[0];
-                const discount = getProductDiscount(product.id);
                 const originalPrice = selectedVariant?.price || 0;
-                const finalPrice = discount 
-                  ? originalPrice * (1 - discount.discount_percentage / 100)
-                  : originalPrice;
+                const discount = calculateDiscount(product.id, originalPrice, discounts);
+                const finalPrice = discount ? discount.discountedPrice : originalPrice;
                 const imageUrl = product.product_images?.[0]?.image_url || product.image_url;
 
                 return (
@@ -346,7 +341,7 @@ const Favorites = () => {
                           {discount ? (
                             <>
                               <Badge variant="destructive" className="text-xs">
-                                خصم {Math.round(discount.discount_percentage)}%
+                                خصم {Math.round(discount.percentage)}%
                               </Badge>
                               <span className="font-bold text-primary text-lg">
                                 {Math.round(finalPrice)} د.ع
