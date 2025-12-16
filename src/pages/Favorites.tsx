@@ -222,18 +222,7 @@ const Favorites = () => {
           <>
             {/* Actions bar */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 p-4 bg-card rounded-lg border">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="select-all"
-                  checked={selectedItems.length === favorites.length && favorites.length > 0}
-                  onCheckedChange={handleSelectAll}
-                />
-                <label htmlFor="select-all" className="text-sm cursor-pointer">
-                  تحديد الكل
-                </label>
-              </div>
-              
-              <div className="hidden sm:block flex-1" />
+              <div className="flex-1" />
               
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button
