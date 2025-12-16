@@ -932,7 +932,7 @@ const ProductSelectCard = ({
 
   return (
     <div className="border rounded-xl p-3 hover:border-primary/50 transition-colors">
-      <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3">
+      <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3 relative">
         {product.image_url ? (
           <img
             src={product.image_url}
