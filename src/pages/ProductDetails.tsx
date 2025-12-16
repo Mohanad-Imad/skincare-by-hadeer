@@ -15,6 +15,7 @@ import { MiniCart } from "@/components/MiniCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { ProductReviews } from "@/components/ProductReviews";
 import { SimilarProducts } from "@/components/SimilarProducts";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import {
   Dialog,
   DialogContent,
@@ -334,7 +335,7 @@ const ProductDetails = () => {
           {/* Product Images Gallery */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="aspect-square overflow-hidden rounded-2xl bg-secondary shadow-lg">
+            <div className="aspect-square overflow-hidden rounded-2xl bg-secondary shadow-lg relative">
               {productImages.length > 0 ? (
                 <img
                   src={productImages[selectedImageIndex]}
@@ -344,6 +345,10 @@ const ProductDetails = () => {
               ) : (
                 <div className="flex h-full items-center justify-center text-muted-foreground">بدون صورة</div>
               )}
+              {/* Favorite Button */}
+              <div className="absolute top-3 left-3">
+                <FavoriteButton productId={product.id} size="lg" />
+              </div>
             </div>
 
             {/* Thumbnails */}
