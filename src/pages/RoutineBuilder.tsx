@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -230,6 +230,8 @@ const RoutineBuilder = () => {
   const [activeSlotKeywords, setActiveSlotKeywords] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileCartDrawerOpen, setMobileCartDrawerOpen] = useState(false);
+  const [visibleProductsCount, setVisibleProductsCount] = useState(12);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Fetch all products with variants
   const { data: products } = useQuery({
@@ -294,10 +296,50 @@ const RoutineBuilder = () => {
     );
   };
 
+  // Reset visible count when dialog opens or search changes
+  useEffect(() => {
+    setVisibleProductsCount(12);
+  }, [productDialogOpen, searchQuery, activeSlotKeywords]);
+
+  // Lazy loading observer
+  const loadMoreProducts = useCallback(() => {
+    setVisibleProductsCount((prev) => Math.min(prev + 12, filteredProducts.length));
+  }, [filteredProducts.length]);
+
+  useEffect(() => {
+    if (!productDialogOpen) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreProducts();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [productDialogOpen, loadMoreProducts]);
+
+  // Visible products for lazy loading
+  const visibleProducts = useMemo(() => {
+    return filteredProducts.slice(0, visibleProductsCount);
+  }, [filteredProducts, visibleProductsCount]);
+
   const openProductDialog = (sectionId: string, slotId: string, keywords: string[]) => {
     setSelectedSlot({ sectionId, slotId });
     setActiveSlotKeywords(keywords);
     setSearchQuery("");
+    setVisibleProductsCount(12);
     setProductDialogOpen(true);
   };
 
@@ -717,7 +759,7 @@ const RoutineBuilder = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {filteredProducts.map((product) => (
+                {visibleProducts.map((product) => (
                   <ProductSelectCard
                     key={product.id}
                     product={product}
@@ -726,6 +768,12 @@ const RoutineBuilder = () => {
                     getDiscountPercentage={getDiscountPercentage}
                   />
                 ))}
+              </div>
+            )}
+            {/* Load more trigger */}
+            {visibleProductsCount < filteredProducts.length && (
+              <div ref={loadMoreRef} className="py-4 text-center">
+                <span className="text-sm text-muted-foreground">جاري تحميل المزيد...</span>
               </div>
             )}
           </ScrollArea>
