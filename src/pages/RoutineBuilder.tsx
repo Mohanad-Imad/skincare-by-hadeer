@@ -503,7 +503,7 @@ const RoutineBuilder = () => {
           </Card>
 
           {/* Mobile Floating Button */}
-          <div className="md:hidden fixed bottom-20 left-4 right-4 z-40">
+          <div className="md:hidden fixed bottom-24 left-4 right-4 z-40">
             <Drawer open={mobileCartDrawerOpen} onOpenChange={setMobileCartDrawerOpen}>
               <DrawerTrigger asChild>
                 <Button
