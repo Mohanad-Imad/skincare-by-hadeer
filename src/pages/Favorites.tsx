@@ -276,8 +276,8 @@ const Favorites = () => {
                 const imageUrl = product.product_images?.[0]?.image_url || product.image_url;
 
                 return (
-                  <div key={favorite.id} className="flex items-start gap-2">
-                    <Card className="p-4 flex-1">
+                  <div key={favorite.id} className="flex flex-col gap-2">
+                    <Card className="p-4">
                       <div className="flex gap-4">
                         {/* Checkbox */}
                         <div className="pt-1">
@@ -381,14 +381,14 @@ const Favorites = () => {
                       </div>
                     </Card>
                     
-                    {/* Remove button - outside card */}
+                    {/* Remove button - below card */}
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0 mt-4"
+                      className="h-8 w-full text-muted-foreground hover:text-destructive text-xs gap-1"
                       onClick={() => removeFromFavorites.mutate(product.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
+                      إزالة من المفضلة
                     </Button>
                   </div>
                 );
