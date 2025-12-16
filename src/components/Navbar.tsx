@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart } from "lucide-react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -196,6 +196,15 @@ export const Navbar = () => {
                   )}
                 </Button>
 
+                <Button
+                  variant={isActive("/favorites") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate(session ? "/favorites" : "/auth")}
+                >
+                  <Heart className="h-4 w-4" />
+                  المفضلة
+                </Button>
+
                 <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                   <CollapsibleTrigger asChild>
                     <Button
@@ -366,6 +375,16 @@ export const Navbar = () => {
               </Button>
             );
           })}
+
+          <Button
+            variant={isActive("/favorites") ? "default" : "ghost"}
+            size="sm"
+            onClick={() => navigate(session ? "/favorites" : "/auth")}
+            className="gap-1.5"
+          >
+            <Heart className="h-4 w-4" />
+            المفضلة
+          </Button>
 
           {session && (
             <Button
