@@ -92,7 +92,7 @@ const EVENING_SLOTS: Omit<RoutineSlot, "product" | "skipped">[] = [
 ];
 
 const WEEKLY_SLOTS: Omit<RoutineSlot, "product" | "skipped">[] = [
-  { id: "weekly-mask", name: "قناع ليلي", categoryKeywords: ["قناع وجه", "قناع بشرة", "قناع ليلي", "ماسك وجه", "ماسك بشرة", "face mask", "sleeping mask", "night mask"] },
+  { id: "weekly-mask", name: "قناع ليلي", categoryKeywords: ["قناع", "ماسك", "mask", "ليلي"] },
   { id: "weekly-exfoliator", name: "مقشر", categoryKeywords: ["مقشر", "تقشير", "exfoliator", "scrub", "peel"] },
   { id: "weekly-other", name: "أخرى", categoryKeywords: [] },
 ];
