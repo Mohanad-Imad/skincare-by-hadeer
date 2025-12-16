@@ -168,7 +168,7 @@ const Cart = () => {
         <Navbar />
         <FreeShippingBar />
         <CheckoutStepper currentStep={1} />
-        <div className="container py-8 pb-32">
+        <div className="container py-8 pb-52">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">سلة التسوق</h1>
             {localCartItems && localCartItems.length > 0 && (
@@ -360,7 +360,7 @@ const Cart = () => {
       <Navbar />
       <FreeShippingBar />
       <CheckoutStepper currentStep={1} />
-      <div className="container py-8 pb-32">
+      <div className="container py-8 pb-52">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 gap-2">
           <ArrowRight className="h-4 w-4" />
           رجوع
