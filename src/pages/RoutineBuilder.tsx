@@ -643,15 +643,10 @@ const RoutineBuilder = () => {
               <DrawerTrigger asChild>
                 <Button
                   size="icon"
-                  className="h-14 w-14 rounded-full shadow-lg animate-fade-in relative"
+                  className="h-14 w-14 rounded-full shadow-lg animate-fade-in"
                   disabled={totalPrice === 0}
                 >
                   <Plus className="h-6 w-6" />
-                  {totalPrice > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {getSelectedProducts().length}
-                    </span>
-                  )}
                 </Button>
               </DrawerTrigger>
               <DrawerContent className="px-4 pb-8">
