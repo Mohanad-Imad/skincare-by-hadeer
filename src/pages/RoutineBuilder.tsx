@@ -637,19 +637,20 @@ const RoutineBuilder = () => {
           </Card>
 
           {/* Mobile Floating Button */}
-          <div className="md:hidden fixed bottom-28 left-4 right-4 z-40">
+          <div className="md:hidden fixed bottom-28 left-4 z-40">
             <Drawer open={mobileCartDrawerOpen} onOpenChange={setMobileCartDrawerOpen}>
               <DrawerTrigger asChild>
                 <Button
-                  size="lg"
-                  className="w-full py-6 shadow-lg animate-fade-in"
+                  size="icon"
+                  className="h-14 w-14 rounded-full shadow-lg animate-fade-in relative"
                   disabled={totalPrice === 0}
                 >
-                  <ChevronUp className="h-5 w-5 ml-2" />
-                  <span>تفاصيل</span>
-                  <Badge variant="secondary" className="mr-2">
-                    {Math.round(totalPrice).toLocaleString()} د.ع
-                  </Badge>
+                  <ShoppingCart className="h-6 w-6" />
+                  {totalPrice > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {getSelectedProducts().length}
+                    </span>
+                  )}
                 </Button>
               </DrawerTrigger>
               <DrawerContent className="px-4 pb-8">
