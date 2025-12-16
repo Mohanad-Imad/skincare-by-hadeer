@@ -196,9 +196,27 @@ const AdminOrders = () => {
 
     const orderItems = order.order_items || [];
     const totalItems = orderItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
-    const itemsList = orderItems.map((item: any) => 
-      `${item.product_name_ar} - ${item.variant_size_ar} × ${item.quantity}`
-    ).join('<br>');
+    
+    // Create formatted items list with clear separation
+    const itemsList = orderItems.map((item: any, index: number) => `
+      <div class="product-item">
+        <div class="product-number">${index + 1}</div>
+        <div class="product-details">
+          <div class="product-name">${item.product_name_ar}</div>
+          <div class="product-info">
+            <span class="info-label">الحجم:</span> ${item.variant_size_ar}
+          </div>
+          <div class="product-info">
+            <span class="info-label">السعر:</span> ${Math.round(item.price)} ${currency}
+          </div>
+        </div>
+        <div class="product-qty">
+          <div class="qty-value">${item.quantity}</div>
+          <div class="qty-label">قطعة</div>
+        </div>
+        <div class="product-subtotal">${Math.round(item.subtotal)} ${currency}</div>
+      </div>
+    `).join('');
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -209,55 +227,167 @@ const AdminOrders = () => {
         <style>
           @media print {
             @page {
-              size: 100mm 150mm;
-              margin: 5mm;
+              size: 100mm auto;
+              margin: 3mm;
             }
             body {
               margin: 0;
               padding: 0;
             }
           }
+          * {
+            box-sizing: border-box;
+          }
           body {
             font-family: 'Arial', sans-serif;
             width: 100mm;
             padding: 5mm;
-            font-size: 12pt;
-            line-height: 1.4;
+            font-size: 11pt;
+            line-height: 1.3;
           }
           .header {
             text-align: center;
             font-size: 16pt;
             font-weight: bold;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
+            margin-bottom: 8px;
+            border-bottom: 3px double #000;
+            padding-bottom: 8px;
           }
           .order-id {
+            text-align: center;
             font-size: 14pt;
+            margin: 8px 0;
+            font-weight: bold;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 4px;
+          }
+          .customer-section {
+            border: 1px solid #ccc;
+            padding: 8px;
             margin: 10px 0;
+            border-radius: 4px;
+          }
+          .customer-row {
+            display: flex;
+            margin: 4px 0;
+          }
+          .customer-label {
+            font-weight: bold;
+            min-width: 55px;
+          }
+          .customer-value {
+            flex: 1;
+          }
+          .products-header {
+            font-weight: bold;
+            font-size: 12pt;
+            margin: 12px 0 8px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #000;
+            display: flex;
+            justify-content: space-between;
+          }
+          .product-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 6px 0;
+            border: 2px solid #333;
+            border-radius: 6px;
+            background: #fafafa;
+          }
+          .product-number {
+            width: 22px;
+            height: 22px;
+            background: #333;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10pt;
+            font-weight: bold;
+            margin-left: 8px;
+            flex-shrink: 0;
+          }
+          .product-details {
+            flex: 1;
+            min-width: 0;
+          }
+          .product-name {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-bottom: 3px;
+          }
+          .product-info {
+            font-size: 9pt;
+            color: #555;
+          }
+          .info-label {
             font-weight: bold;
           }
-          .section {
-            margin: 10px 0;
+          .product-qty {
+            text-align: center;
+            margin: 0 10px;
+            padding: 5px 10px;
+            background: #333;
+            color: #fff;
+            border-radius: 6px;
+            flex-shrink: 0;
           }
-          .label {
+          .qty-value {
+            font-size: 16pt;
             font-weight: bold;
-            margin-top: 5px;
+            line-height: 1;
           }
-          .value {
-            margin-right: 5px;
+          .qty-label {
+            font-size: 8pt;
           }
-          .items {
-            margin-top: 10px;
+          .product-subtotal {
+            font-weight: bold;
+            font-size: 10pt;
+            min-width: 50px;
+            text-align: left;
+            flex-shrink: 0;
+          }
+          .summary-section {
+            margin-top: 12px;
+            border-top: 3px double #000;
             padding-top: 10px;
-            border-top: 1px solid #ccc;
           }
-          .total {
-            margin-top: 10px;
-            padding-top: 10px;
+          .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 11pt;
+          }
+          .summary-row.discount {
+            color: green;
+          }
+          .summary-row.total {
+            font-size: 14pt;
+            font-weight: bold;
             border-top: 2px solid #000;
-            font-size: 14pt;
+            margin-top: 5px;
+            padding-top: 8px;
+          }
+          .notes-section {
+            margin-top: 10px;
+            padding: 8px;
+            border: 1px dashed #999;
+            border-radius: 4px;
+            background: #fffef0;
+          }
+          .notes-label {
             font-weight: bold;
+            margin-bottom: 3px;
+          }
+          .items-count {
+            text-align: center;
+            font-size: 10pt;
+            color: #666;
+            margin-bottom: 8px;
           }
         </style>
       </head>
@@ -265,39 +395,54 @@ const AdminOrders = () => {
         <div class="header">${storeName}</div>
         <div class="order-id">طلب #${order.id.slice(0, 8)}</div>
         
-        <div class="section">
-          <div class="label">العميل:</div>
-          <div class="value">${order.customer_name}</div>
+        <div class="customer-section">
+          <div class="customer-row">
+            <span class="customer-label">العميل:</span>
+            <span class="customer-value">${order.customer_name}</span>
+          </div>
+          <div class="customer-row">
+            <span class="customer-label">الهاتف:</span>
+            <span class="customer-value">${order.customer_phone}</span>
+          </div>
+          <div class="customer-row">
+            <span class="customer-label">العنوان:</span>
+            <span class="customer-value">${order.customer_address}</span>
+          </div>
         </div>
         
-        <div class="section">
-          <div class="label">الهاتف:</div>
-          <div class="value">${order.customer_phone}</div>
+        <div class="products-header">
+          <span>المنتجات المطلوبة</span>
+          <span>${orderItems.length} منتج</span>
         </div>
+        <div class="items-count">إجمالي القطع: ${totalItems}</div>
         
-        <div class="section">
-          <div class="label">العنوان:</div>
-          <div class="value">${order.customer_address}</div>
-        </div>
+        ${itemsList}
         
-        <div class="section">
-          <div class="label">عدد المنتجات:</div>
-          <div class="value">${totalItems}</div>
-        </div>
-        
-        <div class="items">
-          <div class="label">تفاصيل المنتجات:</div>
-          <div class="value">${itemsList}</div>
-        </div>
-        
-        <div class="total">
-          الإجمالي: ${Math.round(Number(order.total_amount))} ${currency}
+        <div class="summary-section">
+          <div class="summary-row">
+            <span>المجموع الفرعي:</span>
+            <span>${Math.round(orderItems.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0))} ${currency}</span>
+          </div>
+          ${order.discount_amount && order.discount_amount > 0 ? `
+            <div class="summary-row discount">
+              <span>الخصم:</span>
+              <span>-${Math.round(order.discount_amount)} ${currency}</span>
+            </div>
+          ` : ''}
+          <div class="summary-row">
+            <span>التوصيل:</span>
+            <span>${order.shipping_amount && order.shipping_amount > 0 ? Math.round(order.shipping_amount) + ' ' + currency : 'مجاني'}</span>
+          </div>
+          <div class="summary-row total">
+            <span>المجموع النهائي:</span>
+            <span>${Math.round(Number(order.total_amount))} ${currency}</span>
+          </div>
         </div>
         
         ${order.notes ? `
-          <div class="section">
-            <div class="label">ملاحظات:</div>
-            <div class="value">${order.notes}</div>
+          <div class="notes-section">
+            <div class="notes-label">ملاحظات العميل:</div>
+            <div>${order.notes}</div>
           </div>
         ` : ''}
       </body>
