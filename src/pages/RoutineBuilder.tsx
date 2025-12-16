@@ -83,7 +83,7 @@ const MORNING_SLOTS: Omit<RoutineSlot, "product" | "skipped">[] = [
 
 const EVENING_SLOTS: Omit<RoutineSlot, "product" | "skipped">[] = [
   { id: "evening-micellar", name: "ميسلار", categoryKeywords: ["ميسلار", "مسلار", "micellar"] },
-  { id: "evening-oil-cleanser", name: "غسول زيتي", categoryKeywords: ["زيتي", "oil", "بلسم"] },
+  { id: "evening-oil-cleanser", name: "غسول زيتي", categoryKeywords: ["غسول زيتي", "oil cleanser", "بلسم منظف", "cleansing balm", "cleansing oil"] },
   { id: "evening-foam-cleanser", name: "غسول رغوي", categoryKeywords: ["غسول", "رغوي", "foam", "cleanser"] },
   { id: "evening-toner", name: "تونر", categoryKeywords: ["تونر", "toner"] },
   { id: "evening-serum", name: "سيروم", categoryKeywords: ["سيروم", "serum"] },
