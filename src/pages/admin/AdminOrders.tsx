@@ -74,7 +74,13 @@ const AdminOrders = () => {
         .select(`
           *,
           order_items (
-            *
+            *,
+            product_variants (
+              product_id,
+              products (
+                image_url
+              )
+            )
           )
         `)
         .order("created_at", { ascending: false });
@@ -874,20 +880,39 @@ const AdminOrders = () => {
                         <h4 className="font-semibold text-sm">المنتجات المطلوبة:</h4>
                         {order.order_items && order.order_items.length > 0 ? (
                           <div className="space-y-2">
-                            {order.order_items.map((item: any) => (
-                              <div key={item.id} className="flex justify-between items-center p-3 bg-background rounded-md border">
-                                <div className="flex-1">
-                                  <p className="font-medium">{item.product_name_ar}</p>
-                                  <p className="text-sm text-muted-foreground">
-                                    الحجم: {item.variant_size_ar}
-                                  </p>
+                            {order.order_items.map((item: any) => {
+                              const productImage = item.product_variants?.products?.image_url;
+                              return (
+                                <div key={item.id} className="flex items-center gap-3 p-3 bg-background rounded-md border">
+                                  {/* Product Thumbnail */}
+                                  <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden border bg-muted">
+                                    {productImage ? (
+                                      <img 
+                                        src={productImage} 
+                                        alt={item.product_name_ar}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                                        لا توجد صورة
+                                      </div>
+                                    )}
+                                  </div>
+                                  {/* Product Details */}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium truncate">{item.product_name_ar}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      الحجم: {item.variant_size_ar}
+                                    </p>
+                                  </div>
+                                  {/* Price & Quantity */}
+                                  <div className="text-left flex-shrink-0">
+                                    <p className="text-sm">الكمية: {item.quantity}</p>
+                                    <p className="font-medium">{Math.round(item.subtotal)} د.ع</p>
+                                  </div>
                                 </div>
-                                <div className="text-left">
-                                  <p className="text-sm">الكمية: {item.quantity}</p>
-                                  <p className="font-medium">{Math.round(item.subtotal)} د.ع</p>
-                                </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground">لا توجد منتجات</p>
