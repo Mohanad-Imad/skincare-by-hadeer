@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
@@ -276,46 +277,46 @@ const Favorites = () => {
                 const imageUrl = product.product_images?.[0]?.image_url || product.image_url;
 
                 return (
-                  <div key={favorite.id} className="flex flex-col gap-2">
-                    <Card className="p-4">
-                      <div className="flex gap-4">
-                        {/* Checkbox */}
-                        <div className="pt-1">
-                          <Checkbox
-                            checked={selectedItems.includes(product.id)}
-                            onCheckedChange={() => handleSelectItem(product.id)}
+                  <div key={favorite.id} className="rounded-lg border p-4">
+                    <div className="flex gap-4">
+                      {/* Checkbox */}
+                      <div className="pt-1">
+                        <Checkbox
+                          checked={selectedItems.includes(product.id)}
+                          onCheckedChange={() => handleSelectItem(product.id)}
+                        />
+                      </div>
+
+                      {/* Image */}
+                      <div 
+                        className="h-24 w-24 flex-shrink-0 overflow-hidden rounded bg-secondary cursor-pointer"
+                        onClick={() => navigate(`/products/${product.id}`)}
+                      >
+                        {imageUrl ? (
+                          <img 
+                            src={imageUrl} 
+                            alt={product.name_ar}
+                            className="h-full w-full object-cover"
                           />
-                        </div>
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                            بدون صورة
+                          </div>
+                        )}
+                      </div>
 
-                        {/* Image */}
-                        <div 
-                          className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted cursor-pointer"
-                          onClick={() => navigate(`/products/${product.id}`)}
-                        >
-                          {imageUrl ? (
-                            <img 
-                              src={imageUrl} 
-                              alt={product.name_ar}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                              بدون صورة
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
+                      {/* Details */}
+                      <div className="flex flex-1 flex-col gap-2">
+                        <div className="space-y-1">
                           <h3 
-                            className="font-semibold text-sm line-clamp-2 cursor-pointer hover:text-primary"
+                            className="font-semibold text-base leading-tight line-clamp-2 cursor-pointer hover:text-primary"
                             onClick={() => navigate(`/products/${product.id}`)}
                           >
                             {product.name_ar}
                           </h3>
                           
                           {product.company_name_ar && (
-                            <p className="text-xs text-muted-foreground mt-0.5">
+                            <p className="text-sm text-muted-foreground">
                               {product.company_name_ar}
                             </p>
                           )}
@@ -326,7 +327,7 @@ const Favorites = () => {
                               value={favorite.variant_id || variants[0]?.id}
                               onValueChange={(value) => handleVariantChange(product.id, value)}
                             >
-                              <SelectTrigger className="h-7 text-xs mt-2 w-full">
+                              <SelectTrigger className="h-7 text-xs mt-1 w-full">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -338,58 +339,64 @@ const Favorites = () => {
                               </SelectContent>
                             </Select>
                           )}
+                        </div>
 
-                          {/* Price */}
-                          <div className="mt-2 flex items-center gap-2">
-                            <span className="font-bold text-primary">
-                              {Math.round(finalPrice)} د.ع
-                            </span>
-                            {discount && (
-                              <span className="text-xs text-muted-foreground line-through">
+                        {/* Price */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {discount ? (
+                            <>
+                              <Badge variant="destructive" className="text-xs">
+                                خصم {Math.round(discount.discount_percentage)}%
+                              </Badge>
+                              <span className="font-bold text-primary text-lg">
+                                {Math.round(finalPrice)} د.ع
+                              </span>
+                              <span className="text-sm text-muted-foreground line-through">
                                 {Math.round(originalPrice)} د.ع
                               </span>
-                            )}
-                          </div>
-
-                          {/* Quantity */}
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-muted-foreground">الكمية:</span>
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => handleQuantityChange(product.id, favorite.quantity - 1)}
-                                disabled={favorite.quantity <= 1}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center text-sm font-medium">
-                                {favorite.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-6 w-6"
-                                onClick={() => handleQuantityChange(product.id, favorite.quantity + 1)}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
+                            </>
+                          ) : (
+                            <span className="font-bold text-primary text-lg">
+                              {Math.round(finalPrice)} د.ع
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </Card>
-                    
-                    {/* Remove button - below card */}
-                    <Button
-                      variant="ghost"
-                      className="h-8 w-full text-muted-foreground hover:text-destructive text-xs gap-1"
-                      onClick={() => removeFromFavorites.mutate(product.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      إزالة من المفضلة
-                    </Button>
+                    </div>
+
+                    {/* Bottom section with quantity and delete */}
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() => handleQuantityChange(product.id, favorite.quantity - 1)}
+                          disabled={favorite.quantity <= 1}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-12 text-center font-medium">{favorite.quantity}</span>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8"
+                          onClick={() => handleQuantityChange(product.id, favorite.quantity + 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => removeFromFavorites.mutate(product.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        حذف
+                      </Button>
+                    </div>
                   </div>
                 );
               })}
