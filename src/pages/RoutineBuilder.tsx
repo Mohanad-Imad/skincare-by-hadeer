@@ -534,26 +534,26 @@ const RoutineBuilder = () => {
               >
                 <Card className="overflow-hidden">
                   <CollapsibleTrigger asChild>
-                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         {section.icon}
-                        <span className="font-semibold text-lg">{section.title}</span>
+                        <span className="font-semibold text-base sm:text-lg truncate">{section.title}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
                         {getSectionProductCount(section.id) > 0 && (
-                          <Badge variant="secondary">
-                            {getSectionProductCount(section.id)} منتجات
+                          <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                            {getSectionProductCount(section.id)}
                           </Badge>
                         )}
-                      </div>
-                      <div className="flex items-center gap-3">
                         {calculateSectionTotal(section.id) > 0 && (
-                          <span className="text-primary font-medium">
-                            {Math.round(calculateSectionTotal(section.id)).toLocaleString()} د.ع
+                          <span className="text-primary font-medium text-sm whitespace-nowrap">
+                            {Math.round(calculateSectionTotal(section.id)).toLocaleString()}
                           </span>
                         )}
                         {section.isOpen ? (
-                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                          <ChevronUp className="h-5 w-5 text-muted-foreground shrink-0" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                          <ChevronDown className="h-5 w-5 text-muted-foreground shrink-0" />
                         )}
                       </div>
                     </div>
