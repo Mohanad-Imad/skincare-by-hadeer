@@ -687,88 +687,41 @@ const RoutineBuilder = () => {
                     أضف الروتين الكامل إلى السلة
                   </Button>
 
-                  {/* Section-specific cards */}
-                  <div className="space-y-3">
-                    {/* Morning */}
-                    <div className="border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Sun className="h-4 w-4 text-amber-500" />
-                          <span className="font-medium">الروتين الصباحي</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{getSectionProductCount("morning")} منتج</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-primary font-bold">
-                          {Math.round(calculateSectionTotal("morning")).toLocaleString()} د.ع
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            addToCart(["morning"]);
-                            setMobileCartDrawerOpen(false);
-                          }}
-                          disabled={calculateSectionTotal("morning") === 0}
-                        >
-                          إضافة
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Evening */}
-                    <div className="border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Moon className="h-4 w-4 text-indigo-500" />
-                          <span className="font-medium">الروتين المسائي</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{getSectionProductCount("evening")} منتج</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-primary font-bold">
-                          {Math.round(calculateSectionTotal("evening")).toLocaleString()} د.ع
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            addToCart(["evening"]);
-                            setMobileCartDrawerOpen(false);
-                          }}
-                          disabled={calculateSectionTotal("evening") === 0}
-                        >
-                          إضافة
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Weekly */}
-                    <div className="border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-emerald-500" />
-                          <span className="font-medium">الروتين الأسبوعي</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{getSectionProductCount("weekly")} منتج</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-primary font-bold">
-                          {Math.round(calculateSectionTotal("weekly")).toLocaleString()} د.ع
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            addToCart(["weekly"]);
-                            setMobileCartDrawerOpen(false);
-                          }}
-                          disabled={calculateSectionTotal("weekly") === 0}
-                        >
-                          إضافة
-                        </Button>
-                      </div>
-                    </div>
+                  {/* Section-specific buttons */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        addToCart(["morning"]);
+                        setMobileCartDrawerOpen(false);
+                      }}
+                      disabled={calculateSectionTotal("morning") === 0}
+                    >
+                      <Sun className="h-4 w-4 ml-1" />
+                      الصباحي فقط ({Math.round(calculateSectionTotal("morning")).toLocaleString()} د.ع)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        addToCart(["evening"]);
+                        setMobileCartDrawerOpen(false);
+                      }}
+                      disabled={calculateSectionTotal("evening") === 0}
+                    >
+                      <Moon className="h-4 w-4 ml-1" />
+                      المسائي فقط ({Math.round(calculateSectionTotal("evening")).toLocaleString()} د.ع)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        addToCart(["weekly"]);
+                        setMobileCartDrawerOpen(false);
+                      }}
+                      disabled={calculateSectionTotal("weekly") === 0}
+                    >
+                      <Calendar className="h-4 w-4 ml-1" />
+                      الأسبوعي فقط ({Math.round(calculateSectionTotal("weekly")).toLocaleString()} د.ع)
+                    </Button>
                   </div>
                 </div>
               </DrawerContent>
