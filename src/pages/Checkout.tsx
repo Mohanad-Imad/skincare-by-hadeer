@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { z } from "zod";
 import { ArrowRight } from "lucide-react";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLocalCart } from "@/hooks/useLocalCart";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
@@ -24,6 +25,8 @@ const checkoutSchema = z.object({
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isGuestCheckout = searchParams.get("guest") === "true";
   const queryClient = useQueryClient();
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -36,6 +39,7 @@ const Checkout = () => {
   const [saveNewAddress, setSaveNewAddress] = useState(false);
   const lastDiscountAttempt = useRef<number>(0);
   const { data: discounts } = useProductDiscounts();
+  const { localCart, clearLocalCart } = useLocalCart();
 
   const { data: shippingSettings } = useQuery({
     queryKey: ["shipping-settings"],
@@ -69,6 +73,45 @@ const Checkout = () => {
       return data;
     },
     enabled: !!session?.user?.id,
+  });
+
+  // جلب منتجات السلة المحلية للزوار
+  const { data: localCartItems } = useQuery({
+    queryKey: ["local-cart-items-checkout", localCart],
+    queryFn: async () => {
+      if (!localCart || localCart.length === 0) return [];
+
+      const variantIds = localCart.map((item) => item.variantId);
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select(
+          `
+          *,
+          products (
+            id,
+            name_ar,
+            name_en
+          )
+        `,
+        )
+        .in("id", variantIds);
+
+      if (error) throw error;
+
+      return data.map((variant) => {
+        const cartItem = localCart.find((item) => item.variantId === variant.id);
+        return {
+          ...variant,
+          quantity: cartItem?.quantity || 1,
+          product_variant_id: variant.id,
+          product_variants: {
+            ...variant,
+            products: variant.products,
+          },
+        };
+      });
+    },
+    enabled: isGuestCheckout && localCart.length > 0,
   });
 
   // تلقائياً ملء الحقول من البروفايل
@@ -107,6 +150,9 @@ const Checkout = () => {
     },
     enabled: !!session?.user,
   });
+
+  // تحديد السلة المستخدمة بناءً على حالة المستخدم
+  const activeCartItems = session?.user ? cartItems : localCartItems;
 
   const applyDiscountCode = async () => {
     const code = discountCode.trim();
@@ -188,12 +234,12 @@ const Checkout = () => {
 
   const createOrderMutation = useMutation({
     mutationFn: async () => {
-      if (!session?.user || !cartItems || cartItems.length === 0) {
+      if (!activeCartItems || activeCartItems.length === 0) {
         throw new Error("السلة فارغة");
       }
 
       // حفظ العنوان الجديد في البروفايل إذا اختار المستخدم ذلك
-      if (saveNewAddress && useDifferentAddress) {
+      if (session?.user && saveNewAddress && useDifferentAddress) {
         await updateProfileMutation.mutateAsync({
           full_name: customerName,
           phone: customerPhone,
@@ -202,7 +248,7 @@ const Checkout = () => {
       }
 
       // حساب المجموع مع الخصومات
-      const subtotal = cartItems.reduce((sum, item) => {
+      const subtotal = activeCartItems.reduce((sum, item) => {
         const itemDiscount = calculateDiscount(
           item.product_variants.products.id,
           item.product_variants.price,
@@ -234,11 +280,11 @@ const Checkout = () => {
 
       const totalAmount = subtotal - discountCodeAmount + shippingAmount;
 
-      // Create order
+      // Create order - user_id يكون null للزوار
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
-          user_id: session.user.id,
+          user_id: session?.user?.id || null,
           customer_name: customerName,
           customer_phone: customerPhone,
           customer_address: customerAddress,
@@ -255,7 +301,7 @@ const Checkout = () => {
       if (orderError) throw orderError;
 
       // Create order items with discounted prices
-      const orderItems = cartItems.map((item) => {
+      const orderItems = activeCartItems.map((item) => {
         const itemDiscount = calculateDiscount(
           item.product_variants.products.id,
           item.product_variants.price,
@@ -281,10 +327,14 @@ const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
-      // Clear cart
-      const { error: clearError } = await supabase.from("cart_items").delete().eq("user_id", session.user.id);
-
-      if (clearError) throw clearError;
+      // Clear cart - حسب نوع المستخدم
+      if (session?.user) {
+        const { error: clearError } = await supabase.from("cart_items").delete().eq("user_id", session.user.id);
+        if (clearError) throw clearError;
+      } else {
+        // مسح السلة المحلية للزوار
+        clearLocalCart();
+      }
 
       return order;
     },
@@ -325,13 +375,20 @@ const Checkout = () => {
     createOrderMutation.mutate();
   };
 
-  if (!session) {
+  // التحقق من وجود منتجات في السلة
+  if (!session && !isGuestCheckout) {
     navigate("/auth");
     return null;
   }
 
+  // إذا كان زائر بدون منتجات في السلة
+  if (isGuestCheckout && (!localCartItems || localCartItems.length === 0) && localCart.length === 0) {
+    navigate("/cart");
+    return null;
+  }
+
   const subtotal =
-    cartItems?.reduce((sum, item) => {
+    activeCartItems?.reduce((sum, item) => {
       const itemDiscount = calculateDiscount(item.product_variants.products.id, item.product_variants.price, discounts);
       const finalPrice = itemDiscount ? itemDiscount.discountedPrice : item.product_variants.price;
       return sum + finalPrice * item.quantity;
@@ -369,6 +426,21 @@ const Checkout = () => {
           رجوع
         </Button>
         <h1 className="mb-8 text-3xl font-bold">إتمام الطلب</h1>
+
+        {isGuestCheckout && !session && (
+          <div className="mb-6 rounded-lg bg-muted/50 p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              أنت تتسوق كزائر.{" "}
+              <button
+                onClick={() => navigate("/auth")}
+                className="text-primary underline hover:no-underline"
+              >
+                سجل دخولك
+              </button>{" "}
+              لتتمكن من تتبع طلباتك.
+            </p>
+          </div>
+        )}
 
         <div className="space-y-6 pb-32">
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -424,7 +496,7 @@ const Checkout = () => {
                   />
                 </div>
 
-                {useDifferentAddress && (
+                {session?.user && useDifferentAddress && (
                   <div className="flex items-center gap-2 rounded-lg bg-primary/5 p-3">
                     <Checkbox
                       id="saveNewAddress"
@@ -489,7 +561,7 @@ const Checkout = () => {
         </div>
 
         {/* زر تأكيد الطلب العائم */}
-        {cartItems && cartItems.length > 0 && (
+        {activeCartItems && activeCartItems.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
             <div className="container flex items-center justify-between gap-3">
               <div className="flex flex-col">
