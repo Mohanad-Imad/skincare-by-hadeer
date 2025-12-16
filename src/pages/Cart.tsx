@@ -305,7 +305,7 @@ const Cart = () => {
                   <span>{Math.round(localGrandTotal)} د.ع</span>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-center">
                 <Button
                   size="lg"
                   variant="secondary"
