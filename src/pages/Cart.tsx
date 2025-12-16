@@ -38,6 +38,15 @@ const Cart = () => {
     },
   });
 
+  const { data: shippingSettings } = useQuery({
+    queryKey: ["shipping-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("shipping_settings").select("*").single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: localCartItems } = useQuery({
     queryKey: ["local-cart-items", localCart],
     queryFn: async () => {
@@ -138,6 +147,20 @@ const Cart = () => {
       const finalPrice = calculateItemPrice(item.products.id, item.price);
       return sum + finalPrice * item.quantity;
     }, 0) || 0;
+
+  // حساب رسوم التوصيل
+  const calculateShipping = (subtotal: number) => {
+    if (!shippingSettings) return 0;
+    if (shippingSettings.is_free_delivery) return 0;
+    if (shippingSettings.free_delivery_threshold && subtotal >= shippingSettings.free_delivery_threshold) return 0;
+    return Number(shippingSettings.delivery_fee) || 0;
+  };
+
+  const localShipping = calculateShipping(localTotal);
+  const localGrandTotal = localTotal + localShipping;
+
+  const shipping = calculateShipping(total);
+  const grandTotal = total + shipping;
 
   if (!session) {
     return (
@@ -268,10 +291,18 @@ const Cart = () => {
         {localCartItems && localCartItems.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
             <div className="container">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="flex flex-col">
-                  <span className="text-xs opacity-90">المجموع الكلي</span>
-                  <span className="text-xl font-bold">{Math.round(localTotal)} د.ع</span>
+              <div className="space-y-2 mb-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="opacity-90">المنتجات</span>
+                  <span>{Math.round(localTotal)} د.ع</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-90">التوصيل</span>
+                  <span>{localShipping === 0 ? "مجاني" : `${Math.round(localShipping)} د.ع`}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-primary-foreground/20 text-base font-bold">
+                  <span>المجموع الكلي</span>
+                  <span>{Math.round(localGrandTotal)} د.ع</span>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -459,19 +490,31 @@ const Cart = () => {
 
       {cartItems && cartItems.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
-          <div className="container flex items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <span className="text-xs opacity-90">المجموع الكلي</span>
-              <span className="text-xl font-bold">{Math.round(total)} د.ع</span>
+          <div className="container">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="opacity-90">المنتجات</span>
+                  <span>{Math.round(total)} د.ع</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-90">التوصيل</span>
+                  <span>{shipping === 0 ? "مجاني" : `${Math.round(shipping)} د.ع`}</span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-primary-foreground/20 font-bold">
+                  <span>المجموع</span>
+                  <span>{Math.round(grandTotal)} د.ع</span>
+                </div>
+              </div>
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => navigate("/checkout")}
+                className="font-bold"
+              >
+                إتمام الطلب
+              </Button>
             </div>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => navigate("/checkout")}
-              className="flex-1 max-w-[200px] font-bold"
-            >
-              إتمام الطلب
-            </Button>
           </div>
         </div>
       )}
