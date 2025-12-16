@@ -11,7 +11,13 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter, FileSpreadsheet } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter, FileSpreadsheet, Eye } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useState, useMemo } from "react";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
@@ -65,6 +71,7 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -823,6 +830,14 @@ const AdminOrders = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setSelectedOrder(order)}
+                        title="عرض تفاصيل الطلب"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => exportOrderToExcel(order)}
                         title="تصدير تفاصيل الطلب إلى Excel"
                       >
@@ -1001,6 +1016,130 @@ const AdminOrders = () => {
           </PaginationContent>
         </Pagination>
       )}
+
+      {/* Order Details Dialog */}
+      <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>تفاصيل الطلب #{selectedOrder?.id?.slice(0, 8)}</span>
+              <Badge className={statusColors[selectedOrder?.status as keyof typeof statusColors]}>
+                {statusLabels[selectedOrder?.status as keyof typeof statusLabels]}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4">
+              {/* Customer Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">اسم العميل</p>
+                  <p className="font-medium">{selectedOrder.customer_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">الهاتف</p>
+                  <p className="font-medium">{selectedOrder.customer_phone}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-sm text-muted-foreground">العنوان</p>
+                  <p className="font-medium">{selectedOrder.customer_address}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">تاريخ الطلب</p>
+                  <p className="font-medium">{new Date(selectedOrder.created_at).toLocaleDateString("ar-IQ", { 
+                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                  })}</p>
+                </div>
+              </div>
+
+              {/* Products */}
+              <div>
+                <h4 className="font-semibold mb-3">المنتجات المطلوبة ({selectedOrder.order_items?.length || 0})</h4>
+                <div className="space-y-3">
+                  {selectedOrder.order_items?.map((item: any) => {
+                    const productImage = item.product_variants?.products?.image_url;
+                    return (
+                      <div key={item.id} className="flex items-center gap-4 p-3 border rounded-lg bg-background">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border bg-muted">
+                          {productImage ? (
+                            <img 
+                              src={productImage} 
+                              alt={item.product_name_ar}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                              لا توجد صورة
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-lg">{item.product_name_ar}</p>
+                          <p className="text-muted-foreground">الحجم: {item.variant_size_ar}</p>
+                          <p className="text-muted-foreground">السعر: {Math.round(item.price)} د.ع</p>
+                        </div>
+                        <div className="text-center flex-shrink-0">
+                          <p className="text-2xl font-bold text-primary">{item.quantity}</p>
+                          <p className="text-xs text-muted-foreground">قطعة</p>
+                        </div>
+                        <div className="text-left flex-shrink-0">
+                          <p className="font-semibold">{Math.round(item.subtotal)} د.ع</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Notes */}
+              {selectedOrder.notes && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <p className="text-sm font-semibold mb-1">ملاحظات العميل:</p>
+                  <p className="text-sm">{selectedOrder.notes}</p>
+                </div>
+              )}
+
+              {/* Summary */}
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <h4 className="font-semibold mb-3">ملخص المبالغ</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>المجموع الفرعي:</span>
+                    <span>{Math.round(selectedOrder.order_items?.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0) || 0)} د.ع</span>
+                  </div>
+                  {selectedOrder.discount_amount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>الخصم:</span>
+                      <span>-{Math.round(selectedOrder.discount_amount)} د.ع</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span>التوصيل:</span>
+                    <span>{selectedOrder.shipping_amount > 0 ? `${Math.round(selectedOrder.shipping_amount)} د.ع` : 'مجاني'}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 mt-2 text-lg font-bold">
+                    <span>المجموع النهائي:</span>
+                    <span className="text-primary">{Math.round(selectedOrder.total_amount)} د.ع</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <Button onClick={() => printThermalLabel(selectedOrder)} className="flex-1">
+                  <Printer className="h-4 w-4 ml-2" />
+                  طباعة الطلب
+                </Button>
+                <Button variant="outline" onClick={() => exportOrderToExcel(selectedOrder)} className="flex-1">
+                  <FileSpreadsheet className="h-4 w-4 ml-2" />
+                  تصدير Excel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
