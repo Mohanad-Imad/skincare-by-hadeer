@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Collapsible,
   CollapsibleContent,
@@ -33,6 +34,7 @@ import {
   X,
   Package,
   Sparkles,
+  Search,
 } from "lucide-react";
 
 interface RoutineSlot {
@@ -128,6 +130,7 @@ const RoutineBuilder = () => {
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ sectionId: string; slotId: string } | null>(null);
   const [activeSlotKeywords, setActiveSlotKeywords] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch all products with variants
   const { data: products } = useQuery({
@@ -150,24 +153,39 @@ const RoutineBuilder = () => {
     },
   });
 
-  // Filter products based on slot keywords
+  // Filter products based on slot keywords and search query
   const filteredProducts = useMemo(() => {
     if (!products) return [];
-    if (activeSlotKeywords.length === 0) return products; // "أخرى" shows all
+    
+    let filtered = products;
+    
+    // Filter by slot keywords (unless "أخرى" which shows all)
+    if (activeSlotKeywords.length > 0) {
+      filtered = filtered.filter((product) => {
+        const productName = product.name_ar?.toLowerCase() || "";
+        const categoryName = (product.categories as any)?.name_ar?.toLowerCase() || "";
+        const categoryNameEn = (product.categories as any)?.name_en?.toLowerCase() || "";
 
-    return products.filter((product) => {
-      const productName = product.name_ar?.toLowerCase() || "";
-      const categoryName = (product.categories as any)?.name_ar?.toLowerCase() || "";
-      const categoryNameEn = (product.categories as any)?.name_en?.toLowerCase() || "";
+        return activeSlotKeywords.some(
+          (keyword) =>
+            productName.includes(keyword.toLowerCase()) ||
+            categoryName.includes(keyword.toLowerCase()) ||
+            categoryNameEn.includes(keyword.toLowerCase())
+        );
+      });
+    }
 
-      return activeSlotKeywords.some(
-        (keyword) =>
-          productName.includes(keyword.toLowerCase()) ||
-          categoryName.includes(keyword.toLowerCase()) ||
-          categoryNameEn.includes(keyword.toLowerCase())
-      );
-    });
-  }, [products, activeSlotKeywords]);
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((product) => {
+        const productName = product.name_ar?.toLowerCase() || "";
+        return productName.includes(query);
+      });
+    }
+
+    return filtered;
+  }, [products, activeSlotKeywords, searchQuery]);
 
   const toggleSection = (sectionId: string) => {
     setSections((prev) =>
@@ -180,6 +198,7 @@ const RoutineBuilder = () => {
   const openProductDialog = (sectionId: string, slotId: string, keywords: string[]) => {
     setSelectedSlot({ sectionId, slotId });
     setActiveSlotKeywords(keywords);
+    setSearchQuery("");
     setProductDialogOpen(true);
   };
 
@@ -483,11 +502,23 @@ const RoutineBuilder = () => {
           <DialogHeader>
             <DialogTitle>اختر منتجاً</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="h-[60vh] pr-4">
+          
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="ابحث عن منتج..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-10"
+            />
+          </div>
+
+          <ScrollArea className="h-[55vh] pr-4">
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>لا توجد منتجات متاحة لهذه الفئة</p>
+                <p>{searchQuery ? "لا توجد نتائج للبحث" : "لا توجد منتجات متاحة لهذه الفئة"}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
