@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +27,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
@@ -231,7 +231,6 @@ const RoutineBuilder = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileCartDrawerOpen, setMobileCartDrawerOpen] = useState(false);
   const [visibleProductsCount, setVisibleProductsCount] = useState(12);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Fetch all products with variants
   const { data: products } = useQuery({
@@ -301,34 +300,24 @@ const RoutineBuilder = () => {
     setVisibleProductsCount(12);
   }, [productDialogOpen, searchQuery, activeSlotKeywords]);
 
-  // Lazy loading observer
+  // Lazy loading using scroll event
   const loadMoreProducts = useCallback(() => {
     setVisibleProductsCount((prev) => Math.min(prev + 12, filteredProducts.length));
   }, [filteredProducts.length]);
 
-  useEffect(() => {
-    if (!productDialogOpen) return;
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
     
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreProducts();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentRef = loadMoreRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
+    // Load more when near bottom (within 100px)
+    if (scrollHeight - scrollTop - clientHeight < 100) {
+      if (visibleProductsCount < filteredProducts.length) {
+        loadMoreProducts();
       }
-    };
-  }, [productDialogOpen, loadMoreProducts]);
+    }
+  }, [loadMoreProducts, visibleProductsCount, filteredProducts.length]);
 
   // Visible products for lazy loading
   const visibleProducts = useMemo(() => {
@@ -751,7 +740,10 @@ const RoutineBuilder = () => {
             />
           </div>
 
-          <ScrollArea className="h-[55vh] pr-4">
+          <div 
+            className="h-[55vh] pr-4 overflow-y-auto"
+            onScroll={handleScroll}
+          >
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -770,13 +762,13 @@ const RoutineBuilder = () => {
                 ))}
               </div>
             )}
-            {/* Load more trigger */}
+            {/* Load more indicator */}
             {visibleProductsCount < filteredProducts.length && (
-              <div ref={loadMoreRef} className="py-4 text-center">
+              <div className="py-4 text-center">
                 <span className="text-sm text-muted-foreground">جاري تحميل المزيد...</span>
               </div>
             )}
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 
