@@ -642,11 +642,11 @@ const RoutineBuilder = () => {
             <Drawer open={mobileCartDrawerOpen} onOpenChange={setMobileCartDrawerOpen}>
               <DrawerTrigger asChild>
                 <Button
-                  size="icon"
-                  className="h-14 w-14 rounded-full shadow-lg animate-fade-in"
+                  className="h-12 px-4 rounded-full shadow-lg animate-fade-in gap-2"
                   disabled={totalPrice === 0}
                 >
-                  <Plus className="h-6 w-6" />
+                  <ShoppingCart className="h-5 w-5" />
+                  أضف للسلة
                 </Button>
               </DrawerTrigger>
               <DrawerContent className="px-4 pb-8">
