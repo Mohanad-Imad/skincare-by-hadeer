@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart, Sparkles } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart, Sparkles, Headset, BookOpen, Star, Briefcase } from "lucide-react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,12 @@ import { ThemeSelector } from "@/components/ThemeSelector";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import NotificationBell from "./NotificationBell";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -20,6 +26,7 @@ export const Navbar = () => {
   const { getLocalCartCount } = useLocalCart();
   const [isOpen, setIsOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   const { data: settings } = useQuery({
     queryKey: ["store-settings"],
@@ -205,14 +212,54 @@ export const Navbar = () => {
                   المفضلة
                 </Button>
 
-                <Button
-                  variant={isActive("/routine-builder") ? "default" : "ghost"}
-                  className="justify-start gap-2"
-                  onClick={() => handleNavigate("/routine-builder")}
-                >
-                  <Sparkles className="h-4 w-4" />
-                  بناء الروتين
-                </Button>
+                <Collapsible open={servicesOpen} onOpenChange={setServicesOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2"
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      خدمات
+                      <ChevronDown className={`h-4 w-4 mr-auto transition-transform ${servicesOpen ? "rotate-180" : ""}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pr-4 space-y-1">
+                    <div className="border-l-2 border-border pl-2 space-y-1">
+                      <Button
+                        variant={isActive("/consultation") ? "default" : "ghost"}
+                        className="w-full justify-start gap-2 text-sm"
+                        onClick={() => handleNavigate("/consultation")}
+                      >
+                        <Headset className="h-4 w-4" />
+                        استشارة مجانية
+                      </Button>
+                      <Button
+                        variant={isActive("/blog") ? "default" : "ghost"}
+                        className="w-full justify-start gap-2 text-sm"
+                        onClick={() => handleNavigate("/blog")}
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        المدونة
+                      </Button>
+                      <Button
+                        variant={isActive("/routine-builder") ? "default" : "ghost"}
+                        className="w-full justify-start gap-2 text-sm"
+                        onClick={() => handleNavigate("/routine-builder")}
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        بناء الروتين
+                      </Button>
+                      <Button
+                        variant={isActive("/celebrity-routines") ? "default" : "ghost"}
+                        className="w-full justify-start gap-2 text-sm"
+                        onClick={() => handleNavigate("/celebrity-routines")}
+                      >
+                        <Star className="h-4 w-4" />
+                        روتينات المشاهير
+                      </Button>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
 
                 <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                   <CollapsibleTrigger asChild>
@@ -385,15 +432,37 @@ export const Navbar = () => {
             );
           })}
 
-          <Button
-            variant={isActive("/routine-builder") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => navigate("/routine-builder")}
-            className="gap-1.5"
-          >
-            <Sparkles className="h-4 w-4" />
-            بناء الروتين
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={["/consultation", "/blog", "/routine-builder", "/celebrity-routines"].some(path => isActive(path)) ? "default" : "ghost"}
+                size="sm"
+                className="gap-1.5"
+              >
+                <Briefcase className="h-4 w-4" />
+                خدمات
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-48">
+              <DropdownMenuItem onClick={() => navigate("/consultation")} className="gap-2 cursor-pointer">
+                <Headset className="h-4 w-4" />
+                استشارة مجانية
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/blog")} className="gap-2 cursor-pointer">
+                <BookOpen className="h-4 w-4" />
+                المدونة
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/routine-builder")} className="gap-2 cursor-pointer">
+                <Sparkles className="h-4 w-4" />
+                بناء الروتين
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/celebrity-routines")} className="gap-2 cursor-pointer">
+                <Star className="h-4 w-4" />
+                روتينات المشاهير
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button
             variant={isActive("/favorites") ? "default" : "ghost"}
