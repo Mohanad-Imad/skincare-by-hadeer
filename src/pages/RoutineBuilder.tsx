@@ -20,6 +20,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -131,6 +138,7 @@ const RoutineBuilder = () => {
   const [selectedSlot, setSelectedSlot] = useState<{ sectionId: string; slotId: string } | null>(null);
   const [activeSlotKeywords, setActiveSlotKeywords] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileCartDrawerOpen, setMobileCartDrawerOpen] = useState(false);
 
   // Fetch all products with variants
   const { data: products } = useQuery({
@@ -439,8 +447,8 @@ const RoutineBuilder = () => {
             ))}
           </div>
 
-          {/* Summary & Actions */}
-          <Card className="p-6 sticky bottom-20 md:bottom-4 bg-card/95 backdrop-blur-sm border-2 border-primary/20">
+          {/* Summary & Actions - Desktop */}
+          <Card className="hidden md:block p-6 sticky bottom-4 bg-card/95 backdrop-blur-sm border-2 border-primary/20">
             <div className="flex flex-col gap-4">
               {/* Total */}
               <div className="flex items-center justify-between">
@@ -462,7 +470,7 @@ const RoutineBuilder = () => {
               </Button>
 
               {/* Section-specific buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -493,6 +501,90 @@ const RoutineBuilder = () => {
               </div>
             </div>
           </Card>
+
+          {/* Mobile Floating Button */}
+          <div className="md:hidden fixed bottom-20 left-4 right-4 z-40">
+            <Drawer open={mobileCartDrawerOpen} onOpenChange={setMobileCartDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button
+                  size="lg"
+                  className="w-full py-6 shadow-lg animate-fade-in"
+                  disabled={totalPrice === 0}
+                >
+                  <ShoppingCart className="h-5 w-5 ml-2" />
+                  <span>عرض السلة</span>
+                  <Badge variant="secondary" className="mr-2">
+                    {Math.round(totalPrice).toLocaleString()} د.ع
+                  </Badge>
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="px-4 pb-8">
+                <DrawerHeader className="text-center">
+                  <DrawerTitle>ملخص الروتين</DrawerTitle>
+                </DrawerHeader>
+                <div className="flex flex-col gap-4">
+                  {/* Total */}
+                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <span className="text-lg font-medium">المجموع الكلي:</span>
+                    <span className="text-2xl font-bold text-primary">
+                      {Math.round(totalPrice).toLocaleString()} د.ع
+                    </span>
+                  </div>
+
+                  {/* Main CTA */}
+                  <Button
+                    size="lg"
+                    className="w-full text-lg py-6"
+                    onClick={() => {
+                      addToCart();
+                      setMobileCartDrawerOpen(false);
+                    }}
+                    disabled={totalPrice === 0}
+                  >
+                    <ShoppingCart className="h-5 w-5 ml-2" />
+                    أضف الروتين الكامل إلى السلة
+                  </Button>
+
+                  {/* Section-specific buttons */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        addToCart(["morning"]);
+                        setMobileCartDrawerOpen(false);
+                      }}
+                      disabled={calculateSectionTotal("morning") === 0}
+                    >
+                      <Sun className="h-4 w-4 ml-1" />
+                      الصباحي فقط ({Math.round(calculateSectionTotal("morning")).toLocaleString()} د.ع)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        addToCart(["evening"]);
+                        setMobileCartDrawerOpen(false);
+                      }}
+                      disabled={calculateSectionTotal("evening") === 0}
+                    >
+                      <Moon className="h-4 w-4 ml-1" />
+                      المسائي فقط ({Math.round(calculateSectionTotal("evening")).toLocaleString()} د.ع)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        addToCart(["weekly"]);
+                        setMobileCartDrawerOpen(false);
+                      }}
+                      disabled={calculateSectionTotal("weekly") === 0}
+                    >
+                      <Calendar className="h-4 w-4 ml-1" />
+                      الأسبوعي فقط ({Math.round(calculateSectionTotal("weekly")).toLocaleString()} د.ع)
+                    </Button>
+                  </div>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
         </div>
       </main>
 
