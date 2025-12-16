@@ -42,21 +42,23 @@ export const useLocalCart = () => {
     return () => window.removeEventListener(CART_UPDATE_EVENT, handleCartUpdate);
   }, []);
 
+  const readStoredCart = (): LocalCartItem[] => {
+    const stored = localStorage.getItem(LOCAL_CART_KEY);
+    if (!stored) return [];
+    try {
+      return JSON.parse(stored) as LocalCartItem[];
+    } catch (e) {
+      return [];
+    }
+  };
+
   const addToLocalCart = (variantId: string, quantity: number = 1) => {
     // قراءة السلة من localStorage مباشرة لضمان الحصول على أحدث البيانات
-    const stored = localStorage.getItem(LOCAL_CART_KEY);
-    let currentCart: LocalCartItem[] = [];
-    if (stored) {
-      try {
-        currentCart = JSON.parse(stored);
-      } catch (e) {
-        currentCart = [];
-      }
-    }
+    const currentCart = readStoredCart();
 
     const existing = currentCart.find((item) => item.variantId === variantId);
     let newCart: LocalCartItem[];
-    
+
     if (existing) {
       newCart = currentCart.map((item) =>
         item.variantId === variantId
@@ -66,7 +68,34 @@ export const useLocalCart = () => {
     } else {
       newCart = [...currentCart, { variantId, quantity }];
     }
-    
+
+    setLocalCart(newCart);
+    localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newCart));
+    dispatchCartUpdate();
+  };
+
+  const addManyToLocalCart = (items: Array<{ variantId: string; quantity?: number }>) => {
+    if (!items || items.length === 0) return;
+
+    const currentCart = readStoredCart();
+    const qtyByVariant = new Map<string, number>();
+
+    for (const item of currentCart) {
+      qtyByVariant.set(item.variantId, item.quantity);
+    }
+
+    for (const item of items) {
+      const q = Math.max(1, item.quantity ?? 1);
+      qtyByVariant.set(item.variantId, (qtyByVariant.get(item.variantId) ?? 0) + q);
+    }
+
+    const newCart: LocalCartItem[] = Array.from(qtyByVariant.entries()).map(
+      ([variantId, quantity]) => ({
+        variantId,
+        quantity,
+      })
+    );
+
     setLocalCart(newCart);
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(newCart));
     dispatchCartUpdate();
@@ -101,6 +130,7 @@ export const useLocalCart = () => {
   return {
     localCart,
     addToLocalCart,
+    addManyToLocalCart,
     updateLocalCartQuantity,
     removeFromLocalCart,
     clearLocalCart,

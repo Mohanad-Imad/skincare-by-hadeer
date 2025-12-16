@@ -110,7 +110,7 @@ interface SavedRoutineData {
 
 const RoutineBuilder = () => {
   const navigate = useNavigate();
-  const { addToLocalCart } = useLocalCart();
+  const { addManyToLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
 
   const getDiscountedPrice = (productId: string, originalPrice: number) => {
@@ -479,9 +479,10 @@ const RoutineBuilder = () => {
       }
     } else {
       // Add to local cart
-      for (const product of productsToAdd) {
-        addToLocalCart(product.variant_id, product.quantity);
-      }
+      addManyToLocalCart(productsToAdd.map((product) => ({
+        variantId: product.variant_id,
+        quantity: product.quantity,
+      })));
     }
 
     toast.success(`تمت إضافة ${productsToAdd.length} منتجات إلى السلة`);
