@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// تم استيراد أيقونة Palette للمكياج
-import { Home, ShoppingCart, Package, User, Palette } from "lucide-react";
+import { Home, ShoppingCart, Package, User, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +13,7 @@ const navItems = [
   { id: "home", icon: Home, label: "الرئيسية", path: "/" },
   { id: "products", icon: Package, label: "المنتجات", path: "/products" },
   { id: CENTER_ITEM_ID, icon: ShoppingCart, label: "السلة", path: "/cart" }, // العنصر المركزي
-  { id: "makeup", icon: Palette, label: "المكياج", path: "/makeup" },
+  { id: "favorites", icon: Heart, label: "المفضلة", path: "/favorites" },
   { id: "account", icon: User, label: "الحساب", path: "/profile" },
 ];
 
@@ -79,13 +78,12 @@ export const BottomNavPro = () => {
     ? cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0
     : localCart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // تم تحديث دالة getActiveIndex لتشمل المسار الجديد /makeup
   const getActiveIndex = () => {
     const path = location.pathname;
     if (path === "/") return 0;
     if (path.startsWith("/products")) return 1;
     if (path === "/cart") return 2; // المركز
-    if (path === "/makeup") return 3; // المكياج
+    if (path === "/favorites") return 3; // المفضلة
     if (path === "/profile" || path === "/auth") return 4; // الحساب
     return -1;
   };
@@ -93,7 +91,7 @@ export const BottomNavPro = () => {
   const activeIndex = getActiveIndex();
 
   const handleNavClick = (path: string, id: string) => {
-    if (id === "account" && !user) {
+    if ((id === "account" || id === "favorites") && !user) {
       navigate("/auth");
     } else {
       navigate(path);

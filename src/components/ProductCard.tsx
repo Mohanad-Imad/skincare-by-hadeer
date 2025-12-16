@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { FavoriteButton } from "./FavoriteButton";
 
 interface ProductCardProps {
   id: string;
@@ -51,6 +52,10 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
           ) : (
             <ShieldCheck className="h-14 w-14 md:h-20 md:w-20 opacity-50 -rotate-[30deg] text-emerald-600" />
           )}
+        </div>
+        {/* Favorite button - positioned at bottom left */}
+        <div className="absolute bottom-2 left-2 z-30">
+          <FavoriteButton productId={id} size="sm" />
         </div>
         {discount && (
           <div className="absolute top-1 right-1 z-20">
