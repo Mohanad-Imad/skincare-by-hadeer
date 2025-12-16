@@ -223,7 +223,7 @@ const Favorites = () => {
         ) : (
           <>
             {/* Actions bar */}
-            <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-card rounded-lg border">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 p-4 bg-card rounded-lg border">
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="select-all"
@@ -235,27 +235,29 @@ const Favorites = () => {
                 </label>
               </div>
               
-              <div className="flex-1" />
+              <div className="hidden sm:block flex-1" />
               
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddSelectedToCart}
-                disabled={selectedItems.length === 0}
-                className="gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                إضافة المحدد ({selectedItems.length})
-              </Button>
-              
-              <Button
-                size="sm"
-                onClick={handleAddAllToCart}
-                className="gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                إضافة الكل للسلة
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddSelectedToCart}
+                  disabled={selectedItems.length === 0}
+                  className="gap-2 w-full sm:w-auto"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  إضافة المحدد ({selectedItems.length})
+                </Button>
+                
+                <Button
+                  size="sm"
+                  onClick={handleAddAllToCart}
+                  className="gap-2 w-full sm:w-auto"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  إضافة الكل للسلة
+                </Button>
+              </div>
             </div>
 
             {/* Favorites grid */}
