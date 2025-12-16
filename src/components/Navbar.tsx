@@ -205,6 +205,15 @@ export const Navbar = () => {
                   المفضلة
                 </Button>
 
+                <Button
+                  variant={isActive("/routine-builder") ? "default" : "ghost"}
+                  className="justify-start gap-2"
+                  onClick={() => handleNavigate("/routine-builder")}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  بناء الروتين
+                </Button>
+
                 <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                   <CollapsibleTrigger asChild>
                     <Button
