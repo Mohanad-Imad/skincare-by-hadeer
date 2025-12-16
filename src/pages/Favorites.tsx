@@ -276,119 +276,121 @@ const Favorites = () => {
                 const imageUrl = product.product_images?.[0]?.image_url || product.image_url;
 
                 return (
-                  <Card key={favorite.id} className="p-4 relative">
-                    <div className="flex gap-4">
-                      {/* Checkbox */}
-                      <div className="pt-1">
-                        <Checkbox
-                          checked={selectedItems.includes(product.id)}
-                          onCheckedChange={() => handleSelectItem(product.id)}
-                        />
-                      </div>
-
-                      {/* Image */}
-                      <div 
-                        className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted cursor-pointer"
-                        onClick={() => navigate(`/products/${product.id}`)}
-                      >
-                        {imageUrl ? (
-                          <img 
-                            src={imageUrl} 
-                            alt={product.name_ar}
-                            className="w-full h-full object-cover"
+                  <div key={favorite.id} className="flex items-start gap-2">
+                    <Card className="p-4 flex-1">
+                      <div className="flex gap-4">
+                        {/* Checkbox */}
+                        <div className="pt-1">
+                          <Checkbox
+                            checked={selectedItems.includes(product.id)}
+                            onCheckedChange={() => handleSelectItem(product.id)}
                           />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                            بدون صورة
-                          </div>
-                        )}
-                      </div>
+                        </div>
 
-                      {/* Details */}
-                      <div className="flex-1 min-w-0">
-                        <h3 
-                          className="font-semibold text-sm line-clamp-2 cursor-pointer hover:text-primary"
+                        {/* Image */}
+                        <div 
+                          className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted cursor-pointer"
                           onClick={() => navigate(`/products/${product.id}`)}
                         >
-                          {product.name_ar}
-                        </h3>
-                        
-                        {product.company_name_ar && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {product.company_name_ar}
-                          </p>
-                        )}
-
-                        {/* Variant selector */}
-                        {variants.length > 1 && (
-                          <Select
-                            value={favorite.variant_id || variants[0]?.id}
-                            onValueChange={(value) => handleVariantChange(product.id, value)}
-                          >
-                            <SelectTrigger className="h-7 text-xs mt-2 w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {variants.map((variant) => (
-                                <SelectItem key={variant.id} value={variant.id}>
-                                  {variant.size_ar} - {Math.round(variant.price)} د.ع
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-
-                        {/* Price */}
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="font-bold text-primary">
-                            {Math.round(finalPrice)} د.ع
-                          </span>
-                          {discount && (
-                            <span className="text-xs text-muted-foreground line-through">
-                              {Math.round(originalPrice)} د.ع
-                            </span>
+                          {imageUrl ? (
+                            <img 
+                              src={imageUrl} 
+                              alt={product.name_ar}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                              بدون صورة
+                            </div>
                           )}
                         </div>
 
-                        {/* Quantity */}
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs text-muted-foreground">الكمية:</span>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleQuantityChange(product.id, favorite.quantity - 1)}
-                              disabled={favorite.quantity <= 1}
+                        {/* Details */}
+                        <div className="flex-1 min-w-0">
+                          <h3 
+                            className="font-semibold text-sm line-clamp-2 cursor-pointer hover:text-primary"
+                            onClick={() => navigate(`/products/${product.id}`)}
+                          >
+                            {product.name_ar}
+                          </h3>
+                          
+                          {product.company_name_ar && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {product.company_name_ar}
+                            </p>
+                          )}
+
+                          {/* Variant selector */}
+                          {variants.length > 1 && (
+                            <Select
+                              value={favorite.variant_id || variants[0]?.id}
+                              onValueChange={(value) => handleVariantChange(product.id, value)}
                             >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="w-8 text-center text-sm font-medium">
-                              {favorite.quantity}
+                              <SelectTrigger className="h-7 text-xs mt-2 w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {variants.map((variant) => (
+                                  <SelectItem key={variant.id} value={variant.id}>
+                                    {variant.size_ar} - {Math.round(variant.price)} د.ع
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+
+                          {/* Price */}
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="font-bold text-primary">
+                              {Math.round(finalPrice)} د.ع
                             </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleQuantityChange(product.id, favorite.quantity + 1)}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
+                            {discount && (
+                              <span className="text-xs text-muted-foreground line-through">
+                                {Math.round(originalPrice)} د.ع
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Quantity */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-xs text-muted-foreground">الكمية:</span>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => handleQuantityChange(product.id, favorite.quantity - 1)}
+                                disabled={favorite.quantity <= 1}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-8 text-center text-sm font-medium">
+                                {favorite.quantity}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => handleQuantityChange(product.id, favorite.quantity + 1)}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
-
-                      {/* Remove button */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-2 left-2 h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => removeFromFavorites.mutate(product.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </Card>
+                    </Card>
+                    
+                    {/* Remove button - outside card */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0 mt-4"
+                      onClick={() => removeFromFavorites.mutate(product.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 );
               })}
             </div>
