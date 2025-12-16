@@ -318,7 +318,7 @@ const Cart = () => {
                   size="lg"
                   variant="outline"
                   onClick={() => navigate("/checkout?guest=true")}
-                  className="flex-1 font-bold bg-background/10 border-primary-foreground/30 hover:bg-background/20"
+                  className="flex-1 font-bold bg-sky-500 border-sky-500 text-white hover:bg-sky-600 hover:border-sky-600"
                 >
                   التسوق كزائر
                 </Button>
