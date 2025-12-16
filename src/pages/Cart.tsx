@@ -491,30 +491,28 @@ const Cart = () => {
       {cartItems && cartItems.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
           <div className="container">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="opacity-90">المنتجات</span>
-                  <span>{Math.round(total)} د.ع</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="opacity-90">التوصيل</span>
-                  <span>{shipping === 0 ? "مجاني" : `${Math.round(shipping)} د.ع`}</span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-primary-foreground/20 font-bold">
-                  <span>المجموع</span>
-                  <span>{Math.round(grandTotal)} د.ع</span>
-                </div>
+            <div className="space-y-2 mb-3 text-sm">
+              <div className="flex justify-between">
+                <span className="opacity-90">المنتجات</span>
+                <span>{Math.round(total)} د.ع</span>
               </div>
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => navigate("/checkout")}
-                className="font-bold"
-              >
-                إتمام الطلب
-              </Button>
+              <div className="flex justify-between">
+                <span className="opacity-90">التوصيل</span>
+                <span>{shipping === 0 ? "مجاني" : `${Math.round(shipping)} د.ع`}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-primary-foreground/20 text-base font-bold">
+                <span>المجموع الكلي</span>
+                <span>{Math.round(grandTotal)} د.ع</span>
+              </div>
             </div>
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={() => navigate("/checkout")}
+              className="w-full font-bold"
+            >
+              إتمام الطلب
+            </Button>
           </div>
         </div>
       )}
