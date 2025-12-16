@@ -46,7 +46,8 @@ export const useFavorites = () => {
       if (error) throw error;
       return data as Favorite[];
     },
-    enabled: !!userId,
+    enabled: !!userId && !isAuthLoading,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const addToFavorites = useMutation({
