@@ -61,6 +61,7 @@ import Profile from "./pages/Profile";
 import SharedCart from "./pages/SharedCart";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Favorites from "./pages/Favorites";
 import ProductReviewsPage from "./pages/ProductReviews";
 import ScrollToTop from "./components/ScrollToTop";
 import { DynamicTheme } from "./components/DynamicTheme";
@@ -116,6 +117,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/shared-cart/:shareCode" element={<SharedCart />} />
           <Route path="/inbox" element={<Inbox />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/admin" element={<AdminDashboard />}>
