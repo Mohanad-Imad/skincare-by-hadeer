@@ -123,7 +123,24 @@ export default function AdminConsultations() {
 
       if (error) throw error;
 
-      toast.success("تم حفظ الرد بنجاح");
+      // Send notification to user if they have an account
+      if (selectedConsultation.user_id && adminResponse) {
+        await supabase.from("user_notifications").insert({
+          user_id: selectedConsultation.user_id,
+          title: "رد على استشارتك",
+          message: adminResponse.substring(0, 200) + (adminResponse.length > 200 ? "..." : ""),
+          type: "personal",
+          related_id: selectedConsultation.id,
+          related_table: "consultations",
+          created_by: session?.user.id,
+        });
+      }
+
+      toast.success(
+        selectedConsultation.user_id 
+          ? "تم حفظ الرد وإرسال إشعار للعميل" 
+          : "تم حفظ الرد - العميل غير مسجل، يرجى التواصل عبر الهاتف: " + selectedConsultation.phone
+      );
       setIsRespondOpen(false);
       fetchConsultations();
     } catch (error) {
