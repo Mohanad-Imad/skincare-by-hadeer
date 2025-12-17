@@ -564,9 +564,25 @@ const Checkout = () => {
         {activeCartItems && activeCartItems.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
             <div className="container flex items-center justify-between gap-3">
-              <div className="flex flex-col">
-                <span className="text-xs opacity-90">المجموع الكلي</span>
-                <span className="text-xl font-bold">{Math.round(total)} د.ع</span>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center justify-between gap-4 text-xs opacity-90">
+                  <span>المنتجات:</span>
+                  <span>{Math.round(subtotal)} د.ع</span>
+                </div>
+                {appliedDiscount && (
+                  <div className="flex items-center justify-between gap-4 text-xs opacity-90">
+                    <span>الخصم:</span>
+                    <span>-{Math.round(discountAmount)} د.ع</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-4 text-xs opacity-90">
+                  <span>التوصيل:</span>
+                  <span>{shippingAmount === 0 ? "مجاني" : `${Math.round(shippingAmount)} د.ع`}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 text-sm font-bold border-t border-primary-foreground/20 pt-1 mt-1">
+                  <span>المجموع الكلي:</span>
+                  <span>{Math.round(total)} د.ع</span>
+                </div>
               </div>
               <Button
                 size="lg"
