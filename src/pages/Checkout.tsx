@@ -563,24 +563,24 @@ const Checkout = () => {
         {/* زر تأكيد الطلب العائم */}
         {activeCartItems && activeCartItems.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground shadow-2xl p-4 z-50">
-            <div className="container flex items-center justify-between gap-3">
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center justify-between gap-4 text-xs opacity-90">
-                  <span>المنتجات:</span>
+            <div className="container">
+              <div className="space-y-2 mb-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="opacity-90">المنتجات</span>
                   <span>{Math.round(subtotal)} د.ع</span>
                 </div>
                 {appliedDiscount && (
-                  <div className="flex items-center justify-between gap-4 text-xs opacity-90">
-                    <span>الخصم:</span>
+                  <div className="flex justify-between">
+                    <span className="opacity-90">الخصم ({appliedDiscount.discount_percentage}%)</span>
                     <span>-{Math.round(discountAmount)} د.ع</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between gap-4 text-xs opacity-90">
-                  <span>التوصيل:</span>
+                <div className="flex justify-between">
+                  <span className="opacity-90">التوصيل</span>
                   <span>{shippingAmount === 0 ? "مجاني" : `${Math.round(shippingAmount)} د.ع`}</span>
                 </div>
-                <div className="flex items-center justify-between gap-4 text-sm font-bold border-t border-primary-foreground/20 pt-1 mt-1">
-                  <span>المجموع الكلي:</span>
+                <div className="flex justify-between pt-2 border-t border-primary-foreground/20 text-base font-bold">
+                  <span>المجموع الكلي</span>
                   <span>{Math.round(total)} د.ع</span>
                 </div>
               </div>
@@ -589,7 +589,7 @@ const Checkout = () => {
                 variant="secondary"
                 onClick={handleSubmit}
                 disabled={createOrderMutation.isPending}
-                className="flex-1 max-w-[200px] font-bold"
+                className="w-full font-bold"
               >
                 {createOrderMutation.isPending ? "جاري الإرسال..." : "تأكيد الطلب"}
               </Button>
