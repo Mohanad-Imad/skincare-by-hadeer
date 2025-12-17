@@ -442,7 +442,7 @@ const Checkout = () => {
           </div>
         )}
 
-        <div className="space-y-6 pb-32">
+        <div className="space-y-6 pb-52">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="rounded-lg border p-6">
               <h2 className="mb-4 text-xl font-semibold">معلومات التوصيل</h2>
