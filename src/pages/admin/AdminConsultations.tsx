@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Eye, MessageSquare } from "lucide-react";
+import { Loader2, Eye, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
@@ -64,6 +64,8 @@ export default function AdminConsultations() {
   const [adminNotes, setAdminNotes] = useState("");
   const [newStatus, setNewStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
 
   useEffect(() => {
     if (isAdmin) {
@@ -328,13 +330,23 @@ export default function AdminConsultations() {
                   <h3 className="font-semibold mb-2">الصور المرفقة (صور تشخيصية)</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {selectedConsultation.image_urls.map((url: string, index: number) => (
-                      <div key={index} className="border rounded-lg p-2 bg-muted/30">
+                      <div
+                        key={index}
+                        className="border rounded-lg p-2 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors group relative"
+                        onClick={() => {
+                          setSelectedImageIndex(index);
+                          setImageGalleryOpen(true);
+                        }}
+                      >
                         <img
                           src={url}
                           alt={`صورة تشخيصية ${index + 1}`}
                           className="w-full h-64 object-contain rounded"
                         />
-                        <p className="text-xs text-muted-foreground text-center mt-2">صورة {index + 1}</p>
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-lg">
+                          <ZoomIn className="h-8 w-8 text-white" />
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center mt-2">صورة {index + 1} - انقر للتكبير</p>
                       </div>
                     ))}
                   </div>
@@ -414,6 +426,65 @@ export default function AdminConsultations() {
               )}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog لعرض الصور المكبرة */}
+      <Dialog open={imageGalleryOpen} onOpenChange={setImageGalleryOpen}>
+        <DialogContent className="max-w-5xl p-0 gap-0 overflow-hidden bg-black/95">
+          {selectedConsultation?.image_urls && selectedImageIndex !== null && (
+            <div className="relative">
+              {/* Close button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full"
+                onClick={() => setImageGalleryOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+
+              {/* Image counter */}
+              <div className="absolute top-4 left-4 z-10 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
+                {selectedImageIndex + 1} / {selectedConsultation.image_urls.length}
+              </div>
+
+              {/* Main image */}
+              <div className="flex items-center justify-center min-h-[60vh] max-h-[85vh] p-4">
+                <img
+                  src={selectedConsultation.image_urls[selectedImageIndex]}
+                  alt={`صورة تشخيصية ${selectedImageIndex + 1}`}
+                  className="max-w-full max-h-[80vh] object-contain"
+                />
+              </div>
+
+              {/* Navigation arrows */}
+              {selectedConsultation.image_urls.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-12 w-12"
+                    onClick={() => setSelectedImageIndex(prev => 
+                      prev === 0 ? selectedConsultation.image_urls!.length - 1 : prev! - 1
+                    )}
+                  >
+                    <ChevronRight className="h-8 w-8" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-12 w-12"
+                    onClick={() => setSelectedImageIndex(prev => 
+                      prev === selectedConsultation.image_urls!.length - 1 ? 0 : prev! + 1
+                    )}
+                  >
+                    <ChevronLeft className="h-8 w-8" />
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
