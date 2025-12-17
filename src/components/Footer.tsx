@@ -171,7 +171,7 @@ export const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-12 pt-8 border-t text-center">
+        <div className="mt-12 pt-8 border-t text-center pb-20 md:pb-0">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} جميع الحقوق محفوظة - {storeName}
           </p>
