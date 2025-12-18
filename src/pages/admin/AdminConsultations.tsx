@@ -12,7 +12,7 @@ import { Loader2, Eye, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn, Copy
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
-import html2pdf from "html2pdf.js";
+
 
 interface Consultation {
   id: string;
@@ -189,174 +189,172 @@ ${consultation.image_urls.map((url: string, i: number) => `${i + 1}. ${url}`).jo
     toast.success("تم نسخ معلومات الاستشارة");
   };
 
-  const handleDownloadPDF = async (consultation: Consultation) => {
-    try {
-      toast.info("جاري إنشاء ملف PDF...");
-      
-      const genderLabel = consultation.gender === "female" ? "أنثى" : "ذكر";
-      const concerns = consultation.main_concerns?.map((c: string) => concernLabels[c] || c).join("، ") || "";
-      
-      // Create HTML content for PDF
-      const htmlContent = `
-        <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 30px; background: white; color: #333; max-width: 800px; margin: 0 auto;">
-          <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #e91e8c; padding-bottom: 20px;">
-            <h1 style="color: #e91e8c; font-size: 28px; margin: 0 0 10px 0;">تقرير استشارة جلدية</h1>
-            <p style="color: #666; font-size: 14px; margin: 0;">
-              ${format(new Date(consultation.created_at), "dd MMMM yyyy - hh:mm a", { locale: ar })}
-            </p>
-            <span style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; margin-top: 10px; background: ${statusColors[consultation.status]?.includes('yellow') ? '#f59e0b' : statusColors[consultation.status]?.includes('blue') ? '#3b82f6' : statusColors[consultation.status]?.includes('green') ? '#22c55e' : '#ef4444'}; color: white;">
-              ${statusLabels[consultation.status]}
-            </span>
-          </div>
+  const handleDownloadPDF = (consultation: Consultation) => {
+    const fileName = `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`;
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-            <div style="background: #fdf2f8; padding: 20px; border-radius: 10px;">
-              <h3 style="color: #e91e8c; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #f9a8d4; padding-bottom: 8px;">📋 المعلومات الشخصية</h3>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>الاسم:</strong> ${consultation.full_name}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>الجنس:</strong> ${genderLabel}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>العمر:</strong> ${consultation.age} سنة</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>الهاتف:</strong> ${consultation.phone}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>الموقع:</strong> ${consultation.location}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>نوع البشرة:</strong> ${consultation.skin_type || "غير محدد"}</p>
-            </div>
-
-            <div style="background: #fef3c7; padding: 20px; border-radius: 10px;">
-              <h3 style="color: #d97706; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #fcd34d; padding-bottom: 8px;">🔍 المشاكل الرئيسية</h3>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>المشاكل:</strong> ${concerns}</p>
-              ${consultation.other_concern ? `<p style="margin: 8px 0; font-size: 13px;"><strong>مشكلة أخرى:</strong> ${consultation.other_concern}</p>` : ""}
-              <p style="margin: 8px 0; font-size: 13px;"><strong>مدة المشكلة:</strong> ${consultation.problem_duration}</p>
-              ${consultation.previous_treatment ? `<p style="margin: 8px 0; font-size: 13px;"><strong>علاج سابق:</strong> ${consultation.previous_treatment_details || "نعم"}</p>` : ""}
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-            <div style="background: #ecfdf5; padding: 20px; border-radius: 10px;">
-              <h3 style="color: #059669; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #6ee7b7; padding-bottom: 8px;">🧴 روتين العناية</h3>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>غسل الوجه:</strong> ${consultation.face_wash_frequency}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>نوع الغسول:</strong> ${consultation.cleanser_type || "غير محدد"}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>استخدام المرطب:</strong> ${consultation.uses_moisturizer ? "نعم ✓" : "لا ✗"}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>واقي الشمس:</strong> ${consultation.uses_sunscreen ? "نعم ✓" : "لا ✗"}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>استخدام السيروم:</strong> ${consultation.uses_serums ? "نعم ✓" : "لا ✗"}</p>
-              ${consultation.serum_details ? `<p style="margin: 8px 0; font-size: 13px;"><strong>تفاصيل السيروم:</strong> ${consultation.serum_details}</p>` : ""}
-            </div>
-
-            <div style="background: #eff6ff; padding: 20px; border-radius: 10px;">
-              <h3 style="color: #2563eb; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #93c5fd; padding-bottom: 8px;">🌿 نمط الحياة</h3>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>التعرض للشمس:</strong> ${consultation.sun_exposure}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>شرب الماء:</strong> ${consultation.daily_water_intake}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>نظام غذائي متوازن:</strong> ${consultation.balanced_diet ? "نعم ✓" : "لا ✗"}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>ضغط نفسي:</strong> ${consultation.stress_levels ? "نعم" : "لا"}</p>
-              <p style="margin: 8px 0; font-size: 13px;"><strong>التدخين/الكحول:</strong> ${consultation.smoking_alcohol ? "نعم" : "لا"}</p>
-              ${consultation.work_environment ? `<p style="margin: 8px 0; font-size: 13px;"><strong>بيئة العمل:</strong> ${consultation.work_environment}</p>` : ""}
-            </div>
-          </div>
-
-          ${consultation.gender === "female" ? `
-          <div style="background: #fdf4ff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-            <h3 style="color: #a855f7; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #e9d5ff; padding-bottom: 8px;">👩 معلومات صحية (للنساء)</h3>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>حبوب منع الحمل:</strong> ${consultation.uses_contraceptives ? "نعم" : "لا"}</p>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>حامل أو مرضع:</strong> ${consultation.is_pregnant_nursing ? "نعم" : "لا"}</p>
-          </div>
-          ` : ""}
-
-          <div style="background: #fef2f2; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-            <h3 style="color: #dc2626; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #fca5a5; padding-bottom: 8px;">🏥 المعلومات الصحية</h3>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>الأمراض المزمنة:</strong> ${consultation.chronic_diseases || "لا يوجد"}</p>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>الأدوية الحالية:</strong> ${consultation.current_medications || "لا يوجد"}</p>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>الحساسية:</strong> ${consultation.allergies || "لا يوجد"}</p>
-          </div>
-
-          <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-            <h3 style="color: #525252; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #d4d4d4; padding-bottom: 8px;">📝 التفضيلات</h3>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>نوع الاستشارة:</strong> ${consultation.consultation_preference}</p>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>وقت التواصل المفضل:</strong> ${consultation.preferred_contact_time}</p>
-            <p style="margin: 8px 0; font-size: 13px;"><strong>تفضيل المنتجات:</strong> ${consultation.product_preference}</p>
-          </div>
-
-          ${consultation.additional_notes ? `
-          <div style="background: #fffbeb; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-            <h3 style="color: #b45309; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #fde68a; padding-bottom: 8px;">📌 ملاحظات إضافية</h3>
-            <p style="margin: 8px 0; font-size: 13px;">${consultation.additional_notes}</p>
-          </div>
-          ` : ""}
-
-          ${consultation.image_urls && consultation.image_urls.length > 0 ? `
-          <div style="background: #f0fdf4; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-            <h3 style="color: #16a34a; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #86efac; padding-bottom: 8px;">📸 الصور المرفقة (${consultation.image_urls.length} صورة)</h3>
-            <p style="font-size: 12px; color: #666;">روابط الصور:</p>
-            ${consultation.image_urls.map((url: string, i: number) => `<p style="margin: 5px 0; font-size: 11px; word-break: break-all;">${i + 1}. <a href="${url}" style="color: #2563eb;">${url}</a></p>`).join("")}
-          </div>
-          ` : ""}
-
-          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e5e5;">
-            <p style="color: #888; font-size: 11px; margin: 0;">تم إنشاء هذا التقرير بواسطة نظام الاستشارات الجلدية</p>
-          </div>
-        </div>
-      `;
-
-      // Create a temporary container
-      const container = document.createElement("div");
-      container.innerHTML = htmlContent;
-      // Keep it inside the viewport (but invisible) to avoid huge canvas offsets
-      container.style.position = "fixed";
-      container.style.left = "0";
-      container.style.top = "0";
-      container.style.opacity = "0";
-      container.style.pointerEvents = "none";
-      container.style.width = "800px";
-      container.style.zIndex = "-1";
-      document.body.appendChild(container);
-
-      const fileName = `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`;
-
-      // Open a new tab immediately (some browsers block downloads after async work)
-      const previewWindow = window.open("", "_blank");
-      if (previewWindow) {
-        previewWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/><title>${fileName}</title></head><body style="font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial; padding: 16px;">جاري تجهيز ملف PDF...</body></html>`);
-        previewWindow.document.close();
-      } else {
-        toast.warning("قد يمنع المتصفح التحميل — يرجى السماح بفتح نافذة جديدة (Popups) لعرض/تحميل PDF");
-      }
-
-      const worker = html2pdf()
-        .set({
-          margin: 10,
-          filename: fileName,
-          image: { type: "jpeg" as const, quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
-        })
-        .from(container);
-
-      const blob = (await worker.toPdf().outputPdf("blob")) as Blob;
-      const url = URL.createObjectURL(blob);
-
-      // Try direct download
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      link.rel = "noopener";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      // Also show the PDF in the new tab (works even if downloads are blocked)
-      if (previewWindow) {
-        previewWindow.location.href = url;
-      } else {
-        // Fallback: open PDF in a new tab if popups are blocked
-        window.open(url, "_blank", "noopener,noreferrer");
-      }
-
-      document.body.removeChild(container);
-      toast.success("تم إنشاء ملف PDF");
-
-      // Cleanup object URL later
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast.error("حدث خطأ في إنشاء ملف PDF");
+    const w = window.open("", "_blank", "noopener,noreferrer");
+    if (!w) {
+      toast.warning("المتصفح منع فتح نافذة جديدة. يرجى السماح بـ Popups ثم حاول مرة أخرى.");
+      return;
     }
+
+    const genderLabel = consultation.gender === "female" ? "أنثى" : "ذكر";
+    const concerns = consultation.main_concerns?.map((c: string) => concernLabels[c] || c).join("، ") || "";
+
+    const statusHex: Record<string, string> = {
+      pending: "#f59e0b",
+      in_progress: "#3b82f6",
+      completed: "#22c55e",
+      cancelled: "#ef4444",
+    };
+
+    const reportHtml = `
+      <!doctype html>
+      <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>${fileName}</title>
+          <style>
+            @page { size: A4; margin: 12mm; }
+            * { box-sizing: border-box; }
+            body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif; color: #222; background: #fff; }
+            a { color: #2563eb; word-break: break-all; }
+            .no-print { position: sticky; top: 0; background: #111827; color: #fff; padding: 12px 14px; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+            .no-print .hint { font-size: 12px; opacity: .9; }
+            .btn { border: 0; background: #e91e8c; color: #fff; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+            .btn.secondary { background: rgba(255,255,255,.16); }
+            .wrap { padding: 22px; max-width: 900px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 18px; border-bottom: 3px solid #e91e8c; padding-bottom: 14px; }
+            .title { margin: 0; color: #e91e8c; font-size: 26px; }
+            .meta { margin: 8px 0 0; color: #666; font-size: 13px; }
+            .badge { display: inline-block; margin-top: 10px; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: #fff; background: ${statusHex[consultation.status] || "#6b7280"}; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+            .card { border: 1px solid #eee; border-radius: 12px; padding: 14px; }
+            .card h3 { margin: 0 0 10px; font-size: 15px; color: #374151; }
+            .row { margin: 7px 0; font-size: 13px; }
+            .row strong { color: #111827; }
+            .muted { color: #6b7280; }
+            .full { grid-column: 1 / -1; }
+            @media (max-width: 780px) { .grid { grid-template-columns: 1fr; } }
+            @media print { .no-print { display: none !important; } .wrap { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="no-print">
+            <div>
+              <div style="font-weight:700">تقرير الاستشارة</div>
+              <div class="hint">اضغط (طباعة/حفظ PDF) ثم اختر Save as PDF</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn secondary" id="closeBtn" type="button">إغلاق</button>
+              <button class="btn" id="printBtn" type="button">طباعة / حفظ PDF</button>
+            </div>
+          </div>
+
+          <main class="wrap">
+            <header class="header">
+              <h1 class="title">تقرير استشارة جلدية</h1>
+              <p class="meta">${format(new Date(consultation.created_at), "dd MMMM yyyy - hh:mm a", { locale: ar })}</p>
+              <span class="badge">${statusLabels[consultation.status] || consultation.status}</span>
+            </header>
+
+            <section class="grid">
+              <article class="card">
+                <h3>المعلومات الشخصية</h3>
+                <div class="row"><strong>الاسم:</strong> ${consultation.full_name}</div>
+                <div class="row"><strong>الجنس:</strong> ${genderLabel}</div>
+                <div class="row"><strong>العمر:</strong> ${consultation.age} سنة</div>
+                <div class="row"><strong>الهاتف:</strong> ${consultation.phone}</div>
+                <div class="row"><strong>الموقع:</strong> ${consultation.location}</div>
+                <div class="row"><strong>نوع البشرة:</strong> ${consultation.skin_type || "غير محدد"}</div>
+              </article>
+
+              <article class="card">
+                <h3>المشاكل الرئيسية</h3>
+                <div class="row"><strong>المشاكل:</strong> ${concerns}</div>
+                ${consultation.other_concern ? `<div class="row"><strong>مشكلة أخرى:</strong> ${consultation.other_concern}</div>` : ""}
+                <div class="row"><strong>مدة المشكلة:</strong> ${consultation.problem_duration}</div>
+                ${consultation.previous_treatment ? `<div class="row"><strong>علاج سابق:</strong> ${consultation.previous_treatment_details || "نعم"}</div>` : ""}
+              </article>
+
+              <article class="card">
+                <h3>روتين العناية</h3>
+                <div class="row"><strong>غسل الوجه:</strong> ${consultation.face_wash_frequency}</div>
+                <div class="row"><strong>نوع الغسول:</strong> ${consultation.cleanser_type || "غير محدد"}</div>
+                <div class="row"><strong>استخدام المرطب:</strong> ${consultation.uses_moisturizer ? "نعم" : "لا"}</div>
+                <div class="row"><strong>واقي الشمس:</strong> ${consultation.uses_sunscreen ? "نعم" : "لا"}</div>
+                <div class="row"><strong>استخدام السيروم:</strong> ${consultation.uses_serums ? "نعم" : "لا"}</div>
+                ${consultation.serum_details ? `<div class="row"><strong>تفاصيل السيروم:</strong> ${consultation.serum_details}</div>` : ""}
+              </article>
+
+              <article class="card">
+                <h3>نمط الحياة</h3>
+                <div class="row"><strong>التعرض للشمس:</strong> ${consultation.sun_exposure}</div>
+                <div class="row"><strong>شرب الماء:</strong> ${consultation.daily_water_intake}</div>
+                <div class="row"><strong>نظام غذائي متوازن:</strong> ${consultation.balanced_diet ? "نعم" : "لا"}</div>
+                <div class="row"><strong>ضغط نفسي:</strong> ${consultation.stress_levels ? "نعم" : "لا"}</div>
+                <div class="row"><strong>التدخين/الكحول:</strong> ${consultation.smoking_alcohol ? "نعم" : "لا"}</div>
+                ${consultation.work_environment ? `<div class="row"><strong>بيئة العمل:</strong> ${consultation.work_environment}</div>` : ""}
+              </article>
+
+              ${consultation.gender === "female" ? `
+                <article class="card full">
+                  <h3>معلومات صحية (للنساء)</h3>
+                  <div class="row"><strong>حبوب منع الحمل:</strong> ${consultation.uses_contraceptives ? "نعم" : "لا"}</div>
+                  <div class="row"><strong>حامل أو مرضع:</strong> ${consultation.is_pregnant_nursing ? "نعم" : "لا"}</div>
+                </article>
+              ` : ""}
+
+              <article class="card full">
+                <h3>المعلومات الصحية</h3>
+                <div class="row"><strong>الأمراض المزمنة:</strong> ${consultation.chronic_diseases || "لا يوجد"}</div>
+                <div class="row"><strong>الأدوية الحالية:</strong> ${consultation.current_medications || "لا يوجد"}</div>
+                <div class="row"><strong>الحساسية:</strong> ${consultation.allergies || "لا يوجد"}</div>
+              </article>
+
+              <article class="card full">
+                <h3>التفضيلات</h3>
+                <div class="row"><strong>نوع الاستشارة:</strong> ${consultation.consultation_preference}</div>
+                <div class="row"><strong>وقت التواصل المفضل:</strong> ${consultation.preferred_contact_time}</div>
+                <div class="row"><strong>تفضيل المنتجات:</strong> ${consultation.product_preference}</div>
+              </article>
+
+              ${consultation.additional_notes ? `
+                <article class="card full">
+                  <h3>ملاحظات إضافية</h3>
+                  <div class="row">${consultation.additional_notes}</div>
+                </article>
+              ` : ""}
+
+              ${consultation.image_urls && consultation.image_urls.length > 0 ? `
+                <article class="card full">
+                  <h3>روابط الصور المرفقة (${consultation.image_urls.length})</h3>
+                  <div class="row muted">(لتجنب بطء/تعليق التحميل، نعرض الروابط فقط)</div>
+                  ${consultation.image_urls
+                    .map((url: string, i: number) => `<div class="row">${i + 1}. <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a></div>`)
+                    .join("")}
+                </article>
+              ` : ""}
+            </section>
+          </main>
+
+          <script>
+            const printBtn = document.getElementById('printBtn');
+            const closeBtn = document.getElementById('closeBtn');
+            printBtn?.addEventListener('click', () => window.print());
+            closeBtn?.addEventListener('click', () => window.close());
+            window.addEventListener('load', () => setTimeout(() => window.print(), 400));
+          </script>
+        </body>
+      </html>
+    `;
+
+    w.document.open();
+    w.document.write(reportHtml);
+    w.document.close();
+
+    toast.success("تم فتح التقرير — اختر حفظ كـ PDF");
   };
 
   const handleSubmitResponse = async () => {
