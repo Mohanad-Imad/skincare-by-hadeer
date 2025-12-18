@@ -303,20 +303,26 @@ ${consultation.image_urls.map((url: string, i: number) => `${i + 1}. ${url}`).jo
       document.body.appendChild(container);
 
       // Generate PDF
-      const opt = {
-        margin: 10,
-        filename: `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`,
-        image: { type: "jpeg" as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
-      };
+      const fileName = `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`;
+      
+      const worker = html2pdf()
+        .set({
+          margin: 10,
+          filename: fileName,
+          image: { type: "jpeg" as const, quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
+        })
+        .from(container);
 
-      await html2pdf().set(opt).from(container).save();
-      
-      // Clean up
-      document.body.removeChild(container);
-      
-      toast.success("تم تحميل ملف PDF بنجاح");
+      worker.save().then(() => {
+        document.body.removeChild(container);
+        toast.success("تم تحميل ملف PDF بنجاح");
+      }).catch((err: Error) => {
+        console.error("PDF save error:", err);
+        document.body.removeChild(container);
+        toast.error("حدث خطأ في حفظ ملف PDF");
+      });
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast.error("حدث خطأ في إنشاء ملف PDF");
