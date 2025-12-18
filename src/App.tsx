@@ -32,6 +32,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Consultation from "./pages/Consultation";
 import AdminConsultations from "./pages/admin/AdminConsultations";
+import AdminConsultationPrint from "./pages/admin/AdminConsultationPrint";
 import CelebrityRoutines from "./pages/CelebrityRoutines";
 import CelebrityRoutineDetails from "./pages/CelebrityRoutineDetails";
 import AdminCelebrityRoutines from "./pages/admin/AdminCelebrityRoutines";
@@ -122,6 +123,7 @@ const App = () => (
           <Route path="/routine-builder" element={<RoutineBuilder />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/admin/consultations/print/:id" element={<AdminConsultationPrint />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
             <Route path="analytics" element={<AdminAnalytics />} />
