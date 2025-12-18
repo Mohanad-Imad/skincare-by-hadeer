@@ -8,10 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Eye, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { Loader2, Eye, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn, Copy, Download } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
+import jsPDF from "jspdf";
 
 interface Consultation {
   id: string;
@@ -101,6 +102,229 @@ export default function AdminConsultations() {
     setAdminNotes(consultation.admin_notes || "");
     setNewStatus(consultation.status);
     setIsRespondOpen(true);
+  };
+
+  const formatConsultationText = (consultation: Consultation) => {
+    const genderLabel = consultation.gender === "female" ? "أنثى" : "ذكر";
+    const concerns = consultation.main_concerns?.map((c: string) => concernLabels[c] || c).join("، ") || "";
+    
+    const text = `
+═══════════════════════════════════════
+      تقرير استشارة جلدية
+═══════════════════════════════════════
+
+📋 المعلومات الشخصية:
+━━━━━━━━━━━━━━━━━━━━
+• الاسم: ${consultation.full_name}
+• الجنس: ${genderLabel}
+• العمر: ${consultation.age} سنة
+• الهاتف: ${consultation.phone}
+• الموقع: ${consultation.location}
+• نوع البشرة: ${consultation.skin_type || "غير محدد"}
+
+🔍 المشاكل الرئيسية:
+━━━━━━━━━━━━━━━━━━━━
+${concerns}
+${consultation.other_concern ? `• مشكلة أخرى: ${consultation.other_concern}` : ""}
+• مدة المشكلة: ${consultation.problem_duration}
+${consultation.previous_treatment ? `• علاج سابق: ${consultation.previous_treatment_details || "نعم"}` : ""}
+
+🧴 روتين العناية الحالي:
+━━━━━━━━━━━━━━━━━━━━
+• غسل الوجه: ${consultation.face_wash_frequency}
+• نوع الغسول: ${consultation.cleanser_type || "غير محدد"}
+• استخدام المرطب: ${consultation.uses_moisturizer ? "نعم" : "لا"}
+${consultation.moisturizer_type ? `• نوع المرطب: ${consultation.moisturizer_type}` : ""}
+• استخدام واقي الشمس: ${consultation.uses_sunscreen ? "نعم" : "لا"}
+• استخدام السيروم: ${consultation.uses_serums ? "نعم" : "لا"}
+${consultation.serum_details ? `• تفاصيل السيروم: ${consultation.serum_details}` : ""}
+${consultation.removes_makeup ? `• إزالة المكياج: ${consultation.removes_makeup}` : ""}
+
+🌿 نمط الحياة:
+━━━━━━━━━━━━━━━━━━━━
+• التعرض للشمس: ${consultation.sun_exposure}
+• شرب الماء يومياً: ${consultation.daily_water_intake}
+• نظام غذائي متوازن: ${consultation.balanced_diet ? "نعم" : "لا"}
+• ضغط نفسي: ${consultation.stress_levels ? "نعم" : "لا"}
+• التدخين/الكحول: ${consultation.smoking_alcohol ? "نعم" : "لا"}
+${consultation.work_environment ? `• بيئة العمل: ${consultation.work_environment}` : ""}
+
+${consultation.gender === "female" ? `👩 معلومات صحية (للنساء):
+━━━━━━━━━━━━━━━━━━━━
+• حبوب منع الحمل: ${consultation.uses_contraceptives ? "نعم" : "لا"}
+• حامل أو مرضع: ${consultation.is_pregnant_nursing ? "نعم" : "لا"}
+` : ""}
+
+🏥 المعلومات الصحية:
+━━━━━━━━━━━━━━━━━━━━
+${consultation.chronic_diseases ? `• الأمراض المزمنة: ${consultation.chronic_diseases}` : "• الأمراض المزمنة: لا يوجد"}
+${consultation.current_medications ? `• الأدوية الحالية: ${consultation.current_medications}` : "• الأدوية الحالية: لا يوجد"}
+${consultation.allergies ? `• الحساسية: ${consultation.allergies}` : "• الحساسية: لا يوجد"}
+
+📝 التفضيلات:
+━━━━━━━━━━━━━━━━━━━━
+• نوع الاستشارة: ${consultation.consultation_preference}
+• وقت التواصل المفضل: ${consultation.preferred_contact_time}
+• تفضيل المنتجات: ${consultation.product_preference}
+
+${consultation.additional_notes ? `📌 ملاحظات إضافية:
+━━━━━━━━━━━━━━━━━━━━
+${consultation.additional_notes}` : ""}
+
+${consultation.image_urls && consultation.image_urls.length > 0 ? `📸 الصور المرفقة: ${consultation.image_urls.length} صورة
+━━━━━━━━━━━━━━━━━━━━
+${consultation.image_urls.map((url: string, i: number) => `${i + 1}. ${url}`).join("\n")}` : ""}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+تاريخ الاستشارة: ${format(new Date(consultation.created_at), "dd MMMM yyyy - hh:mm a", { locale: ar })}
+حالة الاستشارة: ${statusLabels[consultation.status]}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+    return text.trim();
+  };
+
+  const handleCopyConsultation = (consultation: Consultation) => {
+    const text = formatConsultationText(consultation);
+    navigator.clipboard.writeText(text);
+    toast.success("تم نسخ معلومات الاستشارة");
+  };
+
+  const handleDownloadPDF = async (consultation: Consultation) => {
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Add Arabic font support - using built-in Helvetica for simplicity
+      doc.setFont("Helvetica");
+      
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 15;
+      let yPos = 20;
+      const lineHeight = 7;
+      
+      // Helper function to add text with RTL support
+      const addLine = (text: string, isBold = false, fontSize = 10) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.setFontSize(fontSize);
+        // Reverse text for RTL display (basic approach)
+        const reversedText = text.split("").reverse().join("");
+        doc.text(reversedText, pageWidth - margin, yPos, { align: "left" });
+        yPos += lineHeight;
+      };
+
+      const addSection = (title: string, items: { label: string; value: string }[]) => {
+        yPos += 3;
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        const reversedTitle = title.split("").reverse().join("");
+        doc.text(reversedTitle, pageWidth - margin, yPos, { align: "left" });
+        yPos += 8;
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        
+        items.forEach(item => {
+          if (item.value) {
+            const line = `${item.value} :${item.label}`;
+            const reversedLine = line.split("").reverse().join("");
+            if (yPos > 270) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(reversedLine, pageWidth - margin, yPos, { align: "left" });
+            yPos += lineHeight;
+          }
+        });
+      };
+
+      // Title
+      doc.setFontSize(18);
+      doc.setTextColor(150, 50, 100);
+      const title = "تقرير استشارة جلدية";
+      const reversedTitle = title.split("").reverse().join("");
+      doc.text(reversedTitle, pageWidth / 2, yPos, { align: "center" });
+      yPos += 15;
+      doc.setTextColor(0, 0, 0);
+
+      // Date
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      const dateStr = format(new Date(consultation.created_at), "dd/MM/yyyy - hh:mm a", { locale: ar });
+      doc.text(dateStr, pageWidth / 2, yPos, { align: "center" });
+      yPos += 10;
+      doc.setTextColor(0, 0, 0);
+
+      // Personal Info
+      addSection("المعلومات الشخصية", [
+        { label: "الاسم", value: consultation.full_name },
+        { label: "الجنس", value: consultation.gender === "female" ? "أنثى" : "ذكر" },
+        { label: "العمر", value: `${consultation.age} سنة` },
+        { label: "الهاتف", value: consultation.phone },
+        { label: "الموقع", value: consultation.location },
+        { label: "نوع البشرة", value: consultation.skin_type || "غير محدد" },
+      ]);
+
+      // Main concerns
+      const concerns = consultation.main_concerns?.map((c: string) => concernLabels[c] || c).join("، ") || "";
+      addSection("المشاكل الرئيسية", [
+        { label: "المشاكل", value: concerns },
+        { label: "مشكلة أخرى", value: consultation.other_concern || "" },
+        { label: "مدة المشكلة", value: consultation.problem_duration },
+        { label: "علاج سابق", value: consultation.previous_treatment ? (consultation.previous_treatment_details || "نعم") : "" },
+      ]);
+
+      // Skincare routine
+      addSection("روتين العناية", [
+        { label: "غسل الوجه", value: consultation.face_wash_frequency },
+        { label: "نوع الغسول", value: consultation.cleanser_type || "" },
+        { label: "استخدام المرطب", value: consultation.uses_moisturizer ? "نعم" : "لا" },
+        { label: "واقي الشمس", value: consultation.uses_sunscreen ? "نعم" : "لا" },
+        { label: "استخدام السيروم", value: consultation.uses_serums ? "نعم" : "لا" },
+      ]);
+
+      // Lifestyle
+      addSection("نمط الحياة", [
+        { label: "التعرض للشمس", value: consultation.sun_exposure },
+        { label: "شرب الماء", value: consultation.daily_water_intake },
+        { label: "نظام غذائي متوازن", value: consultation.balanced_diet ? "نعم" : "لا" },
+        { label: "ضغط نفسي", value: consultation.stress_levels ? "نعم" : "لا" },
+        { label: "التدخين/الكحول", value: consultation.smoking_alcohol ? "نعم" : "لا" },
+      ]);
+
+      // Health info
+      addSection("المعلومات الصحية", [
+        { label: "الأمراض المزمنة", value: consultation.chronic_diseases || "لا يوجد" },
+        { label: "الأدوية الحالية", value: consultation.current_medications || "لا يوجد" },
+        { label: "الحساسية", value: consultation.allergies || "لا يوجد" },
+      ]);
+
+      // Preferences
+      addSection("التفضيلات", [
+        { label: "نوع الاستشارة", value: consultation.consultation_preference },
+        { label: "وقت التواصل", value: consultation.preferred_contact_time },
+        { label: "تفضيل المنتجات", value: consultation.product_preference },
+      ]);
+
+      // Additional notes
+      if (consultation.additional_notes) {
+        addSection("ملاحظات إضافية", [
+          { label: "الملاحظات", value: consultation.additional_notes },
+        ]);
+      }
+
+      // Save the PDF
+      const fileName = `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`;
+      doc.save(fileName);
+      toast.success("تم تحميل ملف PDF");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("حدث خطأ في إنشاء ملف PDF");
+    }
   };
 
   const handleSubmitResponse = async () => {
@@ -377,6 +601,26 @@ export default function AdminConsultations() {
                   <p><span className="text-muted-foreground">وقت التواصل المفضل:</span> {selectedConsultation.preferred_contact_time}</p>
                   <p><span className="text-muted-foreground">تفضيل المنتجات:</span> {selectedConsultation.product_preference}</p>
                 </div>
+              </div>
+
+              {/* أزرار النسخ والتحميل */}
+              <div className="flex flex-wrap gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => handleCopyConsultation(selectedConsultation)}
+                  className="flex-1 min-w-[140px]"
+                >
+                  <Copy className="ml-2 h-4 w-4" />
+                  نسخ المعلومات
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleDownloadPDF(selectedConsultation)}
+                  className="flex-1 min-w-[140px]"
+                >
+                  <Download className="ml-2 h-4 w-4" />
+                  تحميل PDF
+                </Button>
               </div>
             </div>
           )}
