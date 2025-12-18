@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Copy, Check } from "lucide-react";
+import { Plus, Edit, Trash2, X, ChevronLeft, ChevronRight, Copy, Check, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import {
   Accordion,
   AccordionContent,
@@ -740,6 +741,68 @@ const AdminProducts = () => {
     }
   };
 
+  const handleExportExcel = async () => {
+    toast.info("جاري تجهيز ملف Excel...");
+    
+    try {
+      // جلب المنتجات مع المتغيرات
+      const { data: productsWithVariants, error } = await supabase
+        .from("products")
+        .select(`
+          *,
+          product_variants (*)
+        `)
+        .order("name_ar");
+      
+      if (error) throw error;
+      
+      // تجهيز البيانات للإكسل
+      const excelData = productsWithVariants?.flatMap((product) => {
+        if (product.product_variants && product.product_variants.length > 0) {
+          return product.product_variants.map((variant: any) => ({
+            "معرّف المنتج": product.id,
+            "اسم المنتج": product.name_ar,
+            "الشركة": product.company_name_ar || "-",
+            "الحجم": variant.size_ar,
+            "السعر": variant.price,
+            "الكمية المتوفرة": variant.stock_quantity,
+            "SKU": variant.sku || "-",
+            "مميز": product.is_featured ? "نعم" : "لا",
+            "وصل حديثاً": product.is_new_arrival ? "نعم" : "لا",
+            "اختيار الخبراء": product.is_expert_choice ? "نعم" : "لا",
+            "نشط": product.is_active ? "نعم" : "لا",
+          }));
+        }
+        return [{
+          "معرّف المنتج": product.id,
+          "اسم المنتج": product.name_ar,
+          "الشركة": product.company_name_ar || "-",
+          "الحجم": "-",
+          "السعر": "-",
+          "الكمية المتوفرة": "-",
+          "SKU": "-",
+          "مميز": product.is_featured ? "نعم" : "لا",
+          "وصل حديثاً": product.is_new_arrival ? "نعم" : "لا",
+          "اختيار الخبراء": product.is_expert_choice ? "نعم" : "لا",
+          "نشط": product.is_active ? "نعم" : "لا",
+        }];
+      }) || [];
+      
+      // إنشاء ملف Excel
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "المنتجات");
+      
+      // تحميل الملف
+      XLSX.writeFile(workbook, `جرد_المنتجات_${new Date().toLocaleDateString("ar-EG")}.xlsx`);
+      
+      toast.success("تم تحميل ملف Excel بنجاح");
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      toast.error("حدث خطأ أثناء تصدير الملف");
+    }
+  };
+
   if (isLoading) return <div>جاري التحميل...</div>;
 
   return (
@@ -747,489 +810,570 @@ const AdminProducts = () => {
       <AdminBackButton />
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">إدارة المنتجات</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="ml-2 h-4 w-4" />
-              إضافة منتج جديد
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingProduct ? "تعديل منتج" : "إضافة منتج جديد"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name_ar">اسم المنتج</Label>
-                <Input
-                  id="name_ar"
-                  value={formData.name_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name_ar: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company_name_ar">اسم الشركة</Label>
-                <Input
-                  id="company_name_ar"
-                  value={formData.company_name_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company_name_ar: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_ar">الوصف</Label>
-                <Textarea
-                  id="description_ar"
-                  value={formData.description_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description_ar: e.target.value })
-                  }
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="product_type">نوع المنتج</Label>
-                <Select
-                  value={formData.product_type}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, product_type: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر نوع المنتج" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="skincare">العناية بالبشرة</SelectItem>
-                    <SelectItem value="watches">ساعات</SelectItem>
-                    <SelectItem value="clothing">ملابس</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>صور المنتج (حد أقصى 5 صور)</Label>
-                <div className="space-y-3">
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportExcel}>
+            <Download className="ml-2 h-4 w-4" />
+            تصدير Excel
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm}>
+                <Plus className="ml-2 h-4 w-4" />
+                إضافة منتج جديد
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingProduct ? "تعديل منتج" : "إضافة منتج جديد"}
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name_ar">اسم المنتج</Label>
+                  <Input
+                    id="name_ar"
+                    value={formData.name_ar}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name_ar: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company_name_ar">اسم الشركة</Label>
+                  <Input
+                    id="company_name_ar"
+                    value={formData.company_name_ar}
+                    onChange={(e) =>
+                      setFormData({ ...formData, company_name_ar: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description_ar">الوصف</Label>
+                  <Textarea
+                    id="description_ar"
+                    value={formData.description_ar}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description_ar: e.target.value })
+                    }
+                    rows={3}
+                  />
+                </div>
+
+                {/* قسم رفع الصور */}
+                <div className="space-y-2">
+                  <Label>صور المنتج (يمكنك رفع حتى 5 صور، الحد الأقصى 2 ميجابايت لكل صورة)</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={uploadingImages || productImages.length >= 5}
+                    onChange={handleImageUpload}
+                  />
+                  {uploadingImages && <p className="text-sm text-muted-foreground">جاري رفع الصور...</p>}
+                  
                   {productImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {productImages.map((img, index) => (
-                        <div key={index} className="relative aspect-square">
+                        <div key={index} className="relative">
                           <img
                             src={img.url}
                             alt={`صورة ${index + 1}`}
-                            className="h-full w-full rounded object-cover"
+                            className={`w-20 h-20 object-cover rounded border-2 ${
+                              index === 0 ? "border-primary" : "border-muted"
+                            }`}
                           />
-                          <Button
+                          {index === 0 && (
+                            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-1 rounded">
+                              الرئيسية
+                            </span>
+                          )}
+                          <button
                             type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute left-1 top-1 h-6 w-6"
                             onClick={() => handleRemoveImage(index)}
+                            className="absolute -top-1 -left-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs"
                           >
-                            <X className="h-4 w-4" />
-                          </Button>
-                          <span className="absolute bottom-1 right-1 rounded bg-black/50 px-2 py-0.5 text-xs text-white">
-                            {index + 1}
-                          </span>
+                            ×
+                          </button>
                         </div>
                       ))}
                     </div>
                   )}
-                  {productImages.length < 5 && (
-                    <div>
-                      <Input
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                        multiple
-                        onChange={handleImageUpload}
-                        disabled={uploadingImages}
-                      />
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        تم رفع {productImages.length} من 5 صور • حجم كل صورة: 500 KB كحد أقصى
-                      </p>
-                    </div>
-                  )}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="parent_category">القسم الرئيسي</Label>
-                <Select
-                  value={parentCategoryId}
-                  onValueChange={(value) => {
-                    setParentCategoryId(value);
-                    setFormData({ ...formData, category_id: "" });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر القسم الرئيسي" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {parentCategories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name_ar}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {parentCategoryId && (
+
                 <div className="space-y-2">
-                  <Label htmlFor="category_id">القسم الفرعي</Label>
+                  <Label htmlFor="product_type">نوع المنتج</Label>
                   <Select
-                    value={formData.category_id}
+                    value={formData.product_type}
                     onValueChange={(value) =>
-                      setFormData({ ...formData, category_id: value })
+                      setFormData({ ...formData, product_type: value })
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر القسم الفرعي" />
+                      <SelectValue placeholder="اختر نوع المنتج" />
                     </SelectTrigger>
                     <SelectContent>
-                      {subCategories.length > 0 ? (
-                        subCategories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            {cat.name_ar}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="p-2 text-sm text-muted-foreground text-center">
-                          لا توجد أقسام فرعية لهذا القسم
-                        </div>
-                      )}
+                      <SelectItem value="skincare">عناية بالبشرة</SelectItem>
+                      <SelectItem value="watches">ساعات</SelectItem>
+                      <SelectItem value="clothing">ملابس</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              )}
-              
-              {formData.product_type === "skincare" && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>مناسب لنوع البشرة</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const allSelected = skinTypes.every(t => formData.skin_type.includes(t.value));
-                        if (allSelected) {
-                          setFormData({ ...formData, skin_type: [] });
-                        } else {
-                          setFormData({ ...formData, skin_type: skinTypes.map(t => t.value) });
-                        }
-                      }}
-                    >
-                      {skinTypes.every(t => formData.skin_type.includes(t.value)) ? "إلغاء الكل" : "تحديد الكل"}
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {skinTypes.map((type) => (
-                      <div key={type.value} className="flex items-center space-x-2 space-x-reverse">
-                        <Checkbox
-                          id={type.value}
-                          checked={formData.skin_type.includes(type.value)}
-                          onCheckedChange={() => toggleSkinType(type.value)}
-                        />
-                        <Label htmlFor={type.value} className="cursor-pointer">
-                          {type.label_ar}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {formData.product_type === "watches" && (
-                <div className="space-y-4 border-t pt-4">
-                  <Label className="text-lg font-semibold">مواصفات الساعة</Label>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>نوع الحركة</Label>
-                      <Input
-                        value={watchAttributes.movement_type}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, movement_type: e.target.value})}
-                        placeholder="مثال: أوتوماتيك، كوارتز"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>مادة العلبة</Label>
-                      <Input
-                        value={watchAttributes.case_material}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, case_material: e.target.value})}
-                        placeholder="مثال: ستانلس ستيل، ذهب"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>قطر العلبة</Label>
-                      <Input
-                        value={watchAttributes.case_diameter}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, case_diameter: e.target.value})}
-                        placeholder="مثال: 42mm"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>مقاومة الماء</Label>
-                      <Input
-                        value={watchAttributes.water_resistance}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, water_resistance: e.target.value})}
-                        placeholder="مثال: 50 متر"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>نوع السوار</Label>
-                      <Input
-                        value={watchAttributes.strap_type}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, strap_type: e.target.value})}
-                        placeholder="مثال: جلد، معدني"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>لون السوار</Label>
-                      <Input
-                        value={watchAttributes.strap_color}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, strap_color: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>لون القرص</Label>
-                      <Input
-                        value={watchAttributes.dial_color}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, dial_color: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>فترة الضمان (بالسنوات)</Label>
-                      <Input
-                        type="number"
-                        value={watchAttributes.warranty_years}
-                        onChange={(e) => setWatchAttributes({...watchAttributes, warranty_years: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {formData.product_type === "clothing" && (
-                <div className="space-y-4 border-t pt-4">
-                  <Label className="text-lg font-semibold">مواصفات الملابس</Label>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>المقاسات المتوفرة</Label>
-                      <Input
-                        value={clothingAttributes.available_sizes.join(", ")}
-                        onChange={(e) => setClothingAttributes({
-                          ...clothingAttributes, 
-                          available_sizes: e.target.value.split(",").map(s => s.trim()).filter(s => s)
-                        })}
-                        placeholder="مثال: S, M, L, XL"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>الألوان المتوفرة</Label>
-                      <Input
-                        value={clothingAttributes.available_colors.join(", ")}
-                        onChange={(e) => setClothingAttributes({
-                          ...clothingAttributes, 
-                          available_colors: e.target.value.split(",").map(s => s.trim()).filter(s => s)
-                        })}
-                        placeholder="مثال: أسود, أبيض, أزرق"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>المادة</Label>
-                      <Input
-                        value={clothingAttributes.material}
-                        onChange={(e) => setClothingAttributes({...clothingAttributes, material: e.target.value})}
-                        placeholder="مثال: قطن، بوليستر"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>نوع القصة</Label>
-                      <Input
-                        value={clothingAttributes.fit_type}
-                        onChange={(e) => setClothingAttributes({...clothingAttributes, fit_type: e.target.value})}
-                        placeholder="مثال: slim fit, regular"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>الموسم</Label>
-                      <Input
-                        value={clothingAttributes.season}
-                        onChange={(e) => setClothingAttributes({...clothingAttributes, season: e.target.value})}
-                        placeholder="مثال: صيفي، شتوي"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>تعليمات العناية</Label>
-                      <Textarea
-                        value={clothingAttributes.care_instructions}
-                        onChange={(e) => setClothingAttributes({...clothingAttributes, care_instructions: e.target.value})}
-                        placeholder="مثال: غسيل يدوي، لا يوضع في المجفف"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {problemCategories && problemCategories.length > 0 && (
-                <div className="space-y-3 border-t pt-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-lg font-semibold">مناسب لعلاج المشاكل التالية</Label>
-                    {selectedSubProblems.length > 0 && (
-                      <span className="text-sm text-muted-foreground bg-primary/10 px-2 py-1 rounded-full">
-                        {selectedSubProblems.length} مشكلة مختارة
-                      </span>
-                    )}
-                  </div>
-                  <Accordion type="multiple" className="w-full">
-                    {problemCategories.map((category) => {
-                      const selectedInCategory = category.sub_problems?.filter(
-                        (sp: any) => selectedSubProblems.includes(sp.id)
-                      ).length || 0;
-                      
-                      return (
-                        <AccordionItem key={category.id} value={category.id} className="border rounded-lg mb-2 px-3">
-                          <AccordionTrigger className="hover:no-underline py-3">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{category.name_ar}</span>
-                              {selectedInCategory > 0 && (
-                                <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                                  {selectedInCategory}
-                                </span>
-                              )}
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="grid grid-cols-2 gap-2 py-2">
-                              {category.sub_problems?.map((subProblem: any) => (
-                                <div key={subProblem.id} className="flex items-center space-x-2 space-x-reverse">
-                                  <Checkbox
-                                    id={subProblem.id}
-                                    checked={selectedSubProblems.includes(subProblem.id)}
-                                    onCheckedChange={() => {
-                                      setSelectedSubProblems(prev =>
-                                        prev.includes(subProblem.id)
-                                          ? prev.filter(id => id !== subProblem.id)
-                                          : [...prev, subProblem.id]
-                                      );
-                                    }}
-                                  />
-                                  <Label htmlFor={subProblem.id} className="cursor-pointer text-sm">
-                                    {subProblem.name_ar}
-                                  </Label>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      );
-                    })}
-                  </Accordion>
-                </div>
-              )}
-              
-              <div className="space-y-4 border-t pt-4">
-                <Label className="text-lg font-semibold">الأحجام والأسعار</Label>
-                {variants.length > 0 && (
-                  <div className="space-y-2">
-                    {variants.map((variant, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 border rounded">
-                        <span className="flex-1">
-                          {variant.size_ar} - {Math.round(variant.price)} د.ع - المخزون: {variant.stock_quantity}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveVariant(index)}
+
+                {/* خصائص الساعات */}
+                {formData.product_type === "watches" && (
+                  <div className="space-y-4 border p-4 rounded-lg bg-muted/30">
+                    <Label className="text-lg font-semibold">خصائص الساعة</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>نوع الحركة</Label>
+                        <Select
+                          value={watchAttributes.movement_type}
+                          onValueChange={(value) =>
+                            setWatchAttributes({ ...watchAttributes, movement_type: value })
+                          }
                         >
-                          <X className="h-4 w-4" />
-                        </Button>
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر نوع الحركة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="automatic">أوتوماتيك</SelectItem>
+                            <SelectItem value="quartz">كوارتز</SelectItem>
+                            <SelectItem value="mechanical">ميكانيكية</SelectItem>
+                            <SelectItem value="solar">طاقة شمسية</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                    ))}
+                      <div className="space-y-2">
+                        <Label>مادة العلبة</Label>
+                        <Select
+                          value={watchAttributes.case_material}
+                          onValueChange={(value) =>
+                            setWatchAttributes({ ...watchAttributes, case_material: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر مادة العلبة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="stainless_steel">ستانلس ستيل</SelectItem>
+                            <SelectItem value="gold">ذهب</SelectItem>
+                            <SelectItem value="titanium">تيتانيوم</SelectItem>
+                            <SelectItem value="ceramic">سيراميك</SelectItem>
+                            <SelectItem value="plastic">بلاستيك</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>قطر العلبة (مم)</Label>
+                        <Input
+                          value={watchAttributes.case_diameter}
+                          onChange={(e) =>
+                            setWatchAttributes({ ...watchAttributes, case_diameter: e.target.value })
+                          }
+                          placeholder="مثال: 42mm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>مقاومة الماء</Label>
+                        <Select
+                          value={watchAttributes.water_resistance}
+                          onValueChange={(value) =>
+                            setWatchAttributes({ ...watchAttributes, water_resistance: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر مقاومة الماء" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">غير مقاوم</SelectItem>
+                            <SelectItem value="30m">30 متر</SelectItem>
+                            <SelectItem value="50m">50 متر</SelectItem>
+                            <SelectItem value="100m">100 متر</SelectItem>
+                            <SelectItem value="200m">200 متر</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>نوع السوار</Label>
+                        <Select
+                          value={watchAttributes.strap_type}
+                          onValueChange={(value) =>
+                            setWatchAttributes({ ...watchAttributes, strap_type: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر نوع السوار" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="leather">جلد</SelectItem>
+                            <SelectItem value="metal">معدن</SelectItem>
+                            <SelectItem value="rubber">مطاط</SelectItem>
+                            <SelectItem value="fabric">قماش</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>لون السوار</Label>
+                        <Input
+                          value={watchAttributes.strap_color}
+                          onChange={(e) =>
+                            setWatchAttributes({ ...watchAttributes, strap_color: e.target.value })
+                          }
+                          placeholder="مثال: أسود"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>لون المينا</Label>
+                        <Input
+                          value={watchAttributes.dial_color}
+                          onChange={(e) =>
+                            setWatchAttributes({ ...watchAttributes, dial_color: e.target.value })
+                          }
+                          placeholder="مثال: أزرق"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>سنوات الضمان</Label>
+                        <Input
+                          type="number"
+                          value={watchAttributes.warranty_years}
+                          onChange={(e) =>
+                            setWatchAttributes({ ...watchAttributes, warranty_years: e.target.value })
+                          }
+                          placeholder="مثال: 2"
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
-                <div className="grid grid-cols-3 gap-2">
-                  <Input
-                    placeholder="الحجم"
-                    value={newVariant.size_ar}
-                    onChange={(e) =>
-                      setNewVariant({ ...newVariant, size_ar: e.target.value })
-                    }
-                  />
-                  <Input
-                    type="number"
-                    placeholder="السعر"
-                    value={newVariant.price}
-                    onChange={(e) =>
-                      setNewVariant({ ...newVariant, price: e.target.value })
-                    }
-                  />
-                  <Input
-                    type="number"
-                    placeholder="الكمية في المخزون"
-                    value={newVariant.stock_quantity}
-                    onChange={(e) =>
-                      setNewVariant({ ...newVariant, stock_quantity: e.target.value })
-                    }
-                  />
+
+                {/* خصائص الملابس */}
+                {formData.product_type === "clothing" && (
+                  <div className="space-y-4 border p-4 rounded-lg bg-muted/30">
+                    <Label className="text-lg font-semibold">خصائص الملابس</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>المقاسات المتاحة</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {["XS", "S", "M", "L", "XL", "XXL", "3XL"].map((size) => (
+                            <label key={size} className="flex items-center gap-1">
+                              <Checkbox
+                                checked={clothingAttributes.available_sizes.includes(size)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setClothingAttributes({
+                                      ...clothingAttributes,
+                                      available_sizes: [...clothingAttributes.available_sizes, size],
+                                    });
+                                  } else {
+                                    setClothingAttributes({
+                                      ...clothingAttributes,
+                                      available_sizes: clothingAttributes.available_sizes.filter(
+                                        (s) => s !== size
+                                      ),
+                                    });
+                                  }
+                                }}
+                              />
+                              <span className="text-sm">{size}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>الألوان المتاحة</Label>
+                        <Input
+                          value={clothingAttributes.available_colors.join(", ")}
+                          onChange={(e) =>
+                            setClothingAttributes({
+                              ...clothingAttributes,
+                              available_colors: e.target.value.split(",").map((c) => c.trim()),
+                            })
+                          }
+                          placeholder="أحمر, أسود, أبيض"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>الخامة</Label>
+                        <Input
+                          value={clothingAttributes.material}
+                          onChange={(e) =>
+                            setClothingAttributes({ ...clothingAttributes, material: e.target.value })
+                          }
+                          placeholder="مثال: قطن 100%"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>نوع القصة</Label>
+                        <Select
+                          value={clothingAttributes.fit_type}
+                          onValueChange={(value) =>
+                            setClothingAttributes({ ...clothingAttributes, fit_type: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر نوع القصة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="slim">ضيق</SelectItem>
+                            <SelectItem value="regular">عادي</SelectItem>
+                            <SelectItem value="loose">واسع</SelectItem>
+                            <SelectItem value="oversized">أوفرسايز</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>الموسم</Label>
+                        <Select
+                          value={clothingAttributes.season}
+                          onValueChange={(value) =>
+                            setClothingAttributes({ ...clothingAttributes, season: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر الموسم" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="spring">ربيع</SelectItem>
+                            <SelectItem value="summer">صيف</SelectItem>
+                            <SelectItem value="fall">خريف</SelectItem>
+                            <SelectItem value="winter">شتاء</SelectItem>
+                            <SelectItem value="all">جميع المواسم</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2 col-span-2">
+                        <Label>تعليمات العناية</Label>
+                        <Textarea
+                          value={clothingAttributes.care_instructions}
+                          onChange={(e) =>
+                            setClothingAttributes({
+                              ...clothingAttributes,
+                              care_instructions: e.target.value,
+                            })
+                          }
+                          placeholder="مثال: غسيل يدوي بماء بارد"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="parent_category">التصنيف الرئيسي</Label>
+                  <Select
+                    value={parentCategoryId}
+                    onValueChange={(value) => {
+                      setParentCategoryId(value);
+                      setFormData({ ...formData, category_id: "" });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر التصنيف الرئيسي" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parentCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name_ar}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button type="button" variant="outline" onClick={handleAddVariant} className="w-full">
-                  <Plus className="ml-2 h-4 w-4" />
-                  إضافة حجم وسعر
+
+                {parentCategoryId && subCategories.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="category_id">التصنيف الفرعي</Label>
+                    <Select
+                      value={formData.category_id}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, category_id: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر التصنيف الفرعي" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subCategories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name_ar}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {formData.product_type === "skincare" && (
+                  <div className="space-y-2">
+                    <Label>نوع البشرة</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {skinTypes.map((type) => (
+                        <Button
+                          key={type.value}
+                          type="button"
+                          variant={formData.skin_type.includes(type.value) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleSkinType(type.value)}
+                        >
+                          {type.label_ar}
+                        </Button>
+                      ))}
+                    </div>
+                    {formData.skin_type.length > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        تم اختيار: {formData.skin_type.map(st => skinTypes.find(t => t.value === st)?.label_ar).join("، ")}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* قسم المشاكل */}
+                {formData.product_type === "skincare" && problemCategories && problemCategories.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>المشاكل التي يعالجها المنتج</Label>
+                    <Accordion type="multiple" className="w-full">
+                      {problemCategories.map((category: any) => {
+                        if (!category.sub_problems || category.sub_problems.length === 0) return null;
+                        return (
+                          <AccordionItem key={category.id} value={category.id}>
+                            <AccordionTrigger className="text-sm">
+                              {category.name_ar}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <div className="space-y-2 pr-4">
+                                {category.sub_problems.map((subProblem: any) => (
+                                  <div key={subProblem.id} className="flex items-center gap-2">
+                                    <Checkbox
+                                      id={subProblem.id}
+                                      checked={selectedSubProblems.includes(subProblem.id)}
+                                      onCheckedChange={() => {
+                                        setSelectedSubProblems(prev =>
+                                          prev.includes(subProblem.id)
+                                            ? prev.filter(id => id !== subProblem.id)
+                                            : [...prev, subProblem.id]
+                                        );
+                                      }}
+                                    />
+                                    <Label htmlFor={subProblem.id} className="cursor-pointer text-sm">
+                                      {subProblem.name_ar}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
+                  </div>
+                )}
+                
+                <div className="space-y-4 border-t pt-4">
+                  <Label className="text-lg font-semibold">الأحجام والأسعار</Label>
+                  {variants.length > 0 && (
+                    <div className="space-y-2">
+                      {variants.map((variant, index) => (
+                        <div key={index} className="flex items-center gap-2 p-2 border rounded">
+                          <span className="flex-1">
+                            {variant.size_ar} - {Math.round(variant.price)} د.ع - المخزون: {variant.stock_quantity}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveVariant(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input
+                      placeholder="الحجم"
+                      value={newVariant.size_ar}
+                      onChange={(e) =>
+                        setNewVariant({ ...newVariant, size_ar: e.target.value })
+                      }
+                    />
+                    <Input
+                      type="number"
+                      placeholder="السعر"
+                      value={newVariant.price}
+                      onChange={(e) =>
+                        setNewVariant({ ...newVariant, price: e.target.value })
+                      }
+                    />
+                    <Input
+                      type="number"
+                      placeholder="الكمية"
+                      value={newVariant.stock_quantity}
+                      onChange={(e) =>
+                        setNewVariant({ ...newVariant, stock_quantity: e.target.value })
+                      }
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddVariant}
+                  >
+                    <Plus className="ml-2 h-4 w-4" />
+                    إضافة حجم
+                  </Button>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="is_featured"
+                    checked={formData.is_featured}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_featured: checked })
+                    }
+                  />
+                  <Label htmlFor="is_featured">منتج مميز</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="is_new_arrival"
+                    checked={formData.is_new_arrival}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_new_arrival: checked })
+                    }
+                  />
+                  <Label htmlFor="is_new_arrival">وصل حديثاً</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="is_expert_choice"
+                    checked={formData.is_expert_choice}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_expert_choice: checked })
+                    }
+                  />
+                  <Label htmlFor="is_expert_choice">اختيار خبراءنا</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
+                  />
+                  <Label htmlFor="is_active">نشط</Label>
+                </div>
+                <Button type="submit" className="w-full">
+                  {editingProduct ? "تحديث" : "إضافة"}
                 </Button>
-              </div>
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <Switch
-                  id="is_featured"
-                  checked={formData.is_featured}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, is_featured: checked })
-                  }
-                />
-                <Label htmlFor="is_featured">منتج مميز</Label>
-              </div>
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <Switch
-                  id="is_new_arrival"
-                  checked={formData.is_new_arrival}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, is_new_arrival: checked })
-                  }
-                />
-                <Label htmlFor="is_new_arrival">وصل حديثاً</Label>
-              </div>
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <Switch
-                  id="is_expert_choice"
-                  checked={formData.is_expert_choice}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, is_expert_choice: checked })
-                  }
-                />
-                <Label htmlFor="is_expert_choice">اختيار خبراءنا</Label>
-              </div>
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, is_active: checked })
-                  }
-                />
-                <Label htmlFor="is_active">نشط</Label>
-              </div>
-              <Button type="submit" className="w-full">
-                {editingProduct ? "تحديث" : "إضافة"}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="space-y-4">
