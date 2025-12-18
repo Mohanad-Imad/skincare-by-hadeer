@@ -12,7 +12,7 @@ import { Loader2, Eye, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn, Copy
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
-import jsPDF from "jspdf";
+import html2pdf from "html2pdf.js";
 
 interface Consultation {
   id: string;
@@ -191,136 +191,132 @@ ${consultation.image_urls.map((url: string, i: number) => `${i + 1}. ${url}`).jo
 
   const handleDownloadPDF = async (consultation: Consultation) => {
     try {
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      // Add Arabic font support - using built-in Helvetica for simplicity
-      doc.setFont("Helvetica");
+      toast.info("جاري إنشاء ملف PDF...");
       
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const margin = 15;
-      let yPos = 20;
-      const lineHeight = 7;
-      
-      // Helper function to add text with RTL support
-      const addLine = (text: string, isBold = false, fontSize = 10) => {
-        if (yPos > 270) {
-          doc.addPage();
-          yPos = 20;
-        }
-        doc.setFontSize(fontSize);
-        // Reverse text for RTL display (basic approach)
-        const reversedText = text.split("").reverse().join("");
-        doc.text(reversedText, pageWidth - margin, yPos, { align: "left" });
-        yPos += lineHeight;
-      };
-
-      const addSection = (title: string, items: { label: string; value: string }[]) => {
-        yPos += 3;
-        doc.setFontSize(12);
-        doc.setTextColor(100, 100, 100);
-        const reversedTitle = title.split("").reverse().join("");
-        doc.text(reversedTitle, pageWidth - margin, yPos, { align: "left" });
-        yPos += 8;
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        
-        items.forEach(item => {
-          if (item.value) {
-            const line = `${item.value} :${item.label}`;
-            const reversedLine = line.split("").reverse().join("");
-            if (yPos > 270) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.text(reversedLine, pageWidth - margin, yPos, { align: "left" });
-            yPos += lineHeight;
-          }
-        });
-      };
-
-      // Title
-      doc.setFontSize(18);
-      doc.setTextColor(150, 50, 100);
-      const title = "تقرير استشارة جلدية";
-      const reversedTitle = title.split("").reverse().join("");
-      doc.text(reversedTitle, pageWidth / 2, yPos, { align: "center" });
-      yPos += 15;
-      doc.setTextColor(0, 0, 0);
-
-      // Date
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      const dateStr = format(new Date(consultation.created_at), "dd/MM/yyyy - hh:mm a", { locale: ar });
-      doc.text(dateStr, pageWidth / 2, yPos, { align: "center" });
-      yPos += 10;
-      doc.setTextColor(0, 0, 0);
-
-      // Personal Info
-      addSection("المعلومات الشخصية", [
-        { label: "الاسم", value: consultation.full_name },
-        { label: "الجنس", value: consultation.gender === "female" ? "أنثى" : "ذكر" },
-        { label: "العمر", value: `${consultation.age} سنة` },
-        { label: "الهاتف", value: consultation.phone },
-        { label: "الموقع", value: consultation.location },
-        { label: "نوع البشرة", value: consultation.skin_type || "غير محدد" },
-      ]);
-
-      // Main concerns
+      const genderLabel = consultation.gender === "female" ? "أنثى" : "ذكر";
       const concerns = consultation.main_concerns?.map((c: string) => concernLabels[c] || c).join("، ") || "";
-      addSection("المشاكل الرئيسية", [
-        { label: "المشاكل", value: concerns },
-        { label: "مشكلة أخرى", value: consultation.other_concern || "" },
-        { label: "مدة المشكلة", value: consultation.problem_duration },
-        { label: "علاج سابق", value: consultation.previous_treatment ? (consultation.previous_treatment_details || "نعم") : "" },
-      ]);
+      
+      // Create HTML content for PDF
+      const htmlContent = `
+        <div dir="rtl" style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 30px; background: white; color: #333; max-width: 800px; margin: 0 auto;">
+          <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #e91e8c; padding-bottom: 20px;">
+            <h1 style="color: #e91e8c; font-size: 28px; margin: 0 0 10px 0;">تقرير استشارة جلدية</h1>
+            <p style="color: #666; font-size: 14px; margin: 0;">
+              ${format(new Date(consultation.created_at), "dd MMMM yyyy - hh:mm a", { locale: ar })}
+            </p>
+            <span style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; margin-top: 10px; background: ${statusColors[consultation.status]?.includes('yellow') ? '#f59e0b' : statusColors[consultation.status]?.includes('blue') ? '#3b82f6' : statusColors[consultation.status]?.includes('green') ? '#22c55e' : '#ef4444'}; color: white;">
+              ${statusLabels[consultation.status]}
+            </span>
+          </div>
 
-      // Skincare routine
-      addSection("روتين العناية", [
-        { label: "غسل الوجه", value: consultation.face_wash_frequency },
-        { label: "نوع الغسول", value: consultation.cleanser_type || "" },
-        { label: "استخدام المرطب", value: consultation.uses_moisturizer ? "نعم" : "لا" },
-        { label: "واقي الشمس", value: consultation.uses_sunscreen ? "نعم" : "لا" },
-        { label: "استخدام السيروم", value: consultation.uses_serums ? "نعم" : "لا" },
-      ]);
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            <div style="background: #fdf2f8; padding: 20px; border-radius: 10px;">
+              <h3 style="color: #e91e8c; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #f9a8d4; padding-bottom: 8px;">📋 المعلومات الشخصية</h3>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>الاسم:</strong> ${consultation.full_name}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>الجنس:</strong> ${genderLabel}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>العمر:</strong> ${consultation.age} سنة</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>الهاتف:</strong> ${consultation.phone}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>الموقع:</strong> ${consultation.location}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>نوع البشرة:</strong> ${consultation.skin_type || "غير محدد"}</p>
+            </div>
 
-      // Lifestyle
-      addSection("نمط الحياة", [
-        { label: "التعرض للشمس", value: consultation.sun_exposure },
-        { label: "شرب الماء", value: consultation.daily_water_intake },
-        { label: "نظام غذائي متوازن", value: consultation.balanced_diet ? "نعم" : "لا" },
-        { label: "ضغط نفسي", value: consultation.stress_levels ? "نعم" : "لا" },
-        { label: "التدخين/الكحول", value: consultation.smoking_alcohol ? "نعم" : "لا" },
-      ]);
+            <div style="background: #fef3c7; padding: 20px; border-radius: 10px;">
+              <h3 style="color: #d97706; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #fcd34d; padding-bottom: 8px;">🔍 المشاكل الرئيسية</h3>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>المشاكل:</strong> ${concerns}</p>
+              ${consultation.other_concern ? `<p style="margin: 8px 0; font-size: 13px;"><strong>مشكلة أخرى:</strong> ${consultation.other_concern}</p>` : ""}
+              <p style="margin: 8px 0; font-size: 13px;"><strong>مدة المشكلة:</strong> ${consultation.problem_duration}</p>
+              ${consultation.previous_treatment ? `<p style="margin: 8px 0; font-size: 13px;"><strong>علاج سابق:</strong> ${consultation.previous_treatment_details || "نعم"}</p>` : ""}
+            </div>
+          </div>
 
-      // Health info
-      addSection("المعلومات الصحية", [
-        { label: "الأمراض المزمنة", value: consultation.chronic_diseases || "لا يوجد" },
-        { label: "الأدوية الحالية", value: consultation.current_medications || "لا يوجد" },
-        { label: "الحساسية", value: consultation.allergies || "لا يوجد" },
-      ]);
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            <div style="background: #ecfdf5; padding: 20px; border-radius: 10px;">
+              <h3 style="color: #059669; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #6ee7b7; padding-bottom: 8px;">🧴 روتين العناية</h3>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>غسل الوجه:</strong> ${consultation.face_wash_frequency}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>نوع الغسول:</strong> ${consultation.cleanser_type || "غير محدد"}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>استخدام المرطب:</strong> ${consultation.uses_moisturizer ? "نعم ✓" : "لا ✗"}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>واقي الشمس:</strong> ${consultation.uses_sunscreen ? "نعم ✓" : "لا ✗"}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>استخدام السيروم:</strong> ${consultation.uses_serums ? "نعم ✓" : "لا ✗"}</p>
+              ${consultation.serum_details ? `<p style="margin: 8px 0; font-size: 13px;"><strong>تفاصيل السيروم:</strong> ${consultation.serum_details}</p>` : ""}
+            </div>
 
-      // Preferences
-      addSection("التفضيلات", [
-        { label: "نوع الاستشارة", value: consultation.consultation_preference },
-        { label: "وقت التواصل", value: consultation.preferred_contact_time },
-        { label: "تفضيل المنتجات", value: consultation.product_preference },
-      ]);
+            <div style="background: #eff6ff; padding: 20px; border-radius: 10px;">
+              <h3 style="color: #2563eb; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #93c5fd; padding-bottom: 8px;">🌿 نمط الحياة</h3>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>التعرض للشمس:</strong> ${consultation.sun_exposure}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>شرب الماء:</strong> ${consultation.daily_water_intake}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>نظام غذائي متوازن:</strong> ${consultation.balanced_diet ? "نعم ✓" : "لا ✗"}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>ضغط نفسي:</strong> ${consultation.stress_levels ? "نعم" : "لا"}</p>
+              <p style="margin: 8px 0; font-size: 13px;"><strong>التدخين/الكحول:</strong> ${consultation.smoking_alcohol ? "نعم" : "لا"}</p>
+              ${consultation.work_environment ? `<p style="margin: 8px 0; font-size: 13px;"><strong>بيئة العمل:</strong> ${consultation.work_environment}</p>` : ""}
+            </div>
+          </div>
 
-      // Additional notes
-      if (consultation.additional_notes) {
-        addSection("ملاحظات إضافية", [
-          { label: "الملاحظات", value: consultation.additional_notes },
-        ]);
-      }
+          ${consultation.gender === "female" ? `
+          <div style="background: #fdf4ff; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+            <h3 style="color: #a855f7; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #e9d5ff; padding-bottom: 8px;">👩 معلومات صحية (للنساء)</h3>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>حبوب منع الحمل:</strong> ${consultation.uses_contraceptives ? "نعم" : "لا"}</p>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>حامل أو مرضع:</strong> ${consultation.is_pregnant_nursing ? "نعم" : "لا"}</p>
+          </div>
+          ` : ""}
 
-      // Save the PDF
-      const fileName = `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`;
-      doc.save(fileName);
-      toast.success("تم تحميل ملف PDF");
+          <div style="background: #fef2f2; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+            <h3 style="color: #dc2626; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #fca5a5; padding-bottom: 8px;">🏥 المعلومات الصحية</h3>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>الأمراض المزمنة:</strong> ${consultation.chronic_diseases || "لا يوجد"}</p>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>الأدوية الحالية:</strong> ${consultation.current_medications || "لا يوجد"}</p>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>الحساسية:</strong> ${consultation.allergies || "لا يوجد"}</p>
+          </div>
+
+          <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+            <h3 style="color: #525252; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #d4d4d4; padding-bottom: 8px;">📝 التفضيلات</h3>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>نوع الاستشارة:</strong> ${consultation.consultation_preference}</p>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>وقت التواصل المفضل:</strong> ${consultation.preferred_contact_time}</p>
+            <p style="margin: 8px 0; font-size: 13px;"><strong>تفضيل المنتجات:</strong> ${consultation.product_preference}</p>
+          </div>
+
+          ${consultation.additional_notes ? `
+          <div style="background: #fffbeb; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+            <h3 style="color: #b45309; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #fde68a; padding-bottom: 8px;">📌 ملاحظات إضافية</h3>
+            <p style="margin: 8px 0; font-size: 13px;">${consultation.additional_notes}</p>
+          </div>
+          ` : ""}
+
+          ${consultation.image_urls && consultation.image_urls.length > 0 ? `
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+            <h3 style="color: #16a34a; margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid #86efac; padding-bottom: 8px;">📸 الصور المرفقة (${consultation.image_urls.length} صورة)</h3>
+            <p style="font-size: 12px; color: #666;">روابط الصور:</p>
+            ${consultation.image_urls.map((url: string, i: number) => `<p style="margin: 5px 0; font-size: 11px; word-break: break-all;">${i + 1}. <a href="${url}" style="color: #2563eb;">${url}</a></p>`).join("")}
+          </div>
+          ` : ""}
+
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e5e5;">
+            <p style="color: #888; font-size: 11px; margin: 0;">تم إنشاء هذا التقرير بواسطة نظام الاستشارات الجلدية</p>
+          </div>
+        </div>
+      `;
+
+      // Create a temporary container
+      const container = document.createElement("div");
+      container.innerHTML = htmlContent;
+      container.style.position = "absolute";
+      container.style.left = "-9999px";
+      container.style.top = "-9999px";
+      document.body.appendChild(container);
+
+      // Generate PDF
+      const opt = {
+        margin: 10,
+        filename: `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`,
+        image: { type: "jpeg" as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const },
+      };
+
+      await html2pdf().set(opt).from(container).save();
+      
+      // Clean up
+      document.body.removeChild(container);
+      
+      toast.success("تم تحميل ملف PDF بنجاح");
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast.error("حدث خطأ في إنشاء ملف PDF");
