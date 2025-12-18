@@ -297,14 +297,27 @@ ${consultation.image_urls.map((url: string, i: number) => `${i + 1}. ${url}`).jo
       // Create a temporary container
       const container = document.createElement("div");
       container.innerHTML = htmlContent;
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
-      container.style.top = "-9999px";
+      // Keep it inside the viewport (but invisible) to avoid huge canvas offsets
+      container.style.position = "fixed";
+      container.style.left = "0";
+      container.style.top = "0";
+      container.style.opacity = "0";
+      container.style.pointerEvents = "none";
+      container.style.width = "800px";
+      container.style.zIndex = "-1";
       document.body.appendChild(container);
 
-      // Generate PDF
       const fileName = `استشارة-${consultation.full_name}-${format(new Date(consultation.created_at), "yyyy-MM-dd")}.pdf`;
-      
+
+      // Open a new tab immediately (some browsers block downloads after async work)
+      const previewWindow = window.open("", "_blank");
+      if (previewWindow) {
+        previewWindow.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/><title>${fileName}</title></head><body style="font-family: system-ui, -apple-system, Segoe UI, Tahoma, Arial; padding: 16px;">جاري تجهيز ملف PDF...</body></html>`);
+        previewWindow.document.close();
+      } else {
+        toast.warning("قد يمنع المتصفح التحميل — يرجى السماح بفتح نافذة جديدة (Popups) لعرض/تحميل PDF");
+      }
+
       const worker = html2pdf()
         .set({
           margin: 10,
@@ -315,14 +328,31 @@ ${consultation.image_urls.map((url: string, i: number) => `${i + 1}. ${url}`).jo
         })
         .from(container);
 
-      worker.save().then(() => {
-        document.body.removeChild(container);
-        toast.success("تم تحميل ملف PDF بنجاح");
-      }).catch((err: Error) => {
-        console.error("PDF save error:", err);
-        document.body.removeChild(container);
-        toast.error("حدث خطأ في حفظ ملف PDF");
-      });
+      const blob = (await worker.toPdf().outputPdf("blob")) as Blob;
+      const url = URL.createObjectURL(blob);
+
+      // Try direct download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      // Also show the PDF in the new tab (works even if downloads are blocked)
+      if (previewWindow) {
+        previewWindow.location.href = url;
+      } else {
+        // Fallback: open PDF in a new tab if popups are blocked
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+
+      document.body.removeChild(container);
+      toast.success("تم إنشاء ملف PDF");
+
+      // Cleanup object URL later
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast.error("حدث خطأ في إنشاء ملف PDF");
