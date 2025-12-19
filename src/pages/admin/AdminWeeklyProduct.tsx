@@ -246,15 +246,15 @@ const AdminWeeklyProduct = () => {
                 <div className="space-y-2">
                   <Label>اختر الحجم (اختياري)</Label>
                   <Select
-                    value={form.variant_id}
-                    onValueChange={(value) => setForm({ ...form, variant_id: value })}
+                    value={form.variant_id || "all"}
+                    onValueChange={(value) => setForm({ ...form, variant_id: value === "all" ? "" : value })}
                     disabled={!form.product_id}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="جميع الأحجام" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">جميع الأحجام</SelectItem>
+                      <SelectItem value="all">جميع الأحجام</SelectItem>
                       {variants.map((variant: any) => (
                         <SelectItem key={variant.id} value={variant.id}>
                           {variant.size_ar} - {variant.price.toLocaleString()} ريال
