@@ -94,72 +94,127 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
   }, [weeklyProduct?.ends_at]);
 
   return (
-    <Card 
-      className="overflow-hidden bg-gradient-to-r from-primary/5 via-background to-primary/5 border border-primary/20 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-      onClick={onNavigate}
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300 }}
     >
-      <div className="flex items-center gap-4 p-4">
-        {/* Product Image */}
-        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-          <img
-            src={product.image_url || "/placeholder.svg"}
-            alt={product.name_ar}
-            className="w-full h-full object-contain p-2"
-          />
-          <div className="absolute top-1 right-1 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
-            -{savingsPercentage}%
-          </div>
-        </div>
+      <Card 
+        className="relative overflow-hidden cursor-pointer group"
+        onClick={onNavigate}
+      >
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-destructive/10 via-primary/5 to-destructive/10 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-destructive/20" />
+        
+        {/* Glowing border effect */}
+        <div className="absolute inset-0 rounded-lg border-2 border-primary/30 group-hover:border-primary/50 transition-colors" />
+        
+        {/* Fire decoration */}
+        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-destructive/30 to-transparent rounded-bl-full" />
+        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-primary/30 to-transparent rounded-tr-full" />
 
-        {/* Product Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <Flame className="h-4 w-4 text-destructive flex-shrink-0" />
-            <span className="text-xs font-medium text-destructive">{weeklyProduct.title_ar}</span>
+        <div className="relative flex flex-col sm:flex-row items-center gap-4 p-4 md:p-5">
+          {/* Product Image with glow */}
+          <div className="relative flex-shrink-0">
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-110" />
+            <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg">
+              <img
+                src={product.image_url || "/placeholder.svg"}
+                alt={product.name_ar}
+                className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
+              />
+            </div>
+            {/* Discount badge */}
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: 0.2 }}
+              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded-full shadow-lg"
+            >
+              -{savingsPercentage}%
+            </motion.div>
           </div>
-          <h3 className="font-bold text-sm md:text-base text-foreground truncate">{product.name_ar}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-lg font-bold text-primary">
-              {weeklyProduct.special_price} {currency}
-            </span>
-            <span className="text-sm text-muted-foreground line-through">
-              {originalPrice} {currency}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            عند الشراء بـ {weeklyProduct.minimum_cart_amount} {currency}+
-          </p>
-        </div>
 
-        {/* Countdown */}
-        <div className="hidden sm:flex flex-col items-center gap-1 flex-shrink-0">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>ينتهي خلال</span>
+          {/* Product Info */}
+          <div className="flex-1 min-w-0 text-center sm:text-right">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+              <motion.div
+                animate={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+              >
+                <Flame className="h-5 w-5 text-destructive" />
+              </motion.div>
+              <span className="text-sm font-bold text-destructive">{weeklyProduct.title_ar}</span>
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+              >
+                <Flame className="h-5 w-5 text-destructive" />
+              </motion.div>
+            </div>
+            
+            <h3 className="font-bold text-base md:text-lg text-foreground line-clamp-1 mb-2">
+              {product.name_ar}
+            </h3>
+            
+            <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
+              <span className="text-2xl md:text-3xl font-black text-primary">
+                {weeklyProduct.special_price.toLocaleString()}
+              </span>
+              <span className="text-lg text-muted-foreground line-through">
+                {originalPrice.toLocaleString()}
+              </span>
+              <span className="text-sm text-muted-foreground">{currency}</span>
+            </div>
+            
+            <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full">
+              <ShoppingCart className="h-3 w-3" />
+              <span>عند الشراء بـ {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency}+</span>
+            </div>
           </div>
-          <div className="flex gap-1" dir="ltr">
-            {[
-              { value: timeLeft.days, label: "ي" },
-              { value: timeLeft.hours, label: "س" },
-              { value: timeLeft.minutes, label: "د" },
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold">
-                  {String(item.value).padStart(2, "0")}
-                </div>
-                <span className="text-[8px] text-muted-foreground">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* CTA */}
-        <Button size="sm" className="hidden md:flex gap-1 flex-shrink-0">
-          <ShoppingCart className="h-4 w-4" />
-          تسوق
-        </Button>
-      </div>
-    </Card>
+          {/* Countdown Timer */}
+          <div className="flex flex-col items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+              <Clock className="h-3.5 w-3.5" />
+              <span>ينتهي خلال</span>
+            </div>
+            <div className="flex gap-2" dir="ltr">
+              {[
+                { value: timeLeft.days, label: "يوم" },
+                { value: timeLeft.hours, label: "ساعة" },
+                { value: timeLeft.minutes, label: "دقيقة" },
+              ].map((item, index) => (
+                <motion.div 
+                  key={index} 
+                  className="text-center"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-lg md:text-xl font-black shadow-lg">
+                    {String(item.value).padStart(2, "0")}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground mt-1 block">{item.label}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="hidden lg:block"
+          >
+            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg hover:shadow-xl transition-shadow font-bold">
+              <ShoppingCart className="h-5 w-5" />
+              تسوق الآن
+            </Button>
+          </motion.div>
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
