@@ -23,6 +23,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Autoplay from "embla-carousel-autoplay";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import WeeklyProduct from "@/components/WeeklyProduct";
+import WeeklyProductPopup from "@/components/WeeklyProductPopup";
+
 const Index = () => {
   const navigate = useNavigate();
   const { data: discounts } = useProductDiscounts();
@@ -134,6 +136,7 @@ const Index = () => {
       />
       <AnnouncementBar />
       <Navbar />
+      <WeeklyProductPopup />
       <LiveActivityFeed />
       
       {/* Search Bar */}
