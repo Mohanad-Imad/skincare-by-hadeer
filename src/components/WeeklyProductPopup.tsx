@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Clock, Gift, Sparkles } from "lucide-react";
+import { X, Clock, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -142,57 +142,50 @@ const WeeklyProductPopup = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 bg-transparent">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 bg-background rounded-3xl shadow-2xl">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
-          className="relative bg-gradient-to-br from-primary/10 via-background to-accent/10 rounded-2xl overflow-hidden border border-primary/20 shadow-2xl"
+          className="relative bg-background rounded-3xl overflow-hidden"
         >
           {/* Close button */}
           <button
             onClick={() => setIsOpen(false)}
-            className="absolute top-3 left-3 z-10 p-1.5 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+            className="absolute top-4 left-4 z-10 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Discount badge */}
-          <div className="absolute top-3 right-3 z-10">
+          <div className="absolute top-4 right-4 z-10">
             <Badge className="bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 animate-pulse">
               خصم {discountPercentage}%
             </Badge>
           </div>
 
-          {/* Sparkle decorations */}
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-            <Sparkles className="absolute top-8 right-20 w-4 h-4 text-primary/40 animate-pulse" />
-            <Sparkles className="absolute bottom-20 left-10 w-3 h-3 text-accent/40 animate-pulse" style={{ animationDelay: "0.5s" }} />
-            <Sparkles className="absolute top-1/2 right-8 w-5 h-5 text-primary/30 animate-pulse" style={{ animationDelay: "1s" }} />
-          </div>
-
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-4 text-center">
+          {/* Title */}
+          <div className="pt-6 pb-2 text-center">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Gift className="w-5 h-5" />
-              <span className="text-sm font-medium">عرض حصري</span>
+              <Gift className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-primary">عرض حصري</span>
             </div>
-            <h2 className="text-xl font-bold">{weeklyProduct.title_ar}</h2>
+            <h2 className="text-xl font-bold text-foreground">{weeklyProduct.title_ar}</h2>
           </div>
 
           {/* Product image */}
-          <div className="relative p-4">
-            <div className="relative mx-auto w-40 h-40 rounded-xl overflow-hidden bg-muted/50 shadow-lg">
+          <div className="relative px-6 py-4">
+            <div className="relative mx-auto w-44 h-44 rounded-2xl overflow-hidden bg-muted shadow-lg">
               <img
                 src={product.image_url || "/placeholder.svg"}
                 alt={product.name_ar}
-                className="w-full h-full object-contain p-2"
+                className="w-full h-full object-contain p-3"
               />
             </div>
           </div>
 
           {/* Product info */}
-          <div className="px-4 pb-2 text-center">
+          <div className="px-6 pb-2 text-center">
             <h3 className="font-bold text-lg text-foreground mb-1">{product.name_ar}</h3>
             {product.company_name_ar && (
               <p className="text-sm text-muted-foreground">{product.company_name_ar}</p>
@@ -200,7 +193,7 @@ const WeeklyProductPopup = () => {
           </div>
 
           {/* Pricing */}
-          <div className="px-4 pb-3">
+          <div className="px-6 pb-3">
             <div className="flex items-center justify-center gap-3">
               <span className="text-2xl font-bold text-primary">
                 {weeklyProduct.special_price} {currency}
@@ -215,7 +208,7 @@ const WeeklyProductPopup = () => {
           </div>
 
           {/* Countdown */}
-          <div className="px-4 pb-4">
+          <div className="px-6 pb-4">
             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-2">
               <Clock className="w-4 h-4" />
               <span>ينتهي العرض خلال</span>
@@ -238,16 +231,16 @@ const WeeklyProductPopup = () => {
           </div>
 
           {/* CTA Button */}
-          <div className="p-4 pt-0">
+          <div className="px-6 pb-4">
             <Link to={`/products/${product.id}`} onClick={() => setIsOpen(false)}>
-              <Button className="w-full text-lg py-6 font-bold shadow-lg">
+              <Button className="w-full text-lg py-6 font-bold shadow-lg rounded-xl">
                 تسوق الآن
               </Button>
             </Link>
           </div>
 
           {/* Footer note */}
-          <div className="bg-muted/50 px-4 py-2 text-center">
+          <div className="bg-muted px-6 py-3 text-center rounded-b-3xl">
             <p className="text-xs text-muted-foreground">
               الحد الأقصى: {weeklyProduct.max_quantity_per_customer} قطعة للعميل
             </p>
