@@ -75,7 +75,14 @@ import { PWASplashScreen } from "./components/PWASplashScreen";
 import { useCartMigration } from "./hooks/useCartMigration";
 import { BottomNavPro } from "./components/BottomNav";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 1000 * 60 * 5,
+    },
+  },
+});
 
 const AppContent = () => {
   useCartMigration();
