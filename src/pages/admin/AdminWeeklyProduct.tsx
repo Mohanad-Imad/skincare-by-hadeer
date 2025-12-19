@@ -8,10 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { toast } from "sonner";
-import { Gift, Save, Trash2, Plus } from "lucide-react";
+import { Gift, Save, Trash2, Plus, Check, ChevronsUpDown } from "lucide-react";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { format, addDays } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface WeeklyProductForm {
   id?: string;
@@ -222,24 +225,50 @@ const AdminWeeklyProduct = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Product Selection */}
+                {/* Product Selection with Search */}
                 <div className="space-y-2">
                   <Label>اختر المنتج *</Label>
-                  <Select
-                    value={form.product_id}
-                    onValueChange={(value) => setForm({ ...form, product_id: value, variant_id: "" })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر منتج" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products?.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          {product.name_ar}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {form.product_id
+                          ? products?.find((p) => p.id === form.product_id)?.name_ar || "اختر منتج"
+                          : "اختر منتج..."}
+                        <ChevronsUpDown className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="ابحث عن منتج..." className="h-9" />
+                        <CommandList>
+                          <CommandEmpty>لا يوجد منتجات</CommandEmpty>
+                          <CommandGroup className="max-h-64 overflow-y-auto">
+                            {products?.map((product) => (
+                              <CommandItem
+                                key={product.id}
+                                value={product.name_ar}
+                                onSelect={() => {
+                                  setForm({ ...form, product_id: product.id, variant_id: "" });
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "ml-2 h-4 w-4",
+                                    form.product_id === product.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {product.name_ar}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 {/* Variant Selection */}
