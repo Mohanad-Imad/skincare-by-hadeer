@@ -79,6 +79,7 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
 
   return (
     <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3 }} className="w-full">
+      <H1>منتج الاسبوع</H1>
       <Card
         className="relative overflow-hidden border-none bg-white dark:bg-zinc-950 shadow-2xl rounded-[2rem] cursor-pointer group"
         onClick={onNavigate}
