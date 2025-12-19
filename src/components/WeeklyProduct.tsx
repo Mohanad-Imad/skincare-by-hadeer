@@ -31,6 +31,7 @@ interface WeeklyProductData {
   description_ar: string | null;
   description_en: string | null;
   max_quantity_per_customer: number;
+  image_url: string | null;
 }
 
 interface TimeLeft {
@@ -93,9 +94,12 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
     return () => clearInterval(timer);
   }, [weeklyProduct?.ends_at]);
 
+  // Get custom image or fallback to product image
+  const displayImage = weeklyProduct.image_url || product.image_url || "/placeholder.svg";
+
   return (
     <motion.div
-      whileHover={{ scale: 1.01 }}
+      whileHover={{ scale: 1.005 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
       <Card 
@@ -103,115 +107,137 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
         onClick={onNavigate}
       >
         {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-destructive/10 via-primary/5 to-destructive/10 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-destructive/10 via-primary/5 to-destructive/10" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-destructive/20" />
         
         {/* Glowing border effect */}
         <div className="absolute inset-0 rounded-lg border-2 border-primary/30 group-hover:border-primary/50 transition-colors" />
-        
-        {/* Fire decoration */}
-        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-destructive/30 to-transparent rounded-bl-full" />
-        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-primary/30 to-transparent rounded-tr-full" />
 
-        <div className="relative flex flex-col sm:flex-row items-center gap-4 p-4 md:p-5">
-          {/* Product Image with glow */}
-          <div className="relative flex-shrink-0">
-            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-110" />
-            <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden bg-background/80 backdrop-blur-sm border border-primary/20 shadow-lg">
-              <img
-                src={product.image_url || "/placeholder.svg"}
-                alt={product.name_ar}
-                className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
-              />
-            </div>
+        <div className="relative flex flex-col md:flex-row items-stretch">
+          {/* Large Product Image Section */}
+          <div className="relative w-full md:w-2/5 lg:w-1/3 min-h-[200px] md:min-h-[220px] overflow-hidden">
+            {/* Image glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-destructive/10" />
+            
+            <img
+              src={displayImage}
+              alt={product.name_ar}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            
+            {/* Gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background/90" />
+            
             {/* Discount badge */}
             <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 0, rotate: -12 }}
+              animate={{ scale: 1, rotate: -12 }}
               transition={{ type: "spring", delay: 0.2 }}
-              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded-full shadow-lg"
+              className="absolute top-4 right-4 bg-destructive text-destructive-foreground text-lg font-black px-4 py-2 rounded-xl shadow-2xl"
             >
               -{savingsPercentage}%
             </motion.div>
-          </div>
 
-          {/* Product Info */}
-          <div className="flex-1 min-w-0 text-center sm:text-right">
-            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+            {/* Title badge on mobile */}
+            <div className="absolute bottom-4 right-4 md:hidden flex items-center gap-2 bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
               <motion.div
                 animate={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
               >
-                <Flame className="h-5 w-5 text-destructive" />
+                <Flame className="h-4 w-4 text-destructive" />
               </motion.div>
               <span className="text-sm font-bold text-destructive">{weeklyProduct.title_ar}</span>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="flex-1 p-5 md:p-6 flex flex-col justify-center gap-4">
+            {/* Title badge on desktop */}
+            <div className="hidden md:flex items-center gap-2">
+              <motion.div
+                animate={{ rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+              >
+                <Flame className="h-6 w-6 text-destructive" />
+              </motion.div>
+              <span className="text-lg font-black text-destructive">{weeklyProduct.title_ar}</span>
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
               >
-                <Flame className="h-5 w-5 text-destructive" />
+                <Flame className="h-6 w-6 text-destructive" />
               </motion.div>
             </div>
             
-            <h3 className="font-bold text-base md:text-lg text-foreground line-clamp-1 mb-2">
+            {/* Product name */}
+            <h3 className="font-black text-xl md:text-2xl text-foreground line-clamp-2">
               {product.name_ar}
             </h3>
             
-            <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
-              <span className="text-2xl md:text-3xl font-black text-primary">
+            {/* Description if available */}
+            {weeklyProduct.description_ar && (
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {weeklyProduct.description_ar}
+              </p>
+            )}
+            
+            {/* Price section */}
+            <div className="flex flex-wrap items-baseline gap-3">
+              <span className="text-3xl md:text-4xl font-black text-primary">
                 {weeklyProduct.special_price.toLocaleString()}
               </span>
-              <span className="text-lg text-muted-foreground line-through">
+              <span className="text-xl text-muted-foreground line-through">
                 {originalPrice.toLocaleString()}
               </span>
-              <span className="text-sm text-muted-foreground">{currency}</span>
+              <span className="text-base text-muted-foreground">{currency}</span>
+              <span className="bg-primary/10 text-primary text-sm font-bold px-3 py-1 rounded-full">
+                وفر {savingsAmount.toLocaleString()} {currency}
+              </span>
             </div>
             
-            <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full">
-              <ShoppingCart className="h-3 w-3" />
-              <span>عند الشراء بـ {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency}+</span>
+            {/* Minimum cart requirement */}
+            <div className="inline-flex items-center gap-2 bg-muted/50 text-muted-foreground text-sm font-medium px-4 py-2 rounded-full w-fit">
+              <ShoppingCart className="h-4 w-4" />
+              <span>عند الشراء بـ {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency} أو أكثر</span>
+            </div>
+
+            {/* Bottom row: Timer and CTA */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
+              {/* Countdown Timer */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <Clock className="h-4 w-4" />
+                  <span>ينتهي خلال</span>
+                </div>
+                <div className="flex gap-1.5" dir="ltr">
+                  {[
+                    { value: timeLeft.days, label: "ي" },
+                    { value: timeLeft.hours, label: "س" },
+                    { value: timeLeft.minutes, label: "د" },
+                    { value: timeLeft.seconds, label: "ث" },
+                  ].map((item, index) => (
+                    <div key={index} className="text-center">
+                      <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-sm md:text-lg font-black shadow-md">
+                        {String(item.value).padStart(2, "0")}
+                      </div>
+                      <span className="text-[9px] text-muted-foreground">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg hover:shadow-xl transition-shadow font-bold text-base px-6">
+                  <ShoppingCart className="h-5 w-5" />
+                  تسوق الآن
+                </Button>
+              </motion.div>
             </div>
           </div>
-
-          {/* Countdown Timer */}
-          <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
-              <Clock className="h-3.5 w-3.5" />
-              <span>ينتهي خلال</span>
-            </div>
-            <div className="flex gap-2" dir="ltr">
-              {[
-                { value: timeLeft.days, label: "يوم" },
-                { value: timeLeft.hours, label: "ساعة" },
-                { value: timeLeft.minutes, label: "دقيقة" },
-              ].map((item, index) => (
-                <motion.div 
-                  key={index} 
-                  className="text-center"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-lg md:text-xl font-black shadow-lg">
-                    {String(item.value).padStart(2, "0")}
-                  </div>
-                  <span className="text-[10px] text-muted-foreground mt-1 block">{item.label}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA Button */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden lg:block"
-          >
-            <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg hover:shadow-xl transition-shadow font-bold">
-              <ShoppingCart className="h-5 w-5" />
-              تسوق الآن
-            </Button>
-          </motion.div>
         </div>
       </Card>
     </motion.div>
