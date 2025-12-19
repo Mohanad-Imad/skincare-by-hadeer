@@ -154,47 +154,70 @@ const Cart = () => {
 
   // Check if eligible for weekly product
   const isEligibleForWeeklyDeal = weeklyProduct ? baseCartTotal >= weeklyProduct.minimum_cart_amount : false;
+  const maxWeeklyQuantity = weeklyProduct?.max_quantity_per_customer || 1;
 
-  const calculateItemPrice = (productId: string, variantId: string, originalPrice: number) => {
+  // Calculate item price with weekly deal logic (considering max quantity)
+  const calculateItemPriceWithQuantity = (
+    productId: string, 
+    variantId: string, 
+    originalPrice: number,
+    quantity: number
+  ) => {
     // First check regular discounts
     const discount = calculateDiscount(productId, originalPrice, discounts);
     const discountedPrice = discount ? discount.discountedPrice : originalPrice;
     
-    // Then check if this is the weekly product and user is eligible
-    if (weeklyProduct && 
+    // Check if this is the weekly product and user is eligible
+    const isWeeklyProduct = weeklyProduct && 
         weeklyProduct.product_id === productId && 
         (weeklyProduct.variant_id === variantId || !weeklyProduct.variant_id) &&
-        isEligibleForWeeklyDeal) {
+        isEligibleForWeeklyDeal;
+    
+    if (isWeeklyProduct) {
+      // Apply special price only to max allowed quantity
+      const specialPriceQuantity = Math.min(quantity, maxWeeklyQuantity);
+      const regularPriceQuantity = quantity - specialPriceQuantity;
+      
+      const specialTotal = weeklyProduct.special_price * specialPriceQuantity;
+      const regularTotal = discountedPrice * regularPriceQuantity;
+      
       return {
-        price: weeklyProduct.special_price,
+        totalPrice: specialTotal + regularTotal,
         isWeeklyDeal: true,
         originalPrice: originalPrice,
-        discountedPrice: discountedPrice
+        discountedPrice: discountedPrice,
+        specialPriceQuantity: specialPriceQuantity,
+        regularPriceQuantity: regularPriceQuantity,
+        specialPrice: weeklyProduct.special_price
       };
     }
     
     return {
-      price: discountedPrice,
+      totalPrice: discountedPrice * quantity,
       isWeeklyDeal: false,
       originalPrice: originalPrice,
-      discountedPrice: discountedPrice
+      discountedPrice: discountedPrice,
+      specialPriceQuantity: 0,
+      regularPriceQuantity: quantity,
+      specialPrice: 0
     };
   };
 
   const total =
     cartItems?.reduce((sum, item) => {
-      const priceInfo = calculateItemPrice(
+      const priceInfo = calculateItemPriceWithQuantity(
         item.product_variants.products.id, 
         item.product_variant_id,
-        item.product_variants.price
+        item.product_variants.price,
+        item.quantity
       );
-      return sum + priceInfo.price * item.quantity;
+      return sum + priceInfo.totalPrice;
     }, 0) || 0;
 
   const localTotal =
     localCartItems?.reduce((sum, item) => {
-      const priceInfo = calculateItemPrice(item.products.id, item.id, item.price);
-      return sum + priceInfo.price * item.quantity;
+      const priceInfo = calculateItemPriceWithQuantity(item.products.id, item.id, item.price, item.quantity);
+      return sum + priceInfo.totalPrice;
     }, 0) || 0;
 
   // حساب رسوم التوصيل
@@ -267,21 +290,35 @@ const Cart = () => {
 
                       <div>
                         {(() => {
-                          const priceInfo = calculateItemPrice(item.products.id, item.id, item.price);
+                          const priceInfo = calculateItemPriceWithQuantity(item.products.id, item.id, item.price, item.quantity);
                           
                           if (priceInfo.isWeeklyDeal) {
                             return (
                               <div className="space-y-1.5">
                                 <Badge className="flex items-center gap-1 w-fit bg-gradient-to-r from-amber-500 to-orange-500 text-white">
                                   <Gift className="h-3 w-3" />
-                                  عرض منتج الأسبوع
+                                  عرض منتج الأسبوع ({priceInfo.specialPriceQuantity} قطعة)
                                 </Badge>
-                                <div className="flex items-baseline gap-2">
-                                  <p className="font-bold text-primary text-lg">
-                                    {Math.round(priceInfo.price)} د.ع
-                                  </p>
-                                  <p className="text-sm text-muted-foreground line-through">
-                                    {Math.round(item.price)} د.ع
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-baseline gap-2">
+                                    <span className="text-xs text-muted-foreground">{priceInfo.specialPriceQuantity}x</span>
+                                    <p className="font-bold text-primary">
+                                      {Math.round(priceInfo.specialPrice)} د.ع
+                                    </p>
+                                    <p className="text-xs text-muted-foreground line-through">
+                                      {Math.round(item.price)} د.ع
+                                    </p>
+                                  </div>
+                                  {priceInfo.regularPriceQuantity > 0 && (
+                                    <div className="flex items-baseline gap-2">
+                                      <span className="text-xs text-muted-foreground">{priceInfo.regularPriceQuantity}x</span>
+                                      <p className="font-bold text-foreground">
+                                        {Math.round(priceInfo.discountedPrice)} د.ع
+                                      </p>
+                                    </div>
+                                  )}
+                                  <p className="font-bold text-primary text-lg mt-1">
+                                    المجموع: {Math.round(priceInfo.totalPrice)} د.ع
                                   </p>
                                 </div>
                               </div>
@@ -475,27 +512,43 @@ const Cart = () => {
                     <h3 className="font-semibold mb-1">{item.product_variants.products.name_ar}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{item.product_variants.size_ar}</p>
 
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex flex-col gap-2">
                       {(() => {
                         const productId = item.product_variants.products.id;
                         const variantId = item.product_variant_id;
                         const originalPrice = item.product_variants.price;
-                        const priceInfo = calculateItemPrice(productId, variantId, originalPrice);
+                        const priceInfo = calculateItemPriceWithQuantity(productId, variantId, originalPrice, item.quantity);
 
                         if (priceInfo.isWeeklyDeal) {
                           return (
-                            <>
+                            <div className="space-y-1.5">
                               <Badge className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white">
                                 <Gift className="h-3 w-3 ml-1" />
-                                عرض منتج الأسبوع
+                                عرض منتج الأسبوع ({priceInfo.specialPriceQuantity} قطعة)
                               </Badge>
-                              <p className="font-bold text-primary text-lg">
-                                {Math.round(priceInfo.price)} د.ع
-                              </p>
-                              <p className="text-sm text-muted-foreground line-through">
-                                {Math.round(originalPrice)} د.ع
-                              </p>
-                            </>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-xs text-muted-foreground">{priceInfo.specialPriceQuantity}x</span>
+                                  <p className="font-bold text-primary">
+                                    {Math.round(priceInfo.specialPrice)} د.ع
+                                  </p>
+                                  <p className="text-xs text-muted-foreground line-through">
+                                    {Math.round(originalPrice)} د.ع
+                                  </p>
+                                </div>
+                                {priceInfo.regularPriceQuantity > 0 && (
+                                  <div className="flex items-baseline gap-2">
+                                    <span className="text-xs text-muted-foreground">{priceInfo.regularPriceQuantity}x</span>
+                                    <p className="font-bold text-foreground">
+                                      {Math.round(priceInfo.discountedPrice)} د.ع
+                                    </p>
+                                  </div>
+                                )}
+                                <p className="font-bold text-primary text-lg mt-1">
+                                  المجموع: {Math.round(priceInfo.totalPrice)} د.ع
+                                </p>
+                              </div>
+                            </div>
                           );
                         }
 
