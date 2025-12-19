@@ -22,7 +22,7 @@ import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscou
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import AnnouncementBar from "@/components/AnnouncementBar";
-
+import WeeklyProduct from "@/components/WeeklyProduct";
 const Index = () => {
   const navigate = useNavigate();
   const { data: discounts } = useProductDiscounts();
@@ -165,6 +165,9 @@ const Index = () => {
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
         <BrandsLinks />
       </section>
+
+      {/* Weekly Product - Special offer */}
+      <WeeklyProduct />
 
       {/* Makeup Banner */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-2 md:pb-3 max-w-[1920px] mx-auto">

@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Megaphone,
   Mail,
+  Gift,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -127,6 +128,12 @@ const AdminHome = () => {
       description: "تطبيق خصومات على المنتجات",
       icon: Percent,
       route: "/admin/product-discounts",
+    },
+    {
+      title: "منتج الأسبوع",
+      description: "عرض خاص أسبوعي بسعر مخفض",
+      icon: Gift,
+      route: "/admin/weekly-product",
     },
     {
       title: "إعدادات التوصيل",
