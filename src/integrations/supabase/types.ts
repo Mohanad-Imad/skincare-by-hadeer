@@ -2231,6 +2231,7 @@ export type Database = {
           description_en: string | null
           ends_at: string
           id: string
+          image_url: string | null
           is_active: boolean
           max_quantity_per_customer: number
           minimum_cart_amount: number
@@ -2248,6 +2249,7 @@ export type Database = {
           description_en?: string | null
           ends_at: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           max_quantity_per_customer?: number
           minimum_cart_amount?: number
@@ -2265,6 +2267,7 @@ export type Database = {
           description_en?: string | null
           ends_at?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           max_quantity_per_customer?: number
           minimum_cart_amount?: number
