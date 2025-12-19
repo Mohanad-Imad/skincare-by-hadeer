@@ -142,7 +142,7 @@ const WeeklyProductPopup = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 bg-background rounded-3xl shadow-2xl">
+      <DialogContent className="w-[90vw] max-w-md p-0 overflow-hidden border-0 bg-background rounded-3xl shadow-2xl">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
