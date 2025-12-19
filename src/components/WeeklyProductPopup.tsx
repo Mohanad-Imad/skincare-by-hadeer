@@ -158,8 +158,8 @@ const WeeklyProductPopup = () => {
           </button>
 
           {/* Discount badge */}
-          <div className="flex justify-center -mt-3">
-            <Badge className="bg-destructive text-destructive-foreground text-base font-bold px-5 py-2 rounded-full shadow-lg animate-pulse">
+          <div className="flex justify-center -mt-4">
+            <Badge className="bg-destructive text-destructive-foreground text-xl font-bold px-6 py-3 rounded-full shadow-lg animate-pulse">
               خصم {discountPercentage}%
             </Badge>
           </div>
