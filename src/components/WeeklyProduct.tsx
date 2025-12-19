@@ -39,6 +39,22 @@ const WeeklyProduct = () => {
   const { data: discounts } = useProductDiscounts();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
+  // Fetch store settings for currency
+  const { data: storeSettings } = useQuery({
+    queryKey: ["store-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_settings")
+        .select("currency")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const currency = storeSettings?.currency || "د.ع";
+
   // Fetch weekly product
   const { data: weeklyProduct, isLoading: isLoadingWeekly } = useQuery({
     queryKey: ["weekly-product"],
@@ -294,17 +310,17 @@ const WeeklyProduct = () => {
                 <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50">
                   <div className="flex items-baseline gap-3 mb-2">
                     <span className="text-3xl font-bold text-primary">
-                      {weeklyProduct.special_price.toLocaleString()} ريال
+                      {weeklyProduct.special_price.toLocaleString()} {currency}
                     </span>
                     {originalPrice > weeklyProduct.special_price && (
                       <span className="text-lg text-muted-foreground line-through">
-                        {originalPrice.toLocaleString()} ريال
+                        {originalPrice.toLocaleString()} {currency}
                       </span>
                     )}
                   </div>
                   {savingsAmount > 0 && (
                     <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                      توفير {savingsAmount.toLocaleString()} ريال
+                      توفير {savingsAmount.toLocaleString()} {currency}
                     </p>
                   )}
                 </div>
@@ -323,10 +339,10 @@ const WeeklyProduct = () => {
                   ) : (
                     <div>
                       <p className="text-amber-700 dark:text-amber-400 font-medium mb-1">
-                        أضف منتجات بقيمة {remainingAmount.toLocaleString()} ريال للسلة
+                        أضف منتجات بقيمة {remainingAmount.toLocaleString()} {currency} للسلة
                       </p>
                       <p className="text-sm text-amber-600 dark:text-amber-500">
-                        الحد الأدنى للسلة: {weeklyProduct.minimum_cart_amount.toLocaleString()} ريال
+                        الحد الأدنى للسلة: {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency}
                       </p>
                     </div>
                   )}
