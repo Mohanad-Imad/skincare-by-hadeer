@@ -21,6 +21,7 @@ import {
   Boxes,
   ShieldCheck,
   MessageCircle,
+  Gift,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -54,6 +55,7 @@ const menuItems = [
   { title: "التسوق حسب المشكلة", url: "/admin/problem-categories", icon: Grid3x3 },
   { title: "أكواد الخصم", url: "/admin/discount-codes", icon: Percent },
   { title: "خصومات المنتجات", url: "/admin/product-discounts", icon: Tag },
+  { title: "منتج الأسبوع", url: "/admin/weekly-product", icon: Gift },
   { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },
   { title: "إعدادات المتجر", url: "/admin/store-settings", icon: Settings },
   { title: "شريط الإعلانات", url: "/admin/announcement-bar", icon: RectangleHorizontal },
