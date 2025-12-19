@@ -78,129 +78,131 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
   const displayImage = weeklyProduct.image_url || product.image_url || "/placeholder.svg";
 
   return (
-    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3 }} className="w-full">
+    <div>
       <H1>منتج الاسبوع</H1>
-      <Card
-        className="relative overflow-hidden border-none bg-white dark:bg-zinc-950 shadow-2xl rounded-[2rem] cursor-pointer group"
-        onClick={onNavigate}
-      >
-        <div className="flex flex-col lg:flex-row items-stretch min-h-[400px]">
-          {/* قسم الصورة - تم تحسينه للوضوح العالي */}
-          <div className="relative w-full lg:w-[45%] aspect-square lg:aspect-auto overflow-hidden bg-zinc-50 dark:bg-zinc-900/50">
-            <img
-              src={displayImage}
-              alt={product.name_ar}
-              className="w-full h-full object-contain p-8 lg:p-12 group-hover:scale-110 transition-transform duration-700 ease-in-out"
-            />
+      <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3 }} className="w-full">
+        <Card
+          className="relative overflow-hidden border-none bg-white dark:bg-zinc-950 shadow-2xl rounded-[2rem] cursor-pointer group"
+          onClick={onNavigate}
+        >
+          <div className="flex flex-col lg:flex-row items-stretch min-h-[400px]">
+            {/* قسم الصورة - تم تحسينه للوضوح العالي */}
+            <div className="relative w-full lg:w-[45%] aspect-square lg:aspect-auto overflow-hidden bg-zinc-50 dark:bg-zinc-900/50">
+              <img
+                src={displayImage}
+                alt={product.name_ar}
+                className="w-full h-full object-contain p-8 lg:p-12 group-hover:scale-110 transition-transform duration-700 ease-in-out"
+              />
 
-            {/* شارة الخصم الطائرة */}
-            <div className="absolute top-6 right-6">
-              <div className="bg-red-600 text-white px-5 py-2 rounded-2xl text-xl font-black shadow-xl flex items-center gap-1 animate-pulse">
-                <Tag className="w-5 h-5" />%{savingsPercentage}-
+              {/* شارة الخصم الطائرة */}
+              <div className="absolute top-6 right-6">
+                <div className="bg-red-600 text-white px-5 py-2 rounded-2xl text-xl font-black shadow-xl flex items-center gap-1 animate-pulse">
+                  <Tag className="w-5 h-5" />%{savingsPercentage}-
+                </div>
               </div>
-            </div>
 
-            {/* شارة العنوان للجوال */}
-            <div className="absolute bottom-6 left-6 lg:hidden">
-              <div className="bg-orange-500/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg">
-                <Flame className="w-4 h-4 fill-current" />
-                {weeklyProduct.title_ar}
-              </div>
-            </div>
-          </div>
-
-          {/* قسم التفاصيل */}
-          <div className="flex-1 p-8 md:p-12 flex flex-col justify-between bg-gradient-to-br from-transparent to-primary/5">
-            <div>
-              <div className="hidden lg:flex items-center gap-3 mb-6">
-                <span className="bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">
+              {/* شارة العنوان للجوال */}
+              <div className="absolute bottom-6 left-6 lg:hidden">
+                <div className="bg-orange-500/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg">
                   <Flame className="w-4 h-4 fill-current" />
                   {weeklyProduct.title_ar}
-                </span>
-                <div className="h-1 w-1 rounded-full bg-zinc-300" />
-                <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">عرض حصري</span>
-              </div>
-
-              <h3 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white mb-4 leading-[1.2]">
-                {product.name_ar}
-              </h3>
-
-              {weeklyProduct.description_ar && (
-                <p className="text-muted-foreground text-base md:text-lg mb-8 line-clamp-2 font-medium leading-relaxed">
-                  {weeklyProduct.description_ar}
-                </p>
-              )}
-
-              {/* عرض السعر المطور */}
-              <div className="flex flex-wrap items-center gap-6 mb-8 bg-zinc-50 dark:bg-white/5 p-6 rounded-[1.5rem] border border-zinc-100 dark:border-white/10">
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-muted-foreground uppercase">السعر الجديد</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-black text-primary tracking-tighter">
-                      {weeklyProduct.special_price.toLocaleString()}
-                    </span>
-                    <span className="text-xl font-bold text-primary">{currency}</span>
-                  </div>
-                </div>
-
-                <div className="h-12 w-[1px] bg-zinc-200 dark:bg-white/10 hidden sm:block" />
-
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-muted-foreground uppercase">بدلاً من</p>
-                  <span className="text-2xl text-zinc-400 line-through decoration-red-500/50 decoration-2">
-                    {originalPrice.toLocaleString()} {currency}
-                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-8">
-              {/* شريط المعلومات والعداد */}
-              <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between border-t border-zinc-100 dark:border-white/10 pt-8">
-                {/* العداد الزمني */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-zinc-500">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-xs font-black uppercase tracking-wider">ينتهي خلال:</span>
-                  </div>
-                  <div className="flex gap-3" dir="ltr">
-                    {[
-                      { v: timeLeft.days, l: "يوم" },
-                      { v: timeLeft.hours, l: "ساعة" },
-                      { v: timeLeft.minutes, l: "دقيقة" },
-                      { v: timeLeft.seconds, l: "ثانية" },
-                    ].map((t, i) => (
-                      <div key={i} className="flex flex-col items-center">
-                        <div className="bg-zinc-900 dark:bg-white text-white dark:text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg">
-                          {String(t.v).padStart(2, "0")}
-                        </div>
-                        <span className="text-[10px] font-bold mt-2 text-muted-foreground uppercase">{t.l}</span>
-                      </div>
-                    ))}
-                  </div>
+            {/* قسم التفاصيل */}
+            <div className="flex-1 p-8 md:p-12 flex flex-col justify-between bg-gradient-to-br from-transparent to-primary/5">
+              <div>
+                <div className="hidden lg:flex items-center gap-3 mb-6">
+                  <span className="bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                    <Flame className="w-4 h-4 fill-current" />
+                    {weeklyProduct.title_ar}
+                  </span>
+                  <div className="h-1 w-1 rounded-full bg-zinc-300" />
+                  <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">عرض حصري</span>
                 </div>
 
-                {/* زر الشراء والمعلومات */}
-                <div className="flex flex-col gap-4 w-full xl:w-auto min-w-[280px]">
-                  <div className="flex items-center gap-3 bg-primary/10 text-primary p-3 rounded-xl border border-primary/20">
-                    <ShoppingCart className="w-5 h-5" />
-                    <span className="text-xs font-bold leading-none">
-                      عند تسوقك بـ {weeklyProduct.minimum_cart_amount} {currency}
+                <h3 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white mb-4 leading-[1.2]">
+                  {product.name_ar}
+                </h3>
+
+                {weeklyProduct.description_ar && (
+                  <p className="text-muted-foreground text-base md:text-lg mb-8 line-clamp-2 font-medium leading-relaxed">
+                    {weeklyProduct.description_ar}
+                  </p>
+                )}
+
+                {/* عرض السعر المطور */}
+                <div className="flex flex-wrap items-center gap-6 mb-8 bg-zinc-50 dark:bg-white/5 p-6 rounded-[1.5rem] border border-zinc-100 dark:border-white/10">
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-muted-foreground uppercase">السعر الجديد</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-black text-primary tracking-tighter">
+                        {weeklyProduct.special_price.toLocaleString()}
+                      </span>
+                      <span className="text-xl font-bold text-primary">{currency}</span>
+                    </div>
+                  </div>
+
+                  <div className="h-12 w-[1px] bg-zinc-200 dark:bg-white/10 hidden sm:block" />
+
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-muted-foreground uppercase">بدلاً من</p>
+                    <span className="text-2xl text-zinc-400 line-through decoration-red-500/50 decoration-2">
+                      {originalPrice.toLocaleString()} {currency}
                     </span>
                   </div>
-                  <Button
-                    size="lg"
-                    className="h-16 rounded-2xl text-xl font-black gap-3 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-[1.02]"
-                  >
-                    تسوق العرض الآن
-                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                {/* شريط المعلومات والعداد */}
+                <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between border-t border-zinc-100 dark:border-white/10 pt-8">
+                  {/* العداد الزمني */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-zinc-500">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-xs font-black uppercase tracking-wider">ينتهي خلال:</span>
+                    </div>
+                    <div className="flex gap-3" dir="ltr">
+                      {[
+                        { v: timeLeft.days, l: "يوم" },
+                        { v: timeLeft.hours, l: "ساعة" },
+                        { v: timeLeft.minutes, l: "دقيقة" },
+                        { v: timeLeft.seconds, l: "ثانية" },
+                      ].map((t, i) => (
+                        <div key={i} className="flex flex-col items-center">
+                          <div className="bg-zinc-900 dark:bg-white text-white dark:text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg">
+                            {String(t.v).padStart(2, "0")}
+                          </div>
+                          <span className="text-[10px] font-bold mt-2 text-muted-foreground uppercase">{t.l}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* زر الشراء والمعلومات */}
+                  <div className="flex flex-col gap-4 w-full xl:w-auto min-w-[280px]">
+                    <div className="flex items-center gap-3 bg-primary/10 text-primary p-3 rounded-xl border border-primary/20">
+                      <ShoppingCart className="w-5 h-5" />
+                      <span className="text-xs font-bold leading-none">
+                        عند تسوقك بـ {weeklyProduct.minimum_cart_amount} {currency}
+                      </span>
+                    </div>
+                    <Button
+                      size="lg"
+                      className="h-16 rounded-2xl text-xl font-black gap-3 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-[1.02]"
+                    >
+                      تسوق العرض الآن
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </Card>
-    </motion.div>
+        </Card>
+      </motion.div>
+    </div>
   );
 };
 
