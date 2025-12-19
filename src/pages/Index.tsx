@@ -34,26 +34,22 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select(
-          `
+        .select(`
           *,
           product_variants (
             price
           )
-        `,
-        )
+        `)
         .eq("is_featured", true)
         .eq("is_active", true)
         .limit(6);
 
       if (error) throw error;
-
-      return (
-        data?.map((product) => ({
-          ...product,
-          minPrice: product.product_variants?.[0]?.price,
-        })) || []
-      );
+      
+      return data?.map(product => ({
+        ...product,
+        minPrice: product.product_variants?.[0]?.price
+      })) || [];
     },
   });
 
@@ -62,33 +58,32 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select(
-          `
+        .select(`
           *,
           product_variants (
             price
           )
-        `,
-        )
+        `)
         .eq("is_new_arrival", true)
         .eq("is_active", true)
         .limit(6);
 
       if (error) throw error;
-
-      return (
-        data?.map((product) => ({
-          ...product,
-          minPrice: product.product_variants?.[0]?.price,
-        })) || []
-      );
+      
+      return data?.map(product => ({
+        ...product,
+        minPrice: product.product_variants?.[0]?.price
+      })) || [];
     },
   });
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("categories").select("*").limit(4);
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .limit(4);
       if (error) throw error;
       return data;
     },
@@ -99,40 +94,36 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select(
-          `
+        .select(`
           *,
           product_variants (
             price
           )
-        `,
-        )
+        `)
         .eq("is_expert_choice", true)
         .eq("is_active", true)
         .limit(8);
 
       if (error) throw error;
-
-      return (
-        data?.map((product) => ({
-          ...product,
-          minPrice: product.product_variants?.[0]?.price,
-        })) || []
-      );
+      
+      return data?.map(product => ({
+        ...product,
+        minPrice: product.product_variants?.[0]?.price
+      })) || [];
     },
   });
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "متجر مستحضرات التجميل",
-    description: "متجر عراقي متخصص في منتجات العناية بالبشرة ومستحضرات التجميل الأصلية",
-    url: window.location.origin,
-    potentialAction: {
+    "name": "متجر مستحضرات التجميل",
+    "description": "متجر عراقي متخصص في منتجات العناية بالبشرة ومستحضرات التجميل الأصلية",
+    "url": window.location.origin,
+    "potentialAction": {
       "@type": "SearchAction",
-      target: `${window.location.origin}/products?search={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
+      "target": `${window.location.origin}/products?search={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
   };
 
   return (
@@ -147,7 +138,7 @@ const Index = () => {
       <Navbar />
       <WeeklyProductPopup />
       <LiveActivityFeed />
-
+      
       {/* Search Bar */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-4 pb-1 md:pb-2 max-w-[1920px] mx-auto">
         <SearchBar />
@@ -157,6 +148,9 @@ const Index = () => {
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 max-w-[1920px] mx-auto">
         <QuickLinks />
       </section>
+
+      {/* Weekly Product - Special offer */}
+      <WeeklyProduct />
 
       {/* Tertiary Banner - Top promotional banner */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
@@ -172,9 +166,6 @@ const Index = () => {
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
         <SecondaryBanner />
       </section>
-
-      {/* Weekly Product - Special offer */}
-      <WeeklyProduct />
 
       {/* Brands Links - Quick access to brands */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
@@ -223,13 +214,12 @@ const Index = () => {
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {newArrivals.map((product) => {
-                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
-
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
                 return (
-                  <CarouselItem
-                    key={product.id}
-                    className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6"
-                  >
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
                     <ProductCard
                       id={product.id}
                       nameAr={product.name_ar}
@@ -246,6 +236,7 @@ const Index = () => {
           </Carousel>
         </section>
       )}
+
 
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
@@ -269,13 +260,12 @@ const Index = () => {
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {featuredProducts.map((product) => {
-                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
-
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
                 return (
-                  <CarouselItem
-                    key={product.id}
-                    className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6"
-                  >
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
                     <ProductCard
                       id={product.id}
                       nameAr={product.name_ar}
@@ -315,13 +305,12 @@ const Index = () => {
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {expertChoices.map((product) => {
-                const discount = product.minPrice ? calculateDiscount(product.id, product.minPrice, discounts) : null;
-
+                const discount = product.minPrice 
+                  ? calculateDiscount(product.id, product.minPrice, discounts)
+                  : null;
+                  
                 return (
-                  <CarouselItem
-                    key={product.id}
-                    className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6"
-                  >
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6">
                     <ProductCard
                       id={product.id}
                       nameAr={product.name_ar}
@@ -338,7 +327,7 @@ const Index = () => {
           </Carousel>
         </section>
       )}
-
+      
       <Footer />
     </div>
   );
