@@ -66,6 +66,7 @@ import TermsOfService from "./pages/TermsOfService";
 import Favorites from "./pages/Favorites";
 import RoutineBuilder from "./pages/RoutineBuilder";
 import ProductReviewsPage from "./pages/ProductReviews";
+import Offers from "./pages/Offers";
 import ScrollToTop from "./components/ScrollToTop";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
@@ -124,6 +125,7 @@ const App = () => (
           <Route path="/routine-builder" element={<RoutineBuilder />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/offers" element={<Offers />} />
           <Route path="/admin/consultations/print/:id" element={<AdminConsultationPrint />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminHome />} />
