@@ -7,9 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Plus, Minus, ArrowRight, Tag } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, Tag, Gift } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
+import { useWeeklyProduct } from "@/hooks/useWeeklyProduct";
 import { ShareCartButton } from "@/components/ShareCartButton";
 import {
   AlertDialog,
@@ -21,13 +22,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const Cart = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { localCart, updateLocalCartQuantity, removeFromLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
+  const { weeklyProduct, getWeeklyAdjustedPrice } = useWeeklyProduct();
   const [itemToDelete, setItemToDelete] = useState<{ id: string; isLocal: boolean } | null>(null);
 
   const { data: session } = useQuery({
@@ -131,21 +133,68 @@ const Cart = () => {
     },
   });
 
-  const calculateItemPrice = (productId: string, originalPrice: number) => {
+  // Calculate cart total without weekly product discount first (for eligibility check)
+  const baseCartTotal = useMemo(() => {
+    const authTotal = cartItems?.reduce((sum, item) => {
+      const productId = item.product_variants.products.id;
+      const originalPrice = item.product_variants.price;
+      const discount = calculateDiscount(productId, originalPrice, discounts);
+      const finalPrice = discount ? discount.discountedPrice : originalPrice;
+      return sum + finalPrice * item.quantity;
+    }, 0) || 0;
+
+    const localTotal = localCartItems?.reduce((sum, item) => {
+      const discount = calculateDiscount(item.products.id, item.price, discounts);
+      const finalPrice = discount ? discount.discountedPrice : item.price;
+      return sum + finalPrice * item.quantity;
+    }, 0) || 0;
+
+    return session ? authTotal : localTotal;
+  }, [cartItems, localCartItems, discounts, session]);
+
+  // Check if eligible for weekly product
+  const isEligibleForWeeklyDeal = weeklyProduct ? baseCartTotal >= weeklyProduct.minimum_cart_amount : false;
+
+  const calculateItemPrice = (productId: string, variantId: string, originalPrice: number) => {
+    // First check regular discounts
     const discount = calculateDiscount(productId, originalPrice, discounts);
-    return discount ? discount.discountedPrice : originalPrice;
+    const discountedPrice = discount ? discount.discountedPrice : originalPrice;
+    
+    // Then check if this is the weekly product and user is eligible
+    if (weeklyProduct && 
+        weeklyProduct.product_id === productId && 
+        (weeklyProduct.variant_id === variantId || !weeklyProduct.variant_id) &&
+        isEligibleForWeeklyDeal) {
+      return {
+        price: weeklyProduct.special_price,
+        isWeeklyDeal: true,
+        originalPrice: originalPrice,
+        discountedPrice: discountedPrice
+      };
+    }
+    
+    return {
+      price: discountedPrice,
+      isWeeklyDeal: false,
+      originalPrice: originalPrice,
+      discountedPrice: discountedPrice
+    };
   };
 
   const total =
     cartItems?.reduce((sum, item) => {
-      const finalPrice = calculateItemPrice(item.product_variants.products.id, item.product_variants.price);
-      return sum + finalPrice * item.quantity;
+      const priceInfo = calculateItemPrice(
+        item.product_variants.products.id, 
+        item.product_variant_id,
+        item.product_variants.price
+      );
+      return sum + priceInfo.price * item.quantity;
     }, 0) || 0;
 
   const localTotal =
     localCartItems?.reduce((sum, item) => {
-      const finalPrice = calculateItemPrice(item.products.id, item.price);
-      return sum + finalPrice * item.quantity;
+      const priceInfo = calculateItemPrice(item.products.id, item.id, item.price);
+      return sum + priceInfo.price * item.quantity;
     }, 0) || 0;
 
   // حساب رسوم التوصيل
@@ -218,6 +267,27 @@ const Cart = () => {
 
                       <div>
                         {(() => {
+                          const priceInfo = calculateItemPrice(item.products.id, item.id, item.price);
+                          
+                          if (priceInfo.isWeeklyDeal) {
+                            return (
+                              <div className="space-y-1.5">
+                                <Badge className="flex items-center gap-1 w-fit bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                                  <Gift className="h-3 w-3" />
+                                  عرض منتج الأسبوع
+                                </Badge>
+                                <div className="flex items-baseline gap-2">
+                                  <p className="font-bold text-primary text-lg">
+                                    {Math.round(priceInfo.price)} د.ع
+                                  </p>
+                                  <p className="text-sm text-muted-foreground line-through">
+                                    {Math.round(item.price)} د.ع
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          }
+                          
                           const discount = calculateDiscount(item.products.id, item.price, discounts);
                           return discount ? (
                             <div className="space-y-1.5">
@@ -408,9 +478,28 @@ const Cart = () => {
                     <div className="flex items-center gap-2 flex-wrap">
                       {(() => {
                         const productId = item.product_variants.products.id;
+                        const variantId = item.product_variant_id;
                         const originalPrice = item.product_variants.price;
-                        const discount = calculateDiscount(productId, originalPrice, discounts);
+                        const priceInfo = calculateItemPrice(productId, variantId, originalPrice);
 
+                        if (priceInfo.isWeeklyDeal) {
+                          return (
+                            <>
+                              <Badge className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                                <Gift className="h-3 w-3 ml-1" />
+                                عرض منتج الأسبوع
+                              </Badge>
+                              <p className="font-bold text-primary text-lg">
+                                {Math.round(priceInfo.price)} د.ع
+                              </p>
+                              <p className="text-sm text-muted-foreground line-through">
+                                {Math.round(originalPrice)} د.ع
+                              </p>
+                            </>
+                          );
+                        }
+
+                        const discount = calculateDiscount(productId, originalPrice, discounts);
                         if (discount) {
                           return (
                             <>
