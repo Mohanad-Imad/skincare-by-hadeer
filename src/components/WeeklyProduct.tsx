@@ -274,10 +274,10 @@ const WeeklyProduct = () => {
             </div>
 
             {/* Product Display */}
-            <div className="grid md:grid-cols-2 gap-6 items-center">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 items-center">
               {/* Product Image */}
               <div 
-                className="relative aspect-square rounded-2xl overflow-hidden bg-card shadow-lg cursor-pointer group"
+                className="relative aspect-[4/3] md:aspect-square rounded-xl md:rounded-2xl overflow-hidden bg-card shadow-lg cursor-pointer group max-h-48 md:max-h-none"
                 onClick={() => navigate(`/products/${product.id}`)}
               >
                 <img
@@ -286,62 +286,62 @@ const WeeklyProduct = () => {
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {savingsPercentage > 0 && (
-                  <div className="absolute top-3 left-3 bg-destructive text-destructive-foreground px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                  <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-destructive text-destructive-foreground px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
                     خصم {savingsPercentage}%
                   </div>
                 )}
               </div>
 
               {/* Product Info */}
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <div>
                   <h3 
-                    className="text-xl md:text-2xl font-bold text-foreground mb-2 cursor-pointer hover:text-primary transition-colors"
+                    className="text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-2 cursor-pointer hover:text-primary transition-colors line-clamp-2"
                     onClick={() => navigate(`/products/${product.id}`)}
                   >
                     {product.name_ar}
                   </h3>
                   {product.company_name_ar && (
-                    <p className="text-muted-foreground">{product.company_name_ar}</p>
+                    <p className="text-sm md:text-base text-muted-foreground">{product.company_name_ar}</p>
                   )}
                 </div>
 
                 {/* Pricing */}
-                <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <span className="text-3xl font-bold text-primary">
+                <div className="bg-card/80 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 border border-border/50">
+                  <div className="flex flex-wrap items-baseline gap-2 md:gap-3 mb-1 md:mb-2">
+                    <span className="text-xl md:text-3xl font-bold text-primary">
                       {weeklyProduct.special_price.toLocaleString()} {currency}
                     </span>
                     {originalPrice > weeklyProduct.special_price && (
-                      <span className="text-lg text-muted-foreground line-through">
+                      <span className="text-sm md:text-lg text-muted-foreground line-through">
                         {originalPrice.toLocaleString()} {currency}
                       </span>
                     )}
                   </div>
                   {savingsAmount > 0 && (
-                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                    <p className="text-xs md:text-sm text-green-600 dark:text-green-400 font-medium">
                       توفير {savingsAmount.toLocaleString()} {currency}
                     </p>
                   )}
                 </div>
 
                 {/* Eligibility Status */}
-                <div className={`rounded-xl p-4 border-2 ${
+                <div className={`rounded-lg md:rounded-xl p-3 md:p-4 border-2 ${
                   isEligible 
                     ? "bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-700" 
                     : "bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700"
                 }`}>
                   {isEligible ? (
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                      <ShoppingCart className="h-5 w-5" />
-                      <span className="font-semibold">مؤهل للحصول على العرض!</span>
+                      <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
+                      <span className="text-sm md:text-base font-semibold">مؤهل للحصول على العرض!</span>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-amber-700 dark:text-amber-400 font-medium mb-1">
+                      <p className="text-sm md:text-base text-amber-700 dark:text-amber-400 font-medium mb-0.5 md:mb-1">
                         أضف منتجات بقيمة {remainingAmount.toLocaleString()} {currency} للسلة
                       </p>
-                      <p className="text-sm text-amber-600 dark:text-amber-500">
+                      <p className="text-xs md:text-sm text-amber-600 dark:text-amber-500">
                         الحد الأدنى للسلة: {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency}
                       </p>
                     </div>
@@ -351,10 +351,10 @@ const WeeklyProduct = () => {
                 {/* CTA Button */}
                 <Button
                   size="lg"
-                  className="w-full text-lg py-6 shadow-lg"
+                  className="w-full text-sm md:text-lg py-4 md:py-6 shadow-lg"
                   onClick={() => navigate(`/products/${product.id}`)}
                 >
-                  <ShoppingCart className="h-5 w-5 ml-2" />
+                  <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 ml-2" />
                   {isEligible ? "أضف للسلة بالسعر المخفض" : "عرض المنتج"}
                 </Button>
               </div>
