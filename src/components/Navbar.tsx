@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart, Sparkles, Headset, BookOpen, Star, Briefcase } from "lucide-react";
+import { Home, ShoppingBag, User, Package, Shield, ShoppingCart, Menu, Grid3x3, ChevronDown, Heart, Sparkles, Headset, BookOpen, Star, Briefcase, Percent } from "lucide-react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +27,7 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [offersOpen, setOffersOpen] = useState(false);
 
   const { data: settings } = useQuery({
     queryKey: ["store-settings"],
@@ -261,6 +262,36 @@ export const Navbar = () => {
                   </CollapsibleContent>
                 </Collapsible>
 
+                <Collapsible open={offersOpen} onOpenChange={setOffersOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2"
+                    >
+                      <Percent className="h-4 w-4" />
+                      الخصومات والعروض
+                      <ChevronDown className={`h-4 w-4 mr-auto transition-transform ${offersOpen ? "rotate-180" : ""}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pr-4 space-y-1">
+                    <div className="border-l-2 border-border pl-2 space-y-1">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start gap-2 text-sm"
+                        onClick={() => {
+                          handleNavigate("/#weekly-product");
+                          setTimeout(() => {
+                            document.getElementById("weekly-product")?.scrollIntoView({ behavior: "smooth" });
+                          }, 100);
+                        }}
+                      >
+                        <Star className="h-4 w-4" />
+                        منتج الأسبوع
+                      </Button>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
                 <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                   <CollapsibleTrigger asChild>
                     <Button
@@ -464,6 +495,34 @@ export const Navbar = () => {
               <DropdownMenuItem onClick={() => navigate("/celebrity-routines")} className="gap-2 cursor-pointer">
                 <Star className="h-4 w-4" />
                 روتينات المشاهير
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5"
+              >
+                <Percent className="h-4 w-4" />
+                الخصومات والعروض
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-48">
+              <DropdownMenuItem 
+                onClick={() => {
+                  navigate("/");
+                  setTimeout(() => {
+                    document.getElementById("weekly-product")?.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }} 
+                className="gap-2 cursor-pointer"
+              >
+                <Star className="h-4 w-4" />
+                منتج الأسبوع
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

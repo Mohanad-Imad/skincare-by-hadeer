@@ -205,161 +205,76 @@ const WeeklyProduct = () => {
 
   return (
     <motion.div 
+      id="weekly-product"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-6"
+      className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-3 max-w-[1920px] mx-auto"
     >
-      <Card className="overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/20 border-2 border-primary/30 shadow-xl">
-        <div className="relative">
-          {/* Header with flame animation */}
-          <div className="absolute -top-1 right-4 z-10">
-            <motion.div
-              animate={{ 
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0]
-              }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="bg-destructive text-destructive-foreground px-4 py-2 rounded-b-xl shadow-lg flex items-center gap-2"
-            >
-              <Flame className="h-5 w-5" />
-              <span className="font-bold text-sm">عرض حصري</span>
-            </motion.div>
-          </div>
-
-          <div className="p-6 md:p-8 pt-10 md:pt-12">
-            {/* Title */}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
-                <Gift className="h-7 w-7" />
-                {weeklyProduct.title_ar}
-              </h2>
-              {weeklyProduct.description_ar && (
-                <p className="text-muted-foreground">{weeklyProduct.description_ar}</p>
-              )}
-            </div>
-
-            {/* Countdown Timer */}
-            <div className="flex justify-center mb-6">
-              <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 shadow-inner border border-border/50">
-                <div className="flex items-center gap-2 text-muted-foreground mb-2 justify-center">
-                  <Clock className="h-4 w-4" />
-                  <span className="text-sm font-medium">ينتهي العرض خلال</span>
-                </div>
-                <div className="flex gap-3 justify-center" dir="ltr">
-                  {[
-                    { value: timeLeft.days, label: "يوم" },
-                    { value: timeLeft.hours, label: "ساعة" },
-                    { value: timeLeft.minutes, label: "دقيقة" },
-                    { value: timeLeft.seconds, label: "ثانية" },
-                  ].map((item, index) => (
-                    <div key={index} className="text-center">
-                      <motion.div
-                        key={item.value}
-                        initial={{ scale: 1.2 }}
-                        animate={{ scale: 1 }}
-                        className="bg-primary text-primary-foreground w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold shadow-md"
-                      >
-                        {String(item.value).padStart(2, "0")}
-                      </motion.div>
-                      <span className="text-xs text-muted-foreground mt-1 block">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Product Display */}
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6 items-center">
-              {/* Product Image */}
-              <div 
-                className="relative aspect-[4/3] md:aspect-square rounded-xl md:rounded-2xl overflow-hidden bg-card shadow-lg cursor-pointer group max-h-48 md:max-h-none"
-                onClick={() => navigate(`/products/${product.id}`)}
-              >
-                <img
-                  src={product.image_url || "/placeholder.svg"}
-                  alt={product.name_ar}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                {savingsPercentage > 0 && (
-                  <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-destructive text-destructive-foreground px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg">
-                    خصم {savingsPercentage}%
-                  </div>
-                )}
-              </div>
-
-              {/* Product Info */}
-              <div className="space-y-3 md:space-y-4">
-                <div>
-                  <h3 
-                    className="text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-2 cursor-pointer hover:text-primary transition-colors line-clamp-2"
-                    onClick={() => navigate(`/products/${product.id}`)}
-                  >
-                    {product.name_ar}
-                  </h3>
-                  {product.company_name_ar && (
-                    <p className="text-sm md:text-base text-muted-foreground">{product.company_name_ar}</p>
-                  )}
-                </div>
-
-                {/* Pricing */}
-                <div className="bg-card/80 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 border border-border/50">
-                  <div className="flex flex-wrap items-baseline gap-2 md:gap-3 mb-1 md:mb-2">
-                    <span className="text-xl md:text-3xl font-bold text-primary">
-                      {weeklyProduct.special_price.toLocaleString()} {currency}
-                    </span>
-                    {originalPrice > weeklyProduct.special_price && (
-                      <span className="text-sm md:text-lg text-muted-foreground line-through">
-                        {originalPrice.toLocaleString()} {currency}
-                      </span>
-                    )}
-                  </div>
-                  {savingsAmount > 0 && (
-                    <p className="text-xs md:text-sm text-green-600 dark:text-green-400 font-medium">
-                      توفير {savingsAmount.toLocaleString()} {currency}
-                    </p>
-                  )}
-                </div>
-
-                {/* Eligibility Status */}
-                <div className={`rounded-lg md:rounded-xl p-3 md:p-4 border-2 ${
-                  isEligible 
-                    ? "bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-700" 
-                    : "bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700"
-                }`}>
-                  {isEligible ? (
-                    <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                      <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
-                      <span className="text-sm md:text-base font-semibold">مؤهل للحصول على العرض!</span>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-sm md:text-base text-amber-700 dark:text-amber-400 font-medium mb-0.5 md:mb-1">
-                        أضف منتجات بقيمة {remainingAmount.toLocaleString()} {currency} للسلة
-                      </p>
-                      <p className="text-xs md:text-sm text-amber-600 dark:text-amber-500">
-                        الحد الأدنى للسلة: {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* CTA Button */}
-                <Button
-                  size="lg"
-                  className="w-full text-sm md:text-lg py-4 md:py-6 shadow-lg"
-                  onClick={() => navigate(`/products/${product.id}`)}
-                >
-                  <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 ml-2" />
-                  {isEligible ? "أضف للسلة بالسعر المخفض" : "عرض المنتج"}
-                </Button>
-              </div>
+      <Card 
+        className="overflow-hidden bg-gradient-to-r from-primary/5 via-background to-primary/5 border border-primary/20 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+        onClick={() => navigate(`/products/${product.id}`)}
+      >
+        <div className="flex items-center gap-4 p-4">
+          {/* Product Image */}
+          <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+            <img
+              src={product.image_url || "/placeholder.svg"}
+              alt={product.name_ar}
+              className="w-full h-full object-contain p-2"
+            />
+            <div className="absolute top-1 right-1 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+              -{savingsPercentage}%
             </div>
           </div>
+
+          {/* Product Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <Flame className="h-4 w-4 text-destructive flex-shrink-0" />
+              <span className="text-xs font-medium text-destructive">{weeklyProduct.title_ar}</span>
+            </div>
+            <h3 className="font-bold text-sm md:text-base text-foreground truncate">{product.name_ar}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-lg font-bold text-primary">
+                {weeklyProduct.special_price} {currency}
+              </span>
+              <span className="text-sm text-muted-foreground line-through">
+                {originalPrice} {currency}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              عند الشراء بـ {weeklyProduct.minimum_cart_amount} {currency}+
+            </p>
+          </div>
+
+          {/* Countdown */}
+          <div className="hidden sm:flex flex-col items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>ينتهي خلال</span>
+            </div>
+            <div className="flex gap-1" dir="ltr">
+              {[
+                { value: timeLeft.days, label: "ي" },
+                { value: timeLeft.hours, label: "س" },
+                { value: timeLeft.minutes, label: "د" },
+              ].map((item, index) => (
+                <div key={index} className="text-center">
+                  <div className="bg-primary/10 text-primary w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold">
+                    {String(item.value).padStart(2, "0")}
+                  </div>
+                  <span className="text-[8px] text-muted-foreground">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <Button size="sm" className="hidden md:flex gap-1 flex-shrink-0">
+            <ShoppingCart className="h-4 w-4" />
+            تسوق
+          </Button>
         </div>
       </Card>
     </motion.div>
