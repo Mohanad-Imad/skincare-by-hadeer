@@ -231,7 +231,7 @@ const WeeklyProduct = () => {
             </motion.div>
           </div>
 
-          <div className="p-6 md:p-8">
+          <div className="p-6 md:p-8 pt-10 md:pt-12">
             {/* Title */}
             <div className="text-center mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
