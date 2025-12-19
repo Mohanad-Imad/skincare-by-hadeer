@@ -3,19 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ShoppingCart, Flame, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, ShoppingCart, Flame, Tag, ChevronRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { useLocalCart } from "@/hooks/useLocalCart";
-import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { motion } from "framer-motion";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 interface WeeklyProductData {
   id: string;
@@ -51,7 +43,6 @@ interface WeeklyProductCardProps {
 const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: WeeklyProductCardProps) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Get variant price
   const getOriginalPrice = useCallback(() => {
     if (weeklyProduct?.variant_id && product?.product_variants) {
       const variant = product.product_variants.find((v: any) => v.id === weeklyProduct.variant_id);
@@ -67,17 +58,11 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
   const savingsAmount = originalPrice - (weeklyProduct?.special_price || 0);
   const savingsPercentage = originalPrice > 0 ? Math.round((savingsAmount / originalPrice) * 100) : 0;
 
-  // Countdown timer
   useEffect(() => {
     if (!weeklyProduct?.ends_at) return;
-
     const calculateTimeLeft = () => {
       const difference = new Date(weeklyProduct.ends_at).getTime() - new Date().getTime();
-      
-      if (difference <= 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-      }
-
+      if (difference <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
       return {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
@@ -85,157 +70,131 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
         seconds: Math.floor((difference / 1000) % 60),
       };
     };
-
     setTimeLeft(calculateTimeLeft());
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
+    const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
     return () => clearInterval(timer);
   }, [weeklyProduct?.ends_at]);
 
-  // Get custom image or fallback to product image
   const displayImage = weeklyProduct.image_url || product.image_url || "/placeholder.svg";
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.005 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
-      <Card 
-        className="relative overflow-hidden cursor-pointer group"
+    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3 }} className="w-full">
+      <Card
+        className="relative overflow-hidden border-none bg-white dark:bg-zinc-950 shadow-2xl rounded-[2rem] cursor-pointer group"
         onClick={onNavigate}
       >
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-destructive/10 via-primary/5 to-destructive/10" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-destructive/20" />
-        
-        {/* Glowing border effect */}
-        <div className="absolute inset-0 rounded-lg border-2 border-primary/30 group-hover:border-primary/50 transition-colors" />
-
-        <div className="relative flex flex-col md:flex-row items-stretch">
-          {/* Large Product Image Section */}
-          <div className="relative w-full md:w-2/5 lg:w-1/3 min-h-[200px] md:min-h-[220px] overflow-hidden">
-            {/* Image glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-destructive/10" />
-            
+        <div className="flex flex-col lg:flex-row items-stretch min-h-[400px]">
+          {/* قسم الصورة - تم تحسينه للوضوح العالي */}
+          <div className="relative w-full lg:w-[45%] aspect-square lg:aspect-auto overflow-hidden bg-zinc-50 dark:bg-zinc-900/50">
             <img
               src={displayImage}
               alt={product.name_ar}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-contain p-8 lg:p-12 group-hover:scale-110 transition-transform duration-700 ease-in-out"
             />
-            
-            {/* Gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-background/90" />
-            
-            {/* Discount badge */}
-            <motion.div 
-              initial={{ scale: 0, rotate: -12 }}
-              animate={{ scale: 1, rotate: -12 }}
-              transition={{ type: "spring", delay: 0.2 }}
-              className="absolute top-4 right-4 bg-destructive text-destructive-foreground text-lg font-black px-4 py-2 rounded-xl shadow-2xl"
-            >
-              -{savingsPercentage}%
-            </motion.div>
 
-            {/* Title badge on mobile */}
-            <div className="absolute bottom-4 right-4 md:hidden flex items-center gap-2 bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
-              <motion.div
-                animate={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-              >
-                <Flame className="h-4 w-4 text-destructive" />
-              </motion.div>
-              <span className="text-sm font-bold text-destructive">{weeklyProduct.title_ar}</span>
+            {/* شارة الخصم الطائرة */}
+            <div className="absolute top-6 right-6">
+              <div className="bg-red-600 text-white px-5 py-2 rounded-2xl text-xl font-black shadow-xl flex items-center gap-1 animate-pulse">
+                <Tag className="w-5 h-5" />%{savingsPercentage}-
+              </div>
+            </div>
+
+            {/* شارة العنوان للجوال */}
+            <div className="absolute bottom-6 left-6 lg:hidden">
+              <div className="bg-orange-500/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg">
+                <Flame className="w-4 h-4 fill-current" />
+                {weeklyProduct.title_ar}
+              </div>
             </div>
           </div>
 
-          {/* Content Section */}
-          <div className="flex-1 p-5 md:p-6 flex flex-col justify-center gap-4">
-            {/* Title badge on desktop */}
-            <div className="hidden md:flex items-center gap-2">
-              <motion.div
-                animate={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-              >
-                <Flame className="h-6 w-6 text-destructive" />
-              </motion.div>
-              <span className="text-lg font-black text-destructive">{weeklyProduct.title_ar}</span>
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-              >
-                <Flame className="h-6 w-6 text-destructive" />
-              </motion.div>
-            </div>
-            
-            {/* Product name */}
-            <h3 className="font-black text-xl md:text-2xl text-foreground line-clamp-2">
-              {product.name_ar}
-            </h3>
-            
-            {/* Description if available */}
-            {weeklyProduct.description_ar && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {weeklyProduct.description_ar}
-              </p>
-            )}
-            
-            {/* Price section */}
-            <div className="flex flex-wrap items-baseline gap-3">
-              <span className="text-3xl md:text-4xl font-black text-primary">
-                {weeklyProduct.special_price.toLocaleString()}
-              </span>
-              <span className="text-xl text-muted-foreground line-through">
-                {originalPrice.toLocaleString()}
-              </span>
-              <span className="text-base text-muted-foreground">{currency}</span>
-              <span className="bg-primary/10 text-primary text-sm font-bold px-3 py-1 rounded-full">
-                وفر {savingsAmount.toLocaleString()} {currency}
-              </span>
-            </div>
-            
-            {/* Minimum cart requirement */}
-            <div className="inline-flex items-center gap-2 bg-muted/50 text-muted-foreground text-sm font-medium px-4 py-2 rounded-full w-fit">
-              <ShoppingCart className="h-4 w-4" />
-              <span>عند الشراء بـ {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency} أو أكثر</span>
-            </div>
-
-            {/* Bottom row: Timer and CTA */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
-              {/* Countdown Timer */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>ينتهي خلال</span>
-                </div>
-                <div className="flex gap-1.5" dir="ltr">
-                  {[
-                    { value: timeLeft.days, label: "ي" },
-                    { value: timeLeft.hours, label: "س" },
-                    { value: timeLeft.minutes, label: "د" },
-                    { value: timeLeft.seconds, label: "ث" },
-                  ].map((item, index) => (
-                    <div key={index} className="text-center">
-                      <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-sm md:text-lg font-black shadow-md">
-                        {String(item.value).padStart(2, "0")}
-                      </div>
-                      <span className="text-[9px] text-muted-foreground">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
+          {/* قسم التفاصيل */}
+          <div className="flex-1 p-8 md:p-12 flex flex-col justify-between bg-gradient-to-br from-transparent to-primary/5">
+            <div>
+              <div className="hidden lg:flex items-center gap-3 mb-6">
+                <span className="bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                  <Flame className="w-4 h-4 fill-current" />
+                  {weeklyProduct.title_ar}
+                </span>
+                <div className="h-1 w-1 rounded-full bg-zinc-300" />
+                <span className="text-muted-foreground text-xs font-bold uppercase tracking-widest">عرض حصري</span>
               </div>
 
-              {/* CTA Button */}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button size="lg" className="gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg hover:shadow-xl transition-shadow font-bold text-base px-6">
-                  <ShoppingCart className="h-5 w-5" />
-                  تسوق الآن
-                </Button>
-              </motion.div>
+              <h3 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white mb-4 leading-[1.2]">
+                {product.name_ar}
+              </h3>
+
+              {weeklyProduct.description_ar && (
+                <p className="text-muted-foreground text-base md:text-lg mb-8 line-clamp-2 font-medium leading-relaxed">
+                  {weeklyProduct.description_ar}
+                </p>
+              )}
+
+              {/* عرض السعر المطور */}
+              <div className="flex flex-wrap items-center gap-6 mb-8 bg-zinc-50 dark:bg-white/5 p-6 rounded-[1.5rem] border border-zinc-100 dark:border-white/10">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-muted-foreground uppercase">السعر الجديد</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-black text-primary tracking-tighter">
+                      {weeklyProduct.special_price.toLocaleString()}
+                    </span>
+                    <span className="text-xl font-bold text-primary">{currency}</span>
+                  </div>
+                </div>
+
+                <div className="h-12 w-[1px] bg-zinc-200 dark:bg-white/10 hidden sm:block" />
+
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-muted-foreground uppercase">بدلاً من</p>
+                  <span className="text-2xl text-zinc-400 line-through decoration-red-500/50 decoration-2">
+                    {originalPrice.toLocaleString()} {currency}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {/* شريط المعلومات والعداد */}
+              <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between border-t border-zinc-100 dark:border-white/10 pt-8">
+                {/* العداد الزمني */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-zinc-500">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-xs font-black uppercase tracking-wider">ينتهي خلال:</span>
+                  </div>
+                  <div className="flex gap-3" dir="ltr">
+                    {[
+                      { v: timeLeft.days, l: "يوم" },
+                      { v: timeLeft.hours, l: "ساعة" },
+                      { v: timeLeft.minutes, l: "دقيقة" },
+                      { v: timeLeft.seconds, l: "ثانية" },
+                    ].map((t, i) => (
+                      <div key={i} className="flex flex-col items-center">
+                        <div className="bg-zinc-900 dark:bg-white text-white dark:text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg">
+                          {String(t.v).padStart(2, "0")}
+                        </div>
+                        <span className="text-[10px] font-bold mt-2 text-muted-foreground uppercase">{t.l}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* زر الشراء والمعلومات */}
+                <div className="flex flex-col gap-4 w-full xl:w-auto min-w-[280px]">
+                  <div className="flex items-center gap-3 bg-primary/10 text-primary p-3 rounded-xl border border-primary/20">
+                    <ShoppingCart className="w-5 h-5" />
+                    <span className="text-xs font-bold leading-none">
+                      عند تسوقك بـ {weeklyProduct.minimum_cart_amount} {currency}
+                    </span>
+                  </div>
+                  <Button
+                    size="lg"
+                    className="h-16 rounded-2xl text-xl font-black gap-3 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-[1.02]"
+                  >
+                    تسوق العرض الآن
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -247,15 +206,10 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
 const WeeklyProduct = () => {
   const navigate = useNavigate();
 
-  // Fetch store settings for currency
   const { data: storeSettings } = useQuery({
     queryKey: ["store-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("store_settings")
-        .select("currency")
-        .limit(1)
-        .maybeSingle();
+      const { data, error } = await supabase.from("store_settings").select("currency").limit(1).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -263,7 +217,6 @@ const WeeklyProduct = () => {
 
   const currency = storeSettings?.currency || "د.ع";
 
-  // Fetch all active weekly products
   const { data: weeklyProducts, isLoading: isLoadingWeekly } = useQuery({
     queryKey: ["weekly-products-all"],
     queryFn: async () => {
@@ -275,113 +228,68 @@ const WeeklyProduct = () => {
         .lte("starts_at", now)
         .gt("ends_at", now)
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       return data as WeeklyProductData[];
     },
-    staleTime: 1000 * 60 * 5,
   });
 
-  // Get all product IDs from weekly products
-  const productIds = weeklyProducts?.map(wp => wp.product_id).filter(Boolean) || [];
+  const productIds = weeklyProducts?.map((wp) => wp.product_id).filter(Boolean) || [];
 
-  // Fetch all product details
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["weekly-products-details", productIds],
     queryFn: async () => {
       if (productIds.length === 0) return [];
-      const { data, error } = await supabase
-        .from("products")
-        .select(`
-          *,
-          product_variants (*)
-        `)
-        .in("id", productIds);
-
+      const { data, error } = await supabase.from("products").select("*, product_variants (*)").in("id", productIds);
       if (error) throw error;
       return data;
     },
     enabled: productIds.length > 0,
   });
 
-  if (isLoadingWeekly) {
+  if (isLoadingWeekly || isLoadingProducts) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <Skeleton className="h-32 w-full rounded-2xl" />
+      <div className="w-full px-6 py-12 max-w-[1400px] mx-auto">
+        <Skeleton className="h-[500px] w-full rounded-[3rem]" />
       </div>
     );
   }
 
-  if (!weeklyProducts || weeklyProducts.length === 0) {
-    return null;
-  }
-
-  // Map products to weekly products
   const weeklyProductsWithDetails = weeklyProducts
-    .map(wp => {
-      const product = products?.find(p => p.id === wp.product_id);
-      return { weeklyProduct: wp, product };
-    })
-    .filter(item => item.product);
+    ?.map((wp) => ({ weeklyProduct: wp, product: products?.find((p) => p.id === wp.product_id) }))
+    .filter((item) => item.product);
 
-  if (weeklyProductsWithDetails.length === 0) {
-    return null;
-  }
+  if (!weeklyProductsWithDetails || weeklyProductsWithDetails.length === 0) return null;
 
-  // Single product - no carousel
-  if (weeklyProductsWithDetails.length === 1) {
-    const { weeklyProduct, product } = weeklyProductsWithDetails[0];
-    return (
-      <motion.div 
-        id="weekly-product"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-3 max-w-[1920px] mx-auto"
-      >
-        <WeeklyProductCard
-          weeklyProduct={weeklyProduct}
-          product={product}
-          currency={currency}
-          onNavigate={() => navigate(`/products/${product.id}`)}
-        />
-      </motion.div>
-    );
-  }
-
-  // Multiple products - use carousel
   return (
-    <motion.div 
-      id="weekly-product"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-3 max-w-[1920px] mx-auto"
-    >
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-          direction: "rtl",
-        }}
-        className="w-full relative"
-      >
-        <CarouselContent className="-mr-0">
-          {weeklyProductsWithDetails.map(({ weeklyProduct, product }) => (
-            <CarouselItem key={weeklyProduct.id} className="pr-0">
-              <WeeklyProductCard
-                weeklyProduct={weeklyProduct}
-                product={product}
-                currency={currency}
-                onNavigate={() => navigate(`/products/${product.id}`)}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="absolute -left-2 md:left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-background/80 backdrop-blur-sm border-primary/20 hover:bg-primary hover:text-primary-foreground" />
-        <CarouselNext className="absolute -right-2 md:right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-background/80 backdrop-blur-sm border-primary/20 hover:bg-primary hover:text-primary-foreground" />
-      </Carousel>
-    </motion.div>
+    <section id="weekly-product" className="w-full px-4 md:px-8 py-12 max-w-[1600px] mx-auto overflow-hidden">
+      {weeklyProductsWithDetails.length === 1 ? (
+        <WeeklyProductCard
+          weeklyProduct={weeklyProductsWithDetails[0].weeklyProduct}
+          product={weeklyProductsWithDetails[0].product}
+          currency={currency}
+          onNavigate={() => navigate(`/products/${weeklyProductsWithDetails[0].product.id}`)}
+        />
+      ) : (
+        <Carousel opts={{ align: "start", loop: true, direction: "rtl" }} className="w-full">
+          <CarouselContent className="-ml-4">
+            {weeklyProductsWithDetails.map(({ weeklyProduct, product }) => (
+              <CarouselItem key={weeklyProduct.id} className="pl-4">
+                <WeeklyProductCard
+                  weeklyProduct={weeklyProduct}
+                  product={product}
+                  currency={currency}
+                  onNavigate={() => navigate(`/products/${product.id}`)}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="flex justify-center gap-4 mt-8">
+            <CarouselPrevious className="static translate-y-0 h-12 w-12 rounded-full border-2 border-primary/20 hover:bg-primary hover:text-white transition-all" />
+            <CarouselNext className="static translate-y-0 h-12 w-12 rounded-full border-2 border-primary/20 hover:bg-primary hover:text-white transition-all" />
+          </div>
+        </Carousel>
+      )}
+    </section>
   );
 };
 
