@@ -146,6 +146,9 @@ const Index = () => {
         <QuickLinks />
       </section>
 
+      {/* Weekly Product - Special offer */}
+      <WeeklyProduct />
+
       {/* Tertiary Banner - Top promotional banner */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-3 max-w-[1920px] mx-auto">
         <TertiaryBanner />
@@ -165,9 +168,6 @@ const Index = () => {
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
         <BrandsLinks />
       </section>
-
-      {/* Weekly Product - Special offer */}
-      <WeeklyProduct />
 
       {/* Makeup Banner */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-2 md:pb-3 max-w-[1920px] mx-auto">
