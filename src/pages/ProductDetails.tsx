@@ -217,9 +217,11 @@ const ProductDetails = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["cart-count"],
-      });
+      // تحديث جميع query keys المتعلقة بالسلة
+      queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-items-count"] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["cart-items"] });
       setShowMiniCart(true);
     },
     onError: () => {
