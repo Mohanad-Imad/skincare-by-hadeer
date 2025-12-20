@@ -65,6 +65,8 @@ export const BottomNavPro = () => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["cart-items-count", user.id] });
+          queryClient.invalidateQueries({ queryKey: ["cart-count", user.id] });
+          queryClient.invalidateQueries({ queryKey: ["cart-count"] });
         },
       )
       .subscribe();
