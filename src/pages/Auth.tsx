@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { z } from "zod";
 import { ArrowRight, Chrome, Mail } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const authSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").max(255, "البريد الإلكتروني طويل جداً"),
@@ -18,6 +19,7 @@ const authSchema = z.object({
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +36,14 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_IN' && session) {
+          // تحديث React Query cache لتحديث حالة المستخدم في جميع المكونات
+          setTimeout(() => {
+            queryClient.invalidateQueries({ queryKey: ["session"] });
+            queryClient.invalidateQueries({ queryKey: ["is-admin"] });
+            queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+          }, 0);
+          
           // عرض رسالة النجاح عند تأكيد البريد الإلكتروني أو تسجيل الدخول
           toast.success("تم تسجيل الدخول بنجاح");
           navigate(redirectTo);
@@ -49,7 +59,7 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, redirectTo]);
+  }, [navigate, redirectTo, queryClient]);
 
   const handleGoogleAuth = async () => {
     try {
