@@ -141,7 +141,7 @@ export const FreeShippingBar = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-center gap-2 text-sm font-medium">
               <Sparkles className="h-4 w-4" />
-              <span>أحسنت! باقي {Math.round(remaining)} دينار فقط للحصول على الشحن المجاني! 🎁</span>
+              <span>أحسنت! باقي لك {Math.round(remaining)} دينار فقط! لا تفوت الفرصة.</span>
             </div>
             <Progress value={progress} className="h-1.5 bg-white/30" />
           </div>
