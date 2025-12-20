@@ -2,10 +2,12 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocalCart } from "./useLocalCart";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useCartMigration = () => {
   const { localCart, clearLocalCart } = useLocalCart();
   const migrationInProgress = useRef(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const migrateCart = async (userId: string) => {
@@ -41,6 +43,13 @@ export const useCartMigration = () => {
         }
 
         clearLocalCart();
+        
+        // تحديث جميع queries المتعلقة بالسلة
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+        queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+        queryClient.invalidateQueries({ queryKey: ["cart-items"] });
+        queryClient.invalidateQueries({ queryKey: ["cart-items-count"] });
+        
         toast.success("تم نقل منتجات السلة بنجاح");
       } catch (error) {
         if (import.meta.env.DEV) {
@@ -71,5 +80,5 @@ export const useCartMigration = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [localCart, clearLocalCart]);
+  }, [localCart, clearLocalCart, queryClient]);
 };
