@@ -38,10 +38,20 @@ const Auth = () => {
         if (event === 'SIGNED_IN' && session) {
           // تحديث React Query cache لتحديث حالة المستخدم في جميع المكونات
           setTimeout(() => {
+            // تحديث جميع queries المهمة بعد تسجيل الدخول
             queryClient.invalidateQueries({ queryKey: ["session"] });
             queryClient.invalidateQueries({ queryKey: ["is-admin"] });
             queryClient.invalidateQueries({ queryKey: ["cart-count"] });
+            queryClient.invalidateQueries({ queryKey: ["cart-items-count"] });
+            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: ["cart-items"] });
             queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["categories"] });
+            queryClient.invalidateQueries({ queryKey: ["navbar-categories"] });
+            queryClient.invalidateQueries({ queryKey: ["navbar-sub-categories"] });
+            queryClient.invalidateQueries({ queryKey: ["sub-categories"] });
+            queryClient.invalidateQueries({ queryKey: ["favorites"] });
+            queryClient.invalidateQueries({ queryKey: ["user-notifications"] });
           }, 0);
           
           // عرض رسالة النجاح عند تأكيد البريد الإلكتروني أو تسجيل الدخول
