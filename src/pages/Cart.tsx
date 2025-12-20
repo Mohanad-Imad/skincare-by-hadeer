@@ -133,10 +133,24 @@ const Cart = () => {
     },
   });
 
-  // Calculate cart total without weekly product discount first (for eligibility check)
-  const baseCartTotal = useMemo(() => {
+  // Calculate cart total EXCLUDING weekly product (for eligibility check)
+  // This prevents the exploit where user adds weekly product first then other products
+  const baseCartTotalExcludingWeeklyProduct = useMemo(() => {
+    const isWeeklyProductItem = (productId: string, variantId: string) => {
+      if (!weeklyProduct) return false;
+      return weeklyProduct.product_id === productId && 
+        (weeklyProduct.variant_id === variantId || !weeklyProduct.variant_id);
+    };
+
     const authTotal = cartItems?.reduce((sum, item) => {
       const productId = item.product_variants.products.id;
+      const variantId = item.product_variants.id;
+      
+      // استثناء منتج الأسبوع من حساب الحد الأدنى
+      if (isWeeklyProductItem(productId, variantId)) {
+        return sum;
+      }
+      
       const originalPrice = item.product_variants.price;
       const discount = calculateDiscount(productId, originalPrice, discounts);
       const finalPrice = discount ? discount.discountedPrice : originalPrice;
@@ -144,16 +158,24 @@ const Cart = () => {
     }, 0) || 0;
 
     const localTotal = localCartItems?.reduce((sum, item) => {
-      const discount = calculateDiscount(item.products.id, item.price, discounts);
+      const productId = item.products.id;
+      const variantId = item.id;
+      
+      // استثناء منتج الأسبوع من حساب الحد الأدنى
+      if (isWeeklyProductItem(productId, variantId)) {
+        return sum;
+      }
+      
+      const discount = calculateDiscount(productId, item.price, discounts);
       const finalPrice = discount ? discount.discountedPrice : item.price;
       return sum + finalPrice * item.quantity;
     }, 0) || 0;
 
     return session ? authTotal : localTotal;
-  }, [cartItems, localCartItems, discounts, session]);
+  }, [cartItems, localCartItems, discounts, session, weeklyProduct]);
 
-  // Check if eligible for weekly product
-  const isEligibleForWeeklyDeal = weeklyProduct ? baseCartTotal >= weeklyProduct.minimum_cart_amount : false;
+  // Check if eligible for weekly product (based on cart total EXCLUDING weekly product)
+  const isEligibleForWeeklyDeal = weeklyProduct ? baseCartTotalExcludingWeeklyProduct >= weeklyProduct.minimum_cart_amount : false;
   const maxWeeklyQuantity = weeklyProduct?.max_quantity_per_customer || 1;
 
   // Calculate item price with weekly deal logic (considering max quantity)
