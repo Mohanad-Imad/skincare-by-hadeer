@@ -6,7 +6,7 @@ import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ShoppingCart, Flame, Gift, Percent } from "lucide-react";
+import { Clock, ShoppingCart, Flame, Gift, Percent, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLocalCart } from "@/hooks/useLocalCart";
@@ -28,6 +28,20 @@ interface WeeklyProductData {
   max_quantity_per_customer: number;
 }
 
+interface WeeklyBundleData {
+  id: string;
+  product_id: string | null;
+  variant_id: string | null;
+  special_price: number;
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+  title_ar: string;
+  title_en: string | null;
+  description_ar: string | null;
+  description_en: string | null;
+}
+
 interface TimeLeft {
   days: number;
   hours: number;
@@ -39,6 +53,7 @@ const Offers = () => {
   const navigate = useNavigate();
   const { localCart } = useLocalCart();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [bundleTimeLeft, setBundleTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // Fetch store settings for currency
   const { data: storeSettings } = useQuery({
@@ -77,7 +92,28 @@ const Offers = () => {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Fetch product details
+  // Fetch weekly bundle
+  const { data: weeklyBundle, isLoading: isLoadingBundle } = useQuery({
+    queryKey: ["weekly-bundle"],
+    queryFn: async () => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("weekly_bundle")
+        .select("*")
+        .eq("is_active", true)
+        .lte("starts_at", now)
+        .gt("ends_at", now)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as WeeklyBundleData | null;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Fetch product details for weekly product
   const { data: product, isLoading: isLoadingProduct } = useQuery({
     queryKey: ["weekly-product-details", weeklyProduct?.product_id],
     queryFn: async () => {
@@ -95,6 +131,26 @@ const Offers = () => {
       return data;
     },
     enabled: !!weeklyProduct?.product_id,
+  });
+
+  // Fetch bundle product details
+  const { data: bundleProduct, isLoading: isLoadingBundleProduct } = useQuery({
+    queryKey: ["weekly-bundle-details", weeklyBundle?.product_id],
+    queryFn: async () => {
+      if (!weeklyBundle?.product_id) return null;
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+          *,
+          product_variants (*)
+        `)
+        .eq("id", weeklyBundle.product_id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!weeklyBundle?.product_id,
   });
 
   // Fetch session and cart items
@@ -126,7 +182,7 @@ const Offers = () => {
     enabled: !!session?.user?.id,
   });
 
-  // Countdown timer
+  // Countdown timer for weekly product
   useEffect(() => {
     if (!weeklyProduct?.ends_at) return;
 
@@ -149,6 +205,30 @@ const Offers = () => {
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [weeklyProduct?.ends_at]);
+
+  // Countdown timer for weekly bundle
+  useEffect(() => {
+    if (!weeklyBundle?.ends_at) return;
+
+    const calculateBundleTimeLeft = () => {
+      const endDate = new Date(weeklyBundle.ends_at).getTime();
+      const now = new Date().getTime();
+      const difference = endDate - now;
+
+      if (difference > 0) {
+        setBundleTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000),
+        });
+      }
+    };
+
+    calculateBundleTimeLeft();
+    const timer = setInterval(calculateBundleTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [weeklyBundle?.ends_at]);
 
   // Calculate cart total for eligibility
   const calculateCartTotal = () => {
@@ -182,6 +262,22 @@ const Offers = () => {
   const originalPrice = getOriginalPrice();
   const savingsAmount = originalPrice - (weeklyProduct?.special_price || 0);
   const savingsPercentage = originalPrice > 0 ? Math.round((savingsAmount / originalPrice) * 100) : 0;
+
+  // Bundle pricing calculations
+  const getBundleOriginalPrice = () => {
+    if (weeklyBundle?.variant_id && bundleProduct?.product_variants) {
+      const variant = bundleProduct.product_variants.find((v: any) => v.id === weeklyBundle.variant_id);
+      return variant?.price || 0;
+    }
+    if (bundleProduct?.product_variants?.length > 0) {
+      return Math.min(...bundleProduct.product_variants.map((v: any) => v.price));
+    }
+    return 0;
+  };
+
+  const bundleOriginalPrice = getBundleOriginalPrice();
+  const bundleSavingsAmount = bundleOriginalPrice - (weeklyBundle?.special_price || 0);
+  const bundleSavingsPercentage = bundleOriginalPrice > 0 ? Math.round((bundleSavingsAmount / bundleOriginalPrice) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
@@ -382,7 +478,172 @@ const Offers = () => {
           )}
         </section>
 
-        {/* Future: More offers can be added here */}
+        {/* Weekly Bundle Section */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <Package className="h-6 w-6 text-primary" />
+            مجموعة الأسبوع
+          </h2>
+
+          {isLoadingBundle ? (
+            <Skeleton className="h-96 w-full rounded-2xl" />
+          ) : !weeklyBundle || !bundleProduct ? (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">لا يوجد عرض مجموعة حالياً</p>
+            </Card>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Card className="overflow-hidden bg-gradient-to-br from-accent/30 via-background to-primary/10 border-2 border-accent/50 shadow-xl">
+                <div className="relative">
+                  {/* Header badge */}
+                  <div className="absolute -top-1 right-4 z-10">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="bg-primary text-primary-foreground px-4 py-2 rounded-b-xl shadow-lg flex items-center gap-2"
+                    >
+                      <Package className="h-5 w-5" />
+                      <span className="font-bold text-sm">عرض حصري</span>
+                    </motion.div>
+                  </div>
+
+                  <div className="p-6 md:p-8 pt-10 md:pt-12">
+                    {/* Title */}
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl md:text-3xl font-bold text-primary mb-2 flex items-center justify-center gap-2">
+                        <Package className="h-7 w-7" />
+                        {weeklyBundle.title_ar}
+                      </h3>
+                      {weeklyBundle.description_ar && (
+                        <p className="text-muted-foreground">{weeklyBundle.description_ar}</p>
+                      )}
+                    </div>
+
+                    {/* Countdown Timer */}
+                    <div className="flex justify-center mb-6">
+                      <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-4 shadow-inner border border-border/50">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2 justify-center">
+                          <Clock className="h-4 w-4" />
+                          <span className="text-sm font-medium">ينتهي العرض خلال</span>
+                        </div>
+                        <div className="flex gap-3 justify-center" dir="ltr">
+                          {[
+                            { value: bundleTimeLeft.days, label: "يوم" },
+                            { value: bundleTimeLeft.hours, label: "ساعة" },
+                            { value: bundleTimeLeft.minutes, label: "دقيقة" },
+                            { value: bundleTimeLeft.seconds, label: "ثانية" },
+                          ].map((item, index) => (
+                            <div key={index} className="text-center">
+                              <motion.div
+                                key={item.value}
+                                initial={{ scale: 1.2 }}
+                                animate={{ scale: 1 }}
+                                className="bg-primary text-primary-foreground w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold shadow-md"
+                              >
+                                {String(item.value).padStart(2, "0")}
+                              </motion.div>
+                              <span className="text-xs text-muted-foreground mt-1 block">{item.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Product Display */}
+                    <div className="grid md:grid-cols-2 gap-4 md:gap-6 items-center">
+                      {/* Product Image */}
+                      <div 
+                        className="relative aspect-square rounded-2xl overflow-hidden bg-card shadow-lg cursor-pointer group"
+                        onClick={() => navigate(`/products/${bundleProduct.id}`)}
+                      >
+                        <img
+                          src={bundleProduct.image_url || "/placeholder.svg"}
+                          alt={bundleProduct.name_ar}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        {bundleSavingsPercentage > 0 && (
+                          <div className="absolute top-3 left-3 bg-destructive text-destructive-foreground px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                            خصم {bundleSavingsPercentage}%
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="space-y-4">
+                        <div>
+                          <h4 
+                            className="text-2xl font-bold text-foreground mb-2 cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => navigate(`/products/${bundleProduct.id}`)}
+                          >
+                            {bundleProduct.name_ar}
+                          </h4>
+                          {bundleProduct.company_name_ar && (
+                            <p className="text-muted-foreground">{bundleProduct.company_name_ar}</p>
+                          )}
+                        </div>
+
+                        {/* Pricing */}
+                        <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+                          <div className="flex flex-wrap items-baseline gap-3 mb-2">
+                            <span className="text-3xl font-bold text-primary">
+                              {weeklyBundle.special_price.toLocaleString()} {currency}
+                            </span>
+                            {bundleOriginalPrice > weeklyBundle.special_price && (
+                              <span className="text-lg text-muted-foreground line-through">
+                                {bundleOriginalPrice.toLocaleString()} {currency}
+                              </span>
+                            )}
+                          </div>
+                          {bundleSavingsAmount > 0 && (
+                            <div className="space-y-1">
+                              <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                                توفير {bundleSavingsAmount.toLocaleString()} {currency}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                قيمة الخصم: {bundleSavingsPercentage}%
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* No minimum requirement notice */}
+                        <div className="rounded-xl p-4 border-2 bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-700">
+                          <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                            <ShoppingCart className="h-5 w-5" />
+                            <span className="font-semibold">بدون حد أدنى للسلة!</span>
+                          </div>
+                          <p className="text-sm text-green-600 dark:text-green-500 mt-1">
+                            يمكنك الحصول على هذا العرض مباشرة
+                          </p>
+                        </div>
+
+                        {/* CTA Button */}
+                        <Button
+                          size="lg"
+                          className="w-full text-lg py-6 shadow-lg"
+                          onClick={() => navigate(`/products/${bundleProduct.id}`)}
+                        >
+                          <ShoppingCart className="h-5 w-5 ml-2" />
+                          عرض المجموعة
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </section>
       </main>
 
       <Footer />
