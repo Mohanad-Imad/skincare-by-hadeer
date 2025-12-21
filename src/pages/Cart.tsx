@@ -7,10 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Trash2, Plus, Minus, ArrowRight, Tag, Gift } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, Tag, Gift, Package } from "lucide-react";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { useWeeklyProduct } from "@/hooks/useWeeklyProduct";
+import { useWeeklyBundle } from "@/hooks/useWeeklyBundle";
 import { ShareCartButton } from "@/components/ShareCartButton";
 import {
   AlertDialog,
@@ -30,6 +31,7 @@ const Cart = () => {
   const { localCart, updateLocalCartQuantity, removeFromLocalCart } = useLocalCart();
   const { data: discounts } = useProductDiscounts();
   const { weeklyProduct, getWeeklyAdjustedPrice } = useWeeklyProduct();
+  const { weeklyBundle } = useWeeklyBundle();
   const [itemToDelete, setItemToDelete] = useState<{ id: string; isLocal: boolean } | null>(null);
 
   const { data: session } = useQuery({
@@ -178,7 +180,14 @@ const Cart = () => {
   const isEligibleForWeeklyDeal = weeklyProduct ? baseCartTotalExcludingWeeklyProduct >= weeklyProduct.minimum_cart_amount : false;
   const maxWeeklyQuantity = weeklyProduct?.max_quantity_per_customer || 1;
 
-  // Calculate item price with weekly deal logic (considering max quantity)
+  // Check if item is a weekly bundle product (no minimum required)
+  const isWeeklyBundleProduct = (productId: string, variantId: string) => {
+    if (!weeklyBundle) return false;
+    return weeklyBundle.product_id === productId && 
+      (weeklyBundle.variant_id === variantId || !weeklyBundle.variant_id);
+  };
+
+  // Calculate item price with weekly deal and bundle logic
   const calculateItemPriceWithQuantity = (
     productId: string, 
     variantId: string, 
@@ -188,6 +197,23 @@ const Cart = () => {
     // First check regular discounts
     const discount = calculateDiscount(productId, originalPrice, discounts);
     const discountedPrice = discount ? discount.discountedPrice : originalPrice;
+    
+    // Check if this is the weekly bundle (no minimum required - applies directly)
+    const isBundle = isWeeklyBundleProduct(productId, variantId);
+    
+    if (isBundle && weeklyBundle) {
+      // Apply bundle special price to ALL quantities (no limit)
+      return {
+        totalPrice: weeklyBundle.special_price * quantity,
+        isWeeklyDeal: false,
+        isWeeklyBundle: true,
+        originalPrice: originalPrice,
+        discountedPrice: discountedPrice,
+        specialPriceQuantity: quantity,
+        regularPriceQuantity: 0,
+        specialPrice: weeklyBundle.special_price
+      };
+    }
     
     // Check if this is the weekly product and user is eligible
     const isWeeklyProduct = weeklyProduct && 
@@ -206,6 +232,7 @@ const Cart = () => {
       return {
         totalPrice: specialTotal + regularTotal,
         isWeeklyDeal: true,
+        isWeeklyBundle: false,
         originalPrice: originalPrice,
         discountedPrice: discountedPrice,
         specialPriceQuantity: specialPriceQuantity,
@@ -217,6 +244,7 @@ const Cart = () => {
     return {
       totalPrice: discountedPrice * quantity,
       isWeeklyDeal: false,
+      isWeeklyBundle: false,
       originalPrice: originalPrice,
       discountedPrice: discountedPrice,
       specialPriceQuantity: 0,
@@ -313,6 +341,30 @@ const Cart = () => {
                       <div>
                         {(() => {
                           const priceInfo = calculateItemPriceWithQuantity(item.products.id, item.id, item.price, item.quantity);
+                          
+                          if (priceInfo.isWeeklyBundle) {
+                            return (
+                              <div className="space-y-1.5">
+                                <Badge className="flex items-center gap-1 w-fit bg-gradient-to-r from-primary to-accent text-primary-foreground">
+                                  <Package className="h-3 w-3" />
+                                  عرض مجموعة الأسبوع
+                                </Badge>
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-baseline gap-2">
+                                    <p className="font-bold text-primary text-lg">
+                                      {Math.round(priceInfo.specialPrice)} د.ع
+                                    </p>
+                                    <p className="text-sm text-muted-foreground line-through">
+                                      {Math.round(item.price)} د.ع
+                                    </p>
+                                  </div>
+                                  <p className="font-bold text-primary text-lg mt-1">
+                                    المجموع: {Math.round(priceInfo.totalPrice)} د.ع
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          }
                           
                           if (priceInfo.isWeeklyDeal) {
                             return (
@@ -540,6 +592,30 @@ const Cart = () => {
                         const variantId = item.product_variant_id;
                         const originalPrice = item.product_variants.price;
                         const priceInfo = calculateItemPriceWithQuantity(productId, variantId, originalPrice, item.quantity);
+
+                        if (priceInfo.isWeeklyBundle) {
+                          return (
+                            <div className="space-y-1.5">
+                              <Badge className="text-xs bg-gradient-to-r from-primary to-accent text-primary-foreground">
+                                <Package className="h-3 w-3 ml-1" />
+                                عرض مجموعة الأسبوع
+                              </Badge>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-baseline gap-2">
+                                  <p className="font-bold text-primary text-lg">
+                                    {Math.round(priceInfo.specialPrice)} د.ع
+                                  </p>
+                                  <p className="text-sm text-muted-foreground line-through">
+                                    {Math.round(originalPrice)} د.ع
+                                  </p>
+                                </div>
+                                <p className="font-bold text-primary text-lg mt-1">
+                                  المجموع: {Math.round(priceInfo.totalPrice)} د.ع
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
 
                         if (priceInfo.isWeeklyDeal) {
                           return (
