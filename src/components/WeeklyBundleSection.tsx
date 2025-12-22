@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Clock, Gift, Percent } from "lucide-react";
+import { Gift, Percent } from "lucide-react";
+import CountdownTimer from "@/components/CountdownTimer";
 
 interface WeeklyBundleData {
   id: string;
@@ -21,7 +21,6 @@ interface WeeklyBundleData {
 
 const WeeklyBundleSection = () => {
   const navigate = useNavigate();
-  const [timeLeft, setTimeLeft] = useState("");
 
   // Fetch weekly bundle
   const { data: weeklyBundle } = useQuery({
@@ -64,34 +63,6 @@ const WeeklyBundleSection = () => {
     },
     enabled: !!weeklyBundle?.product_id,
   });
-
-  // Countdown timer
-  useEffect(() => {
-    if (!weeklyBundle?.ends_at) return;
-
-    const calculateTimeLeft = () => {
-      const endTime = new Date(weeklyBundle.ends_at).getTime();
-      const now = new Date().getTime();
-      const difference = endTime - now;
-
-      if (difference <= 0) {
-        setTimeLeft("انتهى العرض");
-        return;
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-      setTimeLeft(`${days} يوم ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, [weeklyBundle?.ends_at]);
 
   if (!weeklyBundle || !bundleProduct) return null;
 
@@ -147,11 +118,10 @@ const WeeklyBundleSection = () => {
               )}
             </div>
 
-            {/* Countdown */}
-            <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm px-4 py-3 rounded-xl border border-border/50 w-fit">
-              <Clock className="h-5 w-5 text-primary animate-pulse" />
-              <span className="text-sm text-muted-foreground">ينتهي خلال:</span>
-              <span className="font-bold text-foreground">{timeLeft}</span>
+            {/* Countdown Timer */}
+            <div className="flex flex-col gap-2">
+              <span className="text-sm text-muted-foreground">ينتهي العرض خلال:</span>
+              <CountdownTimer endDate={weeklyBundle.ends_at} />
             </div>
 
             {/* Pricing */}

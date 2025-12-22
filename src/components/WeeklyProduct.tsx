@@ -1,15 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ShoppingCart, Flame, Tag } from "lucide-react";
+import { ShoppingCart, Flame, Percent } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import CountdownTimer from "@/components/CountdownTimer";
 
-// الواجهات (Interfaces) تبقى كما هي دون تغيير
 interface WeeklyProductData {
   id: string;
   product_id: string | null;
@@ -27,13 +24,6 @@ interface WeeklyProductData {
   image_url: string | null;
 }
 
-interface TimeLeft {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-}
-
 interface WeeklyProductCardProps {
   weeklyProduct: WeeklyProductData;
   product: any;
@@ -42,121 +32,96 @@ interface WeeklyProductCardProps {
 }
 
 const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: WeeklyProductCardProps) => {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  const getOriginalPrice = useCallback(() => {
+  const getOriginalPrice = () => {
     if (weeklyProduct?.variant_id && product?.product_variants) {
       const variant = product.product_variants.find((v: any) => v.id === weeklyProduct.variant_id);
       return variant?.price || 0;
     }
     return product?.product_variants?.length > 0 ? Math.min(...product.product_variants.map((v: any) => v.price)) : 0;
-  }, [weeklyProduct, product]);
+  };
 
   const originalPrice = getOriginalPrice();
   const savingsAmount = originalPrice - (weeklyProduct?.special_price || 0);
   const savingsPercentage = originalPrice > 0 ? Math.round((savingsAmount / originalPrice) * 100) : 0;
-
-  useEffect(() => {
-    if (!weeklyProduct?.ends_at) return;
-    const calculateTimeLeft = () => {
-      const difference = new Date(weeklyProduct.ends_at).getTime() - new Date().getTime();
-      if (difference <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    };
-    const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
-    return () => clearInterval(timer);
-  }, [weeklyProduct?.ends_at]);
-
   const displayImage = weeklyProduct.image_url || product.image_url || "/placeholder.svg";
 
   return (
-    <Card
-      className="relative overflow-hidden border-none bg-white dark:bg-zinc-950 shadow-xl rounded-2xl md:rounded-3xl cursor-pointer group"
-      onClick={onNavigate}
-    >
-      <div className="flex flex-col md:flex-row items-stretch min-h-fit md:min-h-[320px]">
-        {/* قسم الصورة: أصغر في الجوال وأكثر وضوحاً */}
-        <div className="relative w-full md:w-[35%] aspect-[16/10] md:aspect-square overflow-hidden bg-zinc-50 dark:bg-zinc-900/40">
+    <div className="bg-gradient-to-br from-primary/10 via-background to-secondary/20 rounded-2xl border border-primary/20 overflow-hidden shadow-lg">
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
+        {/* Product Image */}
+        <div className="relative aspect-square md:aspect-[4/3] rounded-xl overflow-hidden bg-card cursor-pointer" onClick={onNavigate}>
           <img
             src={displayImage}
             alt={product.name_ar}
-            className="w-full h-full object-contain p-4 md:p-8 group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
           />
-          <div className="absolute top-3 right-3">
-            <div className="bg-red-600 text-white px-2.5 py-1 rounded-lg text-sm md:text-base font-black shadow-lg">
-              %{savingsPercentage}-
+          {savingsPercentage > 0 && (
+            <div className="absolute top-3 right-3 bg-destructive text-destructive-foreground px-3 py-1.5 rounded-full text-sm font-bold flex items-center gap-1">
+              <Percent className="h-4 w-4" />
+              خصم {savingsPercentage}%
             </div>
-          </div>
+          )}
         </div>
 
-        {/* قسم التفاصيل: مدمج ومرتب */}
-        <div className="flex-1 p-4 md:p-6 lg:p-8 flex flex-col justify-between bg-gradient-to-br from-transparent to-primary/5">
-          <div className="space-y-2 md:space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-0.5 rounded-md text-[10px] md:text-xs font-bold flex items-center gap-1 uppercase tracking-wider">
-                <Flame className="w-3 h-3 fill-current" /> {weeklyProduct.title_ar}
+        {/* Product Details */}
+        <div className="flex flex-col justify-center space-y-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                <Flame className="w-3 h-3" /> {weeklyProduct.title_ar}
               </span>
             </div>
-
-            <h3 className="text-lg md:text-2xl lg:text-3xl font-black text-zinc-900 dark:text-white line-clamp-1 md:line-clamp-2">
+            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2 line-clamp-2">
               {product.name_ar}
             </h3>
-
-            {/* السعر والعداد في سطر واحد للجوال لتوفير المساحة */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-zinc-100 dark:border-white/5">
-              <div className="flex flex-col">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl md:text-3xl font-black text-primary">
-                    {weeklyProduct.special_price.toLocaleString()}
-                  </span>
-                  <span className="text-[10px] md:text-sm font-bold text-primary">{currency}</span>
-                </div>
-                <span className="text-[10px] md:text-xs text-zinc-400 line-through">
-                  {originalPrice.toLocaleString()} {currency}
-                </span>
-              </div>
-
-              {/* عداد مدمج */}
-              <div className="flex gap-1.5 md:gap-2" dir="ltr">
-                {[
-                  { v: timeLeft.days, l: "ي" },
-                  { v: timeLeft.hours, l: "س" },
-                  { v: timeLeft.minutes, l: "د" },
-                  { v: timeLeft.seconds, l: "ث" },
-                ].map((t, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <div className="bg-zinc-900 dark:bg-white text-white dark:text-black w-7 h-7 md:w-10 md:h-10 rounded-md md:rounded-lg flex items-center justify-center text-[10px] md:text-sm font-black shadow">
-                      {String(t.v).padStart(2, "0")}
-                    </div>
-                    <span className="text-[7px] md:text-[9px] font-bold mt-0.5 text-zinc-500 uppercase">{t.l}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {weeklyProduct.description_ar && (
+              <p className="text-muted-foreground text-sm md:text-base line-clamp-2">
+                {weeklyProduct.description_ar}
+              </p>
+            )}
           </div>
 
-          <div className="mt-4 flex flex-col sm:flex-row items-center gap-3">
-            <div className="flex items-center gap-2 text-[10px] md:text-xs text-zinc-500 font-bold flex-1">
-              <ShoppingCart className="w-3.5 h-3.5 text-primary" />
-              <span>
-                أقل طلب للاستفادة: {weeklyProduct.minimum_cart_amount} {currency}
+          {/* Countdown Timer */}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-muted-foreground">ينتهي العرض خلال:</span>
+            <CountdownTimer endDate={weeklyProduct.ends_at} />
+          </div>
+
+          {/* Pricing */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-3xl md:text-4xl font-bold text-primary">
+                {weeklyProduct.special_price.toLocaleString()} {currency}
+              </span>
+              <span className="text-lg md:text-xl text-muted-foreground line-through">
+                {originalPrice.toLocaleString()} {currency}
               </span>
             </div>
-            <Button
-              size="sm"
-              className="w-full sm:w-auto h-10 md:h-12 px-6 md:px-10 rounded-xl text-sm md:text-base font-bold shadow-lg shadow-primary/20"
-            >
-              تسوق الآن
-            </Button>
+            {savingsAmount > 0 && (
+              <div className="bg-green-500/10 text-green-600 dark:text-green-400 px-3 py-1.5 rounded-lg text-sm font-medium w-fit">
+                وفّر {savingsAmount.toLocaleString()} {currency}
+              </div>
+            )}
           </div>
+
+          {/* Minimum Cart Amount */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card/50 px-3 py-2 rounded-lg w-fit">
+            <ShoppingCart className="w-4 h-4 text-primary" />
+            <span>أقل طلب للاستفادة: {weeklyProduct.minimum_cart_amount.toLocaleString()} {currency}</span>
+          </div>
+
+          {/* CTA Button */}
+          <Button
+            size="lg"
+            className="w-full md:w-auto"
+            onClick={onNavigate}
+          >
+            <ShoppingCart className="h-5 w-5 ml-2" />
+            تسوق الآن
+          </Button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 
@@ -205,9 +170,13 @@ const WeeklyProduct = () => {
 
   if (isLoadingWeekly || isLoadingProducts) {
     return (
-      <div className="w-full px-4 py-6 max-w-[1200px] mx-auto">
-        <Skeleton className="h-[200px] md:h-[300px] w-full rounded-2xl md:rounded-3xl" />
-      </div>
+      <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 flex items-center justify-center gap-2">
+          <Flame className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+          منتج الأسبوع
+        </h2>
+        <Skeleton className="h-[400px] w-full rounded-2xl" />
+      </section>
     );
   }
 
@@ -218,7 +187,12 @@ const WeeklyProduct = () => {
   if (!weeklyProductsWithDetails || weeklyProductsWithDetails.length === 0) return null;
 
   return (
-    <section id="weekly-product" className="w-full px-4 md:px-8 py-6 md:py-10 max-w-[1400px] mx-auto overflow-hidden">
+    <section id="weekly-product" className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
+      <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 flex items-center justify-center gap-2">
+        <Flame className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+        منتج الأسبوع
+      </h2>
+      
       {weeklyProductsWithDetails.length === 1 ? (
         <WeeklyProductCard
           weeklyProduct={weeklyProductsWithDetails[0].weeklyProduct}
@@ -228,9 +202,9 @@ const WeeklyProduct = () => {
         />
       ) : (
         <Carousel opts={{ align: "start", loop: true, direction: "rtl" }} className="w-full">
-          <CarouselContent className="-ml-3">
+          <CarouselContent className="-ml-4">
             {weeklyProductsWithDetails.map(({ weeklyProduct, product }) => (
-              <CarouselItem key={weeklyProduct.id} className="pl-3">
+              <CarouselItem key={weeklyProduct.id} className="pl-4">
                 <WeeklyProductCard
                   weeklyProduct={weeklyProduct}
                   product={product}
@@ -240,9 +214,9 @@ const WeeklyProduct = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="hidden md:flex justify-end gap-2 mt-4">
-            <CarouselPrevious className="static translate-y-0 h-9 w-9" />
-            <CarouselNext className="static translate-y-0 h-9 w-9" />
+          <div className="hidden md:flex justify-center gap-2 mt-4">
+            <CarouselPrevious className="static translate-y-0" />
+            <CarouselNext className="static translate-y-0" />
           </div>
         </Carousel>
       )}
