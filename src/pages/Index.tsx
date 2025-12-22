@@ -24,6 +24,7 @@ import Autoplay from "embla-carousel-autoplay";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import WeeklyProduct from "@/components/WeeklyProduct";
 import WeeklyProductPopup from "@/components/WeeklyProductPopup";
+import WeeklyBundleSection from "@/components/WeeklyBundleSection";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -175,6 +176,9 @@ const Index = () => {
 
       {/* Weekly Product - Special offer */}
       <WeeklyProduct />
+
+      {/* Weekly Bundle - مجموعة الأسبوع */}
+      <WeeklyBundleSection />
 
       {/* Brands Links - Quick access to brands */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
