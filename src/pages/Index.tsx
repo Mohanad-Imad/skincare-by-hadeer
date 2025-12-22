@@ -86,7 +86,7 @@ const Index = () => {
   });
 
   const { data: categories } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["home-categories"],
     queryFn: async () => {
       const { data, error } = await supabase.from("categories").select("*").limit(4);
       if (error) throw error;

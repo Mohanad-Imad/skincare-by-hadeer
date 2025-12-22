@@ -28,7 +28,7 @@ const Products = () => {
   const [companyFilter, setCompanyFilter] = useState<string>(searchParams.get("company") || "all");
   const [problemFilter, setProblemFilter] = useState<string>(searchParams.get("problem") || "all");
   const [makeupFilter, setMakeupFilter] = useState<string>(searchParams.get("makeup") || "all");
-  const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "all");
+  const [productTypeFilter, setProductTypeFilter] = useState<string>(searchParams.get("productType") || "skincare");
   const [mobileCompanyOpen, setMobileCompanyOpen] = useState(false);
   const [desktopCompanyOpen, setDesktopCompanyOpen] = useState(false);
   const [companySearch, setCompanySearch] = useState("");
@@ -335,7 +335,7 @@ const Products = () => {
     companyFilter !== "all" ||
     problemFilter !== "all" ||
     makeupFilter !== "all" ||
-    productTypeFilter !== "all";
+    productTypeFilter !== "skincare";
 
   // إعادة ضبط جميع الفلاتر
   const resetAllFilters = () => {
@@ -346,7 +346,7 @@ const Products = () => {
     setCompanyFilter("all");
     setProblemFilter("all");
     setMakeupFilter("all");
-    setProductTypeFilter("all");
+    setProductTypeFilter("skincare");
     setSearchParams(new URLSearchParams());
   };
 
