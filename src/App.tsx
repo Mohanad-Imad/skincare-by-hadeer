@@ -74,6 +74,7 @@ import { DynamicMetadata } from "./components/DynamicMetadata";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { PWASplashScreen } from "./components/PWASplashScreen";
 import { useCartMigration } from "./hooks/useCartMigration";
+import { FestiveEffects } from "./components/FestiveEffects";
 import { BottomNavPro } from "./components/BottomNav";
 
 const queryClient = new QueryClient({
@@ -96,6 +97,7 @@ const App = () => (
       <TooltipProvider>
         <DynamicTheme />
         <DynamicMetadata />
+        <FestiveEffects />
         <PWASplashScreen />
         <PWAInstallPrompt />
         <Toaster />

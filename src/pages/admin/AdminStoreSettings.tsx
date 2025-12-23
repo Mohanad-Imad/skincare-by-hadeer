@@ -45,6 +45,7 @@ const AdminStoreSettings = () => {
   const [footerTextAr, setFooterTextAr] = useState("");
   const [footerTextEn, setFooterTextEn] = useState("");
   const [showLiveActivityFeed, setShowLiveActivityFeed] = useState(true);
+  const [festiveThemeEnabled, setFestiveThemeEnabled] = useState(false);
   // Light mode colors with better contrast
   const [lightBackground, setLightBackground] = useState("#FCF7F8");
   const [lightForeground, setLightForeground] = useState("#2D1B1F");
@@ -112,6 +113,7 @@ const AdminStoreSettings = () => {
       setFooterTextAr(settings.footer_text_ar || "");
       setFooterTextEn(settings.footer_text_en || "");
       setShowLiveActivityFeed(settings.show_live_activity_feed ?? true);
+      setFestiveThemeEnabled(settings.festive_theme_enabled ?? false);
       
       // Convert HSL to HEX for color pickers
       if (settings.light_background) setLightBackground(hslToHex(settings.light_background));
@@ -307,6 +309,7 @@ const AdminStoreSettings = () => {
       footer_text_ar: footerTextAr,
       footer_text_en: footerTextEn,
       show_live_activity_feed: showLiveActivityFeed,
+      festive_theme_enabled: festiveThemeEnabled,
     });
   };
 
@@ -440,6 +443,23 @@ const AdminStoreSettings = () => {
                 />
                 <span className="text-sm text-muted-foreground">
                   عرض إشعارات الطلبات والتقييمات الجديدة في أسفل الصفحة للزوار
+                </span>
+              </div>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <Label htmlFor="festiveThemeEnabled" className="flex items-center gap-2">
+                <span>🎄</span>
+                تفعيل ثيم الأعياد (الكريسماس ورأس السنة)
+              </Label>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="festiveThemeEnabled"
+                  checked={festiveThemeEnabled}
+                  onCheckedChange={setFestiveThemeEnabled}
+                />
+                <span className="text-sm text-muted-foreground">
+                  عرض تأثيرات الثلج والزينة الاحتفالية في الموقع 🎅❄️
                 </span>
               </div>
             </div>
