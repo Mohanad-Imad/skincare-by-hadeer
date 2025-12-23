@@ -77,23 +77,6 @@ export const FestiveEffects = () => {
         ))}
       </div>
 
-      {/* Festive lights string effect */}
-      <div className="fixed top-0 left-0 right-0 pointer-events-none z-40">
-        <div className="flex justify-around py-2">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="w-3 h-4 rounded-full animate-twinkle"
-              style={{
-                backgroundColor: ['#ff0000', '#00ff00', '#ffd700', '#0066ff', '#ff00ff'][i % 5],
-                animationDelay: `${i * 0.2}s`,
-                boxShadow: `0 0 10px ${['#ff0000', '#00ff00', '#ffd700', '#0066ff', '#ff00ff'][i % 5]}`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
       <style>{`
         @keyframes snowfall {
           0% {
@@ -104,23 +87,8 @@ export const FestiveEffects = () => {
           }
         }
         
-        @keyframes twinkle {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(0.8);
-          }
-        }
-        
         .animate-snowfall {
           animation: snowfall linear infinite;
-        }
-        
-        .animate-twinkle {
-          animation: twinkle 1s ease-in-out infinite;
         }
       `}</style>
     </>
