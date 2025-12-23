@@ -1952,6 +1952,7 @@ export type Database = {
           dark_secondary: string | null
           email: string | null
           facebook_url: string | null
+          festive_theme_enabled: boolean | null
           footer_text_ar: string | null
           footer_text_en: string | null
           id: string
@@ -1992,6 +1993,7 @@ export type Database = {
           dark_secondary?: string | null
           email?: string | null
           facebook_url?: string | null
+          festive_theme_enabled?: boolean | null
           footer_text_ar?: string | null
           footer_text_en?: string | null
           id?: string
@@ -2032,6 +2034,7 @@ export type Database = {
           dark_secondary?: string | null
           email?: string | null
           facebook_url?: string | null
+          festive_theme_enabled?: boolean | null
           footer_text_ar?: string | null
           footer_text_en?: string | null
           id?: string
