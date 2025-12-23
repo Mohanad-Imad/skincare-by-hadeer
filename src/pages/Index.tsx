@@ -25,7 +25,6 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import WeeklyProduct from "@/components/WeeklyProduct";
 import WeeklyProductPopup from "@/components/WeeklyProductPopup";
 import WeeklyBundleSection from "@/components/WeeklyBundleSection";
-import { FestiveLights } from "@/components/FestiveLights";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -178,22 +177,13 @@ const Index = () => {
       {/* Weekly Product - Special offer */}
       <WeeklyProduct />
 
-      {/* Festive Lights */}
-      <FestiveLights />
-
       {/* Weekly Bundle - مجموعة الأسبوع */}
       <WeeklyBundleSection />
-
-      {/* Festive Lights */}
-      <FestiveLights />
 
       {/* Brands Links - Quick access to brands */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-6 md:py-8 xl:py-10 max-w-[1920px] mx-auto">
         <BrandsLinks />
       </section>
-
-      {/* Festive Lights */}
-      <FestiveLights />
 
       {/* Makeup Banner */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 pt-3 md:pt-4 pb-2 md:pb-3 max-w-[1920px] mx-auto">
