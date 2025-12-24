@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShoppingCart, Star } from "lucide-react";
+import { useStoreSettings } from "@/contexts/StoreSettingsContext";
 
 interface ActivityItem {
   type: 'purchase' | 'review';
@@ -29,20 +30,7 @@ const getRandomNumber = (min: number, max: number): number => {
 
 export const LiveActivityFeed = () => {
   const [activityQueue, setActivityQueue] = useState<ActivityItem[]>([]);
-
-  // جلب إعدادات المتجر للتحقق من تفعيل الخاصية
-  const { data: storeSettings } = useQuery({
-    queryKey: ["store-settings-live-feed"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("store_settings")
-        .select("show_live_activity_feed")
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { settings: storeSettings } = useStoreSettings();
 
   // جلب الطلبات الأخيرة
   const { data: recentOrders } = useQuery({
@@ -64,7 +52,9 @@ export const LiveActivityFeed = () => {
       if (error) throw error;
       return data || [];
     },
-    refetchInterval: 30000, // تحديث كل 30 ثانية
+    refetchInterval: 60000, // تحديث كل 60 ثانية بدلاً من 30
+    staleTime: 1000 * 60 * 2, // Cache for 2 minutes
+    enabled: !!storeSettings?.show_live_activity_feed,
   });
 
   // جلب مراجعات المنتجات الأخيرة
@@ -88,7 +78,9 @@ export const LiveActivityFeed = () => {
       if (error) throw error;
       return data || [];
     },
-    refetchInterval: 30000, // تحديث كل 30 ثانية
+    refetchInterval: 60000, // تحديث كل 60 ثانية بدلاً من 30
+    staleTime: 1000 * 60 * 2, // Cache for 2 minutes
+    enabled: !!storeSettings?.show_live_activity_feed,
   });
 
   // إنشاء قائمة النشاطات من البيانات الحقيقية فقط
@@ -191,13 +183,13 @@ export const LiveActivityFeed = () => {
       }
     };
 
-    // عرض أول إشعار بعد 3 ثواني
-    const initialTimeout = setTimeout(showNotification, 3000);
+    // عرض أول إشعار بعد 5 ثواني
+    const initialTimeout = setTimeout(showNotification, 5000);
 
-    // ثم عرض الإشعارات كل 15-20 ثانية
+    // ثم عرض الإشعارات كل 20-30 ثانية (زيادة الفترة)
     const interval = setInterval(() => {
       showNotification();
-    }, getRandomNumber(15000, 20000));
+    }, getRandomNumber(20000, 30000));
 
     return () => {
       clearTimeout(initialTimeout);

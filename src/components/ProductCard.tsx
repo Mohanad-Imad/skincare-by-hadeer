@@ -5,9 +5,8 @@ import { ShieldCheck, Tag } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { FavoriteButton } from "./FavoriteButton";
+import { useGuaranteeSettings } from "@/contexts/GuaranteeSettingsContext";
 
 interface ProductCardProps {
   id: string;
@@ -23,18 +22,7 @@ interface ProductCardProps {
 export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: ProductCardProps) => {
   const navigate = useNavigate();
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  const { data: guaranteeSettings } = useQuery({
-    queryKey: ["guarantee-settings"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("guarantee_settings")
-        .select("logo_url")
-        .eq("is_active", true)
-        .maybeSingle();
-      return data;
-    },
-  });
+  const { settings: guaranteeSettings } = useGuaranteeSettings();
 
   return (
     <Card
@@ -48,6 +36,7 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
               src={guaranteeSettings.logo_url} 
               alt="guarantee" 
               className="h-14 w-14 md:h-20 md:w-20 object-contain opacity-50 -rotate-[30deg]"
+              loading="lazy"
             />
           ) : (
             <ShieldCheck className="h-14 w-14 md:h-20 md:w-20 opacity-50 -rotate-[30deg] text-emerald-600" />
@@ -73,6 +62,7 @@ export const ProductCard = ({ id, nameAr, imageUrl, minPrice, discount }: Produc
             <img
               src={imageUrl}
               alt={nameAr}
+              loading="lazy"
               className={`h-full w-full object-cover transition-transform group-hover:scale-105 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}

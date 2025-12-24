@@ -6,6 +6,7 @@ import { ShoppingCart, Flame, Percent } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import CountdownTimer from "@/components/CountdownTimer";
+import { useStoreSettings } from "@/contexts/StoreSettingsContext";
 
 interface WeeklyProductData {
   id: string;
@@ -53,6 +54,7 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
           <img
             src={displayImage}
             alt={product.name_ar}
+            loading="lazy"
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
           />
           {savingsPercentage > 0 && (
@@ -127,15 +129,7 @@ const WeeklyProductCard = ({ weeklyProduct, product, currency, onNavigate }: Wee
 
 const WeeklyProduct = () => {
   const navigate = useNavigate();
-
-  const { data: storeSettings } = useQuery({
-    queryKey: ["store-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("store_settings").select("currency").limit(1).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { settings: storeSettings } = useStoreSettings();
 
   const currency = storeSettings?.currency || "د.ع";
 
@@ -153,6 +147,7 @@ const WeeklyProduct = () => {
       if (error) throw error;
       return data as WeeklyProductData[];
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   const productIds = weeklyProducts?.map((wp) => wp.product_id).filter(Boolean) || [];
@@ -166,6 +161,7 @@ const WeeklyProduct = () => {
       return data;
     },
     enabled: productIds.length > 0,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   if (isLoadingWeekly || isLoadingProducts) {

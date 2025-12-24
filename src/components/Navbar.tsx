@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useStoreSettings } from "@/contexts/StoreSettingsContext";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -27,19 +28,7 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
-
-  const { data: settings } = useQuery({
-    queryKey: ["store-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("store_settings" as any)
-        .select("*")
-        .limit(1)
-        .single();
-      if (error) throw error;
-      return data as any;
-    },
-  });
+  const { settings } = useStoreSettings();
 
   const storeName = settings?.store_name || "متجر هدير للعناية بالبشرة";
 

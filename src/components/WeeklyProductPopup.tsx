@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X, Clock, Gift } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useStoreSettings } from "@/contexts/StoreSettingsContext";
 
 interface WeeklyProductData {
   id: string;
@@ -34,19 +35,8 @@ interface TimeLeft {
 const WeeklyProductPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  // Fetch store settings for currency
-  const { data: storeSettings } = useQuery({
-    queryKey: ["store-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("store_settings")
-        .select("currency")
-        .single();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const { settings: storeSettings } = useStoreSettings();
 
   // Fetch weekly product
   const { data: weeklyProduct } = useQuery({
@@ -66,6 +56,7 @@ const WeeklyProductPopup = () => {
       if (error) throw error;
       return data as WeeklyProductData | null;
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   // Fetch product details
@@ -86,6 +77,7 @@ const WeeklyProductPopup = () => {
       return data;
     },
     enabled: !!weeklyProduct?.product_id,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   // Check if popup was already shown in this session
@@ -106,9 +98,15 @@ const WeeklyProductPopup = () => {
     }
   }, [weeklyProduct, product]);
 
-  // Countdown timer
+  // Countdown timer - only update when popup is open
   useEffect(() => {
-    if (!weeklyProduct?.ends_at) return;
+    if (!weeklyProduct?.ends_at || !isOpen) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
 
     const calculateTimeLeft = () => {
       const endDate = new Date(weeklyProduct.ends_at).getTime();
@@ -126,9 +124,15 @@ const WeeklyProductPopup = () => {
     };
 
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, [weeklyProduct?.ends_at]);
+    timerRef.current = setInterval(calculateTimeLeft, 1000);
+    
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [weeklyProduct?.ends_at, isOpen]);
 
   if (!weeklyProduct || !product) return null;
 
@@ -179,6 +183,7 @@ const WeeklyProductPopup = () => {
               <img
                 src={product.image_url || "/placeholder.svg"}
                 alt={product.name_ar}
+                loading="lazy"
                 className="w-full h-full object-contain p-3"
               />
             </div>
