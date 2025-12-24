@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useStoreSettings } from "@/contexts/StoreSettingsContext";
 import { useEffect, useState } from "react";
 
 interface Snowflake {
@@ -13,19 +12,7 @@ interface Snowflake {
 
 export const FestiveEffects = () => {
   const [snowflakes, setSnowflakes] = useState<Snowflake[]>([]);
-
-  const { data: settings } = useQuery({
-    queryKey: ["store-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("store_settings" as any)
-        .select("*")
-        .limit(1)
-        .single();
-      if (error) throw error;
-      return data as any;
-    },
-  });
+  const { settings } = useStoreSettings();
 
   useEffect(() => {
     if (settings?.festive_theme_enabled) {

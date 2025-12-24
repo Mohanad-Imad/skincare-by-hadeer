@@ -76,12 +76,15 @@ import { PWASplashScreen } from "./components/PWASplashScreen";
 import { useCartMigration } from "./hooks/useCartMigration";
 import { FestiveEffects } from "./components/FestiveEffects";
 import { BottomNavPro } from "./components/BottomNav";
+import { StoreSettingsProvider } from "./contexts/StoreSettingsContext";
+import { GuaranteeSettingsProvider } from "./contexts/GuaranteeSettingsContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60 * 5, // 5 minutes default stale time
+      gcTime: 1000 * 60 * 15, // 15 minutes garbage collection time
     },
   },
 });
@@ -94,89 +97,93 @@ const AppContent = () => {
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <DynamicTheme />
-        <DynamicMetadata />
-        <FestiveEffects />
-        <PWASplashScreen />
-        <PWAInstallPrompt />
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppContent />
-          <ScrollToTop />
-          <BottomNavPro />
-          <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/products/:id" element={<ProductDetails />} />
-          <Route path="/products/:productId/reviews" element={<ProductReviewsPage />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-confirmation" element={<OrderConfirmation />} />
-          <Route path="/my-orders" element={<MyOrders />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/consultation" element={<Consultation />} />
-          <Route path="/celebrity-routines" element={<CelebrityRoutines />} />
-          <Route path="/celebrity-routines/:id" element={<CelebrityRoutineDetails />} />
-          <Route path="/problems/:slug" element={<ProblemSubCategories />} />
-          <Route path="/guarantee" element={<Guarantee />} />
-          <Route path="/makeup" element={<Makeup />} />
-          <Route path="/submit-review" element={<SubmitReview />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/shared-cart/:shareCode" element={<SharedCart />} />
-          <Route path="/inbox" element={<Inbox />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/routine-builder" element={<RoutineBuilder />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/offers" element={<Offers />} />
-          <Route path="/admin/consultations/print/:id" element={<AdminConsultationPrint />} />
-          <Route path="/admin" element={<AdminDashboard />}>
-            <Route index element={<AdminHome />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
-            <Route path="notifications" element={<AdminNotifications />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="inventory" element={<AdminInventory />} />
-            <Route path="customer-reviews" element={<AdminCustomerReviews />} />
-            <Route path="product-reviews" element={<AdminProductReviews />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="categories" element={<AdminCategories />} />
-            <Route path="discount-codes" element={<AdminDiscountCodes />} />
-            <Route path="product-discounts" element={<AdminProductDiscounts />} />
-            <Route path="shipping-settings" element={<AdminShippingSettings />} />
-            <Route path="blog-posts" element={<AdminBlogPosts />} />
-            <Route path="banners" element={<AdminBanners />} />
-            <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
-            <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
-            <Route path="quick-links" element={<AdminQuickLinks />} />
-            <Route path="brands-links" element={<AdminBrandsLinks />} />
-            <Route path="problem-categories" element={<AdminProblemCategories />} />
-            <Route path="consultations" element={<AdminConsultations />} />
-            <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />
-            <Route path="makeup-banner" element={<AdminMakeupBanner />} />
-            <Route path="makeup-categories" element={<AdminMakeupCategories />} />
-            <Route path="store-settings" element={<AdminStoreSettings />} />
-            <Route path="guarantee" element={<AdminGuarantee />} />
-            <Route path="navigation-links" element={<AdminNavigationLinks />} />
-            <Route path="drop-hint-settings" element={<AdminDropHintSettings />} />
-            <Route path="announcement-bar" element={<AdminAnnouncementBar />} />
-            <Route path="user-notifications" element={<AdminUserNotifications />} />
-            <Route path="weekly-product" element={<AdminWeeklyProduct />} />
-            <Route path="weekly-bundle" element={<AdminWeeklyBundle />} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+      <StoreSettingsProvider>
+        <GuaranteeSettingsProvider>
+          <TooltipProvider>
+            <DynamicTheme />
+            <DynamicMetadata />
+            <FestiveEffects />
+            <PWASplashScreen />
+            <PWAInstallPrompt />
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+              <ScrollToTop />
+              <BottomNavPro />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetails />} />
+                <Route path="/products/:productId/reviews" element={<ProductReviewsPage />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                <Route path="/my-orders" element={<MyOrders />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/consultation" element={<Consultation />} />
+                <Route path="/celebrity-routines" element={<CelebrityRoutines />} />
+                <Route path="/celebrity-routines/:id" element={<CelebrityRoutineDetails />} />
+                <Route path="/problems/:slug" element={<ProblemSubCategories />} />
+                <Route path="/guarantee" element={<Guarantee />} />
+                <Route path="/makeup" element={<Makeup />} />
+                <Route path="/submit-review" element={<SubmitReview />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/shared-cart/:shareCode" element={<SharedCart />} />
+                <Route path="/inbox" element={<Inbox />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/routine-builder" element={<RoutineBuilder />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/offers" element={<Offers />} />
+                <Route path="/admin/consultations/print/:id" element={<AdminConsultationPrint />} />
+                <Route path="/admin" element={<AdminDashboard />}>
+                  <Route index element={<AdminHome />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="customer-reviews" element={<AdminCustomerReviews />} />
+                  <Route path="product-reviews" element={<AdminProductReviews />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="discount-codes" element={<AdminDiscountCodes />} />
+                  <Route path="product-discounts" element={<AdminProductDiscounts />} />
+                  <Route path="shipping-settings" element={<AdminShippingSettings />} />
+                  <Route path="blog-posts" element={<AdminBlogPosts />} />
+                  <Route path="banners" element={<AdminBanners />} />
+                  <Route path="secondary-banners" element={<AdminSecondaryBanners />} />
+                  <Route path="tertiary-banners" element={<AdminTertiaryBanners />} />
+                  <Route path="quick-links" element={<AdminQuickLinks />} />
+                  <Route path="brands-links" element={<AdminBrandsLinks />} />
+                  <Route path="problem-categories" element={<AdminProblemCategories />} />
+                  <Route path="consultations" element={<AdminConsultations />} />
+                  <Route path="celebrity-routines" element={<AdminCelebrityRoutines />} />
+                  <Route path="makeup-banner" element={<AdminMakeupBanner />} />
+                  <Route path="makeup-categories" element={<AdminMakeupCategories />} />
+                  <Route path="store-settings" element={<AdminStoreSettings />} />
+                  <Route path="guarantee" element={<AdminGuarantee />} />
+                  <Route path="navigation-links" element={<AdminNavigationLinks />} />
+                  <Route path="drop-hint-settings" element={<AdminDropHintSettings />} />
+                  <Route path="announcement-bar" element={<AdminAnnouncementBar />} />
+                  <Route path="user-notifications" element={<AdminUserNotifications />} />
+                  <Route path="weekly-product" element={<AdminWeeklyProduct />} />
+                  <Route path="weekly-bundle" element={<AdminWeeklyBundle />} />
+                </Route>
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </GuaranteeSettingsProvider>
+      </StoreSettingsProvider>
+    </QueryClientProvider>
   </HelmetProvider>
 );
 
