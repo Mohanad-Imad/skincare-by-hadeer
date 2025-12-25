@@ -1243,7 +1243,7 @@ const AdminProducts = () => {
                 )}
 
                 {/* قسم المشاكل */}
-                {formData.product_type === "skincare" && problemCategories && problemCategories.length > 0 && (
+                {(formData.product_type === "skincare" || !formData.product_type) && problemCategories && problemCategories.length > 0 && (
                   <div className="space-y-2">
                     <Label>المشاكل التي يعالجها المنتج</Label>
                     <Accordion type="multiple" className="w-full">
