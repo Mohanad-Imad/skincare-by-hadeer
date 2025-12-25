@@ -505,6 +505,7 @@ const ProductDetails = () => {
 
             {/* 7. التقييمات والمراجعات */}
             <div className="pt-4">
+              <h2 className="text-lg font-bold mb-3">تقييم المنتج</h2>
               <ProductReviews productId={id!} />
             </div>
           </div>
