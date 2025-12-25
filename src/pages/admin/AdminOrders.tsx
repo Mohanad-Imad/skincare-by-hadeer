@@ -64,6 +64,14 @@ const statusColors = {
 
 const ITEMS_PER_PAGE = 10;
 
+// HTML escaping utility to prevent XSS attacks
+const escapeHtml = (text: string | null | undefined): string => {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+};
+
 const AdminOrders = () => {
   const queryClient = useQueryClient();
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
@@ -197,24 +205,24 @@ const AdminOrders = () => {
     const orderItems = order.order_items || [];
     const totalItems = orderItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
     
-    // Create formatted items list with clear separation
+    // Create formatted items list with clear separation (escape all user input to prevent XSS)
     const itemsList = orderItems.map((item: any, index: number) => `
       <div class="product-item">
         <div class="product-number">${index + 1}</div>
         <div class="product-details">
-          <div class="product-name">${item.product_name_ar}</div>
+          <div class="product-name">${escapeHtml(item.product_name_ar)}</div>
           <div class="product-info">
-            <span class="info-label">الحجم:</span> ${item.variant_size_ar}
+            <span class="info-label">الحجم:</span> ${escapeHtml(item.variant_size_ar)}
           </div>
           <div class="product-info">
-            <span class="info-label">السعر:</span> ${Math.round(item.price)} ${currency}
+            <span class="info-label">السعر:</span> ${Math.round(item.price)} ${escapeHtml(currency)}
           </div>
         </div>
         <div class="product-qty">
           <div class="qty-value">${item.quantity}</div>
           <div class="qty-label">قطعة</div>
         </div>
-        <div class="product-subtotal">${Math.round(item.subtotal)} ${currency}</div>
+        <div class="product-subtotal">${Math.round(item.subtotal)} ${escapeHtml(currency)}</div>
       </div>
     `).join('');
 
@@ -392,21 +400,21 @@ const AdminOrders = () => {
         </style>
       </head>
       <body>
-        <div class="header">${storeName}</div>
-        <div class="order-id">طلب #${order.id.slice(0, 8)}</div>
+        <div class="header">${escapeHtml(storeName)}</div>
+        <div class="order-id">طلب #${escapeHtml(order.id.slice(0, 8))}</div>
         
         <div class="customer-section">
           <div class="customer-row">
             <span class="customer-label">العميل:</span>
-            <span class="customer-value">${order.customer_name}</span>
+            <span class="customer-value">${escapeHtml(order.customer_name)}</span>
           </div>
           <div class="customer-row">
             <span class="customer-label">الهاتف:</span>
-            <span class="customer-value">${order.customer_phone}</span>
+            <span class="customer-value">${escapeHtml(order.customer_phone)}</span>
           </div>
           <div class="customer-row">
             <span class="customer-label">العنوان:</span>
-            <span class="customer-value">${order.customer_address}</span>
+            <span class="customer-value">${escapeHtml(order.customer_address)}</span>
           </div>
         </div>
         
@@ -421,28 +429,28 @@ const AdminOrders = () => {
         <div class="summary-section">
           <div class="summary-row">
             <span>المجموع الفرعي:</span>
-            <span>${Math.round(orderItems.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0))} ${currency}</span>
+            <span>${Math.round(orderItems.reduce((sum: number, item: any) => sum + Number(item.subtotal), 0))} ${escapeHtml(currency)}</span>
           </div>
           ${order.discount_amount && order.discount_amount > 0 ? `
             <div class="summary-row discount">
               <span>الخصم:</span>
-              <span>-${Math.round(order.discount_amount)} ${currency}</span>
+              <span>-${Math.round(order.discount_amount)} ${escapeHtml(currency)}</span>
             </div>
           ` : ''}
           <div class="summary-row">
             <span>التوصيل:</span>
-            <span>${order.shipping_amount && order.shipping_amount > 0 ? Math.round(order.shipping_amount) + ' ' + currency : 'مجاني'}</span>
+            <span>${order.shipping_amount && order.shipping_amount > 0 ? Math.round(order.shipping_amount) + ' ' + escapeHtml(currency) : 'مجاني'}</span>
           </div>
           <div class="summary-row total">
             <span>المجموع النهائي:</span>
-            <span>${Math.round(Number(order.total_amount))} ${currency}</span>
+            <span>${Math.round(Number(order.total_amount))} ${escapeHtml(currency)}</span>
           </div>
         </div>
         
         ${order.notes ? `
           <div class="notes-section">
             <div class="notes-label">ملاحظات العميل:</div>
-            <div>${order.notes}</div>
+            <div>${escapeHtml(order.notes)}</div>
           </div>
         ` : ''}
       </body>
