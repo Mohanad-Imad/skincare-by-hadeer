@@ -88,7 +88,7 @@ export default function ProblemSubCategories() {
       />
       <Navbar />
       
-      <main className="min-h-screen pt-24 pb-24 md:pb-12 px-4 bg-gradient-to-b from-background to-muted/20">
+      <main className="min-h-screen pt-24 pb-32 md:pb-12 px-4 bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-6xl mx-auto">
           {/* Back Button */}
           <button
