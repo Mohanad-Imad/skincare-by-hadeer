@@ -735,7 +735,7 @@ const Products = () => {
         </div>
 
         {/* Sort and Reset Row */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="hidden md:flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
               <SelectTrigger className="w-[160px]">
