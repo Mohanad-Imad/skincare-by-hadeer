@@ -13,7 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { User, MapPin, Phone, Mail, Package, ShoppingCart, Star, LogOut, Camera, RefreshCw } from "lucide-react";
+import { User, MapPin, Phone, Mail, Package, ShoppingCart, Star, LogOut, Camera, RefreshCw, Gift } from "lucide-react";
+import LoyaltyPointsCard from "@/components/LoyaltyPointsCard";
+import PointsTransactionHistory from "@/components/PointsTransactionHistory";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -440,6 +442,12 @@ export default function Profile() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Loyalty Points Section */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <LoyaltyPointsCard userId={session?.user?.id} />
+            <PointsTransactionHistory userId={session?.user?.id} />
+          </div>
 
           {/* Tabs Section */}
           <Tabs defaultValue="orders" className="w-full">

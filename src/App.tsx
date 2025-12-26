@@ -58,6 +58,7 @@ import AdminAnnouncementBar from "./pages/admin/AdminAnnouncementBar";
 import AdminWeeklyProduct from "./pages/admin/AdminWeeklyProduct";
 import AdminWeeklyBundle from "./pages/admin/AdminWeeklyBundle";
 import AdminUserNotifications from "./pages/admin/AdminUserNotifications";
+import AdminLoyaltyProgram from "./pages/admin/AdminLoyaltyProgram";
 import Inbox from "./pages/Inbox";
 import SubmitReview from "./pages/SubmitReview";
 import Profile from "./pages/Profile";
@@ -175,6 +176,7 @@ const App = () => (
                   <Route path="user-notifications" element={<AdminUserNotifications />} />
                   <Route path="weekly-product" element={<AdminWeeklyProduct />} />
                   <Route path="weekly-bundle" element={<AdminWeeklyBundle />} />
+                  <Route path="loyalty-program" element={<AdminLoyaltyProgram />} />
                 </Route>
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

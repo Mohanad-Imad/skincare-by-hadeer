@@ -822,6 +822,42 @@ export type Database = {
         }
         Relationships: []
       }
+      loyalty_settings: {
+        Row: {
+          created_at: string
+          currency_per_point: number
+          id: string
+          is_active: boolean
+          min_redemption_points: number
+          points_per_currency: number
+          redemption_rate: number
+          updated_at: string
+          welcome_bonus: number
+        }
+        Insert: {
+          created_at?: string
+          currency_per_point?: number
+          id?: string
+          is_active?: boolean
+          min_redemption_points?: number
+          points_per_currency?: number
+          redemption_rate?: number
+          updated_at?: string
+          welcome_bonus?: number
+        }
+        Update: {
+          created_at?: string
+          currency_per_point?: number
+          id?: string
+          is_active?: boolean
+          min_redemption_points?: number
+          points_per_currency?: number
+          redemption_rate?: number
+          updated_at?: string
+          welcome_bonus?: number
+        }
+        Relationships: []
+      }
       makeup_banner: {
         Row: {
           background_color: string | null
@@ -1042,6 +1078,8 @@ export type Database = {
           discount_code_id: string | null
           id: string
           notes: string | null
+          points_discount: number | null
+          points_used: number | null
           shipping_amount: number
           status: Database["public"]["Enums"]["order_status"] | null
           total_amount: number
@@ -1057,6 +1095,8 @@ export type Database = {
           discount_code_id?: string | null
           id?: string
           notes?: string | null
+          points_discount?: number | null
+          points_used?: number | null
           shipping_amount?: number
           status?: Database["public"]["Enums"]["order_status"] | null
           total_amount: number
@@ -1072,6 +1112,8 @@ export type Database = {
           discount_code_id?: string | null
           id?: string
           notes?: string | null
+          points_discount?: number | null
+          points_used?: number | null
           shipping_amount?: number
           status?: Database["public"]["Enums"]["order_status"] | null
           total_amount?: number
@@ -1084,6 +1126,47 @@ export type Database = {
             columns: ["discount_code_id"]
             isOneToOne: false
             referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      points_transactions: {
+        Row: {
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          order_id: string | null
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          order_id?: string | null
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          order_id?: string | null
+          points?: number
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -2206,6 +2289,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points: {
+        Row: {
+          created_at: string
+          id: string
+          total_earned: number
+          total_points: number
+          total_redeemed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_points?: number
+          total_redeemed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_points?: number
+          total_redeemed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -2374,6 +2487,10 @@ export type Database = {
         }[]
       }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      redeem_points: {
+        Args: { p_points: number; p_user_id: string }
+        Returns: number
+      }
       update_all_product_prices: {
         Args: {
           amount_to_add: number
