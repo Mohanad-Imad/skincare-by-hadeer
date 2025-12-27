@@ -23,7 +23,7 @@ const PointsRedemption = ({
   const { data: settings } = useLoyaltySettings();
   const { data: userPoints } = useUserPoints(userId);
   const { settings: storeSettings } = useStoreSettings();
-  const [selectedPoints, setSelectedPoints] = useState(appliedPoints);
+  const [selectedPoints, setSelectedPoints] = useState(appliedPoints || 0);
   const [isApplied, setIsApplied] = useState(appliedPoints > 0);
 
   if (!settings?.is_active || !userId) return null;

@@ -15,6 +15,7 @@ import { ArrowRight } from "lucide-react";
 import { useProductDiscounts, calculateDiscount } from "@/hooks/useProductDiscounts";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalCart } from "@/hooks/useLocalCart";
+import PointsRedemption from "@/components/PointsRedemption";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "الاسم يجب أن يكون حرفين على الأقل").max(100, "الاسم طويل جداً"),
@@ -37,6 +38,8 @@ const Checkout = () => {
   const [isCheckingCode, setIsCheckingCode] = useState(false);
   const [useDifferentAddress, setUseDifferentAddress] = useState(false);
   const [saveNewAddress, setSaveNewAddress] = useState(false);
+  const [pointsUsed, setPointsUsed] = useState(0);
+  const [pointsDiscount, setPointsDiscount] = useState(0);
   const lastDiscountAttempt = useRef<number>(0);
   const { data: discounts } = useProductDiscounts();
   const { localCart, clearLocalCart } = useLocalCart();
@@ -278,7 +281,7 @@ const Checkout = () => {
         }
       }
 
-      const totalAmount = subtotal - discountCodeAmount + shippingAmount;
+      const totalAmount = subtotal - discountCodeAmount - pointsDiscount + shippingAmount;
 
       // Create order - user_id يكون null للزوار
       const { data: order, error: orderError } = await supabase
@@ -293,10 +296,26 @@ const Checkout = () => {
           discount_code_id: appliedDiscount?.id || null,
           discount_amount: discountCodeAmount,
           shipping_amount: shippingAmount,
+          points_used: pointsUsed > 0 ? pointsUsed : null,
+          points_discount: pointsDiscount > 0 ? pointsDiscount : null,
           status: "new",
         })
         .select()
         .single();
+
+      // خصم النقاط من رصيد المستخدم إذا تم استخدامها
+      if (pointsUsed > 0 && session?.user?.id) {
+        // تحديث رصيد النقاط
+        const { error: pointsError } = await supabase.rpc('redeem_points', {
+          p_user_id: session.user.id,
+          p_points: pointsUsed
+        });
+
+        if (pointsError) {
+          console.error('Error redeeming points:', pointsError);
+          // لا نوقف الطلب، فقط نسجل الخطأ
+        }
+      }
 
       if (orderError) throw orderError;
 
@@ -413,7 +432,12 @@ const Checkout = () => {
     }
   }
 
-  const total = subtotal - discountAmount + shippingAmount;
+  const total = subtotal - discountAmount - pointsDiscount + shippingAmount;
+
+  const handlePointsApplied = (points: number, discount: number) => {
+    setPointsUsed(points);
+    setPointsDiscount(discount);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -551,6 +575,19 @@ const Checkout = () => {
               </div>
             </div>
 
+            {/* استبدال النقاط - فقط للمستخدمين المسجلين */}
+            {session?.user && (
+              <div className="rounded-lg border p-6">
+                <h2 className="mb-4 text-xl font-semibold">نقاط الولاء</h2>
+                <PointsRedemption
+                  userId={session.user.id}
+                  maxDiscount={subtotal - discountAmount}
+                  onPointsApplied={handlePointsApplied}
+                  appliedPoints={pointsUsed}
+                />
+              </div>
+            )}
+
             <div className="rounded-lg border p-6">
               <h2 className="mb-4 text-xl font-semibold">طريقة الدفع</h2>
               <div className="rounded-lg bg-secondary p-4 text-center">
@@ -573,6 +610,12 @@ const Checkout = () => {
                   <div className="flex justify-between">
                     <span className="opacity-90">الخصم ({appliedDiscount.discount_percentage}%)</span>
                     <span>-{Math.round(discountAmount)} د.ع</span>
+                  </div>
+                )}
+                {pointsDiscount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="opacity-90">خصم النقاط ({pointsUsed} نقطة)</span>
+                    <span>-{Math.round(pointsDiscount)} د.ع</span>
                   </div>
                 )}
                 <div className="flex justify-between">
