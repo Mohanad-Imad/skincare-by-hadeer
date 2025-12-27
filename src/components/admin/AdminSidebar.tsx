@@ -22,6 +22,8 @@ import {
   ShieldCheck,
   MessageCircle,
   Gift,
+  Coins,
+  PackageOpen,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -56,6 +58,8 @@ const menuItems = [
   { title: "أكواد الخصم", url: "/admin/discount-codes", icon: Percent },
   { title: "خصومات المنتجات", url: "/admin/product-discounts", icon: Tag },
   { title: "منتج الأسبوع", url: "/admin/weekly-product", icon: Gift },
+  { title: "مجموعة الأسبوع", url: "/admin/weekly-bundle", icon: PackageOpen },
+  { title: "برنامج الولاء", url: "/admin/loyalty-program", icon: Coins },
   { title: "إعدادات التوصيل", url: "/admin/shipping-settings", icon: Truck },
   { title: "إعدادات المتجر", url: "/admin/store-settings", icon: Settings },
   { title: "شريط الإعلانات", url: "/admin/announcement-bar", icon: RectangleHorizontal },
