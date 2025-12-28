@@ -24,13 +24,23 @@ const AdminAnalytics = () => {
       // إجمالي المبيعات (باستثناء الطلبات الملغية)
       const { data: orders } = await supabase
         .from("orders")
-        .select("total_amount, discount_amount, created_at")
+        .select("total_amount, discount_amount, shipping_amount, points_discount, created_at")
         .gte("created_at", daysAgo.toISOString())
         .neq("status", "cancelled");
 
+      // حساب الإجماليات
       const totalRevenue = orders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
       const totalDiscount = orders?.reduce((sum, order) => sum + Number(order.discount_amount || 0), 0) || 0;
+      const totalPointsDiscount = orders?.reduce((sum, order) => sum + Number(order.points_discount || 0), 0) || 0;
+      const totalShipping = orders?.reduce((sum, order) => sum + Number(order.shipping_amount || 0), 0) || 0;
       const totalOrders = orders?.length || 0;
+
+      // صافي المبيعات = إجمالي الإيرادات - رسوم التوصيل (لأن التوصيل يذهب لشركات التوصيل)
+      const netSales = totalRevenue - totalShipping;
+      
+      // صافي الأرباح = صافي المبيعات (بعد استثناء التوصيل)
+      // ملاحظة: الخصومات تم خصمها مسبقاً من total_amount
+      const netProfit = netSales;
 
       // عدد المنتجات المباعة (من الطلبات غير الملغية فقط)
       // جلب الطلبات غير الملغية أولاً
@@ -56,9 +66,12 @@ const AdminAnalytics = () => {
       return {
         totalRevenue,
         totalDiscount,
+        totalPointsDiscount,
+        totalShipping,
         totalOrders,
         totalProducts,
-        netRevenue: totalRevenue - totalDiscount,
+        netSales,
+        netProfit,
       };
     },
   });
@@ -121,7 +134,7 @@ const AdminAnalytics = () => {
 
       const { data } = await supabase
         .from("orders")
-        .select("total_amount, created_at")
+        .select("total_amount, shipping_amount, created_at")
         .gte("created_at", daysAgo.toISOString())
         .neq("status", "cancelled")
         .order("created_at", { ascending: true });
@@ -132,14 +145,17 @@ const AdminAnalytics = () => {
       const salesByDay = new Map();
       data.forEach((order) => {
         const date = new Date(order.created_at).toLocaleDateString("ar-IQ");
+        const netAmount = Number(order.total_amount) - Number(order.shipping_amount || 0);
         const existing = salesByDay.get(date);
         if (existing) {
-          existing.amount += Number(order.total_amount);
+          existing.amount += netAmount;
+          existing.grossAmount += Number(order.total_amount);
           existing.count += 1;
         } else {
           salesByDay.set(date, {
             date,
-            amount: Number(order.total_amount),
+            amount: netAmount,
+            grossAmount: Number(order.total_amount),
             count: 1,
           });
         }
@@ -272,7 +288,7 @@ const AdminAnalytics = () => {
         </div>
 
         {/* إحصائيات سريعة */}
-        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">إجمالي الإيرادات</CardTitle>
@@ -281,7 +297,33 @@ const AdminAnalytics = () => {
             <CardContent>
               <div className="text-2xl font-bold">{Math.round(stats?.totalRevenue || 0).toLocaleString()} د.ع</div>
               <p className="text-xs text-muted-foreground">
-                بعد الخصم: {Math.round(stats?.netRevenue || 0).toLocaleString()} د.ع
+                شامل التوصيل والخصومات
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-green-200 dark:border-green-800">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">صافي المبيعات</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-700 dark:text-green-400">{Math.round(stats?.netSales || 0).toLocaleString()} د.ع</div>
+              <p className="text-xs text-muted-foreground">
+                بدون رسوم التوصيل
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">رسوم التوصيل</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{Math.round(stats?.totalShipping || 0).toLocaleString()} د.ع</div>
+              <p className="text-xs text-muted-foreground">
+                تذهب لشركات التوصيل
               </p>
             </CardContent>
           </Card>
@@ -310,26 +352,13 @@ const AdminAnalytics = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">متوسط قيمة الطلب</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {Math.round((stats?.totalRevenue || 0) / (stats?.totalOrders || 1)).toLocaleString()} د.ع
-              </div>
-              <p className="text-xs text-muted-foreground">متوسط الطلب</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">أكواد الخصم المستخدمة</CardTitle>
+              <CardTitle className="text-sm font-medium">إجمالي الخصومات</CardTitle>
               <Ticket className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{discountStats?.length || 0}</div>
+              <div className="text-2xl font-bold text-red-600">{Math.round((stats?.totalDiscount || 0) + (stats?.totalPointsDiscount || 0)).toLocaleString()} د.ع</div>
               <p className="text-xs text-muted-foreground">
-                إجمالي الخصومات: {Math.round(stats?.totalDiscount || 0).toLocaleString()} د.ع
+                أكواد: {Math.round(stats?.totalDiscount || 0).toLocaleString()} | نقاط: {Math.round(stats?.totalPointsDiscount || 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
@@ -350,8 +379,9 @@ const AdminAnalytics = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="amount" stroke="#8b5cf6" name="المبيعات (د.ع)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="count" stroke="#10b981" name="عدد الطلبات" strokeWidth={2} />
+                  <Line type="monotone" dataKey="amount" stroke="#10b981" name="صافي المبيعات (د.ع)" strokeWidth={2} />
+                  <Line type="monotone" dataKey="grossAmount" stroke="#8b5cf6" name="الإجمالي (د.ع)" strokeWidth={2} strokeDasharray="5 5" />
+                  <Line type="monotone" dataKey="count" stroke="#f59e0b" name="عدد الطلبات" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
