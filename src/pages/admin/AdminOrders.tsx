@@ -88,6 +88,10 @@ const AdminOrders = () => {
         .from("orders")
         .select(`
           *,
+          discount_codes (
+            code,
+            discount_percentage
+          ),
           order_items (
             *,
             product_variants (
@@ -1108,8 +1112,20 @@ const AdminOrders = () => {
                             </div>
                             {order.discount_amount && order.discount_amount > 0 && (
                               <div className="flex justify-between text-green-600">
-                                <span>الخصم:</span>
+                                <span>
+                                  الخصم
+                                  {order.discount_codes?.code && (
+                                    <span className="text-xs mr-1">({order.discount_codes.code})</span>
+                                  )}
+                                  :
+                                </span>
                                 <span className="font-medium">-{Math.round(order.discount_amount)} د.ع</span>
+                              </div>
+                            )}
+                            {order.points_discount && order.points_discount > 0 && (
+                              <div className="flex justify-between text-blue-600">
+                                <span>خصم النقاط ({order.points_used} نقطة):</span>
+                                <span className="font-medium">-{Math.round(order.points_discount)} د.ع</span>
                               </div>
                             )}
                             <div className="flex justify-between">
@@ -1263,8 +1279,28 @@ const AdminOrders = () => {
                   </div>
                   {selectedOrder.discount_amount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>الخصم:</span>
+                      <span>
+                        الخصم
+                        {selectedOrder.discount_codes?.code && (
+                          <span className="text-xs mr-1 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded">
+                            كود: {selectedOrder.discount_codes.code}
+                          </span>
+                        )}
+                        :
+                      </span>
                       <span>-{Math.round(selectedOrder.discount_amount)} د.ع</span>
+                    </div>
+                  )}
+                  {selectedOrder.points_discount > 0 && (
+                    <div className="flex justify-between text-blue-600">
+                      <span>
+                        خصم النقاط
+                        <span className="text-xs mr-1 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                          {selectedOrder.points_used} نقطة
+                        </span>
+                        :
+                      </span>
+                      <span>-{Math.round(selectedOrder.points_discount)} د.ع</span>
                     </div>
                   )}
                   <div className="flex justify-between">
