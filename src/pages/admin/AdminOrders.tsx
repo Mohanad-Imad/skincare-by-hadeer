@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter, FileSpreadsheet, Eye } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Printer, FileDown, Filter, FileSpreadsheet, Eye, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState, useMemo } from "react";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
+import { OrderEditDialog } from "@/components/admin/OrderEditDialog";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,6 +81,7 @@ const AdminOrders = () => {
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [editingOrder, setEditingOrder] = useState<any>(null);
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -992,6 +994,17 @@ const AdminOrders = () => {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
+                      {(order.status === "new" || order.status === "processing") && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingOrder(order)}
+                          title="تعديل الطلب"
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -1325,10 +1338,32 @@ const AdminOrders = () => {
                   تصدير Excel
                 </Button>
               </div>
+              {(selectedOrder.status === "new" || selectedOrder.status === "processing") && (
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => {
+                      setSelectedOrder(null);
+                      setEditingOrder(selectedOrder);
+                    }} 
+                    className="flex-1"
+                  >
+                    <Pencil className="h-4 w-4 ml-2" />
+                    تعديل الطلب
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Order Edit Dialog */}
+      <OrderEditDialog
+        order={editingOrder}
+        open={!!editingOrder}
+        onOpenChange={(open) => !open && setEditingOrder(null)}
+      />
     </div>
   );
 };
