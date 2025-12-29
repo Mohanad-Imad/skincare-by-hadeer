@@ -26,6 +26,9 @@ import {
   Megaphone,
   Mail,
   Gift,
+  PackageOpen,
+  Coins,
+  Tag,
 } from "lucide-react";
 
 interface QuickAccessCard {
@@ -136,6 +139,18 @@ const AdminHome = () => {
       route: "/admin/weekly-product",
     },
     {
+      title: "مجموعة الأسبوع",
+      description: "باقة منتجات بسعر خاص",
+      icon: PackageOpen,
+      route: "/admin/weekly-bundle",
+    },
+    {
+      title: "برنامج الولاء",
+      description: "إدارة نقاط الولاء والمكافآت",
+      icon: Coins,
+      route: "/admin/loyalty-program",
+    },
+    {
       title: "إعدادات التوصيل",
       description: "تكوين خيارات التوصيل",
       icon: Truck,
@@ -210,13 +225,13 @@ const AdminHome = () => {
     {
       title: "ماركاتنا",
       description: "إدارة الماركات والعلامات",
-      icon: Star,
+      icon: Tag,
       route: "/admin/brands-links",
     },
     {
       title: "لمح للحبايب",
       description: "إدارة قسم لمح للحبايب",
-      icon: Star,
+      icon: MessageCircle,
       route: "/admin/drop-hint-settings",
     },
   ];
