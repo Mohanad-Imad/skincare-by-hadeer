@@ -4,12 +4,15 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { DollarSign, ShoppingCart, Package, TrendingUp, Ticket } from "lucide-react";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
+import { DollarSign, ShoppingCart, Package, TrendingUp, Ticket, Download, Users, Eye, Star, FileText } from "lucide-react";
+import { useState, useMemo } from "react";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
+import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
-const COLORS = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
+const COLORS = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6'];
 
 const AdminAnalytics = () => {
   const [timeRange, setTimeRange] = useState<string>("30");
@@ -232,13 +235,9 @@ const AdminAnalytics = () => {
         const code = discountCodes.find(dc => dc.id === order.discount_code_id);
         if (!code) return;
 
-        // حساب القيم بشكل صحيح:
-        // - totalSalesBeforeDiscount: المبيعات الأصلية قبل تطبيق الخصم
-        // - totalSalesAfterDiscount: المبيعات الفعلية بعد الخصم (ما دفعه العميل)
-        // - totalDiscount: إجمالي قيمة الخصم
-        const totalAmount = Number(order.total_amount); // المبلغ بعد الخصم
-        const discountAmount = Number(order.discount_amount || 0); // قيمة الخصم
-        const amountBeforeDiscount = totalAmount + discountAmount; // المبلغ قبل الخصم
+        const totalAmount = Number(order.total_amount);
+        const discountAmount = Number(order.discount_amount || 0);
+        const amountBeforeDiscount = totalAmount + discountAmount;
 
         const existing = statsMap.get(code.id);
         if (existing) {
@@ -264,27 +263,347 @@ const AdminAnalytics = () => {
     },
   });
 
+  // إحصائيات المستخدمين
+  const { data: userStats } = useQuery({
+    queryKey: ["user-stats", timeRange],
+    queryFn: async () => {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+
+      // عدد المستخدمين الجدد
+      const { count: newUsers } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", daysAgo.toISOString());
+
+      // إجمالي المستخدمين
+      const { count: totalUsers } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true });
+
+      // المستخدمين النشطين (لديهم طلبات)
+      const { data: activeUserOrders } = await supabase
+        .from("orders")
+        .select("user_id")
+        .gte("created_at", daysAgo.toISOString())
+        .not("user_id", "is", null);
+
+      const uniqueActiveUsers = new Set(activeUserOrders?.map(o => o.user_id) || []).size;
+
+      return {
+        newUsers: newUsers || 0,
+        totalUsers: totalUsers || 0,
+        activeUsers: uniqueActiveUsers,
+      };
+    },
+  });
+
+  // إحصائيات المنتجات
+  const { data: productStats } = useQuery({
+    queryKey: ["product-stats"],
+    queryFn: async () => {
+      // إجمالي المنتجات
+      const { count: totalProducts } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
+
+      // المنتجات بدون مخزون
+      const { data: outOfStock } = await supabase
+        .from("product_variants")
+        .select("product_id")
+        .eq("stock_quantity", 0);
+
+      const uniqueOutOfStock = new Set(outOfStock?.map(v => v.product_id) || []).size;
+
+      // المنتجات المميزة
+      const { count: featuredProducts } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("is_featured", true)
+        .eq("is_active", true);
+
+      return {
+        totalProducts: totalProducts || 0,
+        outOfStock: uniqueOutOfStock,
+        featuredProducts: featuredProducts || 0,
+      };
+    },
+  });
+
+  // إحصائيات التقييمات
+  const { data: reviewStats } = useQuery({
+    queryKey: ["review-stats", timeRange],
+    queryFn: async () => {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+
+      // تقييمات المنتجات
+      const { data: productReviews } = await supabase
+        .from("product_reviews")
+        .select("rating")
+        .gte("created_at", daysAgo.toISOString());
+
+      const avgProductRating = productReviews?.length
+        ? productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length
+        : 0;
+
+      // آراء العملاء
+      const { data: customerReviews } = await supabase
+        .from("customer_reviews")
+        .select("rating, status")
+        .gte("created_at", daysAgo.toISOString());
+
+      const pendingReviews = customerReviews?.filter(r => r.status === "pending").length || 0;
+
+      return {
+        totalProductReviews: productReviews?.length || 0,
+        avgProductRating: avgProductRating.toFixed(1),
+        totalCustomerReviews: customerReviews?.length || 0,
+        pendingReviews,
+      };
+    },
+  });
+
+  // إحصائيات الاستشارات
+  const { data: consultationStats } = useQuery({
+    queryKey: ["consultation-stats", timeRange],
+    queryFn: async () => {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
+
+      const { data } = await supabase
+        .from("consultations")
+        .select("status")
+        .gte("created_at", daysAgo.toISOString());
+
+      const pending = data?.filter(c => c.status === "pending").length || 0;
+      const responded = data?.filter(c => c.status === "responded").length || 0;
+
+      return {
+        total: data?.length || 0,
+        pending,
+        responded,
+      };
+    },
+  });
+
+  // بيانات المبيعات الشهرية للمقارنة
+  const { data: monthlySales } = useQuery({
+    queryKey: ["monthly-sales"],
+    queryFn: async () => {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      const { data } = await supabase
+        .from("orders")
+        .select("total_amount, shipping_amount, created_at")
+        .gte("created_at", sixMonthsAgo.toISOString())
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: true });
+
+      if (!data) return [];
+
+      const salesByMonth = new Map();
+      data.forEach((order) => {
+        const date = new Date(order.created_at);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        const monthName = date.toLocaleDateString("ar-IQ", { month: "short", year: "numeric" });
+        const netAmount = Number(order.total_amount) - Number(order.shipping_amount || 0);
+        
+        const existing = salesByMonth.get(monthKey);
+        if (existing) {
+          existing.amount += netAmount;
+          existing.count += 1;
+        } else {
+          salesByMonth.set(monthKey, {
+            month: monthName,
+            amount: netAmount,
+            count: 1,
+          });
+        }
+      });
+
+      return Array.from(salesByMonth.values());
+    },
+  });
+
+  // حساب متوسط قيمة الطلب
+  const averageOrderValue = useMemo(() => {
+    if (!stats?.totalOrders || stats.totalOrders === 0) return 0;
+    return Math.round(stats.netSales / stats.totalOrders);
+  }, [stats]);
+
+  // دالة تصدير التقرير إلى Excel
+  const exportToExcel = () => {
+    const workbook = XLSX.utils.book_new();
+
+    // ورقة الملخص العام
+    const summaryData = [
+      ["التقرير", `آخر ${timeRange} يوم`],
+      ["تاريخ التصدير", new Date().toLocaleDateString("ar-IQ")],
+      [""],
+      ["البيان", "القيمة"],
+      ["إجمالي الإيرادات", `${Math.round(stats?.totalRevenue || 0)} د.ع`],
+      ["صافي المبيعات", `${Math.round(stats?.netSales || 0)} د.ع`],
+      ["رسوم التوصيل", `${Math.round(stats?.totalShipping || 0)} د.ع`],
+      ["إجمالي الخصومات", `${Math.round((stats?.totalDiscount || 0) + (stats?.totalPointsDiscount || 0))} د.ع`],
+      ["عدد الطلبات", stats?.totalOrders || 0],
+      ["المنتجات المباعة", stats?.totalProducts || 0],
+      ["متوسط قيمة الطلب", `${averageOrderValue} د.ع`],
+    ];
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(workbook, summarySheet, "الملخص");
+
+    // ورقة المبيعات اليومية
+    if (dailySales && dailySales.length > 0) {
+      const dailyData = [
+        ["التاريخ", "صافي المبيعات (د.ع)", "الإجمالي (د.ع)", "عدد الطلبات"],
+        ...dailySales.map((day: any) => [day.date, Math.round(day.amount), Math.round(day.grossAmount), day.count]),
+      ];
+      const dailySheet = XLSX.utils.aoa_to_sheet(dailyData);
+      XLSX.utils.book_append_sheet(workbook, dailySheet, "المبيعات اليومية");
+    }
+
+    // ورقة المنتجات الأكثر مبيعاً
+    if (topProducts && topProducts.length > 0) {
+      const productsData = [
+        ["المنتج", "الكمية المباعة", "الإيرادات (د.ع)"],
+        ...topProducts.map((p: any) => [p.name, p.quantity, Math.round(p.revenue)]),
+      ];
+      const productsSheet = XLSX.utils.aoa_to_sheet(productsData);
+      XLSX.utils.book_append_sheet(workbook, productsSheet, "المنتجات الأكثر مبيعاً");
+    }
+
+    // ورقة أكواد الخصم
+    if (discountStats && discountStats.length > 0) {
+      const discountData = [
+        ["الكود", "نسبة الخصم", "عدد الاستخدامات", "المبيعات الأصلية (د.ع)", "إجمالي الخصومات (د.ع)", "المبيعات الفعلية (د.ع)"],
+        ...discountStats.map((d: any) => [
+          d.code,
+          `${d.percentage}%`,
+          d.usageCount,
+          Math.round(d.totalSalesBeforeDiscount),
+          Math.round(d.totalDiscount),
+          Math.round(d.totalSalesAfterDiscount),
+        ]),
+      ];
+      const discountSheet = XLSX.utils.aoa_to_sheet(discountData);
+      XLSX.utils.book_append_sheet(workbook, discountSheet, "أكواد الخصم");
+    }
+
+    // ورقة حالات الطلبات
+    if (orderStatus && orderStatus.length > 0) {
+      const statusData = [
+        ["الحالة", "العدد"],
+        ...orderStatus.map((s: any) => [s.name, s.value]),
+      ];
+      const statusSheet = XLSX.utils.aoa_to_sheet(statusData);
+      XLSX.utils.book_append_sheet(workbook, statusSheet, "حالات الطلبات");
+    }
+
+    // تحميل الملف
+    const fileName = `تقرير_التحليلات_${new Date().toLocaleDateString("ar-IQ").replace(/\//g, "-")}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+    toast.success("تم تحميل التقرير بنجاح");
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
       <div className="flex-1 p-8">
         <AdminBackButton />
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">التحليلات والإحصائيات</h1>
             <p className="text-muted-foreground">متابعة الأداء التجاري للموقع</p>
           </div>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">آخر 7 أيام</SelectItem>
-              <SelectItem value="30">آخر 30 يوم</SelectItem>
-              <SelectItem value="90">آخر 90 يوم</SelectItem>
-              <SelectItem value="365">آخر سنة</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-3">
+            <Button onClick={exportToExcel} variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              تحميل التقرير
+            </Button>
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">آخر 7 أيام</SelectItem>
+                <SelectItem value="30">آخر 30 يوم</SelectItem>
+                <SelectItem value="90">آخر 90 يوم</SelectItem>
+                <SelectItem value="365">آخر سنة</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* إحصائيات إضافية */}
+        <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <Card className="border-blue-200 dark:border-blue-800">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">متوسط قيمة الطلب</CardTitle>
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">{averageOrderValue.toLocaleString()} د.ع</div>
+              <p className="text-xs text-muted-foreground">لكل طلب</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">المستخدمين</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userStats?.totalUsers || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                جدد: {userStats?.newUsers || 0} | نشطين: {userStats?.activeUsers || 0}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">المنتجات</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{productStats?.totalProducts || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                نفذ: <span className="text-red-500">{productStats?.outOfStock || 0}</span> | مميز: {productStats?.featuredProducts || 0}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">التقييمات</CardTitle>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold flex items-center gap-1">
+                {reviewStats?.avgProductRating || 0}
+                <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                تقييمات: {reviewStats?.totalProductReviews || 0} | بانتظار: <span className="text-orange-500">{reviewStats?.pendingReviews || 0}</span>
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">الاستشارات</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{consultationStats?.total || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                بانتظار: <span className="text-orange-500">{consultationStats?.pending || 0}</span> | تمت: {consultationStats?.responded || 0}
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* إحصائيات سريعة */}
@@ -455,7 +774,29 @@ const AdminAnalytics = () => {
           </Card>
         </div>
 
-        {/* قسم إحصائيات أكواد الخصم */}
+        {/* مقارنة المبيعات الشهرية */}
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>المبيعات الشهرية</CardTitle>
+              <CardDescription>مقارنة المبيعات خلال آخر 6 أشهر</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={monthlySales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="amount" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} name="صافي المبيعات (د.ع)" />
+                  <Area type="monotone" dataKey="count" stroke="#10b981" fill="#10b981" fillOpacity={0.3} name="عدد الطلبات" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-6">إحصائيات أكواد الخصم</h2>
           
