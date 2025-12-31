@@ -183,26 +183,28 @@ const SharedCart = () => {
                     <h3 className="font-medium text-sm leading-tight line-clamp-1">
                       {item.productName}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {item.variantSize}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {item.variantSize}
+                      </p>
+                      {item.discountPercentage && item.discountPercentage > 0 && (
+                        <Badge variant="destructive" className="text-[9px] px-1 py-0 h-4">
+                          {item.discountPercentage}%-
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   {/* Price Section */}
                   <div className="flex flex-col items-end gap-0.5 text-left">
+                    {item.originalPrice && item.originalPrice > item.price && (
+                      <span className="text-[10px] text-muted-foreground line-through">
+                        {Math.round(item.originalPrice * item.quantity)} د.ع
+                      </span>
+                    )}
                     <span className="font-bold text-sm text-primary">
                       {Math.round(item.price * item.quantity)} د.ع
                     </span>
-                    {item.originalPrice && item.originalPrice > item.price && (
-                      <span className="text-[10px] text-muted-foreground line-through">
-                        {Math.round(item.originalPrice * item.quantity)}
-                      </span>
-                    )}
-                    {item.discountPercentage && item.discountPercentage > 0 && (
-                      <Badge variant="destructive" className="text-[9px] px-1 py-0 h-4">
-                        {item.discountPercentage}%-
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>
@@ -216,25 +218,25 @@ const SharedCart = () => {
           <div className="container">
             {/* Summary Row - compact on mobile */}
             <div className="flex items-center justify-between mb-3">
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-0.5">
                 <span className="text-xs sm:text-sm text-muted-foreground">
                   {cartItems.length} منتجات
                 </span>
                 {hasDiscount && (
-                  <span className="text-xs text-muted-foreground line-through">
-                    {Math.round(totalBeforeDiscount)} د.ع
-                  </span>
+                  <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 py-0.5 h-auto gap-0.5 w-fit">
+                    <Tag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    وفرت {Math.round(totalBeforeDiscount - total)} د.ع ({Math.round((totalBeforeDiscount - total) / totalBeforeDiscount * 100)}%)
+                  </Badge>
                 )}
               </div>
               <div className="text-left">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="text-lg sm:text-xl font-bold">{Math.round(total)} د.ع</span>
+                <div className="flex flex-col items-end gap-0.5">
                   {hasDiscount && (
-                    <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 py-0.5 h-auto gap-0.5">
-                      <Tag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                      <span className="hidden sm:inline">وفرت</span> {Math.round(totalBeforeDiscount - total)}
-                    </Badge>
+                    <span className="text-xs text-muted-foreground line-through">
+                      {Math.round(totalBeforeDiscount)} د.ع
+                    </span>
                   )}
+                  <span className="text-lg sm:text-xl font-bold">{Math.round(total)} د.ع</span>
                 </div>
               </div>
             </div>
