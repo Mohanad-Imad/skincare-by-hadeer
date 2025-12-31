@@ -153,11 +153,12 @@ const SharedCart = () => {
             <p className="text-muted-foreground">السلة فارغة</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {cartItems.map((item, index) => (
-              <div key={`${item.variantId}-${index}`} className="rounded-lg border p-4">
-                <div className="flex gap-4">
-                  <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded bg-secondary">
+              <div key={`${item.variantId}-${index}`} className="rounded-lg border p-3 sm:p-4">
+                <div className="flex gap-3 sm:gap-4">
+                  {/* Product Image - smaller on mobile */}
+                  <div className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-md bg-secondary">
                     {item.imageUrl ? (
                       <img
                         src={item.imageUrl}
@@ -171,29 +172,41 @@ const SharedCart = () => {
                     )}
                   </div>
 
-                  <div className="flex-1 space-y-1">
-                    <h3 className="font-semibold line-clamp-2">{item.productName}</h3>
-                    <p className="text-sm text-muted-foreground">{item.variantSize}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <p className="font-bold text-primary">
-                          {Math.round(item.price)} د.ع
-                        </p>
-                        {item.originalPrice && item.originalPrice > item.price && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground line-through">
-                              {Math.round(item.originalPrice)} د.ع
-                            </span>
-                            {item.discountPercentage && (
-                              <Badge variant="destructive" className="text-xs gap-1">
-                                <Tag className="h-3 w-3" />
-                                {item.discountPercentage}%-
-                              </Badge>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <Badge variant="secondary">الكمية: {item.quantity}</Badge>
+                  {/* Product Details */}
+                  <div className="flex-1 min-w-0">
+                    {/* Product Name */}
+                    <h3 className="font-semibold text-sm sm:text-base line-clamp-1 sm:line-clamp-2">
+                      {item.productName}
+                    </h3>
+                    
+                    {/* Size & Quantity - same row on mobile */}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs sm:text-sm text-muted-foreground truncate">
+                        {item.variantSize}
+                      </span>
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0.5 h-auto">
+                        ×{item.quantity}
+                      </Badge>
+                    </div>
+                    
+                    {/* Prices - stacked on mobile */}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-2">
+                      <span className="font-bold text-primary text-sm sm:text-base">
+                        {Math.round(item.price * item.quantity)} د.ع
+                      </span>
+                      {item.originalPrice && item.originalPrice > item.price && (
+                        <>
+                          <span className="text-xs text-muted-foreground line-through">
+                            {Math.round(item.originalPrice * item.quantity)} د.ع
+                          </span>
+                          {item.discountPercentage && (
+                            <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 py-0 h-5 gap-0.5">
+                              <Tag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                              {item.discountPercentage}%-
+                            </Badge>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -204,33 +217,40 @@ const SharedCart = () => {
       </div>
 
       {cartItems && cartItems.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-2xl p-4 z-50">
-          <div className="container space-y-3">
-            {hasDiscount && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">السعر قبل الخصم</span>
-                <span className="text-muted-foreground line-through">{Math.round(totalBeforeDiscount)} د.ع</span>
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">المجموع بعد الخصم</span>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold">{Math.round(total)} د.ع</span>
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-2xl p-3 sm:p-4 z-50">
+          <div className="container">
+            {/* Summary Row - compact on mobile */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-col">
+                <span className="text-xs sm:text-sm text-muted-foreground">
+                  {cartItems.length} منتجات
+                </span>
                 {hasDiscount && (
-                  <Badge variant="destructive" className="gap-1">
-                    <Tag className="h-3 w-3" />
-                    وفرت {Math.round(totalBeforeDiscount - total)} د.ع
-                  </Badge>
+                  <span className="text-xs text-muted-foreground line-through">
+                    {Math.round(totalBeforeDiscount)} د.ع
+                  </span>
                 )}
               </div>
+              <div className="text-left">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-lg sm:text-xl font-bold">{Math.round(total)} د.ع</span>
+                  {hasDiscount && (
+                    <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 py-0.5 h-auto gap-0.5">
+                      <Tag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <span className="hidden sm:inline">وفرت</span> {Math.round(totalBeforeDiscount - total)}
+                    </Badge>
+                  )}
+                </div>
+              </div>
             </div>
+            
             <Button
-              size="lg"
-              className="w-full gap-2"
+              size="default"
+              className="w-full gap-2 h-11 sm:h-12"
               onClick={() => addToCartMutation.mutate(cartItems)}
               disabled={addToCartMutation.isPending}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               {addToCartMutation.isPending ? "جاري الإضافة..." : "إضافة الكل إلى سلتي"}
             </Button>
           </div>
