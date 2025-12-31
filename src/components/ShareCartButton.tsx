@@ -19,6 +19,8 @@ interface CartItem {
   variantId: string;
   variantSize: string;
   price: number;
+  originalPrice?: number;
+  discountPercentage?: number;
   quantity: number;
   imageUrl?: string;
 }

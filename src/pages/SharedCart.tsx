@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, ArrowRight, Package, AlertCircle } from "lucide-react";
+import { ShoppingCart, ArrowRight, Package, AlertCircle, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { useLocalCart } from "@/hooks/useLocalCart";
 
@@ -14,6 +14,8 @@ interface SharedCartItem {
   variantId: string;
   variantSize: string;
   price: number;
+  originalPrice?: number;
+  discountPercentage?: number;
   quantity: number;
   imageUrl?: string;
 }
@@ -93,6 +95,8 @@ const SharedCart = () => {
 
   const cartItems = sharedCart?.cart_items as unknown as SharedCartItem[] | undefined;
   const total = cartItems?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
+  const totalBeforeDiscount = cartItems?.reduce((sum, item) => sum + (item.originalPrice || item.price) * item.quantity, 0) || 0;
+  const hasDiscount = totalBeforeDiscount > total;
 
   if (isLoading) {
     return (
@@ -171,9 +175,24 @@ const SharedCart = () => {
                     <h3 className="font-semibold line-clamp-2">{item.productName}</h3>
                     <p className="text-sm text-muted-foreground">{item.variantSize}</p>
                     <div className="flex items-center justify-between">
-                      <p className="font-bold text-primary">
-                        {Math.round(item.price)} د.ع
-                      </p>
+                      <div className="flex flex-col">
+                        <p className="font-bold text-primary">
+                          {Math.round(item.price)} د.ع
+                        </p>
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground line-through">
+                              {Math.round(item.originalPrice)} د.ع
+                            </span>
+                            {item.discountPercentage && (
+                              <Badge variant="destructive" className="text-xs gap-1">
+                                <Tag className="h-3 w-3" />
+                                {item.discountPercentage}%-
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <Badge variant="secondary">الكمية: {item.quantity}</Badge>
                     </div>
                   </div>
@@ -187,9 +206,23 @@ const SharedCart = () => {
       {cartItems && cartItems.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-2xl p-4 z-50">
           <div className="container space-y-3">
+            {hasDiscount && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">السعر قبل الخصم</span>
+                <span className="text-muted-foreground line-through">{Math.round(totalBeforeDiscount)} د.ع</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">المجموع</span>
-              <span className="text-xl font-bold">{Math.round(total)} د.ع</span>
+              <span className="text-muted-foreground">المجموع بعد الخصم</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold">{Math.round(total)} د.ع</span>
+                {hasDiscount && (
+                  <Badge variant="destructive" className="gap-1">
+                    <Tag className="h-3 w-3" />
+                    وفرت {Math.round(totalBeforeDiscount - total)} د.ع
+                  </Badge>
+                )}
+              </div>
             </div>
             <Button
               size="lg"

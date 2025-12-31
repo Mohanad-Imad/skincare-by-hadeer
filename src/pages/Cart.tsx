@@ -293,17 +293,34 @@ const Cart = () => {
         <div className="container py-8 pb-52">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">سلة التسوق</h1>
-            {localCartItems && localCartItems.length > 0 && (
+{localCartItems && localCartItems.length > 0 && (
               <ShareCartButton
-                cartItems={localCartItems.map(item => ({
-                  productId: item.products.id,
-                  productName: item.products.name_ar,
-                  variantId: item.id,
-                  variantSize: item.size_ar,
-                  price: item.price,
-                  quantity: item.quantity,
-                  imageUrl: item.products.image_url || undefined,
-                }))}
+                cartItems={localCartItems.map(item => {
+                  const discount = calculateDiscount(item.products.id, item.price, discounts);
+                  const priceInfo = calculateItemPriceWithQuantity(item.products.id, item.id, item.price, item.quantity);
+                  const finalPrice = priceInfo.isWeeklyBundle 
+                    ? priceInfo.specialPrice 
+                    : priceInfo.isWeeklyDeal 
+                      ? priceInfo.specialPrice 
+                      : (discount ? discount.discountedPrice : item.price);
+                  const discountPercentage = priceInfo.isWeeklyBundle 
+                    ? Math.round(((item.price - priceInfo.specialPrice) / item.price) * 100)
+                    : priceInfo.isWeeklyDeal
+                      ? Math.round(((item.price - priceInfo.specialPrice) / item.price) * 100)
+                      : discount?.percentage;
+                  
+                  return {
+                    productId: item.products.id,
+                    productName: item.products.name_ar,
+                    variantId: item.id,
+                    variantSize: item.size_ar,
+                    price: finalPrice,
+                    originalPrice: finalPrice !== item.price ? item.price : undefined,
+                    discountPercentage: discountPercentage,
+                    quantity: item.quantity,
+                    imageUrl: item.products.image_url || undefined,
+                  };
+                })}
               />
             )}
           </div>
@@ -548,17 +565,37 @@ const Cart = () => {
         </Button>
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">سلة التسوق</h1>
-          {cartItems && cartItems.length > 0 && (
+{cartItems && cartItems.length > 0 && (
             <ShareCartButton
-              cartItems={cartItems.map(item => ({
-                productId: item.product_variants.products.id,
-                productName: item.product_variants.products.name_ar,
-                variantId: item.product_variant_id,
-                variantSize: item.product_variants.size_ar,
-                price: item.product_variants.price,
-                quantity: item.quantity,
-                imageUrl: item.product_variants.products.image_url || undefined,
-              }))}
+              cartItems={cartItems.map(item => {
+                const productId = item.product_variants.products.id;
+                const variantId = item.product_variant_id;
+                const originalPrice = item.product_variants.price;
+                const discount = calculateDiscount(productId, originalPrice, discounts);
+                const priceInfo = calculateItemPriceWithQuantity(productId, variantId, originalPrice, item.quantity);
+                const finalPrice = priceInfo.isWeeklyBundle 
+                  ? priceInfo.specialPrice 
+                  : priceInfo.isWeeklyDeal 
+                    ? priceInfo.specialPrice 
+                    : (discount ? discount.discountedPrice : originalPrice);
+                const discountPercentage = priceInfo.isWeeklyBundle 
+                  ? Math.round(((originalPrice - priceInfo.specialPrice) / originalPrice) * 100)
+                  : priceInfo.isWeeklyDeal
+                    ? Math.round(((originalPrice - priceInfo.specialPrice) / originalPrice) * 100)
+                    : discount?.percentage;
+                
+                return {
+                  productId: productId,
+                  productName: item.product_variants.products.name_ar,
+                  variantId: variantId,
+                  variantSize: item.product_variants.size_ar,
+                  price: finalPrice,
+                  originalPrice: finalPrice !== originalPrice ? originalPrice : undefined,
+                  discountPercentage: discountPercentage,
+                  quantity: item.quantity,
+                  imageUrl: item.product_variants.products.image_url || undefined,
+                };
+              })}
             />
           )}
         </div>
