@@ -153,61 +153,56 @@ const SharedCart = () => {
             <p className="text-muted-foreground">السلة فارغة</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {cartItems.map((item, index) => (
-              <div key={`${item.variantId}-${index}`} className="rounded-lg border p-3 sm:p-4">
-                <div className="flex gap-3 sm:gap-4">
-                  {/* Product Image - smaller on mobile */}
-                  <div className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-md bg-secondary">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.productName}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                        بدون صورة
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="flex-1 min-w-0">
-                    {/* Product Name */}
-                    <h3 className="font-semibold text-sm sm:text-base line-clamp-1 sm:line-clamp-2">
-                      {item.productName}
-                    </h3>
-                    
-                    {/* Size & Quantity - same row on mobile */}
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs sm:text-sm text-muted-foreground truncate">
-                        {item.variantSize}
-                      </span>
-                      <Badge variant="secondary" className="text-xs px-1.5 py-0.5 h-auto">
-                        ×{item.quantity}
-                      </Badge>
-                    </div>
-                    
-                    {/* Prices - stacked on mobile */}
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-2">
-                      <span className="font-bold text-primary text-sm sm:text-base">
-                        {Math.round(item.price * item.quantity)} د.ع
-                      </span>
-                      {item.originalPrice && item.originalPrice > item.price && (
-                        <>
-                          <span className="text-xs text-muted-foreground line-through">
-                            {Math.round(item.originalPrice * item.quantity)} د.ع
-                          </span>
-                          {item.discountPercentage && (
-                            <Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 py-0 h-5 gap-0.5">
-                              <Tag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                              {item.discountPercentage}%-
-                            </Badge>
-                          )}
-                        </>
+              <div key={`${item.variantId}-${index}`} className="rounded-xl border bg-card overflow-hidden">
+                <div className="flex items-center gap-3 p-2.5 sm:p-3">
+                  {/* Product Image */}
+                  <div className="relative h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0">
+                    <div className="h-full w-full overflow-hidden rounded-lg bg-muted">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.productName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Package className="h-5 w-5 text-muted-foreground/50" />
+                        </div>
                       )}
                     </div>
+                    {/* Quantity Badge */}
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm">
+                      {item.quantity}
+                    </span>
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <h3 className="font-medium text-sm leading-tight line-clamp-1">
+                      {item.productName}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {item.variantSize}
+                    </p>
+                  </div>
+
+                  {/* Price Section */}
+                  <div className="flex flex-col items-end gap-0.5 text-left">
+                    <span className="font-bold text-sm text-primary">
+                      {Math.round(item.price * item.quantity)} د.ع
+                    </span>
+                    {item.originalPrice && item.originalPrice > item.price && (
+                      <span className="text-[10px] text-muted-foreground line-through">
+                        {Math.round(item.originalPrice * item.quantity)}
+                      </span>
+                    )}
+                    {item.discountPercentage && item.discountPercentage > 0 && (
+                      <Badge variant="destructive" className="text-[9px] px-1 py-0 h-4">
+                        {item.discountPercentage}%-
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
