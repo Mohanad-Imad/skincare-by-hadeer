@@ -69,6 +69,7 @@ import Favorites from "./pages/Favorites";
 import RoutineBuilder from "./pages/RoutineBuilder";
 import ProductReviewsPage from "./pages/ProductReviews";
 import Offers from "./pages/Offers";
+import InfluencerStats from "./pages/InfluencerStats";
 import ScrollToTop from "./components/ScrollToTop";
 import { DynamicTheme } from "./components/DynamicTheme";
 import { DynamicMetadata } from "./components/DynamicMetadata";
@@ -142,6 +143,7 @@ const App = () => (
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/offers" element={<Offers />} />
+                <Route path="/influencer/:codeId" element={<InfluencerStats />} />
                 <Route path="/admin/consultations/print/:id" element={<AdminConsultationPrint />} />
                 <Route path="/admin" element={<AdminDashboard />}>
                   <Route index element={<AdminHome />} />

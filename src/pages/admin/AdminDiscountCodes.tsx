@@ -21,13 +21,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Link, Copy, Check } from "lucide-react";
 import { AdminBackButton } from "@/components/admin/AdminBackButton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const AdminDiscountCodes = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCode, setEditingCode] = useState<any>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     code: "",
     discount_percentage: "",
@@ -35,6 +37,22 @@ const AdminDiscountCodes = () => {
     valid_until: "",
     is_active: true,
   });
+
+  const getInfluencerStatsUrl = (codeId: string) => {
+    return `${window.location.origin}/influencer/${codeId}`;
+  };
+
+  const handleCopyLink = async (codeId: string) => {
+    const url = getInfluencerStatsUrl(codeId);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(codeId);
+      toast.success("تم نسخ الرابط بنجاح");
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      toast.error("فشل نسخ الرابط");
+    }
+  };
 
   const { data: discountCodes, isLoading } = useQuery({
     queryKey: ["admin-discount-codes"],
@@ -301,6 +319,25 @@ const AdminDiscountCodes = () => {
                 </TableCell>
                 <TableCell className="text-left">
                   <div className="flex gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCopyLink(code.id)}
+                          className="relative"
+                        >
+                          {copiedId === code.id ? (
+                            <Check className="h-4 w-4 text-green-600" />
+                          ) : (
+                            <Link className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>نسخ رابط الإحصائيات للمؤثر</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Button
                       variant="outline"
                       size="sm"
