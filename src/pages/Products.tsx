@@ -815,7 +815,7 @@ const Products = () => {
         ) : (
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
