@@ -149,6 +149,7 @@ const Index = () => {
       <WeeklyProductPopup />
       <LiveActivityFeed />
 
+      <main>
       {/* Search Bar */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-4 pb-1 md:pb-2 max-w-[1920px] mx-auto">
         <SearchBar />
@@ -343,6 +344,7 @@ const Index = () => {
         </section>
       )}
 
+      </main>
       <Footer />
     </div>
   );

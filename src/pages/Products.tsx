@@ -384,7 +384,7 @@ const Products = () => {
         structuredData={structuredData}
       />
       <Navbar />
-      <div className="container py-4 md:py-8">
+      <main className="container py-4 md:py-8">
         <h1 className="mb-4 md:mb-8 text-2xl md:text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Mobile: Search + Filter Button */}
