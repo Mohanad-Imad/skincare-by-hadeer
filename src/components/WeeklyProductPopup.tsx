@@ -35,7 +35,7 @@ interface TimeLeft {
 const WeeklyProductPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { settings: storeSettings } = useStoreSettings();
 
   // Fetch weekly product

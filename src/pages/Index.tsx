@@ -139,7 +139,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30">
       <SEO
-        title="الصفحة الرئيسية - منتجات العناية بالبشرة ومستحضرات التجميل"
+        title="منتجات العناية بالبشرة والتجميل"
         description="اكتشفي أفضل منتجات العناية بالبشرة ومستحضرات التجميل في العراق. منتجات أصلية، أسعار منافسة، توصيل سريع في بغداد وجميع المحافظات العراقية."
         keywords="مستحضرات تجميل العراق، منتجات العناية بالبشرة بغداد، مستحضرات تجميل اون لاين العراق، متجر مستحضرات تجميل، عناية بالبشرة، كريمات البشرة، منتجات تجميل اصلية"
         structuredData={structuredData}
@@ -149,6 +149,7 @@ const Index = () => {
       <WeeklyProductPopup />
       <LiveActivityFeed />
 
+      <main>
       {/* Search Bar */}
       <section className="w-full px-3 md:px-6 xl:px-8 2xl:px-12 py-2 md:py-4 pb-1 md:pb-2 max-w-[1920px] mx-auto">
         <SearchBar />
@@ -343,6 +344,7 @@ const Index = () => {
         </section>
       )}
 
+      </main>
       <Footer />
     </div>
   );

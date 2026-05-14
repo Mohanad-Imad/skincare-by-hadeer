@@ -378,13 +378,13 @@ const Products = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="جميع المنتجات - مستحضرات التجميل والعناية بالبشرة"
+        title="جميع المنتجات"
         description="تصفحي أكبر مجموعة من منتجات العناية بالبشرة ومستحضرات التجميل في العراق. منتجات أصلية من أفضل العلامات التجارية العالمية بأسعار تنافسية."
         keywords="شراء مستحضرات تجميل، متجر مستحضرات تجميل اون لاين، منتجات العناية بالبشرة العراق، كريمات البشرة، سيروم، تونر، مرطبات"
         structuredData={structuredData}
       />
       <Navbar />
-      <div className="container py-4 md:py-8">
+      <main className="container py-4 md:py-8">
         <h1 className="mb-4 md:mb-8 text-2xl md:text-3xl font-bold">جميع المنتجات</h1>
 
         {/* Mobile: Search + Filter Button */}
@@ -815,7 +815,7 @@ const Products = () => {
         ) : (
           <div className="text-center text-muted-foreground">لا توجد منتجات</div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
