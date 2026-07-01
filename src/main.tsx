@@ -2,18 +2,14 @@ import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "next-themes";
 import App from "./App.tsx";
 import "./index.css";
-import { registerSW } from 'virtual:pwa-register';
 
-// Register service worker
-registerSW({ 
-  immediate: true,
-  onNeedRefresh() {
-    console.log('New content available, please refresh.');
-  },
-  onOfflineReady() {
-    console.log('App ready to work offline.');
-  },
-});
+// Unregister any previously-installed service workers so returning users
+// stop being served stale precached HTML (was causing white-screen on load).
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    regs.forEach((r) => r.unregister());
+  }).catch(() => {});
+}
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
